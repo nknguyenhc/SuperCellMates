@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:sweet_cookie_jar/sweet_cookie_jar.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:supercellmates/router/router.gr.dart';
 
@@ -21,11 +23,11 @@ class HomePageState extends State<HomePage> {
           actions: [
             IconButton(
               onPressed: () async {
-                HttpClient client = HttpClient();
-                HttpClientRequest request = await client.get('127.0.0.1', 8000, '/');
-                HttpClientResponse response = await request.close();
-                final stringData = await response.transform(utf8.decoder).join();
-                print(stringData);
+                String uri = "http://127.0.0.1/8000";
+                SweetCookieJar cookies = SweetCookieJar.from(
+                    response: await http.get(Uri.parse(uri)));
+                Cookie cookie = cookies.find(name: 'csrftoken');
+                print(cookie);
               },
 
               //AutoRouter.of(context).push(const FriendRequestRoute()),
