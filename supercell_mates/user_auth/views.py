@@ -57,6 +57,8 @@ def register_async(request):
         data = loads(request.body.decode('utf-8'))
         username = data["username"]
         password = data["password"]
+        if username == '' or password == '': # this only serve as a backup, checking empty fields should be done in front end
+            return JsonResponse({"message": "username or password is empty"})
 
         try:
             user = UserAuth.objects.create_user(username=username, password=password)
@@ -71,6 +73,10 @@ def register(request):
     if request.method == "POST":
         username = request.POST["username"]
         password = request.POST["password"]
+        if username == '' or password == '':
+            return render(request, "user_auth/register.html", {
+                "error_message": "username or password is empty"
+            })
 
         try:
             user = UserAuth.objects.create_user(username=username, password=password)
