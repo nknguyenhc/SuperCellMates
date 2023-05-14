@@ -9,7 +9,10 @@ from .models import UserAuth
 
 def home(request):
     if not request.user.is_authenticated:
-        return redirect(reverse("user_auth:login"))
+        response = redirect(reverse("user_auth:login"))
+        print(request.environ.get("HTTP_ORIGIN"))
+        response.headers["Access-Control-Allow-Origin"] = request.environ.get("HTTP_ORIGIN")
+        return response
     else:
         return render(request, "user_auth/home.html")
 
