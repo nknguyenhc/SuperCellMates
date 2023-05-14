@@ -4,6 +4,8 @@ from django.db import IntegrityError
 from django.http import HttpResponse, JsonResponse
 from json import loads
 from .models import UserAuth
+from django.views.decorators.csrf import ensure_csrf_cookie
+
 
 # Create your views here.
 
@@ -16,7 +18,7 @@ def home(request):
     else:
         return render(request, "user_auth/home.html")
 
-
+@ensure_csrf_cookie
 def home_async(request):
     if not request.user.is_authenticated:
         return JsonResponse({"message": "not logged in"})
@@ -26,7 +28,7 @@ def home_async(request):
 
 def login_async(request):
     if request.method == "POST":
-        data = loads(request.body.decode('utf-8'))
+        data = request.POST
         username = data["username"]
         password = data["password"]
         user = authenticate(request, username=username, password=password)
@@ -57,7 +59,7 @@ def login_user(request):
 
 def register_async(request):
     if request.method == "POST":
-        data = loads(request.body.decode('utf-8'))
+        data = request.POST
         username = data["username"]
         password = data["password"]
         if username == '' or password == '': # this only serve as a backup, checking empty fields should be done in front end
