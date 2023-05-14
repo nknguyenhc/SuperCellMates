@@ -5,12 +5,16 @@
 {% endblock %} 
 
 {% block script %} 
-    <script src="/static/script/register.js"></script>
+    <script src="/static/script/user_auth/register.js"></script>
 {% endblock %} 
 
 {% block body %} 
     <form action="{% url 'user_auth:register' %}" method="POST" id="register-form">
         {% csrf_token %} 
+        <div>
+            <label>Name: </label>
+            <input type="text" name="name" id="name">
+        </div>
         <div>
             <label>Username: </label>
             <input type="text" name="username" id="username">

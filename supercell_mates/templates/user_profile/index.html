@@ -1,0 +1,22 @@
+{% extends 'layout.html' %} 
+
+{% block title %} 
+    <title>Your Profile</title>
+{% endblock %} 
+
+{% block body %} 
+    <div>
+        <div>
+            <label>Name: </label>
+            <p>{{ user_profile.name }}</p>
+        </div>
+        <div>
+            <label>Username: </label>
+            <p>{{ user_profile.user_auth.username }}</p>
+        </div>
+        <div>
+            <label>Tags: </label>
+            <p>{{ user_profile.tagList }}</p>
+        </div>
+    </div>
+{% endblock %} 
