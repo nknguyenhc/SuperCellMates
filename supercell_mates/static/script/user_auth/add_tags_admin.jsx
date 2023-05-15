@@ -1,33 +1,57 @@
 function AddTagsAdmin() {
-    const [tag1, setTag1] = React.useState("");
-    const [tag2, setTag2] = React.useState("");
+    const [requests, setRequests] = React.useState([]);
+    const [fetched, setFetched] = React.useState(false);
 
-    fetch('/obtain_tag_requests').then(response => response.json()).then(response => console.log(response));
-
-    function submitTags(event) {
-        event.preventDefault();
-        let tags = {
-            0: tag1,
-            1: tag2
-        };
-        fetch("/add_tags_admin", postRequestContent({
-            count: 2,
-            tags: tags
-        }))
+    if (!fetched) {
+        setFetched(true);
+        fetch('/obtain_tag_requests')
             .then(response => response.json())
-            .then(response => console.log(response));
+            .then(response => setRequests(response.tag_requests));
+    }
+
+    function submitTag(tag_request_id, tag) {
+        fetch('/add_tag_admin', postRequestContent({
+            tag_request_id: tag_request_id,
+            tag: tag
+        }));
+        setRequests(requests.filter(request => request.id != tag_request_id));
+    }
+
+    function removeRequest(tag_request_id) {
+        fetch('/remove_tag_request', postRequestContent({
+            tag_request_id: tag_request_id
+        }));
+        setRequests(requests.filter(request => request.id != tag_request_id));
     }
 
     return (
-        <form onSubmit={submitTags}>
-            <input type="text" onChange={event => {
-                setTag1(event.target.value);
-            }}></input>
-            <input type="text" onChange={event => {
-                setTag2(event.target.value);
-            }}></input>
-            <input type="submit" value="Add Tags"></input>
-        </form>
+        <React.Fragment>
+            <table className="table table-striped table-hover table-bordered border-primary">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Tag</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {requests.map(request => (
+                        <tr>
+                            <th scope="row">{request.id}</th>
+                            <td>{request.name}</td>
+                            <td>
+                                <button type="button" class="btn btn-success" onClick={() => {
+                                    submitTag(request.id, request.name);
+                                }}>Approve</button>
+                                <button type="button" class="btn btn-danger" onClick={() => {
+                                    removeRequest(request.id);
+                                }}>Reject</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </React.Fragment>
     );
 }
 

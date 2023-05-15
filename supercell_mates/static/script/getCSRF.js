@@ -19,3 +19,17 @@ function postRequestContent(dict) {
         body: JSON.stringify(dict)
     };
 }
+
+function postFileContent(dict) {
+    const formData = new FormData();
+    for (key in dict) {
+        formData.append(key, dict[key]);
+    }
+    return {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCSRF()
+        },
+        body: formData
+    }
+}

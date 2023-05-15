@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from json import loads
 from .models import UserProfile
+from user_auth.models import UserAuth, Tag
 
 
 def index(request):
@@ -12,31 +13,41 @@ def index(request):
         })
 
 
-def add_tags(request):
+def set_tags(request):
     if request.method == "POST" and request.user.is_authenticated:
-        user_profile_obj = UserProfile.objects.filter(user_auth=request.user).get()
+        user_profile_obj = request.user.user_profile
         data = loads(request.body.decode('utf-8'))
         count = data["count"]
+        user_profile_obj.tagList.clear()
         for i in range(count):
-            if user_profile_obj.tagList == "":
-                user_profile_obj.tagList = data["tags"][str(i)]
-            else:
-                user_profile_obj.tagList += "," + data["tags"][str(i)]
-        user_profile_obj.save()
+            user_profile_obj.tagList.add(Tag.objects.get(id=data["tags"][i]))
         return JsonResponse({"message": "success"})
 
 
 def setup(request):
+    return render(request, "user_profile/setup.html")
+    
+
+def obtain_tags(request):
+    if request.user.is_authenticated:
+        user_profile = request.user.user_profile
+        tagList = set(user_profile.tagList.all())
+        tags = list(Tag.objects.all())
+        tags = list(map(lambda tag: {
+            "tag_id": tag.id,
+            "tag_name": tag.name,
+            "in": tag in tagList
+        }, tags))
+        return JsonResponse({
+            "tags": tags
+        })
+
+
+def set_profile_image(request):
     if request.method == "POST" and request.user.is_authenticated:
-        data = loads(request.body.decode('utf-8'))
-        user_profile_obj = UserProfile.objects.filter(user_auth=request.user).get()
-        count = data["count"]
-        for i in range(count):
-            if user_profile_obj.tagList == "":
-                user_profile.obj.tagList = data["tags"][str(i)]
-            else:
-                user_profile_obj.tagList += "," + data["tags"][str(i)]
+        user_profile_obj = request.user.user_profile
+        print(request.FILES)
+        img = request.FILES["img"]
+        user_profile_obj.profile_pic = img
         user_profile_obj.save()
         return JsonResponse({"message": "success"})
-    return render(request, "user_profile/setup.html")
-            

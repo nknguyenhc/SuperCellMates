@@ -65,7 +65,7 @@ def register_async(request):
 
         try:
             user = UserAuth.objects.create_user(username=username, password=password)
-            user_profile_obj = UserProfile(name=name, user_auth=user, tagList="")
+            user_profile_obj = UserProfile(name=name, user_auth=user)
             user_profile_obj.save()
             login(request, user)
         except IntegrityError:
@@ -86,7 +86,7 @@ def register(request):
 
         try:
             user = UserAuth.objects.create_user(username=username, password=password)
-            user_profile_obj = UserProfile(name=name, user_auth=user, tagList="")
+            user_profile_obj = UserProfile(name=name, user_auth=user)
             user_profile_obj.save()
             login(request, user)
         except IntegrityError:
@@ -109,16 +109,27 @@ def logout_async(request):
     return JsonResponse({"message": "logged out"})
 
 
-def add_tags_admin(request):
+def add_tag_admin(request):
     if request.user.is_superuser:
         if request.method == "POST":
             data = loads(request.body.decode("utf-8"))
+            tag_request_id = data["tag_request_id"]
+            TagRequest.objects.get(id=tag_request_id).delete()
             tagName = data["tag"]
             tag = Tag(name=tagName)
             tag.save()
             return JsonResponse({"message": "success"})
         else:
             return render(request, "user_auth/add_tags_admin.html")
+
+
+def remove_tag_request(request):
+    if request.user.is_superuser:
+        if request.method == "POST":
+            data = loads(request.body.decode("utf-8"))
+            tag_request_id = data["tag_request_id"]
+            TagRequest.objects.get(id=tag_request_id).delete()
+            return JsonResponse({"message": "success"})
 
 
 def obtain_tag_requests(request):

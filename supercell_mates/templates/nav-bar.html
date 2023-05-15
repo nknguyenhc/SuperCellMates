@@ -14,7 +14,15 @@
                 <li class="nav-item">
                     <a href="{% url 'user_auth:logout' %}" class="nav-link">Logout</a>
                 </li>
+                <li class="nav-item">
+                    <a href="{% url 'user_auth:register' %}" class="nav-link">Register</a>
+                </li>
+                <li class="nav-item">
+                    <a href="javascript:void(0)" class="nav-link" id="request-tag-link">Request Tag</a>
+                </li>
             </ul>
         </div>
     </div>
 </nav>
+
+<script src="/static/script/nav-bar.js"></script>
