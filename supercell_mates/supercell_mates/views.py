@@ -1,11 +1,10 @@
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponseForbidden
+from django.http.response import FileResponse
 
 
 def media_access(request, path):
+    print("checking media access")
     if request.user.is_authenticated:
-        response = HttpResponse()
-        del response['Content-Type']
-        response['X-Accel-Redirect'] = '/media/' + path
-        return response
+        return FileResponse(request.user.user_profile.profile_pic)
     else:
         return HttpResponseForbidden('You are not authorised to access this media')
