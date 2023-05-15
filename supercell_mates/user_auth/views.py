@@ -3,24 +3,22 @@ from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, JsonResponse
 from json import loads
-from .models import UserAuth
 from django.views.decorators.csrf import ensure_csrf_cookie
 
+from .models import UserAuth, Tag, TagRequest
+from user_profile.models import UserProfile
 
-# Create your views here.
 
 def home(request):
     if not request.user.is_authenticated:
-        response = redirect(reverse("user_auth:login"))
-        print(request.environ.get("HTTP_ORIGIN"))
-        response.headers["Access-Control-Allow-Origin"] = request.environ.get("HTTP_ORIGIN")
-        return response
+        return redirect(reverse("user_auth:login"))
     else:
         return render(request, "user_auth/home.html")
 
 @ensure_csrf_cookie
 def home_async(request):
     if not request.user.is_authenticated:
+        print(request.META['HTTP_HOST'])
         return JsonResponse({"message": "not logged in"})
     else:
         return JsonResponse({"message": "logged in"})
@@ -62,11 +60,14 @@ def register_async(request):
         data = request.POST
         username = data["username"]
         password = data["password"]
+        name = data["name"]
         if username == '' or password == '': # this only serve as a backup, checking empty fields should be done in front end
             return JsonResponse({"message": "username or password is empty"})
 
         try:
             user = UserAuth.objects.create_user(username=username, password=password)
+            user_profile_obj = UserProfile(name=name, user_auth=user)
+            user_profile_obj.save()
             login(request, user)
         except IntegrityError:
             return JsonResponse({"message": "username already taken"})
@@ -78,20 +79,23 @@ def register(request):
     if request.method == "POST":
         username = request.POST["username"]
         password = request.POST["password"]
-        if username == '' or password == '':
+        name = request.POST["name"]
+        if username == '' or password == '' or name == '':
             return render(request, "user_auth/register.html", {
-                "error_message": "username or password is empty"
+                "error_message": "username/password or name is empty"
             })
 
         try:
             user = UserAuth.objects.create_user(username=username, password=password)
+            user_profile_obj = UserProfile(name=name, user_auth=user)
+            user_profile_obj.save()
             login(request, user)
         except IntegrityError:
             return render(request, "user_auth/register.html", {
                 "error_message": "username already taken"
             })
         
-        return redirect(reverse("user_auth:home"))
+        return redirect(reverse("user_profile:setup"))
 
     return render(request, "user_auth/register.html")
 
@@ -104,3 +108,45 @@ def logout_user(request):
 def logout_async(request):
     logout(request)
     return JsonResponse({"message": "logged out"})
+
+
+def add_tag_admin(request):
+    if request.user.is_superuser:
+        if request.method == "POST":
+            data = loads(request.body.decode("utf-8"))
+            tag_request_id = data["tag_request_id"]
+            TagRequest.objects.get(id=tag_request_id).delete()
+            tagName = data["tag"]
+            tag = Tag(name=tagName)
+            tag.save()
+            return JsonResponse({"message": "success"})
+        else:
+            return render(request, "user_auth/add_tags_admin.html")
+
+
+def remove_tag_request(request):
+    if request.user.is_superuser:
+        if request.method == "POST":
+            data = loads(request.body.decode("utf-8"))
+            tag_request_id = data["tag_request_id"]
+            TagRequest.objects.get(id=tag_request_id).delete()
+            return JsonResponse({"message": "success"})
+
+
+def obtain_tag_requests(request):
+    if request.user.is_superuser:
+        tag_request_objs = list(TagRequest.objects.all())
+        tag_requests = list(map(lambda request_obj:{
+            "id": request_obj.id,
+            "name": request_obj.name
+        }, tag_request_objs))
+        return JsonResponse({"tag_requests": tag_requests})
+
+
+def add_tag(request):
+    if request.user.is_authenticated and request.method == "POST":
+        data = loads(request.body.decode("utf-8"))
+        tagName = data["tag"]
+        tag_request = TagRequest(name=tagName)
+        tag_request.save()
+        return JsonResponse({"message": "success"})

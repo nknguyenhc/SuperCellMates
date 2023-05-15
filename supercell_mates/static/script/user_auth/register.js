@@ -1,7 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
     let messageDiv = document.querySelector("#register-message");
     document.querySelector("#register-form").addEventListener("submit", event => {
-        if (document.querySelector("#username").value === '') {
+        if (document.querySelector("#name").value === '') {
+            event.preventDefault();
+            messageDiv.innerHTML = "Name cannot be empty";
+        } else if (document.querySelector("#username").value === '') {
             event.preventDefault();
             messageDiv.innerHTML = "Username cannot be empty";
         } else if (document.querySelector("#password").value === '') {
