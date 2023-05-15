@@ -4,19 +4,30 @@
     <title>Your Profile</title>
 {% endblock %} 
 
+{% block style %} 
+    <link rel="stylesheet" href="/static/style/user_profile/index.css">
+{% endblock %} 
+
 {% block body %} 
     <div>
-        <div>
-            <label>Name: </label>
-            <p>{{ user_profile.name }}</p>
+        <div id="profile-top">
+            <div id="profile-basic-info">
+                <img height="100" width="100" src="{{ image_url }}" class="img-thumbnail">
+                <div id="profile-basic-info-text">
+                    <div id="profile-name">{{ user_profile.name }}</div>
+                    <div id="profile-id">@{{ user_profile.user_auth.username }}</div>
+                </div>
+            </div>
         </div>
-        <div>
-            <label>Username: </label>
-            <p>{{ user_profile.user_auth.username }}</p>
-        </div>
-        <div>
-            <label>Tags: </label>
-            <p>{{ user_profile.tagList }}</p>
+        <div id="profile-tag">
+            <div id="profile-tag-label">Tags</div>
+            <div id="profile-tags">
+                {% for tag in tags %} 
+                    <div class="tag">
+                        <button type="button" class="btn btn-outline-primary">{{ tag.name }}</button>
+                    </div>
+                {% endfor %} 
+            </div>
         </div>
     </div>
 {% endblock %} 

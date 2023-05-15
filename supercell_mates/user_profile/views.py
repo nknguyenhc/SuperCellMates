@@ -8,8 +8,11 @@ from user_auth.models import UserAuth, Tag
 def index(request):
     if request.user.is_authenticated:
         user_profile_obj = UserProfile.objects.get(user_auth=request.user)
+        tags = list(user_profile_obj.tagList.all())
         return render(request, 'user_profile/index.html', {
-            "user_profile": user_profile_obj
+            "image_url": user_profile_obj.profile_pic.url,
+            "user_profile": user_profile_obj,
+            "tags": tags
         })
 
 
