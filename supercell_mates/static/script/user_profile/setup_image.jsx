@@ -10,7 +10,7 @@ function SetupImage() {
     function submitPhoto(event) {
         event.preventDefault();
         console.log(document.querySelector("#setupImage").files[0]);
-        fetch('/profile/set_profile_image', postFileContent({
+        fetch('/profile/set_profile_image', postRequestContent({
             img: document.querySelector("#setupImage").files[0]
         }))
             .then(response => response.json())

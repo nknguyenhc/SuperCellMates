@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, JsonResponse
-from json import loads
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .models import UserAuth, Tag, TagRequest
@@ -26,9 +25,8 @@ def home_async(request):
 
 def login_async(request):
     if request.method == "POST":
-        data = request.POST
-        username = data["username"]
-        password = data["password"]
+        username = request.POST["username"]
+        password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
@@ -56,8 +54,7 @@ def login_user(request):
 
 def check_unique_UID_async(request):
     if request.method == "POST":
-        data = request.POST
-        username = data["username"]
+        username = request.POST["username"]
         if UserAuth.objects.filter(username = username).exists():
             return JsonResponse({"message": "UID is already taken"})
         return JsonResponse({"message": "UID is unique"})
@@ -65,10 +62,9 @@ def check_unique_UID_async(request):
 
 def register_async(request):
     if request.method == "POST":
-        data = request.POST
-        username = data["username"]
-        password = data["password"]
-        name = data["name"]
+        username = request.POST["username"]
+        password = request.POST["password"]
+        name = request.POST["name"]
         if username == '' or password == '': # this only serve as a backup, checking empty fields should be done in front end
             return JsonResponse({"message": "username or password is empty"})
 
@@ -121,10 +117,9 @@ def logout_async(request):
 def add_tag_admin(request):
     if request.user.is_superuser:
         if request.method == "POST":
-            data = loads(request.body.decode("utf-8"))
-            tag_request_id = data["tag_request_id"]
+            tag_request_id = request.POST["tag_request_id"]
             TagRequest.objects.get(id=tag_request_id).delete()
-            tagName = data["tag"]
+            tagName = request.POST["tag"]
             tag = Tag(name=tagName)
             tag.save()
             return JsonResponse({"message": "success"})
@@ -135,8 +130,7 @@ def add_tag_admin(request):
 def remove_tag_request(request):
     if request.user.is_superuser:
         if request.method == "POST":
-            data = loads(request.body.decode("utf-8"))
-            tag_request_id = data["tag_request_id"]
+            tag_request_id = request.POST["tag_request_id"]
             TagRequest.objects.get(id=tag_request_id).delete()
             return JsonResponse({"message": "success"})
 
@@ -153,8 +147,7 @@ def obtain_tag_requests(request):
 
 def add_tag(request):
     if request.user.is_authenticated and request.method == "POST":
-        data = loads(request.body.decode("utf-8"))
-        tagName = data["tag"]
+        tagName = request.POST["tag"]
         tag_request = TagRequest(name=tagName)
         tag_request.save()
         return JsonResponse({"message": "success"})

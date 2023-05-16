@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from json import loads
 from .models import UserProfile
 from user_auth.models import UserAuth, Tag
 
@@ -19,11 +18,10 @@ def index(request):
 def set_tags(request):
     if request.method == "POST" and request.user.is_authenticated:
         user_profile_obj = request.user.user_profile
-        data = loads(request.body.decode('utf-8'))
-        count = data["count"]
+        count = request.POST["count"]
         user_profile_obj.tagList.clear()
-        for i in range(count):
-            user_profile_obj.tagList.add(Tag.objects.get(id=data["tags"][i]))
+        for i in range(int(count)):
+            user_profile_obj.tagList.add(Tag.objects.get(id=request.POST["tags"][i]))
         return JsonResponse({"message": "success"})
 
 
