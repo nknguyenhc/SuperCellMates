@@ -1,0 +1,17 @@
+.authentication-form-container {
+    height: 90vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.authentication-form {
+    width: 350px;
+    position: relative;
+}
+
+.authentication-error {
+    position: absolute;
+    top: 100%;
+}
