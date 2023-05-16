@@ -5,21 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "FrontEnd",
-            "request": "launch",
-            "type": "dart"
-        },
-        {
-            "name": "FrontEnd (profile mode)",
+            "name": "Launch Main",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
+            "program": "lib/main.dart",
         },
-        {
-            "name": "FrontEnd (release mode)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release"
-        }
     ]
 }

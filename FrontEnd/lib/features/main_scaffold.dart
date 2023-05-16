@@ -30,36 +30,39 @@ class MainScaffoldState extends State<MainScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: pages[selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-            label: "home",
-            icon: IconButton(
-              icon: const Icon(Icons.home), 
-              onPressed: () => changeIndex(0),
-              iconSize: 30,
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        body: pages[selectedIndex],
+        bottomNavigationBar: BottomNavigationBar(
+          items: [
+            BottomNavigationBarItem(
+              label: "home",
+              icon: IconButton(
+                icon: const Icon(Icons.home),
+                onPressed: () => changeIndex(0),
+                iconSize: 30,
+              ),
             ),
-          ),
-          BottomNavigationBarItem(
-            label: "chat",
-            icon: IconButton(
-              icon: const Icon(Icons.chat_bubble_outline_rounded), 
-              onPressed: () => changeIndex(1),
-              iconSize: 30,
+            BottomNavigationBarItem(
+              label: "chat",
+              icon: IconButton(
+                icon: const Icon(Icons.chat_bubble_outline_rounded),
+                onPressed: () => changeIndex(1),
+                iconSize: 30,
+              ),
             ),
-          ),
-          BottomNavigationBarItem(
-            label: "profile",
-            icon: IconButton(
-              icon: const Icon(Icons.person), 
-              onPressed: () => changeIndex(2),
-              iconSize: 30,
-            ),
-          )
-        ],
-        currentIndex: selectedIndex,
+            BottomNavigationBarItem(
+              label: "profile",
+              icon: IconButton(
+                icon: const Icon(Icons.person),
+                onPressed: () => changeIndex(2),
+                iconSize: 30,
+              ),
+            )
+          ],
+          currentIndex: selectedIndex,
+        ),
       ),
     );
   }

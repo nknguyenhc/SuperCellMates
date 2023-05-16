@@ -3,7 +3,6 @@ import 'package:requests/requests.dart';
 import 'package:auto_route/auto_route.dart';
 import 'dart:convert';
 
-import '../functions/post_with_csrf.dart';
 import '../router/router.gr.dart';
 
 class LogOutButton extends StatelessWidget {
@@ -20,7 +19,7 @@ class LogOutButton extends StatelessWidget {
             if (jsonDecode(r.content())["message"] == "logged out") {
               //TODO: Requests.clearStoredCookies(hostname)
               AutoRouter.of(context)
-                  .pushAndPopUntil(const LoginRoute(), predicate: (_) => false);
+                  .pushAndPopUntil(LoginRoute(), predicate: (_) => false);
             }
           });
         },
