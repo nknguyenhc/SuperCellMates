@@ -10,6 +10,7 @@ urlpatterns = [
     path('login_async', views.login_async, name="login_async"),
     path('register', views.register, name="register"),
     path('register_async', views.register_async, name="register_async"),
+    path('check_unique_UID_async', views.check_unique_UID_async, name="check_unique_UID_async"),
     path('logout', views.logout_user, name="logout"),
     path('logout_async', views.logout_async, name="logout_async"),
     path('add_tag_admin', views.add_tag_admin, name="add_tag_admin"),

@@ -54,6 +54,14 @@ def login_user(request):
     
     return render(request, "user_auth/login.html")
 
+def check_unique_UID_async(request):
+    if request.method == "POST":
+        data = request.POST
+        username = data["username"]
+        if UserAuth.objects.filter(username = username).exists():
+            return JsonResponse({"message": "UID is already taken"})
+        return JsonResponse({"message": "UID is unique"})
+
 
 def register_async(request):
     if request.method == "POST":
