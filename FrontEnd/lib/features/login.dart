@@ -45,7 +45,7 @@ class LoginPageState extends State<LoginPage> {
     }
 
     Map<String, String> body = {
-      "username": data.name, // they both refer to the ID
+      "username": data.name, // unique immutable username
       "password": data.password,
     };
 
@@ -68,7 +68,7 @@ class LoginPageState extends State<LoginPage> {
     }
 
     Map<String?, String?> body = {
-      "username": data.name, // the ID
+      "username": data.name, // unique immutable username
     };
 
     var responseMap = postWithCSRF(getURI, checkUniqueURI, body)
@@ -90,7 +90,7 @@ class LoginPageState extends State<LoginPage> {
     }
 
     Map<String?, String?> body = {
-      "name": data.additionalSignupData!["customName"],
+      "name": data.additionalSignupData!["displayName"],
       "username": data.name,
       "password": data.password,
     };
@@ -125,10 +125,10 @@ class LoginPageState extends State<LoginPage> {
               .pushAndPopUntil(const MainScaffold(), predicate: (_) => false);
         },
         userType: LoginUserType.name,
-        userValidator: (user) {
-          if (user == "" || user == null) {
+        userValidator: (username) {
+          if (username == "" || username == null) {
             return "Username cannot be empty!";
-          } else if (user.length > 15) {
+          } else if (username.length > 15) {
             return "Username is too long!";
           }
           // TODO: ADD MORE VALIDATIONS
@@ -136,14 +136,14 @@ class LoginPageState extends State<LoginPage> {
         },
         theme: LoginTheme(primaryColor: Colors.lightBlue),
         messages: LoginMessages(
-          userHint: "Unique UID",
-          additionalSignUpFormDescription: "Create a username to be displayed\n(this can be changed later)",
+          userHint: "Username",
+          additionalSignUpFormDescription: "Create a name to be displayed\n(this can be changed later)",
           signUpSuccess: "Successfully signed up!"),
         additionalSignupFields: [
           UserFormField(
             icon: const Icon(Icons.person_rounded),
-            keyName: "customName", // the non-unique, changeable, displayed username 
-            displayName: "Username",
+            keyName: "displayName", // the non-unique, changeable, displayed username 
+            displayName: "Display Name",
             fieldValidator: (name) {
               if (name == "" || name == null) {
                 return "Name cannot be empty!";
