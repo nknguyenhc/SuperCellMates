@@ -13,13 +13,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: _approuter.config(),
-      title: 'SuperCellMates',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
-        useMaterial3: true,
+    return WillPopScope(
+      child: MaterialApp.router(
+        routerConfig: _approuter.config(),
+        title: 'SuperCellMates',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
+          useMaterial3: true,
+        ),
       ),
+      onWillPop: () async => false,
     );
   }
 }

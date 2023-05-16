@@ -1,13 +1,10 @@
 import 'package:requests/requests.dart';
 
-import 'dart:convert';
-
-Future<dynamic> post_with_csrf(
-    String getURI, String postURI, Map postBody) async {
+/// For sending POST request, returns the JSON response from backend
+Future<dynamic> postWithCSRF(
+  String getURI, String postURI, Map postBody) async {
   var r1 = await Requests.get(getURI);
   r1.raiseForStatus();
-
-  print(r1.headers['set-cookie']);
 
   if (!r1.headers.containsKey('set-cookie')) return "";
 
