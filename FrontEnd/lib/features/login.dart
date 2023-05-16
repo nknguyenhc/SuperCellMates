@@ -17,7 +17,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class LoginPageState extends State<LoginPage> {
-
   // TODO: organise the URIs in a file
   final String getURI = "http://10.0.2.2:8000/async";
   final String loginURI = "http://10.0.2.2:8000/login_async";
@@ -151,6 +150,8 @@ class LoginPageState extends State<LoginPage> {
               } else if (name.length > 15) {
                 return "Name is too long!";
               }
+              // TODO: ADD MORE VALIDATIONS
+              return null;
             })
         ],
         hideForgotPasswordButton: true,
