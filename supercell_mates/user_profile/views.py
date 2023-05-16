@@ -14,6 +14,18 @@ def index(request):
             "tags": tags
         })
 
+def index_async(request):
+    if request.user.is_authenticated:
+        user_profile_obj = UserProfile.objects.get(user_auth=request.user)
+        tags = list(user_profile_obj.tagList.all())
+        response = {
+            #"image_url": user_profile_obj.profile_pic.url,
+            "name": user_profile_obj.name,
+            "username": user_profile_obj.user_auth.username,
+            "tags": tags,
+        }
+        return JsonResponse(response)
+
 
 def set_tags(request):
     if request.method == "POST" and request.user.is_authenticated:

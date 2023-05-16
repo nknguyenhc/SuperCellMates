@@ -1,8 +1,8 @@
 import 'package:requests/requests.dart';
 
 /// For sending POST request, returns the JSON response from backend
-Future<dynamic> postWithCSRF(
-  String getURI, String postURI, Map postBody) async {
+Future<dynamic> postWithCSRF(String getURI, String postURI, Map postBody) async {
+  // TODO: ADD ERROR HANDLING
   var r1 = await Requests.get(getURI);
   r1.raiseForStatus();
 

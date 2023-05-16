@@ -8,51 +8,76 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:auto_route/auto_route.dart' as _i5;
-import 'package:flutter/material.dart' as _i6;
-import 'package:supercellmates/features/friend_request.dart' as _i1;
-import 'package:supercellmates/features/login.dart' as _i2;
-import 'package:supercellmates/features/main_scaffold.dart' as _i3;
-import 'package:supercellmates/features/privacy_agreement.dart' as _i4;
+import 'package:auto_route/auto_route.dart' as _i7;
+import 'package:supercellmates/features/achievement.dart' as _i1;
+import 'package:supercellmates/features/friend_request.dart' as _i2;
+import 'package:supercellmates/features/login.dart' as _i3;
+import 'package:supercellmates/features/main_scaffold.dart' as _i4;
+import 'package:supercellmates/features/privacy_agreement.dart' as _i5;
+import 'package:supercellmates/features/settings.dart' as _i6;
 
-abstract class $AppRouter extends _i5.RootStackRouter {
+abstract class $AppRouter extends _i7.RootStackRouter {
   $AppRouter({super.navigatorKey});
 
   @override
-  final Map<String, _i5.PageFactory> pagesMap = {
-    FriendRequestRoute.name: (routeData) {
-      return _i5.AutoRoutePage<dynamic>(
+  final Map<String, _i7.PageFactory> pagesMap = {
+    AchievementRoute.name: (routeData) {
+      return _i7.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i1.FriendRequestPage(),
+        child: const _i1.AchievementPage(),
+      );
+    },
+    FriendRequestRoute.name: (routeData) {
+      return _i7.AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const _i2.FriendRequestPage(),
       );
     },
     LoginRoute.name: (routeData) {
-      final args = routeData.argsAs<LoginRouteArgs>(
-          orElse: () => const LoginRouteArgs());
-      return _i5.AutoRoutePage<dynamic>(
+      return _i7.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i2.LoginPage(key: args.key),
+        child: const _i3.LoginPage(),
       );
     },
     MainScaffold.name: (routeData) {
-      return _i5.AutoRoutePage<dynamic>(
+      return _i7.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i3.MainScaffold(),
+        child: const _i4.MainScaffold(),
       );
     },
     PrivacyAgreementRoute.name: (routeData) {
-      return _i5.AutoRoutePage<dynamic>(
+      return _i7.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i4.PrivacyAgreementPage(),
+        child: const _i5.PrivacyAgreementPage(),
+      );
+    },
+    SettingsRoute.name: (routeData) {
+      return _i7.AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const _i6.SettingsPage(),
       );
     },
   };
 }
 
 /// generated route for
-/// [_i1.FriendRequestPage]
-class FriendRequestRoute extends _i5.PageRouteInfo<void> {
-  const FriendRequestRoute({List<_i5.PageRouteInfo>? children})
+/// [_i1.AchievementPage]
+class AchievementRoute extends _i7.PageRouteInfo<void> {
+  const AchievementRoute({List<_i7.PageRouteInfo>? children})
+      : super(
+          AchievementRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'AchievementRoute';
+
+  static const _i7.PageInfo<void> page = _i7.PageInfo<void>(name);
+}
+
+/// generated route for
+/// [_i2.FriendRequestPage]
+class FriendRequestRoute extends _i7.PageRouteInfo<void> {
+  const FriendRequestRoute({List<_i7.PageRouteInfo>? children})
       : super(
           FriendRequestRoute.name,
           initialChildren: children,
@@ -60,42 +85,27 @@ class FriendRequestRoute extends _i5.PageRouteInfo<void> {
 
   static const String name = 'FriendRequestRoute';
 
-  static const _i5.PageInfo<void> page = _i5.PageInfo<void>(name);
+  static const _i7.PageInfo<void> page = _i7.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i2.LoginPage]
-class LoginRoute extends _i5.PageRouteInfo<LoginRouteArgs> {
-  LoginRoute({
-    _i6.Key? key,
-    List<_i5.PageRouteInfo>? children,
-  }) : super(
+/// [_i3.LoginPage]
+class LoginRoute extends _i7.PageRouteInfo<void> {
+  const LoginRoute({List<_i7.PageRouteInfo>? children})
+      : super(
           LoginRoute.name,
-          args: LoginRouteArgs(key: key),
           initialChildren: children,
         );
 
   static const String name = 'LoginRoute';
 
-  static const _i5.PageInfo<LoginRouteArgs> page =
-      _i5.PageInfo<LoginRouteArgs>(name);
-}
-
-class LoginRouteArgs {
-  const LoginRouteArgs({this.key});
-
-  final _i6.Key? key;
-
-  @override
-  String toString() {
-    return 'LoginRouteArgs{key: $key}';
-  }
+  static const _i7.PageInfo<void> page = _i7.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i3.MainScaffold]
-class MainScaffold extends _i5.PageRouteInfo<void> {
-  const MainScaffold({List<_i5.PageRouteInfo>? children})
+/// [_i4.MainScaffold]
+class MainScaffold extends _i7.PageRouteInfo<void> {
+  const MainScaffold({List<_i7.PageRouteInfo>? children})
       : super(
           MainScaffold.name,
           initialChildren: children,
@@ -103,13 +113,13 @@ class MainScaffold extends _i5.PageRouteInfo<void> {
 
   static const String name = 'MainScaffold';
 
-  static const _i5.PageInfo<void> page = _i5.PageInfo<void>(name);
+  static const _i7.PageInfo<void> page = _i7.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i4.PrivacyAgreementPage]
-class PrivacyAgreementRoute extends _i5.PageRouteInfo<void> {
-  const PrivacyAgreementRoute({List<_i5.PageRouteInfo>? children})
+/// [_i5.PrivacyAgreementPage]
+class PrivacyAgreementRoute extends _i7.PageRouteInfo<void> {
+  const PrivacyAgreementRoute({List<_i7.PageRouteInfo>? children})
       : super(
           PrivacyAgreementRoute.name,
           initialChildren: children,
@@ -117,5 +127,19 @@ class PrivacyAgreementRoute extends _i5.PageRouteInfo<void> {
 
   static const String name = 'PrivacyAgreementRoute';
 
-  static const _i5.PageInfo<void> page = _i5.PageInfo<void>(name);
+  static const _i7.PageInfo<void> page = _i7.PageInfo<void>(name);
+}
+
+/// generated route for
+/// [_i6.SettingsPage]
+class SettingsRoute extends _i7.PageRouteInfo<void> {
+  const SettingsRoute({List<_i7.PageRouteInfo>? children})
+      : super(
+          SettingsRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'SettingsRoute';
+
+  static const _i7.PageInfo<void> page = _i7.PageInfo<void>(name);
 }

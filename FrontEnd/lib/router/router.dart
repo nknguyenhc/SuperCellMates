@@ -12,6 +12,7 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: MainScaffold.page),
         AutoRoute(page: FriendRequestRoute.page),
         AutoRoute(page: PrivacyAgreementRoute.page),
-
+        AutoRoute(page: AchievementRoute.page),
+        AutoRoute(page: SettingsRoute.page),
       ];
 }
