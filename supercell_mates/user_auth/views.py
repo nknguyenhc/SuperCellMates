@@ -52,12 +52,12 @@ def login_user(request):
     
     return render(request, "user_auth/login.html")
 
-def check_unique_UID_async(request):
+def check_unique_username_async(request):
     if request.method == "POST":
         username = request.POST["username"]
         if UserAuth.objects.filter(username = username).exists():
-            return JsonResponse({"message": "UID is already taken"})
-        return JsonResponse({"message": "UID is unique"})
+            return JsonResponse({"message": "username is already taken"})
+        return JsonResponse({"message": "username is unique"})
 
 
 def register_async(request):

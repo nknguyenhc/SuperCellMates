@@ -21,7 +21,7 @@ class LoginPageState extends State<LoginPage> {
   final String getURI = "http://10.0.2.2:8000/async";
   final String loginURI = "http://10.0.2.2:8000/login_async";
   final String registerURI = "http://10.0.2.2:8000/register_async";
-  final String checkUniqueURI = "http://10.0.2.2:8000/check_unique_UID_async";
+  final String checkUniqueUsernameURI = "http://10.0.2.2:8000/check_unique_username_async";
   final String privacyAgreementURI =
       'http://10.0.2.2:8000/privacy_agreement_async';
 
@@ -71,11 +71,11 @@ class LoginPageState extends State<LoginPage> {
       "username": data.name, // unique immutable username
     };
 
-    var responseMap = postWithCSRF(getURI, checkUniqueURI, body)
+    var responseMap = postWithCSRF(getURI, checkUniqueUsernameURI, body)
         .then((json) => jsonDecode(json));
     
     return responseMap.then((map) {
-      if (map["message"] == "UID is unique") {
+      if (map["message"] == "username is unique") {
         return null;
       }
       return map["message"];
