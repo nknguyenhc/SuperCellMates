@@ -1,23 +1,35 @@
-{% extends 'layout.html' %} 
+{% extends 'user_auth/user_auth_layout.html' %} 
 
 {% block title %} 
     <title>Login</title>
 {% endblock %} 
 
+{% block script %} 
+    {{ block.super }}
+    <script src="/static/script/user_auth/login.js"></script>
+{% endblock %} 
+
 {% block body %} 
-    <form action="{% url 'user_auth:login' %}" method="POST">
-        {% csrf_token %} 
-        <div>
-            <label>Username: </label>
-            <input type="text" name="username">
-        </div>
-        <div>
-            <label>Password: </label>
-            <input type="password" name="password">
-        </div>
-        <input type="submit" value="Login">
-    </form>
-    {% if error_message %} 
-        <div>{{ error_message }}</div>
-    {% endif %} 
+    <div class="authentication-form-container">
+        <form action="{% url 'user_auth:login' %}" method="POST" id="login-form" class="authentication-form">
+            {% csrf_token %} 
+            <div class="m-2">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" name="username" class="form-control" id="username">
+            </div>
+            <div class="m-2">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" id="password">
+            </div>
+            <div class="m-2">
+                <input type="submit" class="btn btn-primary" value="Login">
+            </div>
+            <div class="authentication-error">
+                <div class="alert alert-danger m-2" id="login-message"></div>
+                {% if error_message %} 
+                    <div class="alert alert-danger m-2" id="backend-message">{{ error_message }}</div>
+                {% endif %} 
+            </div>
+        </form>
+    </div>
 {% endblock %} 

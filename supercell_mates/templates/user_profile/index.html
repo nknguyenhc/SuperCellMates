@@ -9,25 +9,26 @@
 {% endblock %} 
 
 {% block body %} 
-    <div>
-        <div id="profile-top">
+    <div id="profile-page">
+        <div id="profile-top" class="border-bottom p-4">
             <div id="profile-basic-info">
-                <img height="100" width="100" src="{{ image_url }}" class="img-thumbnail">
-                <div id="profile-basic-info-text">
-                    <div id="profile-name">{{ user_profile.name }}</div>
-                    <div id="profile-id">@{{ user_profile.user_auth.username }}</div>
+                <img height="200" width="200" src="{{ image_url }}" class="img-thumbnail">
+                <div id="profile-basic-info-text-container">
+                    <button type="button" class="btn btn-outline-primary">Edit Profile</button>
+                    <div id="profile-basic-info-text" class="fs-3">
+                        <strong id="profile-name">{{ user_profile.name }}</strong>
+                        <div id="profile-id">@{{ user_profile.user_auth.username }}</div>
+                    </div>
                 </div>
             </div>
+            <div id="profile-achievements"></div>
         </div>
-        <div id="profile-tag">
-            <div id="profile-tag-label">Tags</div>
-            <div id="profile-tags">
-                {% for tag in tags %} 
-                    <div class="tag">
-                        <button type="button" class="btn btn-outline-primary">{{ tag.name }}</button>
-                    </div>
-                {% endfor %} 
-            </div>
+        <div id="profile-tags" class="ps-5 py-4">
+            {% for tag in tags %} 
+                <div class="tag">
+                    <button class="btn btn-outline-info">{{ tag.name }}</button>
+                </div>
+            {% endfor %} 
         </div>
     </div>
 {% endblock %} 

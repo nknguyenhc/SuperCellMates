@@ -6,7 +6,7 @@ app_name = "user_auth"
 urlpatterns = [
     path('', views.home, name="home"),
     path('async', views.home_async, name="home_async"),
-    path('login', views.login_user, name="login"),
+    path('login/', views.login_user, name="login"),
     path('login_async', views.login_async, name="login_async"),
     path('register', views.register, name="register"),
     path('register_async', views.register_async, name="register_async"),
@@ -15,6 +15,6 @@ urlpatterns = [
     path('logout_async', views.logout_async, name="logout_async"),
     path('add_tag_admin', views.add_tag_admin, name="add_tag_admin"),
     path('remove_tag_request', views.remove_tag_request, name="remove_tag_request"),
-    path('add_tag', views.add_tag, name="add_tag"),
+    path('add_tag_request', views.add_tag_request, name="add_tag_request"),
     path('obtain_tag_requests', views.obtain_tag_requests, name="obtain_tag_requests")
 ]
