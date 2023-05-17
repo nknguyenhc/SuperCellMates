@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from .models import UserProfile
 from user_auth.models import UserAuth, Tag
+import io
+from django.core.files.images import ImageFile
 
 
 def index(request):
@@ -23,7 +25,7 @@ def index_async(request):
             tagListString += tag.name + ";"
 
         response = {
-            #"image_url": user_profile_obj.profile_pic.url,
+            "image_url": user_profile_obj.profile_pic.url,
             "name": user_profile_obj.name,
             "username": user_profile_obj.user_auth.username,
             "tagListString": tagListString,
@@ -67,8 +69,12 @@ def obtain_tags(request):
 def set_profile_image(request):
     if request.method == "POST" and request.user.is_authenticated:
         user_profile_obj = request.user.user_profile
-        print(request.FILES)
-        img = request.FILES["img"]
+        if "img" in request.POST:
+            img_bytearray = request.POST["img"].strip("[]").split(", ")
+            img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
+            img = ImageFile(io.BytesIO(img_bytearray), name='foo.jpg')
+        else:
+            img = request.FILES["img"]
         user_profile_obj.profile_pic = img
         user_profile_obj.save()
         return JsonResponse({"message": "success"})

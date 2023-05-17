@@ -16,9 +16,10 @@ class SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: const Text("Settings page header")),
-        body: Container(
-          alignment: Alignment.center,
-          child: const LogOutButton(),
+        body: const Column(
+          children: [
+            LogOutButton(),
+          ],
         ));
   }
 }

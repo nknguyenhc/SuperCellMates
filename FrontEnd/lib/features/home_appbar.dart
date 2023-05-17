@@ -24,6 +24,13 @@ class HomeAppBarState extends State<HomeAppBar> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      leading: IconButton(
+        onPressed: () {
+          AutoRouter.of(context).push(const SettingsRoute());
+        },
+        icon: const Icon(Icons.settings),
+        iconSize: 25,
+      ),
       actions: [
         isAdmin 
           ? IconButton(

@@ -3,6 +3,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.core.files import File
+import os
 
 from .models import UserAuth, Tag, TagRequest
 from user_profile.models import UserProfile
@@ -70,6 +72,9 @@ def register_async(request):
         try:
             user = UserAuth.objects.create_user(username=username, password=password)
             user_profile_obj = UserProfile(name=name, user_auth=user)
+            
+            with open('./user_auth/default_profile_image.png', 'rb') as default_image:
+                user_profile_obj.profile_pic.save("default.png", File(default_image), save=False)
             user_profile_obj.save()
             login(request, user)
         except IntegrityError:
@@ -91,6 +96,8 @@ def register(request):
         try:
             user = UserAuth.objects.create_user(username=username, password=password)
             user_profile_obj = UserProfile(name=name, user_auth=user)
+            with open('./user_auth/default_profile_image.png', 'rb') as default_image:
+                user_profile_obj.profile_pic.save("default.png", File(default_image), save=False)
             user_profile_obj.save()
             login(request, user)
         except IntegrityError:

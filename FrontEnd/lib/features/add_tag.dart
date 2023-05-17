@@ -61,7 +61,15 @@ class AddTagPageState extends State<AddTagPage> {
                 child: ListView.builder(
                     itemCount: allTagsList != null ? allTagsList.length : 0,
                     itemBuilder: (BuildContext context, int index) {
-                      return TextButton(
+                      return 
+                        allTagsList[index]["in"]
+                          ? TextButton(
+                            onPressed: () => print("already have this tag"),
+                            child: Text(
+                              allTagsList[index]["tag_name"],
+                              style: const TextStyle(color: Colors.grey),
+                            ),)
+                          : TextButton(
                           onPressed: () => addTags([index]),
                           child: Text(allTagsList[index]["tag_name"]));
                     })),
