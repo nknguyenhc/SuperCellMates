@@ -18,11 +18,16 @@ def index_async(request):
     if request.user.is_authenticated:
         user_profile_obj = UserProfile.objects.get(user_auth=request.user)
         tags = list(user_profile_obj.tagList.all())
+        tagListString = ""
+        for tag in tags:
+            tagListString += tag.name + ";"
+
         response = {
             #"image_url": user_profile_obj.profile_pic.url,
             "name": user_profile_obj.name,
             "username": user_profile_obj.user_auth.username,
-            "tags": tags,
+            "tagListString": tagListString,
+            "is_admin": request.user.is_superuser,
         }
         return JsonResponse(response)
 

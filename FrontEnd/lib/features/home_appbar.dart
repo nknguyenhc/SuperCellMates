@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import '../router/router.gr.dart';
 
 class HomeAppBar extends AppBar {
-  HomeAppBar({Key? key}) : super(key: key);
+  HomeAppBar({Key? key, required this.data}) : super(key: key);
+
+  dynamic data;
 
   @override
   State<HomeAppBar> createState() => HomeAppBarState();
@@ -12,9 +14,23 @@ class HomeAppBar extends AppBar {
 
 class HomeAppBarState extends State<HomeAppBar> {
   @override
+  void initState() {
+    super.initState();
+    isAdmin = widget.data["isAdmin"];
+  }
+  
+  bool isAdmin = false;
+
+  @override
   Widget build(BuildContext context) {
     return AppBar(
       actions: [
+        isAdmin 
+          ? IconButton(
+            onPressed: () => {},
+            icon: const Icon(Icons.add_card_outlined),
+          )
+          : Container(),
         IconButton(
           onPressed: () {
             AutoRouter.of(context).push(const FriendRequestRoute());

@@ -22,16 +22,27 @@ class MainScaffold extends StatefulWidget {
 class MainScaffoldState extends State<MainScaffold> {
   @override
   void initState() {
+    dataLoaded = false;
     super.initState();
     getProfileMap();
   }
 
+  bool dataLoaded = false;
   dynamic profileMap;
 
   void getProfileMap() async {
     profileMap =
         jsonDecode(await getRequest("http://10.0.2.2:8000/profile/async"));
-    appbars[2] = ProfileAppBar(profileMap: profileMap);
+    appbars = <AppBar>[
+      HomeAppBar(data: {"isAdmin": profileMap["is_admin"]}),
+      AppBar(),
+      ProfileAppBar(profileMap: profileMap),
+    ];
+
+    pages[2] =
+        ProfilePage(data: {"tagListString": profileMap["tagListString"]});
+
+    setState(() => dataLoaded = true);
   }
 
   int selectedIndex = 0;
@@ -39,14 +50,10 @@ class MainScaffoldState extends State<MainScaffold> {
   final pages = <Widget>[
     const HomePage(),
     const ChatPage(),
-    const ProfilePage()
+    Container(),
   ];
 
-  final appbars = <AppBar>[
-    HomeAppBar(),
-    AppBar(),
-    AppBar(),
-  ];
+  late dynamic appbars;
 
   void changeIndex(int x) {
     setState(() {
@@ -56,41 +63,45 @@ class MainScaffoldState extends State<MainScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-        appBar: appbars[selectedIndex],
-        body: pages[selectedIndex],
-        bottomNavigationBar: BottomNavigationBar(
-          items: [
-            BottomNavigationBarItem(
-              label: "home",
-              icon: IconButton(
-                icon: const Icon(Icons.home),
-                onPressed: () => changeIndex(0),
-                iconSize: 30,
+    if (!dataLoaded) {
+      return const CircularProgressIndicator();
+    } else {
+      return WillPopScope(
+        onWillPop: () async => false,
+        child: Scaffold(
+          appBar: appbars[selectedIndex],
+          body: pages[selectedIndex],
+          bottomNavigationBar: BottomNavigationBar(
+            items: [
+              BottomNavigationBarItem(
+                label: "home",
+                icon: IconButton(
+                  icon: const Icon(Icons.home),
+                  onPressed: () => changeIndex(0),
+                  iconSize: 30,
+                ),
               ),
-            ),
-            BottomNavigationBarItem(
-              label: "chat",
-              icon: IconButton(
-                icon: const Icon(Icons.chat_bubble_outline_rounded),
-                onPressed: () => changeIndex(1),
-                iconSize: 30,
+              BottomNavigationBarItem(
+                label: "chat",
+                icon: IconButton(
+                  icon: const Icon(Icons.chat_bubble_outline_rounded),
+                  onPressed: () => changeIndex(1),
+                  iconSize: 30,
+                ),
               ),
-            ),
-            BottomNavigationBarItem(
-              label: "profile",
-              icon: IconButton(
-                icon: const Icon(Icons.person),
-                onPressed: () => changeIndex(2),
-                iconSize: 30,
-              ),
-            )
-          ],
-          currentIndex: selectedIndex,
+              BottomNavigationBarItem(
+                label: "profile",
+                icon: IconButton(
+                  icon: const Icon(Icons.person),
+                  onPressed: () => changeIndex(2),
+                  iconSize: 30,
+                ),
+              )
+            ],
+            currentIndex: selectedIndex,
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 }
