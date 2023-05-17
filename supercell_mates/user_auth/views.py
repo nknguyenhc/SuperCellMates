@@ -1,107 +1,162 @@
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseNotAllowed
+from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .models import UserAuth, Tag, TagRequest
 from user_profile.models import UserProfile
 
 
+@login_required
 def home(request):
-    if not request.user.is_authenticated:
-        return redirect(reverse("user_auth:login"))
-    else:
-        return render(request, "user_auth/home.html")
+    return render(request, "user_auth/home.html")
+
 
 @ensure_csrf_cookie
 def home_async(request):
     if not request.user.is_authenticated:
         print(request.META['HTTP_HOST'])
-        return JsonResponse({"message": "not logged in"})
+        response = HttpResponse("not authorised")
+        response.status_code = 401
+        return response
     else:
-        return JsonResponse({"message": "logged in"})
+        return HttpResponse("logged in")
 
 
 def login_async(request):
     if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST["password"]
-        user = authenticate(request, username=username, password=password)
+        if not request.user.is_authenticated:
+            try:
+                username = request.POST["username"]
+                password = request.POST["password"]
+                user = authenticate(request, username=username, password=password)
 
-        if user is not None:
-            login(request, user)
-            return JsonResponse({"message": "logged in"})
+                if user is not None:
+                    login(request, user)
+                    return HttpResponse("logged in")
+                else:
+                    return HttpResponse("wrong username or password")
+            except AttributeError:
+                return HttpResponseBadRequest("request does not contain form data")
+            except MultiValueDictKeyError:
+                return HttpResponseBadRequest("request body is missing username or password")
         else:
-            return JsonResponse({"message": "wrong username or password"})
+            return HttpResponseBadRequest("you are logged in already")
+    else:
+        return HttpResponseNotAllowed(['POST'])
 
 
 def login_user(request):
     if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST["password"]
-        user = authenticate(request, username=username, password=password)
+        if not request.user.is_authenticated:
+            try:
+                username = request.POST["username"]
+                password = request.POST["password"]
+                user = authenticate(request, username=username, password=password)
 
-        if user is not None:
-            login(request, user)
-            return redirect(reverse("user_auth:home"))
+                if user is not None:
+                    login(request, user)
+                    return redirect(reverse("user_auth:home"))
+                else:
+                    return render(request, 'user_auth/login.html', {
+                        "error_message": "Wrong username or password"
+                    })
+            except AttributeError:
+                return HttpResponseBadRequest("request does not contain form data")
+            except MultiValueDictKeyError:
+                return HttpResponseBadRequest("request body is missing username or password")
         else:
-            return render(request, 'user_auth/login.html', {
-                "error_message": "Wrong username or password"
-            })
+            return HttpResponseBadRequest("you are already logged in")
     
-    return render(request, "user_auth/login.html")
+    elif request.method == 'GET':
+        return render(request, "user_auth/login.html")
+    
+    else:
+        return HttpResponseNotAllowed(['GET', 'POST'])
+
 
 def check_unique_UID_async(request):
     if request.method == "POST":
-        username = request.POST["username"]
-        if UserAuth.objects.filter(username = username).exists():
-            return JsonResponse({"message": "UID is already taken"})
-        return JsonResponse({"message": "UID is unique"})
+        try:
+            username = request.POST["username"]
+            if UserAuth.objects.filter(username = username).exists():
+                return HttpResponse("username is already taken")
+            return HttpResponse("username is unique")
+        except AttributeError:
+            return HttpResponseBadRequest("request does not contain form data")
+        except MultiValueDictKeyError:
+            return HttpResponseBadRequest("request body is missing username")
+    else:
+        return HttpResponseNotAllowed(['POST'])
 
 
 def register_async(request):
     if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST["password"]
-        name = request.POST["name"]
-        if username == '' or password == '': # this only serve as a backup, checking empty fields should be done in front end
-            return JsonResponse({"message": "username or password is empty"})
+        if not request.user.is_authenticated:
+            try:
+                username = request.POST["username"]
+                password = request.POST["password"]
+                name = request.POST["name"]
+                if username == '' or password == '': # this only serve as a backup, checking empty fields should be done in front end
+                    return HttpResponseBadRequest("username or password is empty")
 
-        try:
-            user = UserAuth.objects.create_user(username=username, password=password)
-            user_profile_obj = UserProfile(name=name, user_auth=user)
-            user_profile_obj.save()
-            login(request, user)
-        except IntegrityError:
-            return JsonResponse({"message": "username already taken"})
-        
-        return JsonResponse({"message": "account created"})
+                try:
+                    user = UserAuth.objects.create_user(username=username, password=password)
+                    user_profile_obj = UserProfile(name=name, user_auth=user)
+                    user_profile_obj.save()
+                    login(request, user)
+                except IntegrityError:
+                    return HttpResponse("username already taken")
+                
+                return HttpResponse("account created")
+            except AttributeError:
+                return HttpResponseBadRequest("request does not contain form data")
+            except MultiValueDictKeyError:
+                return HttpResponseBadRequest("request body is missing name, username or password")
+        else:
+            return HttpResponseBadRequest("you are already logged in")
+    else:
+        return HttpResponseNotAllowed(["POST"])
 
 
 def register(request):
     if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST["password"]
-        name = request.POST["name"]
-        if username == '' or password == '' or name == '':
-            return render(request, "user_auth/register.html", {
-                "error_message": "username/password or name is empty"
-            })
+        if not request.user.is_authenticated:
+            try:
+                username = request.POST["username"]
+                password = request.POST["password"]
+                name = request.POST["name"]
+                if username == '' or password == '' or name == '':
+                    return render(request, "user_auth/register.html", {
+                        "error_message": "username/password or name is empty"
+                    })
 
-        try:
-            user = UserAuth.objects.create_user(username=username, password=password)
-            user_profile_obj = UserProfile(name=name, user_auth=user)
-            user_profile_obj.save()
-            login(request, user)
-        except IntegrityError:
-            return render(request, "user_auth/register.html", {
-                "error_message": "username already taken"
-            })
-        
-        return redirect(reverse("user_profile:setup"))
+                try:
+                    user = UserAuth.objects.create_user(username=username, password=password)
+                    user_profile_obj = UserProfile(name=name, user_auth=user)
+                    user_profile_obj.save()
+                    login(request, user)
+                except IntegrityError:
+                    return render(request, "user_auth/register.html", {
+                        "error_message": "username already taken"
+                    })
+                
+                return redirect(reverse("user_profile:setup"))
+            except AttributeError:
+                return HttpResponseBadRequest("request does not contain form data")
+            except MultiValueDictKeyError:
+                return HttpResponseBadRequest("request body is missing name, username or password")
+        else:
+            return HttpResponseBadRequest("you are already logged in")
 
-    return render(request, "user_auth/register.html")
+    elif request.method == 'GET':
+        return render(request, "user_auth/register.html")
+    
+    else:
+        return HttpResponseNotAllowed(["GET", "POST"])
 
 
 def logout_user(request):
@@ -117,22 +172,41 @@ def logout_async(request):
 def add_tag_admin(request):
     if request.user.is_superuser:
         if request.method == "POST":
-            tag_request_id = request.POST["tag_request_id"]
-            TagRequest.objects.get(id=tag_request_id).delete()
-            tagName = request.POST["tag"]
-            tag = Tag(name=tagName)
-            tag.save()
-            return JsonResponse({"message": "success"})
-        else:
+            try:
+                tag_request_id = request.POST["tag_request_id"]
+                TagRequest.objects.get(id=tag_request_id).delete()
+                tagName = request.POST["tag"]
+                tag = Tag(name=tagName)
+                tag.save()
+                return HttpResponse("successfully added tag")
+            except AttributeError:
+                return HttpResponseBadRequest("request does not contain form data")
+            except MultiValueDictKeyError:
+                return HttpResponseBadRequest("request body is missing an important key")
+        elif request.method == 'GET':
             return render(request, "user_auth/add_tags_admin.html")
+        else:
+            return HttpResponseBadRequest(["GET", "POST"])
+    
+    else:
+        return HttpResponseNotFound()
 
 
 def remove_tag_request(request):
     if request.user.is_superuser:
         if request.method == "POST":
-            tag_request_id = request.POST["tag_request_id"]
-            TagRequest.objects.get(id=tag_request_id).delete()
-            return JsonResponse({"message": "success"})
+            try:
+                tag_request_id = request.POST["tag_request_id"]
+                TagRequest.objects.get(id=tag_request_id).delete()
+                return HttpResponse("successfully removed request")
+            except AttributeError:
+                return HttpResponseBadRequest("request does not contain form data")
+            except MultiValueDictKeyError:
+                return HttpResponseBadRequest("request body is missing an important key")
+        else:
+            return HttpResponseNotAllowed(["GET", "POST"])
+    else:
+        return HttpResponseNotFound()
 
 
 def obtain_tag_requests(request):
@@ -143,11 +217,25 @@ def obtain_tag_requests(request):
             "name": request_obj.name
         }, tag_request_objs))
         return JsonResponse({"tag_requests": tag_requests})
+    else:
+        return HttpResponseNotFound()
 
 
-def add_tag(request):
-    if request.user.is_authenticated and request.method == "POST":
-        tagName = request.POST["tag"]
-        tag_request = TagRequest(name=tagName)
-        tag_request.save()
-        return JsonResponse({"message": "success"})
+def add_tag_request(request):
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            try:
+                tagName = request.POST["tag"]
+                tag_request = TagRequest(name=tagName)
+                tag_request.save()
+                return HttpResponse("successfully added tag")
+            except AttributeError:
+                return HttpResponseBadRequest("request does not contain form data")
+            except MultiValueDictKeyError:
+                return HttpResponseBadRequest("request is missing an important key")
+        else:
+            return HttpResponseNotAllowed(["POST"])
+    else:
+        response = HttpResponse("you are not logged in")
+        response.status_code = 401
+        return response

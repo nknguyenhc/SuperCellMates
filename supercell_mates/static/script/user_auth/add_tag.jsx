@@ -17,7 +17,7 @@ function AddTag() {
         if (tag === '') {
             setErrMessage("tag cannot be empty");
         } else {
-            fetch('/add_tag', postRequestContent({
+            fetch('/add_tag_request', postRequestContent({
                 tag: tag
             }))
                 .then(response => response.json())

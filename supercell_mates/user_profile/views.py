@@ -49,6 +49,7 @@ def set_profile_image(request):
         user_profile_obj = request.user.user_profile
         print(request.FILES)
         img = request.FILES["img"]
+        print(img)
         user_profile_obj.profile_pic = img
         user_profile_obj.save()
         return JsonResponse({"message": "success"})
