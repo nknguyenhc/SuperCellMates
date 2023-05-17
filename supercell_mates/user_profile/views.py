@@ -15,13 +15,13 @@ def index(request):
         })
 
 
-def set_tags(request):
+def add_tags(request):
     if request.method == "POST" and request.user.is_authenticated:
         user_profile_obj = request.user.user_profile
         count = request.POST["count"]
-        user_profile_obj.tagList.clear()
+        requested_tags = request.POST["tags"].strip("[]").split(", ")
         for i in range(int(count)):
-            user_profile_obj.tagList.add(Tag.objects.get(id=request.POST["tags"][i]))
+            user_profile_obj.tagList.add(Tag.objects.get(id=requested_tags[i]))
         return JsonResponse({"message": "success"})
 
 
