@@ -32,13 +32,16 @@ def index_async(request):
         return JsonResponse(response)
 
 
-def set_tags(request):
+def add_tags(request):
     if request.method == "POST" and request.user.is_authenticated:
         user_profile_obj = request.user.user_profile
-        count = request.POST["count"]
-        user_profile_obj.tagList.clear()
-        for i in range(int(count)):
-            user_profile_obj.tagList.add(Tag.objects.get(id=request.POST["tags"][i]))
+        curr_count = user_profile_obj.tagList.count
+        new_tags_list = request.POST["tags"].strip("[]").split(",")
+        print(new_tags_list)
+        new_count = len(new_tags_list)
+        # TODO: check if limit is reached
+        for i in range(new_count):
+            user_profile_obj.tagList.add(Tag.objects.get(id=int(new_tags_list[i])))
         return JsonResponse({"message": "success"})
 
 

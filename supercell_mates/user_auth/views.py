@@ -17,7 +17,6 @@ def home(request):
 @ensure_csrf_cookie
 def home_async(request):
     if not request.user.is_authenticated:
-        print(request.META['HTTP_HOST'])
         return JsonResponse({"message": "not logged in"})
     else:
         return JsonResponse({"message": "logged in"})
