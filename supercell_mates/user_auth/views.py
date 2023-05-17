@@ -19,16 +19,14 @@ def home(request):
 def home_async(request):
     if not request.user.is_authenticated:
         print(request.META['HTTP_HOST'])
-        response = HttpResponse("not authorised")
-        response.status_code = 401
-        return response
+        return HttpResponse("not authorised", status=401)
     else:
         return HttpResponse("logged in")
 
 
 def login_async(request):
-    if request.method == "POST":
-        if not request.user.is_authenticated:
+    if request.user.is_authenticated:
+        if not request.method == "POST":
             try:
                 username = request.POST["username"]
                 password = request.POST["password"]
@@ -44,9 +42,9 @@ def login_async(request):
             except MultiValueDictKeyError:
                 return HttpResponseBadRequest("request body is missing username or password")
         else:
-            return HttpResponseBadRequest("you are logged in already")
+            return HttpResponseNotAllowed(['POST'])
     else:
-        return HttpResponseNotAllowed(['POST'])
+        return HttpResponseBadRequest("you are logged in already")
 
 
 def login_user(request):
@@ -123,8 +121,8 @@ def register_async(request):
 
 
 def register(request):
-    if request.method == "POST":
-        if not request.user.is_authenticated:
+    if not request.user.is_authenticated:
+        if request.method == "POST":
             try:
                 username = request.POST["username"]
                 password = request.POST["password"]
@@ -149,24 +147,29 @@ def register(request):
                 return HttpResponseBadRequest("request does not contain form data")
             except MultiValueDictKeyError:
                 return HttpResponseBadRequest("request body is missing name, username or password")
-        else:
-            return HttpResponseBadRequest("you are already logged in")
 
-    elif request.method == 'GET':
-        return render(request, "user_auth/register.html")
+        elif request.method == 'GET':
+            return render(request, "user_auth/register.html")
+        
+        else:
+            return HttpResponseNotAllowed(["GET", "POST"])
     
     else:
-        return HttpResponseNotAllowed(["GET", "POST"])
+        return redirect(reverse("user_auth:home"))
 
 
+@login_required
 def logout_user(request):
     logout(request)
     return redirect(reverse("user_auth:home"))
 
 
 def logout_async(request):
-    logout(request)
-    return JsonResponse({"message": "logged out"})
+    if request.user.is_authenticated:
+        logout(request)
+        return HttpResponse("logged out")
+    else:
+        return HttpResponseBadRequest("you are already logged out")
 
 
 def add_tag_admin(request):
@@ -221,21 +224,17 @@ def obtain_tag_requests(request):
         return HttpResponseNotFound()
 
 
+@login_required
 def add_tag_request(request):
-    if request.user.is_authenticated:
-        if request.method == "POST":
-            try:
-                tagName = request.POST["tag"]
-                tag_request = TagRequest(name=tagName)
-                tag_request.save()
-                return HttpResponse("successfully added tag")
-            except AttributeError:
-                return HttpResponseBadRequest("request does not contain form data")
-            except MultiValueDictKeyError:
-                return HttpResponseBadRequest("request is missing an important key")
-        else:
-            return HttpResponseNotAllowed(["POST"])
+    if request.method == "POST":
+        try:
+            tagName = request.POST["tag"]
+            tag_request = TagRequest(name=tagName)
+            tag_request.save()
+            return HttpResponse("successfully added tag")
+        except AttributeError:
+            return HttpResponseBadRequest("request does not contain form data")
+        except MultiValueDictKeyError:
+            return HttpResponseBadRequest("request is missing an important key")
     else:
-        response = HttpResponse("you are not logged in")
-        response.status_code = 401
-        return response
+        return HttpResponseNotAllowed(["POST"])

@@ -20,9 +20,7 @@ function AddTag() {
             fetch('/add_tag_request', postRequestContent({
                 tag: tag
             }))
-                .then(response => response.json())
                 .then(response => {
-                    console.log(document.querySelector("#tag_request_message_button"));
                     document.querySelector("#tag_request_message_button").click();
                 });
             setErrMessage("");

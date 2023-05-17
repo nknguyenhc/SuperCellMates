@@ -13,7 +13,6 @@ function SetupImage() {
         fetch('/profile/set_profile_image', postRequestContent({
             img: document.querySelector("#setupImage").files[0]
         }))
-            .then(response => response.json())
             .then(response => window.location.assign('/'));
     }
 

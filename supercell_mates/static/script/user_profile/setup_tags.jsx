@@ -16,7 +16,7 @@ function SetupTags() {
         fetch('/profile/add_tags', postRequestContent({
             count: toBeSent.length,
             tags: toBeSent
-        })).then(response => response.json()).then(response => pop_setup_page(1));
+        })).then(response => pop_setup_page(1));
     }
 
     function toggleTag(tag_id) {
