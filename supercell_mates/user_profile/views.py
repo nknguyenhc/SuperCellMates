@@ -30,7 +30,7 @@ def index_async(request):
         for tag in tags:
             tagListString += tag.name + ";"
         response = {
-            "image_url": user_profile_obj.profile_pic.url,
+            "image_url": reverse("user_profile:get_profile_pic", args=(request.user.username,)),
             "name": user_profile_obj.name,
             "username": user_profile_obj.user_auth.username,
             "tags": tags,
