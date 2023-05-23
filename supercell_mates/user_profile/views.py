@@ -18,6 +18,7 @@ def index(request):
         "tags": tags
     })
 
+
 def index_async(request):
     if request.user.is_authenticated:
         user_profile_obj = UserProfile.objects.get(user_auth=request.user)
@@ -25,6 +26,16 @@ def index_async(request):
         tagListString = ""
         for tag in tags:
             tagListString += tag.name + ";"
+        response = {
+            "image_url": user_profile_obj.profile_pic.url,
+            "name": user_profile_obj.name,
+            "username": user_profile_obj.user_auth.username,
+            "tags": tags,
+            "tagListString": tagListString,
+            "is_admin": request.user.is_superuser,
+        }
+        return JsonResponse(response)
+
 
 @login_required
 def add_tags(request):
@@ -71,9 +82,12 @@ def set_profile_image(request):
     if request.method == "POST":
         try:
             user_profile_obj = request.user.user_profile
-            print(request.FILES)
-            img = request.FILES["img"]
-            print(img)
+            if "img" in request.POST:
+                img_bytearray = request.POST["img"].strip("[]").split(", ")
+                img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
+                img = ImageFile(io.BytesIO(img_bytearray), name='foo.jpg')
+            else:
+                img = request.FILES["img"]
             user_profile_obj.profile_pic = img
             user_profile_obj.save()
             return HttpResponse("success")

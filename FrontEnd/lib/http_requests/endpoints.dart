@@ -18,7 +18,7 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.checkUniqueUsername: "/check_unique_username_async",
     EndPoints.register: "/register_async",
     EndPoints.logout: "/logout_async",
-    EndPoints.profileIndex: "/profile/index_async",
+    EndPoints.profileIndex: "/profile/async",
     EndPoints.addTags: "/profile/add_tags",
     EndPoints.obtainTags: "/profile/obtain_tags",
     EndPoints.setProfileImage: "/profile/set_profile_image",

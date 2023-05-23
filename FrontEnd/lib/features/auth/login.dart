@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
@@ -44,13 +42,12 @@ class LoginPageState extends State<LoginPage> {
       "password": data.password,
     };
 
-    var responseMap =
-        postWithCSRF(EndPoints.login.endpoint, body).then((json) => jsonDecode(json));
-    return responseMap.then((map) {
-      if (map["message"] == "logged in") {
+    var response = postWithCSRF(EndPoints.login.endpoint, body);
+    return response.then((message) {
+      if (message == "logged in") {
         return null;
       }
-      return map["message"];
+      return message;
     });
   }
 
@@ -66,14 +63,13 @@ class LoginPageState extends State<LoginPage> {
       "username": data.name, // unique immutable username
     };
 
-    var responseMap = postWithCSRF(EndPoints.checkUniqueUsername.endpoint, body)
-        .then((json) => jsonDecode(json));
-    
-    return responseMap.then((map) {
-      if (map["message"] == "username is unique") {
+    var response = postWithCSRF(EndPoints.checkUniqueUsername.endpoint, body);
+
+    return response.then((message) {
+      if (message == "username is unique") {
         return null;
       }
-      return map["message"];
+      return message;
     });
   }
 
@@ -90,13 +86,13 @@ class LoginPageState extends State<LoginPage> {
       "password": data.password,
     };
 
-    var responseMap = postWithCSRF(EndPoints.register.endpoint, body)
-        .then((json) => jsonDecode(json));
-    return responseMap.then((map) {
-      if (map["message"] == "account created") {
+    var response = postWithCSRF(EndPoints.register.endpoint, body);
+
+    return response.then((message) {
+      if (message == "account created") {
         return null;
       }
-      return map["message"];
+      return message;
     });
   }
 
@@ -131,23 +127,25 @@ class LoginPageState extends State<LoginPage> {
         },
         theme: LoginTheme(primaryColor: Colors.lightBlue),
         messages: LoginMessages(
-          userHint: "Username",
-          additionalSignUpFormDescription: "Create a name to be displayed\n(this can be changed later)",
-          signUpSuccess: "Successfully signed up!"),
+            userHint: "Username",
+            additionalSignUpFormDescription:
+                "Create a name to be displayed\n(this can be changed later)",
+            signUpSuccess: "Successfully signed up!"),
         additionalSignupFields: [
           UserFormField(
-            icon: const Icon(Icons.person_rounded),
-            keyName: "displayName", // the non-unique, changeable, displayed username 
-            displayName: "Display Name",
-            fieldValidator: (name) {
-              if (name == "" || name == null) {
-                return "Name cannot be empty!";
-              } else if (name.length > 15) {
-                return "Name is too long!";
-              }
-              // TODO: ADD MORE VALIDATIONS
-              return null;
-            })
+              icon: const Icon(Icons.person_rounded),
+              keyName:
+                  "displayName", // the non-unique, changeable, displayed username
+              displayName: "Display Name",
+              fieldValidator: (name) {
+                if (name == "" || name == null) {
+                  return "Name cannot be empty!";
+                } else if (name.length > 15) {
+                  return "Name is too long!";
+                }
+                // TODO: ADD MORE VALIDATIONS
+                return null;
+              })
         ],
         hideForgotPasswordButton: true,
         children: [

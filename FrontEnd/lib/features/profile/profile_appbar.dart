@@ -29,6 +29,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
   Image? profileImage;
 
   void obtainProfileImage() async {
+    print("${widget.profileMap["image_url"]}");
     var response = await getRequest("${widget.profileMap["image_url"]}");
     profileImage = Image.memory(response.bodyBytes);
     setState(() {

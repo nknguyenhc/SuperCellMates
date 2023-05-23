@@ -6,7 +6,6 @@ from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, Http
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.core.files import File
-import os
 
 from .models import UserAuth, Tag, TagRequest
 from user_profile.models import UserProfile
@@ -27,8 +26,8 @@ def home_async(request):
 
 
 def login_async(request):
-    if request.user.is_authenticated:
-        if not request.method == "POST":
+    if not request.user.is_authenticated:
+        if request.method == "POST":
             try:
                 username = request.POST["username"]
                 password = request.POST["password"]
@@ -106,6 +105,8 @@ def register_async(request):
                 try:
                     user = UserAuth.objects.create_user(username=username, password=password)
                     user_profile_obj = UserProfile(name=name, user_auth=user)
+                    with open('./user_auth/default_profile_image.png', 'rb') as default_image:
+                        user_profile_obj.profile_pic.save("default.png", File(default_image), save=False)
                     user_profile_obj.save()
                     login(request, user)
                 except IntegrityError:
@@ -137,6 +138,8 @@ def register(request):
                 try:
                     user = UserAuth.objects.create_user(username=username, password=password)
                     user_profile_obj = UserProfile(name=name, user_auth=user)
+                    with open('./user_auth/default_profile_image.png', 'rb') as default_image:
+                        user_profile_obj.profile_pic.save("default.png", File(default_image), save=False)
                     user_profile_obj.save()
                     login(request, user)
                 except IntegrityError:
