@@ -1,6 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse, HttpResponseNotAllowed
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.http.response import FileResponse
 from django.utils.datastructures import MultiValueDictKeyError
 from django.contrib.auth.decorators import login_required
@@ -8,6 +8,7 @@ from .models import UserProfile
 from user_auth.models import UserAuth, Tag
 import io
 from django.core.files.images import ImageFile
+from django.views.decorators.http import require_http_methods
 
 
 @login_required
@@ -40,23 +41,21 @@ def index_async(request):
 
 
 @login_required
+@require_http_methods(["POST"])
 def add_tags(request):
-    if request.method == "POST":
-        try:
-            user_profile_obj = request.user.user_profile
-            count = request.POST["count"]
-            requested_tags = request.POST["tags"].strip("[]").split(",")
-            for i in range(int(count)):
-                user_profile_obj.tagList.add(Tag.objects.get(id=requested_tags[i]))
-            return HttpResponse("success")
-        except AttributeError:
-            return HttpResponseBadRequest("request does not contain form data")
-        except MultiValueDictKeyError:
-            return HttpResponseBadRequest("request body is missing an important key")
-        except ValueError:
-            return HttpResponseBadRequest("tags value is not in proper list format")
-    else:
-        return HttpResponseNotAllowed(["POST"])
+    try:
+        user_profile_obj = request.user.user_profile
+        count = request.POST["count"]
+        requested_tags = request.POST["tags"].strip("[]").split(",")
+        for i in range(int(count)):
+            user_profile_obj.tagList.add(Tag.objects.get(id=requested_tags[i]))
+        return HttpResponse("success")
+    except AttributeError:
+        return HttpResponseBadRequest("request does not contain form data")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body is missing an important key")
+    except ValueError:
+        return HttpResponseBadRequest("tags value is not in proper list format")
 
 
 @login_required
@@ -80,25 +79,24 @@ def obtain_tags(request):
 
 
 @login_required
+@require_http_methods(["POST"])
 def set_profile_image(request):
-    if request.method == "POST":
-        try:
-            user_profile_obj = request.user.user_profile
-            if "img" in request.POST:
-                img_bytearray = request.POST["img"].strip("[]").split(", ")
-                img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
-                img = ImageFile(io.BytesIO(img_bytearray), name='foo.jpg')
-            else:
-                img = request.FILES["img"]
-            user_profile_obj.profile_pic = img
-            user_profile_obj.save()
-            return HttpResponse("success")
-        except AttributeError:
-            return HttpResponseBadRequest("request does not contain form data/image file")
-        except MultiValueDictKeyError:
-            return HttpResponse("image not submitted")
-    else:
-        return HttpResponseNotAllowed(["POST"])
+    try:
+        user_profile_obj = request.user.user_profile
+        if "img" in request.POST:
+            img_bytearray = request.POST["img"].strip("[]").split(", ")
+            img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
+            img = ImageFile(io.BytesIO(img_bytearray), name='foo.jpg')
+        else:
+            img = request.FILES["img"]
+        # TODO: check if the file submitted is of correct format
+        user_profile_obj.profile_pic = img
+        user_profile_obj.save()
+        return HttpResponse("success")
+    except AttributeError:
+        return HttpResponseBadRequest("request does not contain form data/image file")
+    except MultiValueDictKeyError:
+        return HttpResponse("image not submitted")
 
 
 @login_required
@@ -106,4 +104,8 @@ def get_profile_pic(request, username):
     if not UserAuth.objects.filter(username=username).exists():
         return HttpResponseBadRequest("username not found")
     else:
-        return FileResponse(UserAuth.objects.get(username=username).user_profile.profile_pic)
+        profile_pic = UserAuth.objects.get(username=username).user_profile.profile_pic
+        if not profile_pic:
+            return redirect('/static/media/default_profile_pic.jpg')
+        else:
+            return FileResponse(profile_pic)

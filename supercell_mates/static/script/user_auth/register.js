@@ -14,6 +14,9 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (document.querySelector("#password").value !== document.querySelector("#confirm-password").value) {
             event.preventDefault();
             addErrMessage("Password and confirm password are different", messageDiv);
+        } else if (!document.querySelector("#privacy-agreement-checkbox").checked) {
+            event.preventDefault();
+            addErrMessage("You must agree to our privacy agreement to proceed", messageDiv);
         }
     });
 });

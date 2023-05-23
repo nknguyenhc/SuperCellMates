@@ -11,7 +11,7 @@
 
 {% block body %} 
     <div class="authentication-form-container">
-        <form action="{% url 'user_auth:login' %}" method="POST" id="login-form" class="authentication-form">
+        <form method="POST" id="login-form" class="authentication-form">
             {% csrf_token %} 
             <div class="m-2">
                 <label for="username" class="form-label">Username</label>
