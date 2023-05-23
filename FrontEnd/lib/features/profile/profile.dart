@@ -19,7 +19,7 @@ class ProfilePageState extends State<ProfilePage> {
 
     return Column(
       children: [
-        Container(
+        SizedBox(
           height: 70,
           child: ListView.builder(
               shrinkWrap: true,

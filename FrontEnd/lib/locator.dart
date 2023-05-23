@@ -2,10 +2,12 @@ import 'package:get_it/get_it.dart';
 import 'package:supercellmates/config/config.dart';
 import 'package:supercellmates/config/dev_config.dart';
 import 'package:supercellmates/router/router.dart';
+//import 'package:supercellmates/features/profile/profile_appbar.dart';
 
 GetIt locator = GetIt.I;
 
 void setupLocator() {
   locator.registerLazySingleton<Config>(() => DevConfig());
   locator.registerSingleton<AppRouter>(AppRouter());
+
 }

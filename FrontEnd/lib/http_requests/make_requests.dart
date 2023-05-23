@@ -4,7 +4,7 @@ import 'package:supercellmates/config/config.dart';
 
 /// For sending POST request, returns the JSON response from backend
 Future<dynamic> postWithCSRF(String postEndPoint, Map postBody) async {
-  String getURL = _composeURL("/");
+  String getURL = _composeURL("/async");
   String postURL = _composeURL(postEndPoint);
 
   // TODO: ADD ERROR HANDLING

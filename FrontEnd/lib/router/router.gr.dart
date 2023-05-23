@@ -9,6 +9,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:auto_route/auto_route.dart' as _i9;
+import 'package:flutter/material.dart' as _i10;
 import 'package:supercellmates/features/auth/login.dart' as _i1;
 import 'package:supercellmates/features/auth/privacy_agreement.dart' as _i2;
 import 'package:supercellmates/features/home/friend_request.dart' as _i3;
@@ -66,9 +67,13 @@ abstract class $AppRouter extends _i9.RootStackRouter {
       );
     },
     EditProfileRoute.name: (routeData) {
+      final args = routeData.argsAs<EditProfileRouteArgs>();
       return _i9.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i8.EditProfilePage(),
+        child: _i8.EditProfilePage(
+          key: args.key,
+          callBack: args.callBack,
+        ),
       );
     },
   };
@@ -174,14 +179,38 @@ class AddTagRoute extends _i9.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i8.EditProfilePage]
-class EditProfileRoute extends _i9.PageRouteInfo<void> {
-  const EditProfileRoute({List<_i9.PageRouteInfo>? children})
-      : super(
+class EditProfileRoute extends _i9.PageRouteInfo<EditProfileRouteArgs> {
+  EditProfileRoute({
+    _i10.Key? key,
+    required dynamic callBack,
+    List<_i9.PageRouteInfo>? children,
+  }) : super(
           EditProfileRoute.name,
+          args: EditProfileRouteArgs(
+            key: key,
+            callBack: callBack,
+          ),
           initialChildren: children,
         );
 
   static const String name = 'EditProfileRoute';
 
-  static const _i9.PageInfo<void> page = _i9.PageInfo<void>(name);
+  static const _i9.PageInfo<EditProfileRouteArgs> page =
+      _i9.PageInfo<EditProfileRouteArgs>(name);
+}
+
+class EditProfileRouteArgs {
+  const EditProfileRouteArgs({
+    this.key,
+    required this.callBack,
+  });
+
+  final _i10.Key? key;
+
+  final dynamic callBack;
+
+  @override
+  String toString() {
+    return 'EditProfileRouteArgs{key: $key, callBack: $callBack}';
+  }
 }

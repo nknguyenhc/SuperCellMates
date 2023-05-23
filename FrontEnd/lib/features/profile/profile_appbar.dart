@@ -1,11 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'package:requests/requests.dart';
 import 'package:get_it/get_it.dart';
 
 import 'package:supercellmates/config/config.dart';
-import 'package:supercellmates/http_requests/make_requests.dart';
 import 'package:supercellmates/router/router.gr.dart';
 
 class ProfileAppBar extends AppBar {
@@ -23,7 +21,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
   void initState() {
     dataLoaded = false;
     super.initState();
-    obtainProfileImage();
+    initProfileImage();
   }
 
   bool dataLoaded = false;
@@ -32,15 +30,15 @@ class ProfileAppBarState extends State<ProfileAppBar> {
   String username = "";
   Image? profileImage;
 
-  void obtainProfileImage() async {
+  void initProfileImage() async {
+    print("Initializing Profile Image");
+    dataLoaded = false;
     String profileImageURL =
         GetIt.I<Config>().restBaseURL + widget.profileMap["image_url"];
 
     var response = await Requests.get(profileImageURL);
-    profileImage = Image.memory(
-      response.bodyBytes,
-    );
     setState(() {
+      profileImage = Image.memory(response.bodyBytes);
       dataLoaded = true;
     });
   }
@@ -52,7 +50,8 @@ class ProfileAppBarState extends State<ProfileAppBar> {
       backgroundColor: Colors.yellow,
       leading: IconButton(
         icon: dataLoaded ? profileImage! : const CircularProgressIndicator(),
-        onPressed: () => AutoRouter.of(context).push(const EditProfileRoute()),
+        onPressed: () => AutoRouter.of(context)
+            .push(EditProfileRoute(callBack: initProfileImage)),
         iconSize: 50,
       ),
       title: Column(children: [

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'dart:convert';
 
 import 'package:supercellmates/features/home/home.dart';
 import 'package:supercellmates/features/chat/chat.dart';
 import 'package:supercellmates/features/profile/profile.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
-import 'dart:convert';
-
 import 'package:supercellmates/http_requests/make_requests.dart';
 import 'home/home_appbar.dart';
 import 'profile/profile_appbar.dart';
@@ -31,8 +30,8 @@ class MainScaffoldState extends State<MainScaffold> {
   dynamic profileMap;
 
   void getProfileMap() async {
-    profileMap =
-        jsonDecode(await getRequest(EndPoints.profileIndex.endpoint));
+    profileMap = jsonDecode(await getRequest(EndPoints.profileIndex.endpoint));
+
     appbars = <AppBar>[
       HomeAppBar(data: {"isAdmin": profileMap["is_admin"]}),
       AppBar(),
