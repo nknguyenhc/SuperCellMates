@@ -1,15 +1,14 @@
 import 'package:requests/requests.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supercellmates/config/config.dart';
-import 'endpoints.dart';
 
 /// For sending POST request, returns the JSON response from backend
 Future<dynamic> postWithCSRF(String postEndPoint, Map postBody) async {
-  String getURI = GetIt.I<Config>().restBaseURL + EndPoints.home.endpoint;
-  String postURI = GetIt.I<Config>().restBaseURL + postEndPoint;
+  String getURL = _composeURL("/");
+  String postURL = _composeURL(postEndPoint);
 
   // TODO: ADD ERROR HANDLING
-  var r1 = await Requests.get(getURI);
+  var r1 = await Requests.get(getURL);
   r1.raiseForStatus();
 
   if (!r1.headers.containsKey('set-cookie')) return "";
@@ -24,7 +23,7 @@ Future<dynamic> postWithCSRF(String postEndPoint, Map postBody) async {
 
   if (semicolonIndex != -1) {
     // Do the POST request with the CSRF token
-    var r2 = await Requests.post(postURI, body: postBody, headers: {
+    var r2 = await Requests.post(postURL, body: postBody, headers: {
       "X-CSRFToken": cookies.substring(csrfIndex + 10, semicolonIndex)
     });
     r2.raiseForStatus();
@@ -36,10 +35,14 @@ Future<dynamic> postWithCSRF(String postEndPoint, Map postBody) async {
 }
 
 /// For sending GET request, returns the JSON response from backend
-Future<dynamic> getRequest(String getURI) async {
+Future<dynamic> getRequest(String getEndPoint) async {
   // TODO: ADD ERROR HANDLING
-  var r1 = await Requests.get(getURI);
+  var r1 = await Requests.get(_composeURL(getEndPoint));
   r1.raiseForStatus();
 
   return r1.content();
+}
+
+String _composeURL(String endPoint) {
+  return GetIt.I<Config>().restBaseURL + endPoint;
 }
