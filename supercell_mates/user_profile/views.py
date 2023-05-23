@@ -1,11 +1,12 @@
 from django.shortcuts import render
 from django.urls import reverse
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse, HttpResponseNotAllowed
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.http.response import FileResponse
 from django.utils.datastructures import MultiValueDictKeyError
 from django.contrib.auth.decorators import login_required
 from .models import UserProfile
 from user_auth.models import UserAuth, Tag
+from django.views.decorators.http import require_http_methods
 
 
 @login_required
@@ -20,23 +21,21 @@ def index(request):
 
 
 @login_required
+@require_http_methods(["POST"])
 def add_tags(request):
-    if request.method == "POST":
-        try:
-            user_profile_obj = request.user.user_profile
-            count = request.POST["count"]
-            requested_tags = request.POST["tags"].strip("[]").split(",")
-            for i in range(int(count)):
-                user_profile_obj.tagList.add(Tag.objects.get(id=requested_tags[i]))
-            return HttpResponse("success")
-        except AttributeError:
-            return HttpResponseBadRequest("request does not contain form data")
-        except MultiValueDictKeyError:
-            return HttpResponseBadRequest("request body is missing an important key")
-        except ValueError:
-            return HttpResponseBadRequest("tags value is not in proper list format")
-    else:
-        return HttpResponseNotAllowed(["POST"])
+    try:
+        user_profile_obj = request.user.user_profile
+        count = request.POST["count"]
+        requested_tags = request.POST["tags"].strip("[]").split(",")
+        for i in range(int(count)):
+            user_profile_obj.tagList.add(Tag.objects.get(id=requested_tags[i]))
+        return HttpResponse("success")
+    except AttributeError:
+        return HttpResponseBadRequest("request does not contain form data")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body is missing an important key")
+    except ValueError:
+        return HttpResponseBadRequest("tags value is not in proper list format")
 
 
 @login_required
@@ -60,21 +59,19 @@ def obtain_tags(request):
 
 
 @login_required
+@require_http_methods(["POST"])
 def set_profile_image(request):
-    if request.method == "POST":
-        try:
-            user_profile_obj = request.user.user_profile
-            img = request.FILES["img"]
-            # TODO: check if the file submitted is of correct format
-            user_profile_obj.profile_pic = img
-            user_profile_obj.save()
-            return HttpResponse("success")
-        except AttributeError:
-            return HttpResponseBadRequest("request does not contain form data/image file")
-        except MultiValueDictKeyError:
-            return HttpResponse("image not submitted")
-    else:
-        return HttpResponseNotAllowed(["POST"])
+    try:
+        user_profile_obj = request.user.user_profile
+        img = request.FILES["img"]
+        # TODO: check if the file submitted is of correct format
+        user_profile_obj.profile_pic = img
+        user_profile_obj.save()
+        return HttpResponse("success")
+    except AttributeError:
+        return HttpResponseBadRequest("request does not contain form data/image file")
+    except MultiValueDictKeyError:
+        return HttpResponse("image not submitted")
 
 
 @login_required

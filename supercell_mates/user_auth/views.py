@@ -7,6 +7,7 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.core.files import File
 from django.utils.http import url_has_allowed_host_and_scheme as is_safe_url
+from django.views.decorators.http import require_http_methods
 
 
 from .models import UserAuth, Tag, TagRequest
@@ -27,32 +28,31 @@ def home_async(request):
         return HttpResponse("logged in")
 
 
+@require_http_methods(["POST"])
 def login_async(request):
-    if request.user.is_authenticated:
-        if not request.method == "POST":
-            try:
-                username = request.POST["username"]
-                password = request.POST["password"]
-                user = authenticate(request, username=username, password=password)
+    if not request.user.is_authenticated:
+        try:
+            username = request.POST["username"]
+            password = request.POST["password"]
+            user = authenticate(request, username=username, password=password)
 
-                if user is not None:
-                    login(request, user)
-                    return HttpResponse("logged in")
-                else:
-                    return HttpResponse("wrong username or password")
-            except AttributeError:
-                return HttpResponseBadRequest("request does not contain form data")
-            except MultiValueDictKeyError:
-                return HttpResponseBadRequest("request body is missing username or password")
-        else:
-            return HttpResponseNotAllowed(['POST'])
+            if user is not None:
+                login(request, user)
+                return HttpResponse("logged in")
+            else:
+                return HttpResponse("wrong username or password")
+        except AttributeError:
+            return HttpResponseBadRequest("request does not contain form data")
+        except MultiValueDictKeyError:
+            return HttpResponseBadRequest("request body is missing username or password")
     else:
         return HttpResponseBadRequest("you are logged in already")
 
 
+@require_http_methods(["GET", "POST"])
 def login_user(request):
-    if request.method == "POST":
-        if not request.user.is_authenticated:
+    if not request.user.is_authenticated:
+        if request.method == "POST":
             try:
                 username = request.POST["username"]
                 password = request.POST["password"]
@@ -72,60 +72,56 @@ def login_user(request):
                 return HttpResponseBadRequest("request does not contain form data")
             except MultiValueDictKeyError:
                 return HttpResponseBadRequest("request body is missing username or password")
-        else:
-            return HttpResponseBadRequest("you are already logged in")
     
-    elif request.method == 'GET':
-        return render(request, "user_auth/login.html")
+        elif request.method == 'GET':
+            return render(request, "user_auth/login.html")
     
     else:
-        return HttpResponseNotAllowed(['GET', 'POST'])
+        return redirect(reverse("user_auth:home"))
 
 
+@require_http_methods(["POST"])
 def check_unique_UID_async(request):
-    if request.method == "POST":
+    try:
+        username = request.POST["username"]
+        if UserAuth.objects.filter(username = username).exists():
+            return HttpResponse("username is already taken")
+        return HttpResponse("username is unique")
+    except AttributeError:
+        return HttpResponseBadRequest("request does not contain form data")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body is missing username")
+
+
+@require_http_methods(["POST"])
+def register_async(request):
+    if not request.user.is_authenticated:
         try:
             username = request.POST["username"]
-            if UserAuth.objects.filter(username = username).exists():
-                return HttpResponse("username is already taken")
-            return HttpResponse("username is unique")
+            password = request.POST["password"]
+            name = request.POST["name"]
+            if username == '' or password == '': # this only serve as a backup, checking empty fields should be done in front end
+                return HttpResponseBadRequest("username or password is empty")
+
+            try:
+                user = UserAuth.objects.create_user(username=username, password=password)
+                user_profile_obj = UserProfile(name=name, user_auth=user)
+                user_profile_obj.save()
+                login(request, user)
+            except IntegrityError:
+                return HttpResponse("username already taken")
+            
+            return HttpResponse("account created")
         except AttributeError:
             return HttpResponseBadRequest("request does not contain form data")
         except MultiValueDictKeyError:
-            return HttpResponseBadRequest("request body is missing username")
+            return HttpResponseBadRequest("request body is missing name, username or password")
+    
     else:
-        return HttpResponseNotAllowed(['POST'])
+        return HttpResponseBadRequest("you are already logged in")
 
 
-def register_async(request):
-    if request.method == "POST":
-        if not request.user.is_authenticated:
-            try:
-                username = request.POST["username"]
-                password = request.POST["password"]
-                name = request.POST["name"]
-                if username == '' or password == '': # this only serve as a backup, checking empty fields should be done in front end
-                    return HttpResponseBadRequest("username or password is empty")
-
-                try:
-                    user = UserAuth.objects.create_user(username=username, password=password)
-                    user_profile_obj = UserProfile(name=name, user_auth=user)
-                    user_profile_obj.save()
-                    login(request, user)
-                except IntegrityError:
-                    return HttpResponse("username already taken")
-                
-                return HttpResponse("account created")
-            except AttributeError:
-                return HttpResponseBadRequest("request does not contain form data")
-            except MultiValueDictKeyError:
-                return HttpResponseBadRequest("request body is missing name, username or password")
-        else:
-            return HttpResponseBadRequest("you are already logged in")
-    else:
-        return HttpResponseNotAllowed(["POST"])
-
-
+@require_http_methods(["GET, POST"])
 def register(request):
     if not request.user.is_authenticated:
         if request.method == "POST":
@@ -156,9 +152,6 @@ def register(request):
 
         elif request.method == 'GET':
             return render(request, "user_auth/register.html")
-        
-        else:
-            return HttpResponseNotAllowed(["GET", "POST"])
     
     else:
         return redirect(reverse("user_auth:home"))
@@ -170,6 +163,7 @@ def logout_user(request):
     return redirect(reverse("user_auth:home"))
 
 
+@login_required
 def logout_async(request):
     if request.user.is_authenticated:
         logout(request)
@@ -231,16 +225,14 @@ def obtain_tag_requests(request):
 
 
 @login_required
+@require_http_methods(["POST"])
 def add_tag_request(request):
-    if request.method == "POST":
-        try:
-            tagName = request.POST["tag"]
-            tag_request = TagRequest(name=tagName)
-            tag_request.save()
-            return HttpResponse("successfully added tag")
-        except AttributeError:
-            return HttpResponseBadRequest("request does not contain form data")
-        except MultiValueDictKeyError:
-            return HttpResponseBadRequest("request is missing an important key")
-    else:
-        return HttpResponseNotAllowed(["POST"])
+    try:
+        tagName = request.POST["tag"]
+        tag_request = TagRequest(name=tagName)
+        tag_request.save()
+        return HttpResponse("successfully added tag")
+    except AttributeError:
+        return HttpResponseBadRequest("request does not contain form data")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request is missing an important key")
