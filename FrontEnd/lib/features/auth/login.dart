@@ -106,7 +106,7 @@ class LoginPageState extends State<LoginPage> {
     return WillPopScope(
       onWillPop: () async => false,
       child: FlutterLogin(
-        title: "MatchMiner",
+        logo: "assets/images/MatchMiner_logo.png",
         onLogin: _authUser,
         onSignup: _registerUser,
         onRecoverPassword: _recoverPassword,
@@ -125,7 +125,9 @@ class LoginPageState extends State<LoginPage> {
           // TODO: ADD MORE VALIDATIONS
           return null;
         },
-        theme: LoginTheme(primaryColor: Colors.lightBlue),
+        theme: LoginTheme(
+          primaryColor: Colors.lightBlue,
+          logoWidth: 1),
         messages: LoginMessages(
             userHint: "Username",
             additionalSignUpFormDescription:
