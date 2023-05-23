@@ -14,14 +14,18 @@
             <div id="profile-basic-info">
                 <img height="200" width="200" src="{{ image_url }}" class="img-thumbnail">
                 <div id="profile-basic-info-text-container">
-                    <button type="button" class="btn btn-outline-primary">Edit Profile</button>
+                    <a href="{% url 'user_profile:setup' %}" class="">
+                        <button type="button" class="btn btn-outline-primary">Edit Profile</button>
+                    </a>
                     <div id="profile-basic-info-text" class="fs-3">
                         <strong id="profile-name">{{ user_profile.name }}</strong>
                         <div id="profile-id">@{{ user_profile.user_auth.username }}</div>
                     </div>
                 </div>
             </div>
-            <div id="profile-achievements"></div>
+            <div id="profile-achievements">
+                <img src="/static/media/trophy.jpg" height="100" width="100">
+            </div>
         </div>
         <div id="profile-tags" class="ps-5 py-4">
             {% for tag in tags %} 
