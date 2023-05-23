@@ -9,7 +9,7 @@ import 'package:supercellmates/http_requests/make_requests.dart';
 import 'package:supercellmates/router/router.gr.dart';
 
 class LogOutButton extends StatelessWidget {
-  LogOutButton({Key? key}) : super(key: key);
+  const LogOutButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

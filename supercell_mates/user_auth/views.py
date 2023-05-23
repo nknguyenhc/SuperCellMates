@@ -20,11 +20,7 @@ def home(request):
 
 @ensure_csrf_cookie
 def home_async(request):
-    if not request.user.is_authenticated:
-        print(request.META['HTTP_HOST'])
-        return HttpResponse("not authorised", status=401)
-    else:
-        return HttpResponse("logged in")
+    return HttpResponse()
 
 
 @require_http_methods(["POST"])
@@ -136,8 +132,6 @@ def register(request):
                 try:
                     user = UserAuth.objects.create_user(username=username, password=password)
                     user_profile_obj = UserProfile(name=name, user_auth=user)
-                    with open('./user_auth/default_profile_image.png', 'rb') as default_image:
-                        user_profile_obj.profile_pic.save("default.png", File(default_image), save=False)
                     user_profile_obj.save()
                     login(request, user)
                 except IntegrityError:

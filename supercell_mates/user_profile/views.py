@@ -86,7 +86,7 @@ def set_profile_image(request):
         if "img" in request.POST:
             img_bytearray = request.POST["img"].strip("[]").split(", ")
             img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
-            img = ImageFile(io.BytesIO(img_bytearray), name='foo.jpg')
+            img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
         else:
             img = request.FILES["img"]
         # TODO: check if the file submitted is of correct format

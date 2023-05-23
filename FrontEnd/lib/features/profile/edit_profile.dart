@@ -5,7 +5,9 @@ import 'change_profile_image.dart';
 
 @RoutePage()
 class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({Key? key}) : super(key: key);
+  const EditProfilePage({Key? key, required this.callBack}) : super(key: key);
+
+  final dynamic callBack;
 
   @override
   State<EditProfilePage> createState() => EditProfilePageState();
@@ -18,7 +20,7 @@ class EditProfilePageState extends State<EditProfilePage> {
         appBar: AppBar(title: const Text("EditProfile page header")),
         body: Column(
           children: [
-            ChangeProfileImageButton(),
+            ChangeProfileImageButton(callBack: widget.callBack),
           ],
         ));
   }
