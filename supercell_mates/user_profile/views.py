@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.http.response import FileResponse
@@ -79,4 +79,8 @@ def get_profile_pic(request, username):
     if not UserAuth.objects.filter(username=username).exists():
         return HttpResponseBadRequest("username not found")
     else:
-        return FileResponse(UserAuth.objects.get(username=username).user_profile.profile_pic)
+        profile_pic = UserAuth.objects.get(username=username).user_profile.profile_pic
+        if not profile_pic:
+            return redirect('/static/media/default_profile_pic.jpg')
+        else:
+            return FileResponse(profile_pic)

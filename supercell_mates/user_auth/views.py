@@ -5,7 +5,6 @@ from django.db import IntegrityError
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseNotAllowed
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.core.files import File
 from django.utils.http import url_has_allowed_host_and_scheme as is_safe_url
 from django.views.decorators.http import require_http_methods
 
@@ -121,7 +120,7 @@ def register_async(request):
         return HttpResponseBadRequest("you are already logged in")
 
 
-@require_http_methods(["GET, POST"])
+@require_http_methods(["GET", "POST"])
 def register(request):
     if not request.user.is_authenticated:
         if request.method == "POST":
