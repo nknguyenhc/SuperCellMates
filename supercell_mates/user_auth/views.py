@@ -5,6 +5,9 @@ from django.db import IntegrityError
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseNotAllowed
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.core.files import File
+from django.utils.http import url_has_allowed_host_and_scheme as is_safe_url
+
 
 from .models import UserAuth, Tag, TagRequest
 from user_profile.models import UserProfile
@@ -57,6 +60,9 @@ def login_user(request):
 
                 if user is not None:
                     login(request, user)
+                    next_url = request.GET.get("next", "/")
+                    if is_safe_url(next_url, {request.get_host()}):
+                        return redirect(next_url)
                     return redirect(reverse("user_auth:home"))
                 else:
                     return render(request, 'user_auth/login.html', {
