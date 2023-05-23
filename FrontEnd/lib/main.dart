@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
-import '../router/router.dart';
+import 'package:supercellmates/locator.dart';
+import 'package:supercellmates/router/router.dart';
 
 void main() {
-  runApp(MyApp());
+  setupLocator();
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
-
-  final _approuter = AppRouter();
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       child: MaterialApp.router(
-        routerConfig: _approuter.config(),
+        routerConfig: GetIt.I<AppRouter>().config(),
         title: 'SuperCellMates',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),

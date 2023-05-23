@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
-import '../router/router.gr.dart';
+import 'package:supercellmates/router/router.gr.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key, required this.data}) : super(key: key);

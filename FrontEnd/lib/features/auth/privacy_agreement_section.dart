@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 
-import '../router/router.gr.dart';
-import 'custom_checkbox.dart';
+import 'package:supercellmates/router/router.gr.dart';
+import '../custom_checkbox.dart';
 
 class PrivacyAgreementSection extends StatefulWidget {
   const PrivacyAgreementSection(

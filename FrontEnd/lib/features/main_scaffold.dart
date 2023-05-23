@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 
-import '../features/home.dart';
-import '../features/chat.dart';
-import '../features/profile.dart';
+import 'package:supercellmates/features/home/home.dart';
+import 'package:supercellmates/features/chat/chat.dart';
+import 'package:supercellmates/features/profile/profile.dart';
+import 'package:supercellmates/http_requests/endpoints.dart';
 import 'dart:convert';
 
-import '../functions/get_request.dart';
-
-import 'home_appbar.dart';
-import 'profile_appbar.dart';
+import 'package:supercellmates/http_requests/make_requests.dart';
+import 'home/home_appbar.dart';
+import 'profile/profile_appbar.dart';
 
 @RoutePage()
 class MainScaffold extends StatefulWidget {
@@ -32,7 +32,7 @@ class MainScaffoldState extends State<MainScaffold> {
 
   void getProfileMap() async {
     profileMap =
-        jsonDecode(await getRequest("http://10.0.2.2:8000/profile/async"));
+        jsonDecode(await getRequest(EndPoints.profileIndex.endpoint));
     appbars = <AppBar>[
       HomeAppBar(data: {"isAdmin": profileMap["is_admin"]}),
       AppBar(),

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'dart:convert';
 
-import '../functions/get_request.dart';
-import '../functions/post_with_csrf.dart';
+import 'package:supercellmates/http_requests/endpoints.dart';
+import 'package:supercellmates/http_requests/make_requests.dart';
 
 @RoutePage()
 class AddTagPage extends StatefulWidget {
@@ -14,10 +14,6 @@ class AddTagPage extends StatefulWidget {
 }
 
 class AddTagPageState extends State<AddTagPage> {
-  final String getURI = "http://10.0.2.2:8000/async";
-  final String obtainTagsURI = "http://10.0.2.2:8000/profile/obtain_tags";
-  final String addTagsURI = "http://10.0.2.2:8000/profile/add_tags";
-
   bool dataLoaded = false;
 
   @override
@@ -30,7 +26,7 @@ class AddTagPageState extends State<AddTagPage> {
   dynamic allTagsList;
 
   void obtainAllTagsList() async {
-    allTagsList = jsonDecode(await getRequest(obtainTagsURI))["tags"];
+    allTagsList = jsonDecode(await getRequest(EndPoints.obtainTags.endpoint))["tags"];
     setState(() {
       dataLoaded = true;
     });
@@ -43,9 +39,8 @@ class AddTagPageState extends State<AddTagPage> {
     var body = {
       "tags": listToAdd,
     };
-    var response = jsonDecode(await postWithCSRF(getURI, addTagsURI, body));
+    var response = jsonDecode(await postWithCSRF(EndPoints.addTags.endpoint, body));
     if (response["message"] == "success") {
-      print("success!");
     }
   }
 
@@ -61,17 +56,17 @@ class AddTagPageState extends State<AddTagPage> {
                 child: ListView.builder(
                     itemCount: allTagsList != null ? allTagsList.length : 0,
                     itemBuilder: (BuildContext context, int index) {
-                      return 
-                        allTagsList[index]["in"]
+                      return allTagsList[index]["in"]
                           ? TextButton(
-                            onPressed: () => print("already have this tag"),
-                            child: Text(
-                              allTagsList[index]["tag_name"],
-                              style: const TextStyle(color: Colors.grey),
-                            ),)
+                              onPressed: () => {},
+                              child: Text(
+                                allTagsList[index]["tag_name"],
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+                            )
                           : TextButton(
-                          onPressed: () => addTags([index]),
-                          child: Text(allTagsList[index]["tag_name"]));
+                              onPressed: () => addTags([index]),
+                              child: Text(allTagsList[index]["tag_name"]));
                     })),
           )
         : const CircularProgressIndicator();

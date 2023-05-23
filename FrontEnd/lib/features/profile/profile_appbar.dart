@@ -1,8 +1,10 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:requests/requests.dart';
+import 'package:get_it/get_it.dart';
 
-import '../router/router.gr.dart';
+import 'package:supercellmates/config/config.dart';
+import 'package:supercellmates/router/router.gr.dart';
 
 class ProfileAppBar extends AppBar {
   ProfileAppBar({Key? key, required this.profileMap})
@@ -29,8 +31,8 @@ class ProfileAppBarState extends State<ProfileAppBar> {
   Image? profileImage;
 
   void obtainProfileImage() async {
-    var response = await Requests.get(
-        "http://10.0.2.2:8000" + widget.profileMap["image_url"]);
+    var response =
+        await Requests.get("${GetIt.I<Config>().restBaseURL}${widget.profileMap["image_url"]}");
     profileImage = Image.memory(response.bodyBytes);
     setState(() {
       dataLoaded = true;

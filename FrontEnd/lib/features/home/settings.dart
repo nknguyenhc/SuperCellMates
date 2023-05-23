@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 
-import 'logout.dart';
+import '../auth/logout.dart';
 
 @RoutePage()
 class SettingsPage extends StatefulWidget {
@@ -16,7 +16,7 @@ class SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: const Text("Settings page header")),
-        body: const Column(
+        body: Column(
           children: [
             LogOutButton(),
           ],

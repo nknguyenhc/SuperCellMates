@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:supercellmates/http_requests/endpoints.dart';
 
-import '../functions/post_with_csrf.dart';
+import 'package:supercellmates/http_requests/make_requests.dart';
 
 class ChangeProfileImageButton extends StatelessWidget {
   ChangeProfileImageButton({Key? key}) : super(key: key);
   final imagePicker = ImagePicker();
-
-  final String getURI = "http://10.0.2.2:8000/async";
-  final String changeProfileImageURI =
-      "http://10.0.2.2:8000/profile/set_profile_image";
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +17,7 @@ class ChangeProfileImageButton extends StatelessWidget {
           if (image != null) {
             var body = {"img": await image.readAsBytes()};
             final response =
-                await postWithCSRF(getURI, changeProfileImageURI, body);
-            print("attempted to send image");
+                await postWithCSRF(EndPoints.setProfileImage.endpoint, body);
             // TODO: success/error handling
           }
         },

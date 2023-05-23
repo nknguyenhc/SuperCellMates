@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
+import 'package:supercellmates/http_requests/endpoints.dart';
 
-import '../functions/post_with_csrf.dart';
-import '../router/router.gr.dart';
+import '../../http_requests/make_requests.dart';
+import '../../router/router.gr.dart';
 import 'privacy_agreement_section.dart';
 
 @RoutePage()
@@ -18,12 +19,6 @@ class LoginPage extends StatefulWidget {
 
 class LoginPageState extends State<LoginPage> {
   // TODO: organise the URIs in a file
-  final String getURI = "http://10.0.2.2:8000/async";
-  final String loginURI = "http://10.0.2.2:8000/login_async";
-  final String registerURI = "http://10.0.2.2:8000/register_async";
-  final String checkUniqueUsernameURI = "http://10.0.2.2:8000/check_unique_username_async";
-  final String privacyAgreementURI =
-      'http://10.0.2.2:8000/privacy_agreement_async';
 
   bool privacyAgreementChecked = false;
 
@@ -50,7 +45,7 @@ class LoginPageState extends State<LoginPage> {
     };
 
     var responseMap =
-        postWithCSRF(getURI, loginURI, body).then((json) => jsonDecode(json));
+        postWithCSRF(EndPoints.login.endpoint, body).then((json) => jsonDecode(json));
     return responseMap.then((map) {
       if (map["message"] == "logged in") {
         return null;
@@ -61,7 +56,7 @@ class LoginPageState extends State<LoginPage> {
 
   // called when signup botton is pressed
   // prevents switching to additional page if UID is taken
-  Future<String?> _checkUniqueUID(SignupData data) {
+  Future<String?> _checkUniqueUsername(SignupData data) {
     if (!privacyAgreementChecked) {
       return Future.value(
           "Please read and agree to our data privacy agreement");
@@ -71,7 +66,7 @@ class LoginPageState extends State<LoginPage> {
       "username": data.name, // unique immutable username
     };
 
-    var responseMap = postWithCSRF(getURI, checkUniqueUsernameURI, body)
+    var responseMap = postWithCSRF(EndPoints.checkUniqueUsername.endpoint, body)
         .then((json) => jsonDecode(json));
     
     return responseMap.then((map) {
@@ -95,7 +90,7 @@ class LoginPageState extends State<LoginPage> {
       "password": data.password,
     };
 
-    var responseMap = postWithCSRF(getURI, registerURI, body)
+    var responseMap = postWithCSRF(EndPoints.register.endpoint, body)
         .then((json) => jsonDecode(json));
     return responseMap.then((map) {
       if (map["message"] == "account created") {
@@ -119,7 +114,7 @@ class LoginPageState extends State<LoginPage> {
         onLogin: _authUser,
         onSignup: _registerUser,
         onRecoverPassword: _recoverPassword,
-        onSwitchToAdditionalFields: _checkUniqueUID,
+        onSwitchToAdditionalFields: _checkUniqueUsername,
         onSubmitAnimationCompleted: () {
           AutoRouter.of(context)
               .pushAndPopUntil(const MainScaffold(), predicate: (_) => false);

@@ -1,12 +1,12 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
-import '../router/router.gr.dart';
+import 'package:supercellmates/router/router.gr.dart';
 
 class HomeAppBar extends AppBar {
   HomeAppBar({Key? key, required this.data}) : super(key: key);
 
-  dynamic data;
+  final dynamic data;
 
   @override
   State<HomeAppBar> createState() => HomeAppBarState();

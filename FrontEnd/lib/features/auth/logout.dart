@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:requests/requests.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:supercellmates/http_requests/endpoints.dart';
 import 'dart:convert';
 
-import '../router/router.gr.dart';
+import 'package:supercellmates/router/router.gr.dart';
 
 class LogOutButton extends StatelessWidget {
-  const LogOutButton({Key? key}) : super(key: key);
+  LogOutButton({Key? key}) : super(key: key);
 
-  final String logoutURI = "http://10.0.2.2:8000/logout_async";
+  final String logoutURI = EndPoints.logout.endpoint;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,7 @@ class LogOutButton extends StatelessWidget {
             if (jsonDecode(r.content())["message"] == "logged out") {
               //TODO: Requests.clearStoredCookies(hostname)
               AutoRouter.of(context)
-                  .pushAndPopUntil(LoginRoute(), predicate: (_) => false);
+                  .pushAndPopUntil(const LoginRoute(), predicate: (_) => false);
             }
           });
         },

@@ -1,7 +1,13 @@
 import 'package:requests/requests.dart';
+import 'package:get_it/get_it.dart';
+import 'package:supercellmates/config/config.dart';
+import 'endpoints.dart';
 
 /// For sending POST request, returns the JSON response from backend
-Future<dynamic> postWithCSRF(String getURI, String postURI, Map postBody) async {
+Future<dynamic> postWithCSRF(String postEndPoint, Map postBody) async {
+  String getURI = GetIt.I<Config>().restBaseURL + EndPoints.home.endpoint;
+  String postURI = GetIt.I<Config>().restBaseURL + postEndPoint;
+
   // TODO: ADD ERROR HANDLING
   var r1 = await Requests.get(getURI);
   r1.raiseForStatus();
@@ -27,4 +33,13 @@ Future<dynamic> postWithCSRF(String getURI, String postURI, Map postBody) async 
   }
 
   return "";
+}
+
+/// For sending GET request, returns the JSON response from backend
+Future<dynamic> getRequest(String getURI) async {
+  // TODO: ADD ERROR HANDLING
+  var r1 = await Requests.get(getURI);
+  r1.raiseForStatus();
+
+  return r1.content();
 }
