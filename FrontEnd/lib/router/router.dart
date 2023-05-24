@@ -10,11 +10,12 @@ class AppRouter extends $AppRouter {
   List<AutoRoute> get routes => [
         AutoRoute(page: LoginRoute.page, initial: true),
         AutoRoute(page: MainScaffold.page),
-        AutoRoute(page: FriendRequestRoute.page),
+        AutoRoute(page: FriendsRoute.page),
         AutoRoute(page: PrivacyAgreementRoute.page),
         AutoRoute(page: AchievementRoute.page),
         AutoRoute(page: SettingsRoute.page),
         AutoRoute(page: AddTagRoute.page),
         AutoRoute(page: EditProfileRoute.page),
+        AutoRoute(page: CreatePostRoute.page),
       ];
 }

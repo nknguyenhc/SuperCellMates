@@ -78,13 +78,39 @@ class ProfileAppBarState extends State<ProfileAppBar> {
       actions: [
         Column(
           children: [
+            const Padding(padding: EdgeInsets.all(5)),
             SizedBox(
-              height: 45,
+              height: 40,
+              child: IconButton(
+                onPressed: () {
+                  AutoRouter.of(context).push(const FriendsRoute());
+                },
+                icon: const Icon(Icons.people),
+                iconSize: 38,
+              ),
+            ),
+            const SizedBox(
+              height: 30,
+              child: Text(
+                "Friends",
+                style: TextStyle(
+                  fontSize: 15,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const Padding(padding: EdgeInsets.all(5)),
+        Column(
+          children: [
+            const Padding(padding: EdgeInsets.all(5)),
+            SizedBox(
+              height: 40,
               child: IconButton(
                 icon: const Icon(Icons.pentagon),
                 onPressed: () =>
                     AutoRouter.of(context).push(const AchievementRoute()),
-                iconSize: 40,
+                iconSize: 35,
               ),
             ),
             const SizedBox(

@@ -74,7 +74,7 @@ class AddTagPageState extends State<AddTagPage> {
         ? Scaffold(
             appBar: AppBar(title: const Text("AddTag page header")),
             body: Container(
-                height: 300,
+                height: 700,
                 width: 100,
                 alignment: Alignment.center,
                 child: ListView.builder(
