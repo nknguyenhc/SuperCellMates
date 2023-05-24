@@ -22,22 +22,22 @@ def index(request):
         "my_profile": True
     })
 
-
+@login_required
 def index_async(request):
-    if request.user.is_authenticated:
-        user_profile_obj = request.user.user_profile
-        tags = list(user_profile_obj.tagList.all())
-        tagListString = ""
-        for tag in tags:
-            tagListString += tag.name + ";"
-        response = {
-            "image_url": reverse("user_profile:get_profile_pic", args=(request.user.username,)),
-            "name": user_profile_obj.name,
-            "username": user_profile_obj.user_auth.username,
-            "tagListString": tagListString,
-            "is_admin": request.user.is_superuser,
-        }
-        return JsonResponse(response)
+    user_profile_obj = request.user.user_profile
+    tags = list(user_profile_obj.tagList.all())
+    tag_list_string = ""
+    for tag in tags:
+        tag_list_string += tag.name + ";"
+    response = {
+        "image_url": reverse("user_profile:get_profile_pic", args=(request.user.username,)),
+        "name": user_profile_obj.name,
+        "username": user_profile_obj.user_auth.username,
+        "tagListString": tag_list_string,
+        "is_admin": request.user.is_superuser,
+        "my_profile": True
+    }
+    return JsonResponse(response)
 
 
 @login_required
