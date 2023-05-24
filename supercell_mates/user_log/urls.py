@@ -5,8 +5,9 @@ from . import views
 app_name="user_log"
 urlpatterns = [
     path('profile/<str:username>', views.view_profile, name="view_profile"),
-    path('add_friend', views.add_friend, name="add_friend"),
+    path('add_friend_request', views.add_friend_request, name="add_friend_request"),
     path('friends', views.view_friends, name="view_friends"),
     path('friend_requests', views.view_friend_requests, name="view_friend_requests"),
     path('add_friend', views.add_friend, name="add_friend"),
+    path('search', views.search, name="search")
 ]
