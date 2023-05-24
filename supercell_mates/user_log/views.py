@@ -25,7 +25,7 @@ def view_profile(request, username):
 
 @login_required
 @require_http_methods(["POST"])
-def add_friend(request):
+def add_friend_request(request):
     try:
         username = request.POST["username"]
         user_log_obj = UserAuth.objects.get(username=username).user_log
@@ -84,3 +84,35 @@ def add_friend(request):
         return HttpResponseBadRequest("request does not have an important key")
     except ObjectDoesNotExist:
         return HttpResponseBadRequest("user with the requested username does not exist")
+
+
+# not a view
+def find_users(search_param):
+    return list(map(
+        lambda user: ({
+            "name": user.user_profile.name,
+            "username": user.username
+        }),
+        filter(
+            lambda user: search_param in user.username,
+            list(UserAuth.objects.all())
+        )
+    ))
+
+
+@login_required
+def search(request):
+    search_param = request.GET["username"]
+    users = find_users(search_param)
+    return render(request, "user_log/search.html", {
+        "users": users
+    })
+
+
+@login_required
+def search_users_async(request):
+    search_param = request.GET["username"]
+    users = find_users(search_param)
+    return JsonResponse({
+        "users": users
+    })
