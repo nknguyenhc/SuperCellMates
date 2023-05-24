@@ -61,9 +61,13 @@ abstract class $AppRouter extends _i9.RootStackRouter {
       );
     },
     AddTagRoute.name: (routeData) {
+      final args = routeData.argsAs<AddTagRouteArgs>();
       return _i9.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i7.AddTagPage(),
+        child: _i7.AddTagPage(
+          key: args.key,
+          updateCallBack: args.updateCallBack,
+        ),
       );
     },
     EditProfileRoute.name: (routeData) {
@@ -165,16 +169,40 @@ class AchievementRoute extends _i9.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i7.AddTagPage]
-class AddTagRoute extends _i9.PageRouteInfo<void> {
-  const AddTagRoute({List<_i9.PageRouteInfo>? children})
-      : super(
+class AddTagRoute extends _i9.PageRouteInfo<AddTagRouteArgs> {
+  AddTagRoute({
+    _i10.Key? key,
+    required dynamic updateCallBack,
+    List<_i9.PageRouteInfo>? children,
+  }) : super(
           AddTagRoute.name,
+          args: AddTagRouteArgs(
+            key: key,
+            updateCallBack: updateCallBack,
+          ),
           initialChildren: children,
         );
 
   static const String name = 'AddTagRoute';
 
-  static const _i9.PageInfo<void> page = _i9.PageInfo<void>(name);
+  static const _i9.PageInfo<AddTagRouteArgs> page =
+      _i9.PageInfo<AddTagRouteArgs>(name);
+}
+
+class AddTagRouteArgs {
+  const AddTagRouteArgs({
+    this.key,
+    required this.updateCallBack,
+  });
+
+  final _i10.Key? key;
+
+  final dynamic updateCallBack;
+
+  @override
+  String toString() {
+    return 'AddTagRouteArgs{key: $key, updateCallBack: $updateCallBack}';
+  }
 }
 
 /// generated route for

@@ -31,7 +31,6 @@ class ProfileAppBarState extends State<ProfileAppBar> {
   Image? profileImage;
 
   void initProfileImage() async {
-    print("Initializing Profile Image");
     dataLoaded = false;
     String profileImageURL =
         GetIt.I<Config>().restBaseURL + widget.profileMap["image_url"];
@@ -47,7 +46,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
   Widget build(BuildContext context) {
     return AppBar(
       toolbarHeight: 80,
-      backgroundColor: Colors.yellow,
+      backgroundColor: Colors.lightBlue,
       leading: IconButton(
         icon: dataLoaded ? profileImage! : const CircularProgressIndicator(),
         onPressed: () => AutoRouter.of(context)

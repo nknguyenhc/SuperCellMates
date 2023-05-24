@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:supercellmates/router/router.gr.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key, required this.data}) : super(key: key);
+  const ProfilePage({Key? key, required this.data, required this.updateCallBack}) : super(key: key);
+
+  final dynamic updateCallBack;
 
   final dynamic data;
 
@@ -28,14 +30,15 @@ class ProfilePageState extends State<ProfilePage> {
               itemBuilder: (BuildContext context, int index) {
                 return index < tagList.length
                     ? tagList[index] == ""
-                      ? Container()
-                      : TextButton(
-                        onPressed: () => {}, child: Text(tagList[index]))
+                        ? Container()
+                        : TextButton(
+                            onPressed: () => {}, child: Text(tagList[index]))
                     : IconButton(
                         onPressed: () =>
-                            AutoRouter.of(context).push(const AddTagRoute()),
+                            AutoRouter.of(context).push(AddTagRoute(updateCallBack: widget.updateCallBack)),
                         icon: const Icon(Icons.add_circle_outline_rounded),
-                        iconSize: 50,);
+                        iconSize: 50,
+                      );
               }),
         )
       ],

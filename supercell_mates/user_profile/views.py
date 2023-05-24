@@ -33,7 +33,6 @@ def index_async(request):
             "image_url": reverse("user_profile:get_profile_pic", args=(request.user.username,)),
             "name": user_profile_obj.name,
             "username": user_profile_obj.user_auth.username,
-            "tags": tags,
             "tagListString": tagListString,
             "is_admin": request.user.is_superuser,
         }

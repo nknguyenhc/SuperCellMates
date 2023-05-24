@@ -39,7 +39,10 @@ class MainScaffoldState extends State<MainScaffold> {
     ];
 
     pages[2] =
-        ProfilePage(data: {"tagListString": profileMap["tagListString"]});
+        ProfilePage(
+          data: {"tagListString": profileMap["tagListString"]},
+          updateCallBack: getProfileMap,
+        );
 
     setState(() => dataLoaded = true);
   }

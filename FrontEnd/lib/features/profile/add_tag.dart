@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'dart:convert';
 
+import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
 
 @RoutePage()
 class AddTagPage extends StatefulWidget {
-  const AddTagPage({Key? key}) : super(key: key);
+  const AddTagPage({Key? key, required this.updateCallBack}) : super(key: key);
+
+  final dynamic updateCallBack;
 
   @override
   State<AddTagPage> createState() => AddTagPageState();
@@ -26,22 +29,43 @@ class AddTagPageState extends State<AddTagPage> {
   dynamic allTagsList;
 
   void obtainAllTagsList() async {
-    allTagsList = jsonDecode(await getRequest(EndPoints.obtainTags.endpoint))["tags"];
+    dataLoaded = false;
+    allTagsList =
+        jsonDecode(await getRequest(EndPoints.obtainTags.endpoint))["tags"];
     setState(() {
       dataLoaded = true;
     });
   }
 
   // currently only supports adding one tag at a time
-  void addTags(dynamic indexes) async {
+  void _addTags(dynamic indexes) async {
     var listToAdd =
         indexes.map((index) => allTagsList[index]["tag_id"]).toList();
     var body = {
       "tags": listToAdd,
+      "count": listToAdd.length,
     };
-    var response = jsonDecode(await postWithCSRF(EndPoints.addTags.endpoint, body));
-    if (response["message"] == "success") {
+    var response = await postWithCSRF(EndPoints.addTags.endpoint, body);
+    if (response == "success") {
+      obtainAllTagsList();
+      widget.updateCallBack();
+      showSuccessDialog(context, "Successfully added tag!");
     }
+  }
+
+  void _requestConfirmationForTag(dynamic indexes) {
+    var namesToAdd =
+        indexes.map((index) => allTagsList[index]["tag_name"]).toList();
+    String tagListString = namesToAdd[0];
+    for (int i = 1; i < namesToAdd.length; i++) {
+      namesToAdd += ", ${namesToAdd[i]}";
+    }
+
+    showConfirmationDialog(
+      context,
+      "Are you sure to add $tagListString?",
+      () => _addTags(indexes),
+    );
   }
 
   @override
@@ -65,7 +89,8 @@ class AddTagPageState extends State<AddTagPage> {
                               ),
                             )
                           : TextButton(
-                              onPressed: () => addTags([index]),
+                              onPressed: () =>
+                                  _requestConfirmationForTag([index]),
                               child: Text(allTagsList[index]["tag_name"]));
                     })),
           )
