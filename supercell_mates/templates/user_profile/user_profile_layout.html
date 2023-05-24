@@ -1,0 +1,59 @@
+{% extends 'layout.html' %} 
+
+{% block title %} 
+    <title>Your Profile</title>
+{% endblock %} 
+
+{% block style %} 
+    <link rel="stylesheet" href="/static/style/user_profile/user_profile_layout.css">
+{% endblock %} 
+
+{% block body %} 
+    <div id="profile-page">
+        <div id="profile-top" class="border-bottom p-4">
+            <div id="profile-basic-info">
+                <img height="200" width="200" src="{{ image_url }}" class="img-thumbnail">
+                <div id="profile-basic-info-text-container">
+                    {% if my_profile %} 
+                        <a href="{% url 'user_profile:setup' %}" class="">
+                            <button type="button" class="btn btn-outline-primary">Edit Profile</button>
+                        </a>
+                    {% else %} 
+                        <form id="add_friend_form">
+                            <input type="hidden" id="add_friend_username" value="{{ user_profile.user_auth.username }}">
+                            <input type="submit" value="Add Friend" class="btn btn-outline-primary">
+                        </form>
+                        <script src="/static/script/user_log/add_friend.js"></script>
+                    {% endif %} 
+                    <div id="profile-basic-info-text" class="fs-3">
+                        <strong id="profile-name">{{ user_profile.name }}</strong>
+                        <div id="profile-id">@{{ user_profile.user_auth.username }}</div>
+                    </div>
+                </div>
+            </div>
+            <div id="profile-achievements">
+                <img src="/static/media/trophy.jpg" height="100" width="100">
+            </div>
+        </div>
+        <div id="profile-content">
+            <div id="profile-side-nav" class="sticky-top p-3 border-end">
+                <ul class="nav flex-column">
+                    {% if my_profile %} 
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'user_log:view_friends' %}">Friends</a>
+                        </li>
+                    {% endif %} 
+                    {% if my_profile %} 
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'user_log:view_friend_requests' %}">Friend Requests</a>
+                        </li>
+                    {% endif %} 
+                </ul>
+            </div>
+            <div id="profile-page-content" class="ps-5 py-4">
+                {% block content %} 
+                {% endblock %} 
+            </div>
+        </div>
+    </div>
+{% endblock %} 
