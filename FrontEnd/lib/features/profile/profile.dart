@@ -68,7 +68,9 @@ class ProfilePageState extends State<ProfilePage> {
           children: [
             IconButton(
               icon: const Icon(Icons.note_add, size: 50),
-              onPressed: () {},
+              onPressed: () {
+                AutoRouter.of(context).push(const CreatePostRoute());
+              },
             )
           ],
         ),

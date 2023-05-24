@@ -65,13 +65,6 @@ class HomeAppBarState extends State<HomeAppBar> {
                 icon: const Icon(Icons.add_card_outlined),
               )
             : Container(),
-        IconButton(
-          onPressed: () {
-            AutoRouter.of(context).push(const FriendRequestRoute());
-          },
-          icon: const Icon(Icons.people),
-          iconSize: 25,
-        ),
       ],
       backgroundColor: Colors.lightBlue,
       putActionsOnRight: true,
