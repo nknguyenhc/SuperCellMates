@@ -11,6 +11,7 @@ from django.views.decorators.http import require_http_methods
 
 from .models import UserAuth, Tag, TagRequest
 from user_profile.models import UserProfile
+from user_log.models import UserLog
 
 
 @login_required
@@ -106,6 +107,8 @@ def register_async(request):
                 user = UserAuth.objects.create_user(username=username, password=password)
                 user_profile_obj = UserProfile(name=name, user_auth=user)
                 user_profile_obj.save()
+                user_log_obj = UserLog(user_auth=user, user_profile=user_profile_obj)
+                user_log_obj.save()
                 login(request, user)
             except IntegrityError:
                 return HttpResponse("username already taken")
@@ -136,9 +139,9 @@ def register(request):
                 try:
                     user = UserAuth.objects.create_user(username=username, password=password)
                     user_profile_obj = UserProfile(name=name, user_auth=user)
-                    with open('./user_auth/default_profile_image.png', 'rb') as default_image:
-                        user_profile_obj.profile_pic.save("default.png", File(default_image), save=False)
                     user_profile_obj.save()
+                    user_log_obj = UserLog(user_auth=user, user_profile=user_profile_obj)
+                    user_log_obj.save()
                     login(request, user)
                 except IntegrityError:
                     return render(request, "user_auth/register.html", {

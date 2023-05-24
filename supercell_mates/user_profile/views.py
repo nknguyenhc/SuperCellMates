@@ -13,18 +13,19 @@ from django.views.decorators.http import require_http_methods
 
 @login_required
 def index(request):
-    user_profile_obj = UserProfile.objects.get(user_auth=request.user)
+    user_profile_obj = request.user.user_profile
     tags = list(user_profile_obj.tagList.all())
     return render(request, 'user_profile/index.html', {
         "image_url": reverse("user_profile:get_profile_pic", args=(request.user.username,)),
         "user_profile": user_profile_obj,
-        "tags": tags
+        "tags": tags,
+        "my_profile": True
     })
 
 
 def index_async(request):
     if request.user.is_authenticated:
-        user_profile_obj = UserProfile.objects.get(user_auth=request.user)
+        user_profile_obj = request.user.user_profile
         tags = list(user_profile_obj.tagList.all())
         tagListString = ""
         for tag in tags:
