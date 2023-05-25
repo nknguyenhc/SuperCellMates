@@ -8,7 +8,10 @@ enum EndPoints {
   profileIndex,
   addTags,
   obtainTags,
-  setProfileImage
+  setProfileImage,
+
+  viewFriends,
+  viewFriendRequests,
 }
 
 extension ExtendedEndPoints on EndPoints {
@@ -22,6 +25,8 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.addTags: "/profile/add_tags",
     EndPoints.obtainTags: "/profile/obtain_tags",
     EndPoints.setProfileImage: "/profile/set_profile_image",
+    EndPoints.viewFriends: "/user/friends_async",
+    EndPoints.viewFriendRequests: "/user/friend_requests_async"
   };
 
   String get endpoint => endpoints[this]!;

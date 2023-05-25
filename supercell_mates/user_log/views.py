@@ -80,7 +80,7 @@ def view_friends(request):
 @login_required
 def view_friends_async(request):
     friends = get_friend_list(request.user)
-    return JsonResponse(friends)
+    return JsonResponse(friends, safe=False)
 
 
 def get_friend_requests_list(user):
@@ -106,7 +106,7 @@ def view_friend_requests(request):
 @login_required
 def view_friend_requests_async(request):
     friend_requests = get_friend_requests_list(request.user)
-    return JsonResponse(friend_requests)
+    return JsonResponse(friend_requests, safe=False)
 
 
 @login_required

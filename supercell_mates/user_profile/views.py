@@ -105,7 +105,6 @@ def get_profile_pic(request, username):
         return HttpResponseBadRequest("username not found")
     else:
         profile_pic = UserAuth.objects.get(username=username).user_profile.profile_pic
-        print(profile_pic)
         if not profile_pic:
             return redirect('/static/media/default_profile_pic.jpg')
         else:
