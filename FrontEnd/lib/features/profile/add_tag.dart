@@ -31,7 +31,7 @@ class AddTagPageState extends State<AddTagPage> {
   void obtainAllTagsList() async {
     dataLoaded = false;
     allTagsList =
-        jsonDecode(await getRequest(EndPoints.obtainTags.endpoint))["tags"];
+        jsonDecode(await getRequest(EndPoints.obtainTags.endpoint, null))["tags"];
     setState(() {
       dataLoaded = true;
     });

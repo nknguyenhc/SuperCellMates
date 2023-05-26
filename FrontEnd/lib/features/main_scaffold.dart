@@ -29,24 +29,6 @@ class MainScaffoldState extends State<MainScaffold> {
   bool dataLoaded = false;
   dynamic profileMap;
 
-  void getProfileMap() async {
-    profileMap = jsonDecode(await getRequest(EndPoints.profileIndex.endpoint));
-
-    appbars = <AppBar>[
-      HomeAppBar(data: {"isAdmin": profileMap["is_admin"]}),
-      AppBar(),
-      ProfileAppBar(profileMap: profileMap),
-    ];
-
-    pages[2] =
-        ProfilePage(
-          data: {"tagListString": profileMap["tagListString"]},
-          updateCallBack: getProfileMap,
-        );
-
-    setState(() => dataLoaded = true);
-  }
-
   int selectedIndex = 0;
 
   final pages = <Widget>[
@@ -56,6 +38,33 @@ class MainScaffoldState extends State<MainScaffold> {
   ];
 
   late dynamic appbars;
+
+  void getProfileMap() async {
+    profileMap =
+        jsonDecode(await getRequest(EndPoints.profileIndex.endpoint, null));
+
+    appbars = <AppBar>[
+      HomeAppBar(data: {
+        "isAdmin": profileMap["is_admin"],
+      }, updateCallBack: updateHomePageBody),
+      AppBar(),
+      ProfileAppBar(profileMap: profileMap),
+    ];
+
+    pages[2] = ProfilePage(
+      data: {"tagListString": profileMap["tagListString"]},
+      updateCallBack: getProfileMap,
+    );
+
+    setState(() => dataLoaded = true);
+  }
+
+  void updateHomePageBody(Widget? body) {
+    setState(() {
+      pages[0] = body ?? const HomePage();
+      print("updated");
+    });
+  }
 
   void changeIndex(int x) {
     setState(() {
@@ -102,6 +111,7 @@ class MainScaffoldState extends State<MainScaffold> {
             ],
             currentIndex: selectedIndex,
           ),
+          resizeToAvoidBottomInset: false,
         ),
       );
     }

@@ -29,14 +29,14 @@ class FriendsPageState extends State<FriendsPage> {
   }
 
   void getFriendList() async {
-    friendList = jsonDecode(await getRequest(EndPoints.viewFriends.endpoint));
+    friendList = jsonDecode(await getRequest(EndPoints.viewFriends.endpoint, null));
     print(friendList);
     print("Got friend list!");
   }
 
   void getFriendRequestList() async {
     friendRequestList =
-        jsonDecode(await getRequest(EndPoints.viewFriendRequests.endpoint));
+        jsonDecode(await getRequest(EndPoints.viewFriendRequests.endpoint, null));
     print(friendRequestList);
     print("Got friend request list!");
   }

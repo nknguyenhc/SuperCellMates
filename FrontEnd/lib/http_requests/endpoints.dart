@@ -12,6 +12,10 @@ enum EndPoints {
 
   viewFriends,
   viewFriendRequests,
+  addFriendRequest,
+  searchUsers, 
+  viewProfile,
+
 }
 
 extension ExtendedEndPoints on EndPoints {
@@ -26,7 +30,11 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.obtainTags: "/profile/obtain_tags",
     EndPoints.setProfileImage: "/profile/set_profile_image",
     EndPoints.viewFriends: "/user/friends_async",
-    EndPoints.viewFriendRequests: "/user/friend_requests_async"
+    EndPoints.viewFriendRequests: "/user/friend_requests_async",
+    EndPoints.addFriendRequest: "/user/add_friend_request",
+    EndPoints.searchUsers: "/user/search_users_async", // TODO: broader search and remove '/user'
+    EndPoints.viewProfile: "/user/profile_async",
+
   };
 
   String get endpoint => endpoints[this]!;

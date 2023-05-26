@@ -31,12 +31,14 @@ def view_profile_async(request, username):
         tag_list_string = ""
         for tag in tags:
             tag_list_string += tag.name + ";"
-        return render(request, "user_profile/index.html", {
+        is_friend = UserAuth.objects.get(username=username).user_log in list(request.user.user_log.friend_list.all())
+        return JsonResponse({
             "image_url": reverse("user_profile:get_profile_pic", args=(user_profile_obj.user_auth.username,)),
             "name": user_profile_obj.name,
             "username": user_profile_obj.user_auth.username,
             "tagListString": tag_list_string,
-            "my_profile": False
+            "my_profile": False,
+            "is_friend": is_friend,
         })
 
 
@@ -46,7 +48,7 @@ def add_friend_request(request):
     try:
         username = request.POST["username"]
         user_log_obj = UserAuth.objects.get(username=username).user_log
-        if user_log_obj not in request.user.user_log.friend_list:
+        if user_log_obj not in list(request.user.user_log.friend_list.all()):
             user_log_obj.friend_requests.add(request.user.user_log)
             return HttpResponse("ok")
         else:

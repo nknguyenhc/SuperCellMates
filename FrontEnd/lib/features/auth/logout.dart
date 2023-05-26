@@ -15,7 +15,7 @@ class LogOutButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
         onPressed: () {
-          getRequest(EndPoints.logout.endpoint).then((message) {
+          getRequest(EndPoints.logout.endpoint, null).then((message) {
             if (message == "logged out") {
               Requests.clearStoredCookies(GetIt.I<Config>().restBaseURL);
               AutoRouter.of(context)

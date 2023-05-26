@@ -1,15 +1,20 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
-
+import 'package:supercellmates/http_requests/make_requests.dart';
+import 'package:supercellmates/features/home/search.dart';
 import 'package:supercellmates/router/router.gr.dart';
+import 'package:supercellmates/http_requests/endpoints.dart';
 
 class HomeAppBar extends AppBar {
-  HomeAppBar({Key? key, required this.data}) : super(key: key);
+  HomeAppBar({Key? key, required this.data, required this.updateCallBack})
+      : super(key: key);
 
   final dynamic data;
+  final dynamic updateCallBack;
 
   @override
   State<HomeAppBar> createState() => HomeAppBarState();
@@ -30,22 +35,21 @@ class HomeAppBarState extends State<HomeAppBar> {
   Widget build(BuildContext context) {
     return EasySearchBar(
       onSearch: (input) {
+        print(input);
+        if (input == "") {
+          widget.updateCallBack(null);
+          return;
+        }
         if (_searchTimer == null || !_searchTimer!.isActive) {
           _searchTimer = Timer(
             const Duration(milliseconds: 1000),
-            () {
-              // search
-              print("search!");
-            },
+            () async => widget.updateCallBack(await searchUser(context, input)),
           );
         } else {
           _searchTimer!.cancel();
           _searchTimer = Timer(
             const Duration(milliseconds: 1000),
-            () {
-              // search
-              print("search!");
-            },
+            () async => widget.updateCallBack(await searchUser(context, input)),
           );
         }
       },

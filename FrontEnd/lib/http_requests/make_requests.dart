@@ -35,9 +35,9 @@ Future<dynamic> postWithCSRF(String postEndPoint, Map postBody) async {
 }
 
 /// For sending GET request, returns the JSON response from backend
-Future<dynamic> getRequest(String getEndPoint) async {
+Future<dynamic> getRequest(String getEndPoint, dynamic query) async {
   // TODO: ADD ERROR HANDLING
-  var r1 = await Requests.get(_composeURL(getEndPoint));
+  var r1 = await Requests.get(_composeURL(getEndPoint), queryParameters: query);
   r1.raiseForStatus();
 
   return r1.content();
