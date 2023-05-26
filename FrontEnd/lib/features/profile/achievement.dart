@@ -3,7 +3,11 @@ import 'package:auto_route/auto_route.dart';
 
 @RoutePage()
 class AchievementPage extends StatefulWidget {
-  const AchievementPage({Key? key}) : super(key: key);
+  AchievementPage({Key? key, required this.name, required this.myProfile})
+      : super(key: key);
+
+  String name;
+  bool myProfile;
 
   @override
   State<AchievementPage> createState() => AchievementPageState();
@@ -13,12 +17,19 @@ class AchievementPageState extends State<AchievementPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Achievement page header")),
-      body: 
-        Container(
+        appBar: AppBar(
+            titleSpacing: 0,
+            title: Text(
+              widget.myProfile
+                  ? "My Achievements"
+                  : "${widget.name}'s Achievements",
+              style: const TextStyle(fontSize: 20),
+            )),
+        body: Container(
           alignment: Alignment.center,
-          child: const Text("Achievement page body"),
-        )
-    );
+          child: const Text(
+            "Achievement page body",
+          ),
+        ));
   }
 }

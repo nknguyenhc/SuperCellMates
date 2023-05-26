@@ -63,9 +63,14 @@ abstract class $AppRouter extends _i11.RootStackRouter {
       );
     },
     AchievementRoute.name: (routeData) {
+      final args = routeData.argsAs<AchievementRouteArgs>();
       return _i11.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i7.AchievementPage(),
+        child: _i7.AchievementPage(
+          key: args.key,
+          name: args.name,
+          myProfile: args.myProfile,
+        ),
       );
     },
     AddTagRoute.name: (routeData) {
@@ -187,16 +192,45 @@ class CreatePostRoute extends _i11.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i7.AchievementPage]
-class AchievementRoute extends _i11.PageRouteInfo<void> {
-  const AchievementRoute({List<_i11.PageRouteInfo>? children})
-      : super(
+class AchievementRoute extends _i11.PageRouteInfo<AchievementRouteArgs> {
+  AchievementRoute({
+    _i12.Key? key,
+    required String name,
+    required bool myProfile,
+    List<_i11.PageRouteInfo>? children,
+  }) : super(
           AchievementRoute.name,
+          args: AchievementRouteArgs(
+            key: key,
+            name: name,
+            myProfile: myProfile,
+          ),
           initialChildren: children,
         );
 
   static const String name = 'AchievementRoute';
 
-  static const _i11.PageInfo<void> page = _i11.PageInfo<void>(name);
+  static const _i11.PageInfo<AchievementRouteArgs> page =
+      _i11.PageInfo<AchievementRouteArgs>(name);
+}
+
+class AchievementRouteArgs {
+  const AchievementRouteArgs({
+    this.key,
+    required this.name,
+    required this.myProfile,
+  });
+
+  final _i12.Key? key;
+
+  final String name;
+
+  final bool myProfile;
+
+  @override
+  String toString() {
+    return 'AchievementRouteArgs{key: $key, name: $name, myProfile: $myProfile}';
+  }
 }
 
 /// generated route for

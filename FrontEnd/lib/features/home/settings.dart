@@ -15,7 +15,9 @@ class SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text("Settings page header")),
+        appBar: AppBar(
+          titleSpacing: 0,
+          title: const Text("App settings")),
         body: const Column(
           children: [
             LogOutButton(),

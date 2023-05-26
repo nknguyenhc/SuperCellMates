@@ -61,7 +61,7 @@ class HomeAppBarState extends State<HomeAppBar> {
         icon: const Icon(Icons.settings),
         iconSize: 25,
       ),
-      title: Text("Let's Orbitate!"),
+      title: Text("Match Miner"),
       actions: [
         isAdmin
             ? IconButton(

@@ -129,14 +129,14 @@ def add_friend(request):
 
 
 # not a view
-def find_users(search_param):
+def find_users(search_param, my_username):
     return list(map(
         lambda user: ({
             "name": user.user_profile.name,
             "username": user.username
         }),
         filter(
-            lambda user: search_param in user.username,
+            lambda user: search_param in user.username and user.username != my_username,
             list(UserAuth.objects.all())
         )
     ))
@@ -145,7 +145,7 @@ def find_users(search_param):
 @login_required
 def search(request):
     search_param = request.GET["username"]
-    users = find_users(search_param)
+    users = find_users(search_param, request.user.username)
     return render(request, "user_log/search.html", {
         "users": users
     })
@@ -154,7 +154,7 @@ def search(request):
 @login_required
 def search_users_async(request):
     search_param = request.GET["username"]
-    users = find_users(search_param)
+    users = find_users(search_param, request.user.username)
     return JsonResponse({
         "users": users
     })

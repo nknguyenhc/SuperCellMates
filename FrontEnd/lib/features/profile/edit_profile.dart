@@ -17,7 +17,9 @@ class EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text("EditProfile page header")),
+        appBar: AppBar(
+          titleSpacing: 0,
+          title: const Text("Edit my profile")),
         body: Column(
           children: [
             ChangeProfileImageButton(callBack: widget.callBack),

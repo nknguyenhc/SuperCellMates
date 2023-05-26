@@ -45,9 +45,11 @@ class ProfileAppBarState extends State<ProfileAppBar> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      titleSpacing: 10,
       toolbarHeight: 80,
       backgroundColor: Colors.lightBlue,
       leading: IconButton(
+        padding: const EdgeInsets.only(left: 12),
         icon: dataLoaded ? profileImage! : const CircularProgressIndicator(),
         onPressed: () => AutoRouter.of(context)
             .push(EditProfileRoute(callBack: initProfileImage)),
@@ -78,7 +80,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
       actions: [
         Column(
           children: [
-            const Padding(padding: EdgeInsets.all(5)),
+            const Padding(padding: EdgeInsets.all(3)),
             SizedBox(
               height: 40,
               child: IconButton(
@@ -100,16 +102,16 @@ class ProfileAppBarState extends State<ProfileAppBar> {
             ),
           ],
         ),
-        const Padding(padding: EdgeInsets.all(5)),
+        const Padding(padding: EdgeInsets.all(2)),
         Column(
           children: [
-            const Padding(padding: EdgeInsets.all(5)),
+            const Padding(padding: EdgeInsets.all(3)),
             SizedBox(
               height: 40,
               child: IconButton(
                 icon: const Icon(Icons.pentagon),
-                onPressed: () =>
-                    AutoRouter.of(context).push(const AchievementRoute()),
+                onPressed: () => AutoRouter.of(context).push(AchievementRoute(
+                    name: widget.profileMap["name"], myProfile: true)),
                 iconSize: 35,
               ),
             ),

@@ -69,39 +69,52 @@ class OthersProfilePageState extends State<OthersProfilePage> {
       appBar: AppBar(
         toolbarHeight: 80,
         backgroundColor: Colors.lightBlue,
-        leading: IconButton(
-          icon: dataLoaded ? profileImage! : const CircularProgressIndicator(),
-          onPressed: () {},
-          iconSize: 50,
-        ),
-        title: Column(children: [
-          SizedBox(
-            height: 25,
-            width: 300,
-            child: Text(
-              widget.data["name"],
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
+        titleSpacing: 0,
+        title: Row(
+          children: [
+            SizedBox(
+              height: 50,
+              width: 50,
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                icon: dataLoaded
+                    ? profileImage!
+                    : const CircularProgressIndicator(),
+                onPressed: () {},
+                iconSize: 50,
               ),
             ),
-          ),
-          Container(
-            padding: const EdgeInsets.only(left: 1),
-            height: 20,
-            width: 300,
-            child: Text(
-              widget.data["username"],
-              style: const TextStyle(fontSize: 15, color: Colors.blueGrey),
-            ),
-          ),
-        ]),
+            const Padding(padding: EdgeInsets.all(5)),
+            Column(children: [
+              SizedBox(
+                height: 25,
+                width: 130,
+                child: Text(
+                  widget.data["name"],
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.only(left: 1),
+                height: 20,
+                width: 130,
+                child: Text(
+                  widget.data["username"],
+                  style: const TextStyle(fontSize: 14, color: Colors.blueGrey),
+                ),
+              ),
+            ]),
+          ],
+        ),
         actions: [
           widget.data["is_friend"]
               ? Container()
               : Column(
                   children: [
-                    const Padding(padding: EdgeInsets.all(5)),
+                    const Padding(padding: EdgeInsets.all(3)),
                     SizedBox(
                       height: 40,
                       child: IconButton(
@@ -120,22 +133,21 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                       child: Text(
                         "Add",
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 14,
                         ),
                       ),
                     ),
                   ],
                 ),
-          const Padding(padding: EdgeInsets.all(5)),
           Column(
             children: [
-              const Padding(padding: EdgeInsets.all(5)),
+              const Padding(padding: EdgeInsets.all(3)),
               SizedBox(
                 height: 40,
                 child: IconButton(
                   icon: const Icon(Icons.pentagon),
-                  onPressed: () =>
-                      AutoRouter.of(context).push(const AchievementRoute()),
+                  onPressed: () => AutoRouter.of(context).push(AchievementRoute(
+                      name: widget.data["name"], myProfile: false)),
                   iconSize: 35,
                 ),
               ),
@@ -144,13 +156,13 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                 child: Text(
                   "Lv.1",
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 14,
                   ),
                 ),
               ),
             ],
           ),
-          Container(padding: const EdgeInsets.all(10)),
+          Container(padding: const EdgeInsets.all(5)),
         ],
       ),
       body: Column(

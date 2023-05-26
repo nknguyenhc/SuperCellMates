@@ -72,7 +72,9 @@ class AddTagPageState extends State<AddTagPage> {
   Widget build(BuildContext context) {
     return dataLoaded
         ? Scaffold(
-            appBar: AppBar(title: const Text("AddTag page header")),
+            appBar: AppBar(
+              titleSpacing: 0,
+              title: const Text("Add tags to my profile")),
             body: Container(
                 height: 700,
                 width: 100,

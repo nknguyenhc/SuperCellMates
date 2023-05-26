@@ -53,7 +53,9 @@ class FriendsPageState extends State<FriendsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text("Friend page header")),
+        appBar: AppBar(
+          titleSpacing: 3,
+          title: const Text("My friend page")),
         body: Column(
           children: [
             NavigationBar(

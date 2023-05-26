@@ -13,7 +13,9 @@ class CreatePostPageState extends State<CreatePostPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("CreatePost page header")),
+      appBar: AppBar(
+        titleSpacing: 0,
+        title: const Text("Create a post")),
       body: 
         Container(
           alignment: Alignment.center,
