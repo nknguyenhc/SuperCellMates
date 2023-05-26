@@ -1,0 +1,24 @@
+#friends-list {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.friend-item {
+    display: flex;
+    flex-direction: row;
+    width: 30vw;
+    gap: 50px;
+    align-items: center;
+}
+
+.friend-profile-pic {
+    height: 100px;
+    width: 100px;
+}
+
+.friend-profile-pic img {
+    height: 100px;
+    width: 100px;
+}

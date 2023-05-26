@@ -1,10 +1,24 @@
 {% extends 'user_profile/user_profile_layout.html' %} 
 
+{% block title %} 
+    <title>Friends</title>
+{% endblock %} 
+
+{% block style %} 
+    {{ block.super }}
+    <link rel="stylesheet" href="/static/style/user_log/friends.css">
+{% endblock %} 
+
 {% block content %} 
-    <div id="friend_requests">
+    <div id="friends-list">
         {% for friend in friends %} 
-            <div class="friend-request p-3">
-                <div class="text-primary">{{ friend.username }}</div>
+            <div class="friend-item p-3">
+                <div class="friend-profile-pic">
+                    <img src="{{ friend.profile_pic_url }}">
+                </div>
+                <a href="{{ friend.profile_link }}">
+                    <div class="text-primary">{{ friend.username }}</div>
+                </a>
             </div>
         {% endfor %} 
     </div>

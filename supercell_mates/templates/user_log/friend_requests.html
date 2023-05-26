@@ -1,5 +1,9 @@
 {% extends 'user_profile/user_profile_layout.html' %} 
 
+{% block title %} 
+    <title>Friend Requests</title>
+{% endblock %} 
+
 {% block style %} 
     {{ block.super }}
     <link rel="stylesheet" href="/static/style/user_log/friend_requests.css">
@@ -14,7 +18,14 @@
     <div id="friend_requests">
         {% for friend_request in friend_requests %} 
             <div class="friend-request p-3">
-                <div class="text-primary">{{ friend_request.username }}</div>
+                <div class="friend-request-info">
+                    <div class="friend-request-profile-pic">
+                        <img src="{{ friend_request.profile_pic_url }}">
+                    </div>
+                    <a href="{{ friend_request.profile_link }}">
+                        <div class="text-primary">{{ friend_request.username }}</div>
+                    </a>
+                </div>
                 <form class="friend_request_form">
                     {% csrf_token %} 
                     <input type="hidden" class="friend_username" value="{{ friend_request.username }}">

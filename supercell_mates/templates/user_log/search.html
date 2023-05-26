@@ -9,7 +9,9 @@
         {% for user in users %} 
             <div class="p-3">
                 <p>{{ user.name }}</p>
-                <p>{{ user.username }}</p>
+                <a href="{{ user.profile_link }}">
+                    <p>{{ user.username }}</p>
+                </a>
             </div>
         {% endfor %} 
     </div>

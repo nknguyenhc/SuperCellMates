@@ -3,4 +3,22 @@
     width: 60vw;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
+}
+
+.friend-request-info {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+.friend-request-profile-pic {
+    height: 100px;
+    width: 100px;
+}
+
+.friend-request-profile-pic img {
+    height: 100px;
+    width: 100px;
 }

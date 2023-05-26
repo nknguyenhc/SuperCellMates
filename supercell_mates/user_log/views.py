@@ -3,7 +3,7 @@ from django.urls import reverse
 from user_auth.models import UserAuth
 from django.contrib.auth.decorators import login_required
 from django.utils.datastructures import MultiValueDictKeyError
-from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, HttpResponseNotFound
 from django.views.decorators.http import require_http_methods
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -12,7 +12,7 @@ from user_auth.models import UserAuth
 
 @login_required
 def view_profile(request, username):
-    if UserAuth.objects.filter(username=username).exists():
+    if UserAuth.objects.filter(username=username).exists() and request.user.username != username:
         user_profile_obj = UserAuth.objects.get(username=username).user_profile
         tags = list(user_profile_obj.tagList.all())
         return render(request, "user_profile/index.html", {
@@ -21,25 +21,34 @@ def view_profile(request, username):
             "tags": tags,
             "my_profile": False
         })
+    else:
+        return HttpResponseNotFound()
 
 
 @login_required
 def view_profile_async(request, username):
-    if UserAuth.objects.filter(username=username).exists():
+    if UserAuth.objects.filter(username=username).exists() and request.user.username != username:
         user_profile_obj = UserAuth.objects.get(username=username).user_profile
-        tags = list(user_profile_obj.tagList.all())
-        tag_list_string = ""
-        for tag in tags:
-            tag_list_string += tag.name + ";"
+        tags = list(map(
+            lambda tag: ({
+                "name": tag.name
+            }),
+            list(user_profile_obj.tagList.all())
+        ))
+        # tag_list_string = ""
+        # for tag in tags:
+        #     tag_list_string += tag.name + ";"
         is_friend = UserAuth.objects.get(username=username).user_log in list(request.user.user_log.friend_list.all())
         return JsonResponse({
             "image_url": reverse("user_profile:get_profile_pic", args=(user_profile_obj.user_auth.username,)),
             "name": user_profile_obj.name,
             "username": user_profile_obj.user_auth.username,
-            "tagListString": tag_list_string,
+            "tagListString": tags,
             "my_profile": False,
             "is_friend": is_friend,
         })
+    else:
+        return HttpResponseNotFound()
 
 
 @login_required
@@ -48,7 +57,7 @@ def add_friend_request(request):
     try:
         username = request.POST["username"]
         user_log_obj = UserAuth.objects.get(username=username).user_log
-        if user_log_obj not in list(request.user.user_log.friend_list.all()):
+        if user_log_obj not in request.user.user_log.friend_list.all():
             user_log_obj.friend_requests.add(request.user.user_log)
             return HttpResponse("ok")
         else:
@@ -62,7 +71,9 @@ def add_friend_request(request):
 def get_friend_list(user):
     return list(map(
         lambda friend: ({
-            "username": friend.user_auth.username
+            "username": friend.user_auth.username,
+            "profile_pic_url": reverse("user_profile:get_profile_pic", args=(friend.user_auth.username,)),
+            "profile_link": reverse("user_log:view_profile", args=(friend.user_auth.username,)),
         }),
         list(user.user_log.friend_list.all())
     ))
@@ -88,7 +99,9 @@ def view_friends_async(request):
 def get_friend_requests_list(user):
     return list(map(
         lambda friend: ({
-            "username": friend.user_auth.username
+            "username": friend.user_auth.username,
+            "profile_pic_url": reverse("user_profile:get_profile_pic", args=(friend.user_auth.username,)),
+            "profile_link": reverse("user_log:view_profile", args=(friend.user_auth.username,))
         }),
         list(user.user_log.friend_requests.all())
     ))
@@ -128,12 +141,13 @@ def add_friend(request):
         return HttpResponseBadRequest("user with the requested username does not exist")
 
 
-# not a view
 def find_users(search_param, my_username):
     return list(map(
         lambda user: ({
             "name": user.user_profile.name,
-            "username": user.username
+            "username": user.username,
+            "profile_pic_link": reverse("user_profile:get_profile_pic", args=(user.username,)),
+            "profile_link": reverse("user_log:view_profile", args=(user.username,)),
         }),
         filter(
             lambda user: search_param in user.username and user.username != my_username,
