@@ -116,7 +116,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
             const SizedBox(
               height: 30,
               child: Text(
-                "Lv ?",
+                "Lv.1",
                 style: TextStyle(
                   fontSize: 15,
                 ),

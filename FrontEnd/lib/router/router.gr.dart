@@ -8,64 +8,71 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:auto_route/auto_route.dart' as _i10;
-import 'package:flutter/material.dart' as _i11;
+import 'package:auto_route/auto_route.dart' as _i11;
+import 'package:flutter/material.dart' as _i12;
 import 'package:supercellmates/features/auth/login.dart' as _i1;
 import 'package:supercellmates/features/auth/privacy_agreement.dart' as _i2;
-import 'package:supercellmates/features/friends/friends.dart' as _i9;
-import 'package:supercellmates/features/home/settings.dart' as _i3;
-import 'package:supercellmates/features/main_scaffold.dart' as _i4;
-import 'package:supercellmates/features/posts/create_post.dart' as _i5;
-import 'package:supercellmates/features/profile/achievement.dart' as _i6;
-import 'package:supercellmates/features/profile/add_tag.dart' as _i7;
-import 'package:supercellmates/features/profile/edit_profile.dart' as _i8;
+import 'package:supercellmates/features/friends/friends.dart' as _i3;
+import 'package:supercellmates/features/home/settings.dart' as _i4;
+import 'package:supercellmates/features/main_scaffold.dart' as _i5;
+import 'package:supercellmates/features/posts/create_post.dart' as _i6;
+import 'package:supercellmates/features/profile/achievement.dart' as _i7;
+import 'package:supercellmates/features/profile/add_tag.dart' as _i8;
+import 'package:supercellmates/features/profile/edit_profile.dart' as _i9;
+import 'package:supercellmates/features/profile/others_profile.dart' as _i10;
 
-abstract class $AppRouter extends _i10.RootStackRouter {
+abstract class $AppRouter extends _i11.RootStackRouter {
   $AppRouter({super.navigatorKey});
 
   @override
-  final Map<String, _i10.PageFactory> pagesMap = {
+  final Map<String, _i11.PageFactory> pagesMap = {
     LoginRoute.name: (routeData) {
-      return _i10.AutoRoutePage<dynamic>(
+      return _i11.AutoRoutePage<dynamic>(
         routeData: routeData,
         child: const _i1.LoginPage(),
       );
     },
     PrivacyAgreementRoute.name: (routeData) {
-      return _i10.AutoRoutePage<dynamic>(
+      return _i11.AutoRoutePage<dynamic>(
         routeData: routeData,
         child: const _i2.PrivacyAgreementPage(),
       );
     },
-    SettingsRoute.name: (routeData) {
-      return _i10.AutoRoutePage<dynamic>(
+    FriendsRoute.name: (routeData) {
+      return _i11.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i3.SettingsPage(),
+        child: const _i3.FriendsPage(),
+      );
+    },
+    SettingsRoute.name: (routeData) {
+      return _i11.AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const _i4.SettingsPage(),
       );
     },
     MainScaffold.name: (routeData) {
-      return _i10.AutoRoutePage<dynamic>(
+      return _i11.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i4.MainScaffold(),
+        child: const _i5.MainScaffold(),
       );
     },
     CreatePostRoute.name: (routeData) {
-      return _i10.AutoRoutePage<dynamic>(
+      return _i11.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i5.CreatePostPage(),
+        child: const _i6.CreatePostPage(),
       );
     },
     AchievementRoute.name: (routeData) {
-      return _i10.AutoRoutePage<dynamic>(
+      return _i11.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i6.AchievementPage(),
+        child: const _i7.AchievementPage(),
       );
     },
     AddTagRoute.name: (routeData) {
       final args = routeData.argsAs<AddTagRouteArgs>();
-      return _i10.AutoRoutePage<dynamic>(
+      return _i11.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i7.AddTagPage(
+        child: _i8.AddTagPage(
           key: args.key,
           updateCallBack: args.updateCallBack,
         ),
@@ -73,18 +80,22 @@ abstract class $AppRouter extends _i10.RootStackRouter {
     },
     EditProfileRoute.name: (routeData) {
       final args = routeData.argsAs<EditProfileRouteArgs>();
-      return _i10.AutoRoutePage<dynamic>(
+      return _i11.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i8.EditProfilePage(
+        child: _i9.EditProfilePage(
           key: args.key,
           callBack: args.callBack,
         ),
       );
     },
-    FriendsRoute.name: (routeData) {
-      return _i10.AutoRoutePage<dynamic>(
+    OthersProfileRoute.name: (routeData) {
+      final args = routeData.argsAs<OthersProfileRouteArgs>();
+      return _i11.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i9.FriendsPage(),
+        child: _i10.OthersProfilePage(
+          key: args.key,
+          data: args.data,
+        ),
       );
     },
   };
@@ -92,8 +103,8 @@ abstract class $AppRouter extends _i10.RootStackRouter {
 
 /// generated route for
 /// [_i1.LoginPage]
-class LoginRoute extends _i10.PageRouteInfo<void> {
-  const LoginRoute({List<_i10.PageRouteInfo>? children})
+class LoginRoute extends _i11.PageRouteInfo<void> {
+  const LoginRoute({List<_i11.PageRouteInfo>? children})
       : super(
           LoginRoute.name,
           initialChildren: children,
@@ -101,13 +112,13 @@ class LoginRoute extends _i10.PageRouteInfo<void> {
 
   static const String name = 'LoginRoute';
 
-  static const _i10.PageInfo<void> page = _i10.PageInfo<void>(name);
+  static const _i11.PageInfo<void> page = _i11.PageInfo<void>(name);
 }
 
 /// generated route for
 /// [_i2.PrivacyAgreementPage]
-class PrivacyAgreementRoute extends _i10.PageRouteInfo<void> {
-  const PrivacyAgreementRoute({List<_i10.PageRouteInfo>? children})
+class PrivacyAgreementRoute extends _i11.PageRouteInfo<void> {
+  const PrivacyAgreementRoute({List<_i11.PageRouteInfo>? children})
       : super(
           PrivacyAgreementRoute.name,
           initialChildren: children,
@@ -115,13 +126,27 @@ class PrivacyAgreementRoute extends _i10.PageRouteInfo<void> {
 
   static const String name = 'PrivacyAgreementRoute';
 
-  static const _i10.PageInfo<void> page = _i10.PageInfo<void>(name);
+  static const _i11.PageInfo<void> page = _i11.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i3.SettingsPage]
-class SettingsRoute extends _i10.PageRouteInfo<void> {
-  const SettingsRoute({List<_i10.PageRouteInfo>? children})
+/// [_i3.FriendsPage]
+class FriendsRoute extends _i11.PageRouteInfo<void> {
+  const FriendsRoute({List<_i11.PageRouteInfo>? children})
+      : super(
+          FriendsRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'FriendsRoute';
+
+  static const _i11.PageInfo<void> page = _i11.PageInfo<void>(name);
+}
+
+/// generated route for
+/// [_i4.SettingsPage]
+class SettingsRoute extends _i11.PageRouteInfo<void> {
+  const SettingsRoute({List<_i11.PageRouteInfo>? children})
       : super(
           SettingsRoute.name,
           initialChildren: children,
@@ -129,13 +154,13 @@ class SettingsRoute extends _i10.PageRouteInfo<void> {
 
   static const String name = 'SettingsRoute';
 
-  static const _i10.PageInfo<void> page = _i10.PageInfo<void>(name);
+  static const _i11.PageInfo<void> page = _i11.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i4.MainScaffold]
-class MainScaffold extends _i10.PageRouteInfo<void> {
-  const MainScaffold({List<_i10.PageRouteInfo>? children})
+/// [_i5.MainScaffold]
+class MainScaffold extends _i11.PageRouteInfo<void> {
+  const MainScaffold({List<_i11.PageRouteInfo>? children})
       : super(
           MainScaffold.name,
           initialChildren: children,
@@ -143,13 +168,13 @@ class MainScaffold extends _i10.PageRouteInfo<void> {
 
   static const String name = 'MainScaffold';
 
-  static const _i10.PageInfo<void> page = _i10.PageInfo<void>(name);
+  static const _i11.PageInfo<void> page = _i11.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i5.CreatePostPage]
-class CreatePostRoute extends _i10.PageRouteInfo<void> {
-  const CreatePostRoute({List<_i10.PageRouteInfo>? children})
+/// [_i6.CreatePostPage]
+class CreatePostRoute extends _i11.PageRouteInfo<void> {
+  const CreatePostRoute({List<_i11.PageRouteInfo>? children})
       : super(
           CreatePostRoute.name,
           initialChildren: children,
@@ -157,13 +182,13 @@ class CreatePostRoute extends _i10.PageRouteInfo<void> {
 
   static const String name = 'CreatePostRoute';
 
-  static const _i10.PageInfo<void> page = _i10.PageInfo<void>(name);
+  static const _i11.PageInfo<void> page = _i11.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i6.AchievementPage]
-class AchievementRoute extends _i10.PageRouteInfo<void> {
-  const AchievementRoute({List<_i10.PageRouteInfo>? children})
+/// [_i7.AchievementPage]
+class AchievementRoute extends _i11.PageRouteInfo<void> {
+  const AchievementRoute({List<_i11.PageRouteInfo>? children})
       : super(
           AchievementRoute.name,
           initialChildren: children,
@@ -171,16 +196,16 @@ class AchievementRoute extends _i10.PageRouteInfo<void> {
 
   static const String name = 'AchievementRoute';
 
-  static const _i10.PageInfo<void> page = _i10.PageInfo<void>(name);
+  static const _i11.PageInfo<void> page = _i11.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i7.AddTagPage]
-class AddTagRoute extends _i10.PageRouteInfo<AddTagRouteArgs> {
+/// [_i8.AddTagPage]
+class AddTagRoute extends _i11.PageRouteInfo<AddTagRouteArgs> {
   AddTagRoute({
-    _i11.Key? key,
+    _i12.Key? key,
     required dynamic updateCallBack,
-    List<_i10.PageRouteInfo>? children,
+    List<_i11.PageRouteInfo>? children,
   }) : super(
           AddTagRoute.name,
           args: AddTagRouteArgs(
@@ -192,8 +217,8 @@ class AddTagRoute extends _i10.PageRouteInfo<AddTagRouteArgs> {
 
   static const String name = 'AddTagRoute';
 
-  static const _i10.PageInfo<AddTagRouteArgs> page =
-      _i10.PageInfo<AddTagRouteArgs>(name);
+  static const _i11.PageInfo<AddTagRouteArgs> page =
+      _i11.PageInfo<AddTagRouteArgs>(name);
 }
 
 class AddTagRouteArgs {
@@ -202,7 +227,7 @@ class AddTagRouteArgs {
     required this.updateCallBack,
   });
 
-  final _i11.Key? key;
+  final _i12.Key? key;
 
   final dynamic updateCallBack;
 
@@ -213,12 +238,12 @@ class AddTagRouteArgs {
 }
 
 /// generated route for
-/// [_i8.EditProfilePage]
-class EditProfileRoute extends _i10.PageRouteInfo<EditProfileRouteArgs> {
+/// [_i9.EditProfilePage]
+class EditProfileRoute extends _i11.PageRouteInfo<EditProfileRouteArgs> {
   EditProfileRoute({
-    _i11.Key? key,
+    _i12.Key? key,
     required dynamic callBack,
-    List<_i10.PageRouteInfo>? children,
+    List<_i11.PageRouteInfo>? children,
   }) : super(
           EditProfileRoute.name,
           args: EditProfileRouteArgs(
@@ -230,8 +255,8 @@ class EditProfileRoute extends _i10.PageRouteInfo<EditProfileRouteArgs> {
 
   static const String name = 'EditProfileRoute';
 
-  static const _i10.PageInfo<EditProfileRouteArgs> page =
-      _i10.PageInfo<EditProfileRouteArgs>(name);
+  static const _i11.PageInfo<EditProfileRouteArgs> page =
+      _i11.PageInfo<EditProfileRouteArgs>(name);
 }
 
 class EditProfileRouteArgs {
@@ -240,7 +265,7 @@ class EditProfileRouteArgs {
     required this.callBack,
   });
 
-  final _i11.Key? key;
+  final _i12.Key? key;
 
   final dynamic callBack;
 
@@ -251,15 +276,39 @@ class EditProfileRouteArgs {
 }
 
 /// generated route for
-/// [_i9.FriendsPage]
-class FriendsRoute extends _i10.PageRouteInfo<void> {
-  const FriendsRoute({List<_i10.PageRouteInfo>? children})
-      : super(
-          FriendsRoute.name,
+/// [_i10.OthersProfilePage]
+class OthersProfileRoute extends _i11.PageRouteInfo<OthersProfileRouteArgs> {
+  OthersProfileRoute({
+    _i12.Key? key,
+    required dynamic data,
+    List<_i11.PageRouteInfo>? children,
+  }) : super(
+          OthersProfileRoute.name,
+          args: OthersProfileRouteArgs(
+            key: key,
+            data: data,
+          ),
           initialChildren: children,
         );
 
-  static const String name = 'FriendsRoute';
+  static const String name = 'OthersProfileRoute';
 
-  static const _i10.PageInfo<void> page = _i10.PageInfo<void>(name);
+  static const _i11.PageInfo<OthersProfileRouteArgs> page =
+      _i11.PageInfo<OthersProfileRouteArgs>(name);
+}
+
+class OthersProfileRouteArgs {
+  const OthersProfileRouteArgs({
+    this.key,
+    required this.data,
+  });
+
+  final _i12.Key? key;
+
+  final dynamic data;
+
+  @override
+  String toString() {
+    return 'OthersProfileRouteArgs{key: $key, data: $data}';
+  }
 }
