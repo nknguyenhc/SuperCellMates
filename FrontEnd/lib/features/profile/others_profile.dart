@@ -1,9 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:requests/requests.dart';
-import 'package:get_it/get_it.dart';
-
-import 'package:supercellmates/config/config.dart';
+import 'package:supercellmates/http_requests/get_image.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
 import 'package:supercellmates/router/router.gr.dart';
@@ -32,19 +29,15 @@ class OthersProfilePageState extends State<OthersProfilePage> {
 
   void initProfileImage() async {
     dataLoaded = false;
-    String profileImageURL =
-        GetIt.I<Config>().restBaseURL + widget.data["image_url"];
-
-    var response = await Requests.get(profileImageURL);
+    profileImage =  await getImage(widget.data["image_url"]);
     setState(() {
-      profileImage = Image.memory(response.bodyBytes);
       dataLoaded = true;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    var tagList = widget.data["tagListString"].split(";");
+    var tagList = widget.data["tagListString"];
     double myPostsHeight = MediaQuery.of(context).size.height;
     myPostsHeight -= 80; // appbar height
     myPostsHeight -= 60; // taglist height
@@ -177,10 +170,11 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                     itemCount: tagList.length,
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (BuildContext context, int index) {
-                      return tagList[index] == ""
+                      return tagList[index] == null
                           ? Container()
                           : TextButton(
-                              onPressed: () => {}, child: Text(tagList[index]));
+                              onPressed: () => {},
+                              child: Text(tagList[index]["name"]));
                     }),
               )
             ]),

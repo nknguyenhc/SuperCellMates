@@ -1,39 +1,79 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_login/flutter_login.dart';
 import 'dart:convert';
+import 'package:supercellmates/http_requests/get_image.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
 import 'package:supercellmates/router/router.gr.dart';
 import 'package:supercellmates/features/dialogs.dart';
 
-class UserListView extends StatelessWidget {
+class UserListView extends StatefulWidget {
   const UserListView({Key? key, required this.userList}) : super(key: key);
 
   final dynamic userList;
 
   @override
+  State<UserListView> createState() => UserListViewState();
+}
+
+class UserListViewState extends State<UserListView> {
+  int count = 0;
+  var dataLoaded = [];
+  var profileImages = [];
+
+  @override
+  void initState() {
+    super.initState();
+    count = widget.userList.length;
+    dataLoaded = List<bool>.filled(count, false, growable: true);
+    profileImages = List<Image?>.filled(count, null, growable: true);
+    for (int i = 0; i < count; i++) {
+      loadImage(i);
+    }
+  }
+
+  void loadImage(index) async {
+    profileImages[index] =
+        await getImage(widget.userList[index]["profile_pic_url"]);
+    setState(() {
+      dataLoaded[index] = true;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     ListView list = ListView.builder(
-        itemCount: userList.length,
+        itemCount: count,
         itemBuilder: (context, index) {
-          String name = userList[index]["name"];
-          String username = userList[index]["username"];
+          String name = widget.userList[index]["name"];
+          String username = widget.userList[index]["username"];
           return Column(
             children: [
               TextButton(
-                  onPressed: () async {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    dynamic data = await getRequest(
-                        "${EndPoints.viewProfile.endpoint}/$username", null);
-                    AutoRouter.of(context)
-                        .push(OthersProfileRoute(data: jsonDecode(data)));
-                  },
-                  child: Column(
+                onPressed: () async {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  dynamic data = await getRequest(
+                      "${EndPoints.viewProfile.endpoint}/$username", null);
+                  AutoRouter.of(context)
+                      .push(OthersProfileRoute(data: jsonDecode(data)));
+                },
+                child: Row(children: [
+                  SizedBox(
+                    height: 50,
+                    width: 50,
+                    child: dataLoaded[index]
+                        ? IconButton(
+                            onPressed: () {},
+                            icon: profileImages[index],
+                            iconSize: 50,
+                          )
+                        : const CircularProgressIndicator(),
+                  ),
+                  Column(
                     children: [
                       const Padding(padding: EdgeInsets.all(2)),
                       SizedBox(
-                        width: MediaQuery.of(context).size.width,
+                        width: MediaQuery.of(context).size.width - 80,
                         child: Text(
                           name,
                           style: const TextStyle(
@@ -41,7 +81,7 @@ class UserListView extends StatelessWidget {
                         ),
                       ),
                       SizedBox(
-                        width: MediaQuery.of(context).size.width,
+                        width: MediaQuery.of(context).size.width - 80,
                         child: Text(username,
                             style: const TextStyle(
                               color: Colors.blueGrey,
@@ -50,7 +90,9 @@ class UserListView extends StatelessWidget {
                       ),
                       const Padding(padding: EdgeInsets.all(2)),
                     ],
-                  )),
+                  )
+                ]),
+              ),
               const Divider(
                 height: 1,
                 color: Colors.grey,
@@ -64,25 +106,63 @@ class UserListView extends StatelessWidget {
   }
 }
 
-class FriendRequestListView extends StatelessWidget {
+class FriendRequestListView extends StatefulWidget {
   const FriendRequestListView(
-      {Key? key, required this.FriendRequestList, required this.updateCallBack})
+      {Key? key, required this.friendRequestList, required this.updateCallBack})
       : super(key: key);
 
-  final dynamic FriendRequestList;
+  final dynamic friendRequestList;
   final dynamic updateCallBack;
+
+  @override
+  State<FriendRequestListView> createState() => FriendRequestListState();
+}
+
+class FriendRequestListState extends State<FriendRequestListView> {
+  // Remember to update upon deletion!!!
+  int count = 0;
+  var dataLoaded = [];
+  var profileImages = [];
+
+  @override
+  void initState() {
+    super.initState();
+    count = widget.friendRequestList.length;
+    dataLoaded = List<bool>.filled(count, false, growable: true);
+    profileImages = List<Image?>.filled(count, null, growable: true);
+    for (int i = 0; i < count; i++) {
+      loadImage(i);
+    }
+  }
+
+  void loadImage(index) async {
+    profileImages[index] =
+        await getImage(widget.friendRequestList[index]["profile_pic_url"]);
+    setState(() {
+      dataLoaded[index] = true;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     ListView list = ListView.builder(
-        itemCount: FriendRequestList.length,
+        itemCount: widget.friendRequestList.length,
         itemBuilder: (context, index) {
-          String name = FriendRequestList[index]["name"];
-          String username = FriendRequestList[index]["username"];
+          String name = widget.friendRequestList[index]["name"];
+          String username = widget.friendRequestList[index]["username"];
           return Column(
             children: [
               Row(
                 children: [
+                  SizedBox(
+                      height: 50,
+                      width: 50,
+                      child: IconButton(
+                        onPressed: () {},
+                        icon: dataLoaded[index]
+                            ? profileImages[index]
+                            : const CircularProgressIndicator(),
+                      )),
                   TextButton(
                       onPressed: () async {
                         FocusManager.instance.primaryFocus?.unfocus();
@@ -96,7 +176,7 @@ class FriendRequestListView extends StatelessWidget {
                         children: [
                           const Padding(padding: EdgeInsets.all(2)),
                           SizedBox(
-                            width: MediaQuery.of(context).size.width - 170,
+                            width: MediaQuery.of(context).size.width - 230,
                             child: Text(
                               name,
                               style: const TextStyle(
@@ -104,7 +184,7 @@ class FriendRequestListView extends StatelessWidget {
                             ),
                           ),
                           SizedBox(
-                            width: MediaQuery.of(context).size.width - 170,
+                            width: MediaQuery.of(context).size.width - 230,
                             child: Text(username,
                                 style: const TextStyle(
                                   color: Colors.blueGrey,
@@ -128,7 +208,10 @@ class FriendRequestListView extends StatelessWidget {
                           if (message == "ok") {
                             showSuccessDialog(
                                 context, "Successfully added friend!");
-                            updateCallBack();
+                            count -= 1;
+                            dataLoaded.removeAt(index);
+                            profileImages.removeAt(index);
+                            widget.updateCallBack();
                           } else {
                             showErrorDialog(context, message);
                           }
@@ -156,7 +239,10 @@ class FriendRequestListView extends StatelessWidget {
                           if (message == "ok") {
                             showSuccessDialog(context,
                                 "Successfully declined friend request!");
-                            updateCallBack();
+                            count -= 1;
+                            dataLoaded.removeAt(index);
+                            profileImages.removeAt(index);
+                            widget.updateCallBack();
                           } else {
                             showErrorDialog(context, message);
                           }

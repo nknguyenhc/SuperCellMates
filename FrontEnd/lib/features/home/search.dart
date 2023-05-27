@@ -11,7 +11,7 @@ Future<Widget> searchUser(BuildContext context, input) async {
   dynamic userList = jsonDecode(
       await getRequest(EndPoints.searchUsers.endpoint, query))["users"];
 
-  Widget list = UserListView(userList: userList).build(context);
+  Widget list = UserListView(userList: userList);
 
   return Column(
     children: [

@@ -32,7 +32,7 @@ class FriendsPageState extends State<FriendsPage> {
   void updateFriendPageBody(dynamic friendList, bool isFriendRequest) {
     friendPageBody = isFriendRequest
         ? FriendRequestListView(
-            FriendRequestList: friendList,
+            friendRequestList: friendList,
             updateCallBack: getFriendRequestList,
           )
         : UserListView(userList: friendList);

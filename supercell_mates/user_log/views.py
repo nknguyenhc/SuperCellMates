@@ -148,7 +148,7 @@ def find_users(search_param, my_username):
         lambda user: ({
             "name": user.user_profile.name,
             "username": user.username,
-            "profile_pic_link": reverse("user_profile:get_profile_pic", args=(user.username,)),
+            "profile_pic_url": reverse("user_profile:get_profile_pic", args=(user.username,)),
             "profile_link": reverse("user_log:view_profile", args=(user.username,)),
         }),
         filter(
