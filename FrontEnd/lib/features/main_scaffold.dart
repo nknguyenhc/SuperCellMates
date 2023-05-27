@@ -62,7 +62,6 @@ class MainScaffoldState extends State<MainScaffold> {
   void updateHomePageBody(Widget? body) {
     setState(() {
       pages[0] = body ?? const HomePage();
-      print("updated");
     });
   }
 

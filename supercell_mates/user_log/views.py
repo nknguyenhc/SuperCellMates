@@ -62,6 +62,7 @@ def add_friend_request(request):
 def get_friend_list(user):
     return list(map(
         lambda friend: ({
+            "name": friend.user_profile.name,
             "username": friend.user_auth.username
         }),
         list(user.user_log.friend_list.all())
@@ -88,6 +89,7 @@ def view_friends_async(request):
 def get_friend_requests_list(user):
     return list(map(
         lambda friend: ({
+            "name": friend.user_profile.name,
             "username": friend.user_auth.username
         }),
         list(user.user_log.friend_requests.all())

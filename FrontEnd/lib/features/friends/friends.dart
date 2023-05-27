@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:supercellmates/features/friends/user_listview.dart';
 import 'dart:convert';
 
 import 'package:supercellmates/http_requests/endpoints.dart';
@@ -19,26 +20,42 @@ class FriendsPageState extends State<FriendsPage> {
 
   dynamic friendList;
   dynamic friendRequestList;
+  dynamic friendPageBody;
 
   @override
   void initState() {
     dataLoaded = false;
     super.initState();
     getFriendList();
-    dataLoaded = true;
+  }
+
+  void updateFriendPageBody(dynamic friendList, bool isFriendRequest) {
+    friendPageBody = isFriendRequest
+        ? FriendRequestListView(
+            FriendRequestList: friendList,
+            updateCallBack: getFriendRequestList,
+          )
+        : UserListView(userList: friendList);
+    setState(() {
+      dataLoaded = true;
+    });
   }
 
   void getFriendList() async {
-    friendList = jsonDecode(await getRequest(EndPoints.viewFriends.endpoint, null));
-    print(friendList);
-    print("Got friend list!");
+    dataLoaded = false;
+    friendList =
+        jsonDecode(await getRequest(EndPoints.viewFriends.endpoint, null));
+    updateFriendPageBody(friendList, false);
+    setState(() {
+      dataLoaded = true;
+    });
   }
 
   void getFriendRequestList() async {
-    friendRequestList =
-        jsonDecode(await getRequest(EndPoints.viewFriendRequests.endpoint, null));
-    print(friendRequestList);
-    print("Got friend request list!");
+    dataLoaded = false;
+    friendRequestList = jsonDecode(
+        await getRequest(EndPoints.viewFriendRequests.endpoint, null));
+    updateFriendPageBody(friendRequestList, true);
   }
 
   void navigate(int index) {
@@ -53,61 +70,63 @@ class FriendsPageState extends State<FriendsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          titleSpacing: 3,
-          title: const Text("My friend page")),
-        body: Column(
-          children: [
-            NavigationBar(
-              height: 50,
-              destinations: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: 40,
-                      child: TextButton(
-                        onPressed: () {
-                          navigate(0);
-                        },
-                        child: Text(
-                          "Friendlist",
+        appBar: AppBar(titleSpacing: 3, title: const Text("My friend page")),
+        body: Column(children: [
+          NavigationBar(
+            height: 50,
+            destinations: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 40,
+                    child: TextButton(
+                      onPressed: () {
+                        navigate(0);
+                      },
+                      child: Text(
+                        "Friendlist",
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: navigationBarIndex == 0
+                                ? Colors.blue
+                                : Colors.blueGrey),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 40,
+                    child: TextButton(
+                      onPressed: () {
+                        navigate(1);
+                      },
+                      child: Text("Requests",
                           style: TextStyle(
                               fontSize: 18,
-                              color: navigationBarIndex == 0
+                              color: navigationBarIndex == 1
                                   ? Colors.blue
-                                  : Colors.blueGrey),
-                        ),
-                      ),
+                                  : Colors.blueGrey)),
                     ),
-                  ],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: 40,
-                      child: TextButton(
-                        onPressed: () {
-                          navigate(1);
-                        },
-                        child: Text("Requests",
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: navigationBarIndex == 1
-                                    ? Colors.blue
-                                    : Colors.blueGrey)),
-                      ),
-                    ),
-                  ],
-                )
-              ],
-              //backgroundColor: Colors.white,
-              selectedIndex: navigationBarIndex,
-              indicatorColor: Colors.red,
-              shadowColor: Colors.grey,
-            )
-          ],
-        ));
+                  ),
+                ],
+              )
+            ],
+            //backgroundColor: Colors.white,
+            selectedIndex: navigationBarIndex,
+            indicatorColor: Colors.red,
+            shadowColor: Colors.grey,
+          ),
+          !dataLoaded
+              ? CircularProgressIndicator()
+              : SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height - 140,
+                  child: friendPageBody),
+        ]));
   }
 }
