@@ -16,8 +16,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class LoginPageState extends State<LoginPage> {
-  // TODO: organise the URIs in a file
-
   bool privacyAgreementChecked = false;
 
   // TODO: lock PA action when logging in

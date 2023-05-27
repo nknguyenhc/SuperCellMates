@@ -71,6 +71,7 @@ def add_friend_request(request):
 def get_friend_list(user):
     return list(map(
         lambda friend: ({
+            "name": friend.user_profile.name,
             "username": friend.user_auth.username,
             "profile_pic_url": reverse("user_profile:get_profile_pic", args=(friend.user_auth.username,)),
             "profile_link": reverse("user_log:view_profile", args=(friend.user_auth.username,)),
@@ -99,6 +100,7 @@ def view_friends_async(request):
 def get_friend_requests_list(user):
     return list(map(
         lambda friend: ({
+            "name": friend.user_profile.name,
             "username": friend.user_auth.username,
             "profile_pic_url": reverse("user_profile:get_profile_pic", args=(friend.user_auth.username,)),
             "profile_link": reverse("user_log:view_profile", args=(friend.user_auth.username,))

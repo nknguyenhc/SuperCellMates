@@ -35,7 +35,6 @@ class HomeAppBarState extends State<HomeAppBar> {
   Widget build(BuildContext context) {
     return EasySearchBar(
       onSearch: (input) {
-        print(input);
         if (input == "") {
           widget.updateCallBack(null);
           return;
