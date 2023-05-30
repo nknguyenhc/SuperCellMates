@@ -11,33 +11,39 @@ from django.core.files.images import ImageFile
 from django.views.decorators.http import require_http_methods
 
 
+def layout_context(user_auth_obj):
+    return {
+        "user_profile": {
+            "name": user_auth_obj.user_profile.name,
+            "username": user_auth_obj.username
+        },
+        "image_url": reverse("user_profile:get_profile_pic", args=(user_auth_obj.username,)),
+    }
+
+
+def index_context(user_auth_obj):
+    tags = list(map(
+        lambda tag: ({
+            "name": tag.name
+        }),
+        list(user_auth_obj.user_profile.tagList.all())
+    ))
+    result = {
+        "tags": tags,
+        "my_profile": True,
+        "is_admin": user_auth_obj.is_superuser
+    }
+    result.update(layout_context(user_auth_obj))
+    return result
+
+
 @login_required
 def index(request):
-    user_profile_obj = request.user.user_profile
-    tags = list(user_profile_obj.tagList.all())
-    return render(request, 'user_profile/index.html', {
-        "image_url": reverse("user_profile:get_profile_pic", args=(request.user.username,)),
-        "user_profile": user_profile_obj,
-        "tags": tags,
-        "my_profile": True
-    })
+    return render(request, 'user_profile/index.html', index_context(request.user))
 
 @login_required
 def index_async(request):
-    user_profile_obj = request.user.user_profile
-    tags = list(user_profile_obj.tagList.all())
-    tag_list_string = ""
-    for tag in tags:
-        tag_list_string += tag.name + ";"
-    response = {
-        "image_url": reverse("user_profile:get_profile_pic", args=(request.user.username,)),
-        "name": user_profile_obj.name,
-        "username": user_profile_obj.user_auth.username,
-        "tagListString": tag_list_string,
-        "is_admin": request.user.is_superuser,
-        "my_profile": True
-    }
-    return JsonResponse(response)
+    return JsonResponse(index_context(request.user))
 
 
 @login_required

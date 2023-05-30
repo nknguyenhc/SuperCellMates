@@ -1,26 +1,35 @@
 from django.shortcuts import render
 from django.urls import reverse
-from user_auth.models import UserAuth
 from django.contrib.auth.decorators import login_required
 from django.utils.datastructures import MultiValueDictKeyError
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, HttpResponseNotFound
 from django.views.decorators.http import require_http_methods
 from django.core.exceptions import ObjectDoesNotExist
+from user_profile.views import layout_context
 
 from user_auth.models import UserAuth
+
+
+def view_profile_context(user_auth_obj, request_user):
+    tags = list(map(
+        lambda tag: ({
+            "name": tag.name
+        }),
+        list(user_auth_obj.user_profile.tagList.all())
+    ))
+    result = {
+        "tags": tags,
+        "my_profile": False,
+        "is_friend": user_auth_obj.user_log in list(request_user.user_log.friend_list.all())
+    }
+    result.update(layout_context(user_auth_obj))
+    return result
 
 
 @login_required
 def view_profile(request, username):
     if UserAuth.objects.filter(username=username).exists() and request.user.username != username:
-        user_profile_obj = UserAuth.objects.get(username=username).user_profile
-        tags = list(user_profile_obj.tagList.all())
-        return render(request, "user_profile/index.html", {
-            "image_url": reverse("user_profile:get_profile_pic", args=(user_profile_obj.user_auth.username,)),
-            "user_profile": user_profile_obj,
-            "tags": tags,
-            "my_profile": False
-        })
+        return render(request, "user_log/view_profile.html", view_profile_context(UserAuth.objects.get(username=username), request.user))
     else:
         return HttpResponseNotFound()
 
@@ -28,25 +37,7 @@ def view_profile(request, username):
 @login_required
 def view_profile_async(request, username):
     if UserAuth.objects.filter(username=username).exists() and request.user.username != username:
-        user_profile_obj = UserAuth.objects.get(username=username).user_profile
-        tags = list(map(
-            lambda tag: ({
-                "name": tag.name
-            }),
-            list(user_profile_obj.tagList.all())
-        ))
-        # tag_list_string = ""
-        # for tag in tags:
-        #     tag_list_string += tag.name + ";"
-        is_friend = UserAuth.objects.get(username=username).user_log in list(request.user.user_log.friend_list.all())
-        return JsonResponse({
-            "image_url": reverse("user_profile:get_profile_pic", args=(user_profile_obj.user_auth.username,)),
-            "name": user_profile_obj.name,
-            "username": user_profile_obj.user_auth.username,
-            "tagListString": tags,
-            "my_profile": False,
-            "is_friend": is_friend,
-        })
+        return JsonResponse(view_profile_context(UserAuth.objects.get(username=username), request.user))
     else:
         return HttpResponseNotFound()
 
@@ -82,12 +73,12 @@ def get_friend_list(user):
 @login_required
 def view_friends(request):
     friends = get_friend_list(request.user)
-    return render(request, 'user_log/friends.html', {
-        "image_url": reverse("user_profile:get_profile_pic", args=(request.user.username,)),
-        "user_profile": request.user.user_profile,
+    context = {
         "friends": friends,
         "my_profile": True
-    })
+    }
+    context.update(layout_context(request.user))
+    return render(request, 'user_log/friends.html', context)
 
 
 @login_required
@@ -110,12 +101,12 @@ def get_friend_requests_list(user):
 @login_required
 def view_friend_requests(request):
     friend_requests = get_friend_requests_list(request.user)
-    return render(request, "user_log/friend_requests.html", {
-        "image_url": reverse("user_profile:get_profile_pic", args=(request.user.username,)),
-        "user_profile": request.user.user_profile,
+    context = {
         "friend_requests": friend_requests,
         "my_profile": True
-    })
+    }
+    context.update(layout_context(request.user))
+    return render(request, "user_log/friend_requests.html", context)
 
 
 @login_required
