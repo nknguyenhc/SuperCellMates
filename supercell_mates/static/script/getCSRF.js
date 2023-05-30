@@ -22,3 +22,7 @@ function postRequestContent(dict) {
         body: formData
     }
 }
+
+function triggerErrorMessage() {
+    alert("An error has occurred, please try again later.");
+}

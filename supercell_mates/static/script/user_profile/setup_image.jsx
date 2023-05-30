@@ -9,10 +9,21 @@ function SetupImage() {
 
     function submitPhoto(event) {
         event.preventDefault();
-        fetch('/profile/set_profile_image', postRequestContent({
-            img: document.querySelector("#setupImage").files[0]
-        }))
-            .then(response => window.location.assign('/'));
+        const files = document.querySelector("#setupImage").files;
+        if (files.length === 0) {
+            window.location.assign('/');
+        } else {
+            fetch('/profile/set_profile_image', postRequestContent({
+                img: files[0]
+            }))
+                .then(response => {
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else {
+                        window.location.assign('/');
+                    }
+                });
+        }
     }
 
     return (

@@ -218,7 +218,7 @@ def add_tag_request(request):
         tagName = request.POST["tag"]
         tag_request = TagRequest(name=tagName)
         tag_request.save()
-        return HttpResponse("successfully added tag")
+        return HttpResponse("Successfully added tag request")
     except AttributeError:
         return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:

@@ -12,9 +12,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 dict["accepted"] = false;
             }
             fetch('/user/add_friend', postRequestContent(dict))
-                .then(response => response.text())
                 .then(response => {
-                    if (dict["accepted"]) {
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else if (dict["accepted"]) {
                         request.querySelector('.friend-accepted-mark').style.display = 'flex';
                     } else {
                         request.querySelector('.friend-rejected-mark').style.display = 'flex';

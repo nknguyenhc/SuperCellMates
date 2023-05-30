@@ -22,8 +22,15 @@ function AddTag() {
                 tag: tag
             }))
                 .then(response => {
-                    document.querySelector("#tag_request_message_button").click();
-                });
+                    console.log(response.status);
+                    console.log(response.statusText);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else {
+                        document.querySelector("#tag_request_message_button").click();
+                    }
+                })
+                .catch(() => triggerErrorMessage());
             setErrMessage("");
         }
     }

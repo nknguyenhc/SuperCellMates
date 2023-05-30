@@ -13,7 +13,12 @@ function AddTagsAdmin() {
         fetch('/add_tag_admin', postRequestContent({
             tag_request_id: tag_request_id,
             tag: tag
-        }));
+        }))
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                }
+            });
         setRequests(requests.filter(request => request.id != tag_request_id));
     }
 
