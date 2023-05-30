@@ -34,9 +34,9 @@ function AddTagsAdmin() {
             <table className="table table-striped table-hover table-bordered border-primary">
                 <thead>
                     <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Tag</th>
-                        <th scope="col">Action</th>
+                        <th scope="col" style={{width: "10%"}}>ID</th>
+                        <th scope="col" style={{width: "30%"}}>Tag</th>
+                        <th scope="col" style={{width: "30%"}}>Action</th>
                     </tr>
                 </thead>
                 <tbody>
