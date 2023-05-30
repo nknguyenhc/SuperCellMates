@@ -34,6 +34,13 @@ def login_async(request):
 
             if user is not None:
                 login(request, user)
+
+                if user.is_superuser and user.user_profile is not None:
+                    user_profile_obj = UserProfile(name=user.username, user_auth=user)
+                    user_profile_obj.save()
+                    user_log_obj = UserLog(user_auth=user, user_profile=user_profile_obj)
+                    user_log_obj.save()
+                
                 return HttpResponse("logged in")
             else:
                 return HttpResponse("wrong username or password")
@@ -56,6 +63,14 @@ def login_user(request):
 
                 if user is not None:
                     login(request, user)
+
+                    # for ease of testing, we create user profile if it is superuser
+                    if user.is_superuser and not hasattr(user, "user_profile"):
+                        user_profile_obj = UserProfile(name=user.username, user_auth=user)
+                        user_profile_obj.save()
+                        user_log_obj = UserLog(user_auth=user, user_profile=user_profile_obj)
+                        user_log_obj.save()
+
                     next_url = request.GET.get("next", "/")
                     if is_safe_url(next_url, {request.get_host()}):
                         return redirect(next_url)

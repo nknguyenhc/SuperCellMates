@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
             event.preventDefault();
             fetch('/user/search?username=' + searchField.value)
                 .then(response => response.json())
-                .then(response => console.log(response));
+                .then(response => displayResult(response.users));
         });
         searchField.addEventListener('focus', () => {
             if (searchResultBox.style.display === "none") {
@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
         document.addEventListener('click', event => {
-            if (!searchForm.contains(event.target) && !searchResultBox.contains(event.target) && searchResultBox.style.display === "block") {
+            if (!searchForm.contains(event.target) && !searchResultBox.contains(event.target) && searchResultBox.style.display !== "none") {
                 searchResultBox.style.display = "none";
                 removeSearchBox();
             }
