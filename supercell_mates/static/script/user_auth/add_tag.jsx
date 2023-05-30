@@ -96,7 +96,6 @@ function AddTag() {
                     </div>
                 </div>
             </div>
-            <link rel="stylesheet" href="/static/style/user_auth/add_tag.css" />
         </React.Fragment>
     );
 }

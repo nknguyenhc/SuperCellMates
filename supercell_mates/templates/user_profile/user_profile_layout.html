@@ -18,10 +18,28 @@
                         <a href="{% url 'user_profile:setup' %}" class="">
                             <button type="button" class="btn btn-outline-primary">Edit Profile</button>
                         </a>
+                    {% elif is_friend %} 
+                        <button type="button" class="btn btn-outline-primary">Message</button>
                     {% else %} 
                         <form id="add_friend_form">
                             <input type="hidden" id="add_friend_username" value="{{ user_profile.username }}">
                             <input type="submit" value="Add Friend" class="btn btn-outline-primary">
+                            <button style="display: none" id="friend_request_message_button" type="button" data-bs-toggle="modal" data-bs-target="#friendRequestMessage"></button>
+                            <div class="modal fade" id="friendRequestMessage" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Message</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">Your friend request is sent.
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </form>
                         <script src="/static/script/user_log/add_friend.js"></script>
                     {% endif %} 

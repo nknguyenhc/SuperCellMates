@@ -4,5 +4,7 @@ document.querySelector("#add_friend_form").addEventListener("submit", event => {
         username: document.querySelector("#add_friend_username").value
     }))
         .then(response => response.text())
-        .then(response => console.log(response));
+        .then(response => {
+            document.querySelector("#friend_request_message_button").click();
+        });
 })
