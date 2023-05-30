@@ -12,6 +12,15 @@ from django.views.decorators.http import require_http_methods
 
 
 def layout_context(user_auth_obj):
+    """Returns the context to be used in templates that uses user_profile layout.
+
+    Args:
+        user_auth_obj (UserAuth): the UserAuth instance to be rendered on the user_profile layout
+
+    Returns:
+        dict: a dictionary to be used as part of context during template rendering
+    """
+
     return {
         "user_profile": {
             "name": user_auth_obj.user_profile.name,
@@ -22,6 +31,15 @@ def layout_context(user_auth_obj):
 
 
 def index_context(user_auth_obj):
+    """Returns the context to be used in profile page of the currently logged in user.
+
+    Args:
+        user_auth_obj (UserAuth): the UserAuth instance of the currently logged in user
+
+    Returns:
+        dict: a dictionary to be used as the context during template rendering of the user's profile page
+    """
+
     tags = list(map(
         lambda tag: ({
             "name": tag.name
@@ -39,16 +57,47 @@ def index_context(user_auth_obj):
 
 @login_required
 def index(request):
+    """Returns the template for the currently logged in user's profile page.
+    The context is obtained using the index_context function above.
+
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        HttpResponse: the template rendered with the given context
+    """
     return render(request, 'user_profile/index.html', index_context(request.user))
 
 @login_required
 def index_async(request):
+    """Returns the context to be used in front-end of mobile app, in the form of a json.
+    The dictionary of context is obtained using the index_context function above.
+
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        JsonResponse: the json response sent to front-end of mobile app
+    """
     return JsonResponse(index_context(request.user))
 
 
 @login_required
 @require_http_methods(["POST"])
 def add_tags(request):
+    """Attempt to add tags for the currently logged in user and return the feedback of the result.
+    The request method must be post, and the body (request.POST) must have the following attributes:
+        count: the number of tags to be added
+        tags: the list of tags (in string form, e.g. '[1, 3, 4]') to be added, each element is a number representing the id of the tag to be added
+    
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        HttpResponse: feedback of whether the tags were added successfully.
+        Status code is 200 only when it is successfully, otherwise status code 405 is returned with the text as explanation for the error.
+    """
+
     try:
         user_profile_obj = request.user.user_profile
         count = request.POST["count"]
@@ -62,15 +111,39 @@ def add_tags(request):
         return HttpResponseBadRequest("request body is missing an important key")
     except ValueError:
         return HttpResponseBadRequest("tags value is not in proper list format")
+    except IndexError:
+        return HttpResponseBadRequest("number of tags submitted is smaller than tag count")
 
 
 @login_required
 def setup(request):
+    """Render template for setup view.
+
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        HttpResponse: the template of the setup view wrapped in an http response
+    """
     return render(request, "user_profile/setup.html")
 
 
 @login_required
 def obtain_tags(request):
+    """Return the list of currently available tags and respective indications of whether the current user has the tags.
+    The response is in the form of json, which consists of one field "tags".
+    The corresponding value is the list of currently available tags.
+    Each tag (element) has the following fields:
+        tag_id (int): the id of the tag stored in the database
+        tag_name (str): the string representation of this tag
+        in (bool): whether the tag is in the list of tags of the currently logged in user, True if it is, False otherwise
+    
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        JsonResponse: response containing the list of currently available tags and indication of whether the current user has the tags
+    """
     user_profile = request.user.user_profile
     tagList = set(user_profile.tagList.all())
     tags = list(Tag.objects.all())
@@ -87,6 +160,18 @@ def obtain_tags(request):
 @login_required
 @require_http_methods(["POST"])
 def set_profile_image(request):
+    """Set profile image for the current user and return the feedback of the result.
+    The request method must be post, and the request body must contain a file.
+    The file must be sent either in byte array representation of the image, under request.POST,
+    or as file data in request.FILES.
+    If there is an error raised during image processing, an HttpResponse is returned with status code 405 and explanation for error.
+
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        HttpResponse: the feedback of the image processing. If successfully, status code is 200. Otherwise, status code is 405.
+    """
     try:
         user_profile_obj = request.user.user_profile
         if "img" in request.POST:
@@ -107,6 +192,17 @@ def set_profile_image(request):
 
 @login_required
 def get_profile_pic(request, username):
+    """Obtain the image file of the profile picture of the indicated username.
+    Username must be indicated clearly in the URL path.
+    The default profile picture will be returned if the user with given username has not uploaded a profile picture.
+
+    Args:
+        request (HttpRequest): the request made to this view
+        username (str): the username of the user whose profile picture is to be obtained
+    
+    Returns:
+        FileResponse: the file of the image of the user, wrapped in a FileResponse instance
+    """
     if not UserAuth.objects.filter(username=username).exists():
         return HttpResponseBadRequest("username not found")
     else:
