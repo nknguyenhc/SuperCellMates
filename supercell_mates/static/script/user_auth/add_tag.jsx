@@ -74,7 +74,7 @@ function AddTag() {
                     <label className="form-label">Tag</label>
                     <button type="button" class="btn-close" aria-label="Close" onClick={() => document.querySelector('#add_tag').style.display = 'none'}></button>
                 </div>
-                <form onSubmit={submitForm}>
+                <form autocomplete="off" onSubmit={submitForm}>
                     <div>
                         <input className="form-control" type="text" name="tag" onChange={event => 
                             setTag(event.target.value)}></input>

@@ -38,8 +38,8 @@
                     {% endif %} 
                 </ul>
                 {% if user.is_authenticated %} 
-                    <form action="{% url 'user_log:search' %}" class="d-flex" role="search">
-                        <input class="form-control me-2" type="search" name="username" placeholder="Search" aria-label="Search">
+                    <form autocomplete='off' id='search-form' class="d-flex" role="search">
+                        <input id='search-input' class="form-control me-2" type="search" name="username" placeholder="Search" aria-label="Search">
                         <button class="btn btn-outline-primary" type="submit">Search</button>
                     </form>
                 {% endif %} 
@@ -49,3 +49,6 @@
 </div>
 <link rel="stylesheet" href="/static/style/nav-bar.css">
 <script src="/static/script/nav-bar.js"></script>
+<div id="search-result-box" style="display: none"></div>
+<script src="/static/script/user_log/search-bar.js"></script>
+<script type='text/babel' src="/static/script/user_log/search-result.jsx"></script>

@@ -151,15 +151,6 @@ def find_users(search_param, my_username):
 def search(request):
     search_param = request.GET["username"]
     users = find_users(search_param, request.user.username)
-    return render(request, "user_log/search.html", {
-        "users": users
-    })
-
-
-@login_required
-def search_users_async(request):
-    search_param = request.GET["username"]
-    users = find_users(search_param, request.user.username)
     return JsonResponse({
         "users": users
     })
