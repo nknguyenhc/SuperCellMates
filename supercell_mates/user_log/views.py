@@ -154,3 +154,18 @@ def search(request):
     return JsonResponse({
         "users": users
     })
+
+
+@login_required
+@require_http_methods(["POST"])
+def delete_friend(request):
+    try:
+        username = request.POST["username"]
+        request.user.user_log.friend_list.remove(UserAuth.objects.get(username=username).user_log)
+        return HttpResponse("friend deleted")
+    except AttributeError:
+        return HttpResponseBadRequest("request does not have form data")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request form data does not contain an important key")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("user with provided username does not exist")
