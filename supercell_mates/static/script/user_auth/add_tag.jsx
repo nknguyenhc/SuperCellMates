@@ -4,25 +4,33 @@ function AddTag() {
     const [holding, setHolding] = React.useState(false);
     const [initialPosition, setInitialPosition] = React.useState();
     const [position, setPosition] = React.useState({
-        top: "50px",
+        zIndex: 9999,
+        top: "100px",
         left: "50px"
     });
     const [lastPosition, setLastPosition] = React.useState({
         x: 50,
-        y: 50
+        y: 100
     });
 
     function submitForm(event) {
         event.preventDefault();
         if (tag === '') {
-            setErrMessage("tag cannot be empty");
+            setErrMessage("Tag cannot be empty");
         } else {
             fetch('/add_tag_request', postRequestContent({
                 tag: tag
             }))
                 .then(response => {
-                    document.querySelector("#tag_request_message_button").click();
-                });
+                    console.log(response.status);
+                    console.log(response.statusText);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else {
+                        document.querySelector("#tag_request_message_button").click();
+                    }
+                })
+                .catch(() => triggerErrorMessage());
             setErrMessage("");
         }
     }
@@ -41,12 +49,14 @@ function AddTag() {
             style={position}
             onMouseDown={event => {
                 setHolding(true);
+                document.body.style.userSelect = 'none';
                 setInitialPosition({
                     x: event.pageX,
                     y: event.pageY
                 });
             }} onMouseUp={() => {
                 setHolding(false);
+                document.body.style.userSelect = 'auto';
                 setLastPosition({
                     x: pixelToNumber(position.left),
                     y: pixelToNumber(position.top)
@@ -54,14 +64,18 @@ function AddTag() {
             }} onMouseMove={event => {
                 if (holding) {
                     setPosition({
+                        ...position,
                         top: `${lastPosition.y + event.pageY - initialPosition.y}px`,
                         left: `${lastPosition.x + event.pageX - initialPosition.x}px`
                     });
                 }
             }}>
-                <form onSubmit={submitForm}>
+                <div className="tag-request-form-label">
+                    <label className="form-label">Tag</label>
+                    <button type="button" class="btn-close" aria-label="Close" onClick={() => document.querySelector('#add_tag').style.display = 'none'}></button>
+                </div>
+                <form autocomplete="off" onSubmit={submitForm}>
                     <div>
-                        <label className="form-label">Tag</label>
                         <input className="form-control" type="text" name="tag" onChange={event => 
                             setTag(event.target.value)}></input>
                     </div>
@@ -69,7 +83,9 @@ function AddTag() {
                         <input type="submit" value="Request" className="btn btn-primary"></input>
                     </div>
                 </form>
-                <div>{errMessage}</div>
+                <div class="alert alert-danger" role='alert' style={{
+                    display: errMessage === '' ? 'none' : 'block'
+                }}>{errMessage}</div>
             </div>
             <button style={{display: "none"}} id="tag_request_message_button" type="button" data-bs-toggle="modal" data-bs-target="#tagRequestMessage"></button>
             <div className="modal fade" id="tagRequestMessage" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

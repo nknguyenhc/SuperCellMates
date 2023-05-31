@@ -34,6 +34,13 @@ def login_async(request):
 
             if user is not None:
                 login(request, user)
+
+                if user.is_superuser and user.user_profile is not None:
+                    user_profile_obj = UserProfile(name=user.username, user_auth=user)
+                    user_profile_obj.save()
+                    user_log_obj = UserLog(user_auth=user, user_profile=user_profile_obj)
+                    user_log_obj.save()
+                
                 return HttpResponse("logged in")
             else:
                 return HttpResponse("wrong username or password")
@@ -56,6 +63,14 @@ def login_user(request):
 
                 if user is not None:
                     login(request, user)
+
+                    # for ease of testing, we create user profile if it is superuser
+                    if user.is_superuser and not hasattr(user, "user_profile"):
+                        user_profile_obj = UserProfile(name=user.username, user_auth=user)
+                        user_profile_obj.save()
+                        user_log_obj = UserLog(user_auth=user, user_profile=user_profile_obj)
+                        user_log_obj.save()
+
                     next_url = request.GET.get("next", "/")
                     if is_safe_url(next_url, {request.get_host()}):
                         return redirect(next_url)
@@ -89,27 +104,31 @@ def check_unique_username_async(request):
         return HttpResponseBadRequest("request body is missing username")
 
 
+def register_user(request):
+    username = request.POST["username"]
+    password = request.POST["password"]
+    name = request.POST["name"]
+    if username == '' or password == '' or name == '':
+        return "username/password or name is empty"
+
+    try:
+        user = UserAuth.objects.create_user(username=username, password=password)
+        user_profile_obj = UserProfile(name=name, user_auth=user)
+        user_profile_obj.save()
+        user_log_obj = UserLog(user_auth=user, user_profile=user_profile_obj)
+        user_log_obj.save()
+        login(request, user)
+    except IntegrityError:
+        return "username already taken"
+    return "account created"
+
+
 @require_http_methods(["POST"])
 def register_async(request):
     if not request.user.is_authenticated:
         try:
-            username = request.POST["username"]
-            password = request.POST["password"]
-            name = request.POST["name"]
-            if username == '' or password == '': # this only serve as a backup, checking empty fields should be done in front end
-                return HttpResponseBadRequest("username or password is empty")
-
-            try:
-                user = UserAuth.objects.create_user(username=username, password=password)
-                user_profile_obj = UserProfile(name=name, user_auth=user)
-                user_profile_obj.save()
-                user_log_obj = UserLog(user_auth=user, user_profile=user_profile_obj)
-                user_log_obj.save()
-                login(request, user)
-            except IntegrityError:
-                return HttpResponse("username already taken")
-            
-            return HttpResponse("account created")
+            register_feedback = register_user(request)
+            return HttpResponse(register_feedback)
         except AttributeError:
             return HttpResponseBadRequest("request does not contain form data")
         except MultiValueDictKeyError:
@@ -124,27 +143,13 @@ def register(request):
     if not request.user.is_authenticated:
         if request.method == "POST":
             try:
-                username = request.POST["username"]
-                password = request.POST["password"]
-                name = request.POST["name"]
-                if username == '' or password == '' or name == '':
-                    return render(request, "user_auth/register.html", {
-                        "error_message": "username/password or name is empty"
-                    })
-
-                try:
-                    user = UserAuth.objects.create_user(username=username, password=password)
-                    user_profile_obj = UserProfile(name=name, user_auth=user)
-                    user_profile_obj.save()
-                    user_log_obj = UserLog(user_auth=user, user_profile=user_profile_obj)
-                    user_log_obj.save()
-                    login(request, user)
-                except IntegrityError:
+                register_feedback = register_user(request)
+                if register_feedback == "account created":
+                    return redirect(reverse("user_profile:setup"))
+                else:
                     return render(request, "user_auth/register.html", {
                         "error_message": "username already taken"
                     })
-
-                return redirect(reverse("user_profile:setup"))
             except AttributeError:
                 return HttpResponseBadRequest("request does not contain form data")
             except MultiValueDictKeyError:
@@ -165,11 +170,8 @@ def logout_user(request):
 
 @login_required
 def logout_async(request):
-    if request.user.is_authenticated:
-        logout(request)
-        return HttpResponse("logged out")
-    else:
-        return HttpResponseBadRequest("you are already logged out")
+    logout(request)
+    return HttpResponse("logged out")
 
 
 def add_tag_admin(request):
@@ -231,7 +233,7 @@ def add_tag_request(request):
         tagName = request.POST["tag"]
         tag_request = TagRequest(name=tagName)
         tag_request.save()
-        return HttpResponse("successfully added tag")
+        return HttpResponse("Successfully added tag request")
     except AttributeError:
         return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:

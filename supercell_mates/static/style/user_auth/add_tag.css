@@ -1,0 +1,13 @@
+.tag-request-form-label {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#tag_request_window {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: white;
+}

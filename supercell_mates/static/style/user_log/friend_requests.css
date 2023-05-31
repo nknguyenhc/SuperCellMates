@@ -22,3 +22,14 @@
     height: 100px;
     width: 100px;
 }
+
+.friend-accepted-mark, .friend-rejected-mark {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.friend-accepted-mark img, .friend-rejected-mark img {
+    height: 30px;
+    width: 30px;
+}

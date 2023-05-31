@@ -13,7 +13,12 @@ function AddTagsAdmin() {
         fetch('/add_tag_admin', postRequestContent({
             tag_request_id: tag_request_id,
             tag: tag
-        }));
+        }))
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                }
+            });
         setRequests(requests.filter(request => request.id != tag_request_id));
     }
 
@@ -29,9 +34,9 @@ function AddTagsAdmin() {
             <table className="table table-striped table-hover table-bordered border-primary">
                 <thead>
                     <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Tag</th>
-                        <th scope="col">Action</th>
+                        <th scope="col" style={{width: "10%"}}>ID</th>
+                        <th scope="col" style={{width: "30%"}}>Tag</th>
+                        <th scope="col" style={{width: "30%"}}>Action</th>
                     </tr>
                 </thead>
                 <tbody>

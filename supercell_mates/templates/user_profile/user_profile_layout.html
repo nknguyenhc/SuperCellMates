@@ -18,16 +18,35 @@
                         <a href="{% url 'user_profile:setup' %}" class="">
                             <button type="button" class="btn btn-outline-primary">Edit Profile</button>
                         </a>
+                    {% elif is_friend %} 
+                        <div id="buttons"></div>
+                        <script type="text/babel" src="/static/script/user_log/view_profile_buttons.jsx"></script>
                     {% else %} 
                         <form id="add_friend_form">
-                            <input type="hidden" id="add_friend_username" value="{{ user_profile.user_auth.username }}">
+                            <input type="hidden" id="add_friend_username" value="{{ user_profile.username }}">
                             <input type="submit" value="Add Friend" class="btn btn-outline-primary">
+                            <button style="display: none" id="friend_request_message_button" type="button" data-bs-toggle="modal" data-bs-target="#friendRequestMessage"></button>
+                            <div class="modal fade" id="friendRequestMessage" tabindex="-1" aria-labelledby="addFriendLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="addFriendLabel">Message</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">Your friend request is sent.
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </form>
                         <script src="/static/script/user_log/add_friend.js"></script>
                     {% endif %} 
                     <div id="profile-basic-info-text" class="fs-3">
                         <strong id="profile-name">{{ user_profile.name }}</strong>
-                        <div id="profile-id">@{{ user_profile.user_auth.username }}</div>
+                        <div id="profile-id">@{{ user_profile.username }}</div>
                     </div>
                 </div>
             </div>

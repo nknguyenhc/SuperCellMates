@@ -26,6 +26,14 @@
                         <div class="text-primary">{{ friend_request.username }}</div>
                     </a>
                 </div>
+                <div class="friend-accepted-mark text-success" style="display: none">
+                    <img src="/static/media/check-icon.png">
+                    <p>Friend Request Accepted</p>
+                </div>
+                <div class="friend-rejected-mark text-danger" style="display: none">
+                    <img src="/static/media/cross-icon.png">
+                    <p>Friend Request Rejected</p>
+                </div>
                 <form class="friend_request_form">
                     {% csrf_token %} 
                     <input type="hidden" class="friend_username" value="{{ friend_request.username }}">
