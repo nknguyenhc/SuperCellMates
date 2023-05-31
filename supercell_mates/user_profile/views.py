@@ -18,7 +18,12 @@ def layout_context(user_auth_obj):
         user_auth_obj (UserAuth): the UserAuth instance to be rendered on the user_profile layout
 
     Returns:
-        dict: a dictionary to be used as part of context during template rendering
+        dict: a dictionary to be used as part of context during template rendering.
+        The dictionary contains the following fields:
+            user_profile: a dictionary contains the information of the target user, with the following fields:
+                name: the name of the target user
+                username: the username of the target user
+            image_url: the URL to the profile picture of the target user
     """
 
     return {
@@ -37,7 +42,16 @@ def index_context(user_auth_obj):
         user_auth_obj (UserAuth): the UserAuth instance of the currently logged in user
 
     Returns:
-        dict: a dictionary to be used as the context during template rendering of the user's profile page
+        dict: a dictionary to be used as the context during template rendering of the user's profile page.
+        The dictionary contains the following fields:
+            image_url: the URL to the profile image of the current user
+            user_profile: the dictionary contains the information on the profile of the current user, with the following fields:
+                name: the name of the current user
+                username: the username of the current user
+            tags: the list of tags of the current user. Each tag is represented by a dictionary with the field 'name',
+            whose corresponding value is the name of the tag.
+            my_profile: whether the target user to be rendered on the template is the same as request user, True by default
+            is_admin: whether the current user is an admin of this website, True if it is, False otherwise
     """
 
     tags = list(map(
@@ -144,6 +158,7 @@ def obtain_tags(request):
     Returns:
         JsonResponse: response containing the list of currently available tags and indication of whether the current user has the tags
     """
+    
     user_profile = request.user.user_profile
     tagList = set(user_profile.tagList.all())
     tags = list(Tag.objects.all())
