@@ -248,6 +248,8 @@ def find_users(search_param, my_username):
             profile_pic_url: the URL to the profile picture of the user
             profile_link: the URL to the profile page of the user
     """
+    search_param = search_param.lower()
+    my_username = my_username.lower()
 
     return list(map(
         lambda user: ({
@@ -257,7 +259,7 @@ def find_users(search_param, my_username):
             "profile_link": reverse("user_log:view_profile", args=(user.username,)),
         }),
         filter(
-            lambda user: search_param in user.username and user.username != my_username,
+            lambda user: search_param in user.username.lower() and user.username != my_username,
             list(UserAuth.objects.all())
         )
     ))
@@ -282,6 +284,8 @@ def search(request):
 
     try:
         search_param = request.GET["username"]
+        if type(search_param) != str:
+            return HttpResponseBadRequest("username GET parameter malformed")
         users = find_users(search_param, request.user.username)
         return JsonResponse({
             "users": users

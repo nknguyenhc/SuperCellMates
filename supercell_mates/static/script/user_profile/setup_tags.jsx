@@ -42,11 +42,14 @@ function SetupTags() {
             <div className="ps-5 py-3">Add Tags</div>
             <form onSubmit={submitTags}>
                 <div id="setup-tags-selection" className="ps-2">
-                    {tags.map(tag => (
+                    {/* {tags.map(tag => (
                         <div className="p-2">
                             <input type="checkbox" class="btn-check" id={"tag" + tag.tag_id} checked={tag.in} autocomplete="off"></input>
                             <label class="btn btn-outline-info" for={"tag" + tag.tag_id} onClick={() => toggleTag(tag.tag_id)}>{tag.tag_name}</label>
                         </div>
+                    ))} */}
+                    {tags.map(tag => (
+                        <div className="btn btn-outline-info">{tag.name}</div>
                     ))}
                 </div>
                 <div className="ps-4 pt-3">
