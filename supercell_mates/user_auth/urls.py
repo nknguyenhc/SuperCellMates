@@ -16,5 +16,7 @@ urlpatterns = [
     path('add_tag_admin', views.add_tag_admin, name="add_tag_admin"),
     path('remove_tag_request', views.remove_tag_request, name="remove_tag_request"),
     path('add_tag_request', views.add_tag_request, name="add_tag_request"),
-    path('obtain_tag_requests', views.obtain_tag_requests, name="obtain_tag_requests")
+    path('obtain_tag_requests', views.obtain_tag_requests, name="obtain_tag_requests"),
+    path('manage_page', views.admin, name="admin"),
+    path('new_tag_admin', views.new_tag_admin, name="new_tag_admin"),
 ]
