@@ -168,7 +168,8 @@ def obtain_tags(request):
         "name": tag.name
     }, list(request.user.user_profile.tagList.all())))
     return JsonResponse({
-        "tags": tags
+        "tags": tags,
+        "tag_count_limit": request.user.user_profile.tag_count_limit
     })
 
 

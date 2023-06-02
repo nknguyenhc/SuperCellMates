@@ -1,5 +1,52 @@
-#setup-tags-selection {
+#tags-present {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    gap: 5px;
+}
+
+#add-tag-page {
+    height: 70vh;
+    display: flex;
+    flex-direction: row;
+}
+
+.add-tag-section {
+    flex-grow: 4;
+    display: flex;
+    flex-direction: column;
+}
+
+.add-tag-section-title {
+    text-align: center;
+}
+
+#search-tag-form {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.add-tag-section-body {
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 30vw;
+}
+
+#search-tag-result {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tag-display {
+    width: fit-content;
+}
+
+.new-tag-div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
