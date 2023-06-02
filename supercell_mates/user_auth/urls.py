@@ -19,4 +19,5 @@ urlpatterns = [
     path('obtain_tag_requests', views.obtain_tag_requests, name="obtain_tag_requests"),
     path('manage_page', views.admin, name="admin"),
     path('new_tag_admin', views.new_tag_admin, name="new_tag_admin"),
+    path('about', views.about, name="about"),
 ]

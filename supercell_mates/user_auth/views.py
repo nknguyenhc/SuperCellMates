@@ -14,6 +14,10 @@ from user_profile.models import UserProfile
 from user_log.models import UserLog
 
 
+def about(request):
+    return render(request, "user_auth/about.html")
+
+
 @login_required
 def home(request):
     return render(request, "user_auth/home.html")
