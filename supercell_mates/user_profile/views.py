@@ -3,12 +3,15 @@ from django.urls import reverse
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.http.response import FileResponse
 from django.utils.datastructures import MultiValueDictKeyError
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from .models import UserProfile
 from user_auth.models import UserAuth, Tag
 import io
 from django.core.files.images import ImageFile
 from django.views.decorators.http import require_http_methods
+
+from user_auth.models import Tag
 
 
 def layout_context(user_auth_obj):
@@ -102,7 +105,7 @@ def add_tags(request):
     """Attempt to add tags for the currently logged in user and return the feedback of the result.
     The request method must be post, and the body (request.POST) must have the following attributes:
         count: the number of tags to be added
-        tags: the list of tags (in string form, e.g. '[1, 3, 4]') to be added, each element is a number representing the id of the tag to be added
+        tags: the list of tags (in string form, e.g. "['Mathematics', 'Physics']") to be added, each element is a string representing the tag
     
     Args:
         request (HttpRequest): the request made to this view
@@ -114,19 +117,23 @@ def add_tags(request):
 
     try:
         user_profile_obj = request.user.user_profile
-        count = request.POST["count"]
+        count = int(request.POST["count"])
+        if count + len(list(user_profile_obj.tagList.all())) > user_profile_obj.tag_count_limit:
+            return HttpResponseBadRequest("tag limit exceeded")
         requested_tags = request.POST["tags"].strip("[]").split(",")
-        for i in range(int(count)):
-            user_profile_obj.tagList.add(Tag.objects.get(id=requested_tags[i]))
+        for i in range(count):
+            user_profile_obj.tagList.add(Tag.objects.get(name=requested_tags[i]))
         return HttpResponse("success")
     except AttributeError:
         return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body is missing an important key")
     except ValueError:
-        return HttpResponseBadRequest("tags value is not in proper list format")
+        return HttpResponseBadRequest("tags value is not in proper list format / count submitted is not integer")
     except IndexError:
         return HttpResponseBadRequest("number of tags submitted is smaller than tag count")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("one of the tag names is malformed")
 
 
 @login_required
@@ -144,13 +151,11 @@ def setup(request):
 
 @login_required
 def obtain_tags(request):
-    """Return the list of currently available tags and respective indications of whether the current user has the tags.
+    """Return the list of tags associated with the current user.
     The response is in the form of json, which consists of one field "tags".
-    The corresponding value is the list of currently available tags.
+    The corresponding value is the list of tags associated with the current user.
     Each tag (element) has the following fields:
-        tag_id (int): the id of the tag stored in the database
-        tag_name (str): the string representation of this tag
-        in (bool): whether the tag is in the list of tags of the currently logged in user, True if it is, False otherwise
+        name (str): the string representation of this tag
     
     Args:
         request (HttpRequest): the request made to this view
@@ -159,17 +164,67 @@ def obtain_tags(request):
         JsonResponse: response containing the list of currently available tags and indication of whether the current user has the tags
     """
     
-    user_profile = request.user.user_profile
-    tagList = set(user_profile.tagList.all())
-    tags = list(Tag.objects.all())
     tags = list(map(lambda tag: {
-        "tag_id": tag.id,
-        "tag_name": tag.name,
-        "in": tag in tagList
-    }, tags))
+        "name": tag.name
+    }, list(request.user.user_profile.tagList.all())))
     return JsonResponse({
-        "tags": tags
+        "tags": tags,
+        "tag_count_limit": request.user.user_profile.tag_count_limit
     })
+
+
+def find_tags(search_param, user_profile_obj):
+    """Return the list of tags that match the search parameter.
+    The search returns the tags that contains the search parameter, excluding those that the current user already has.
+    Each item in the list is a dictionary with the following fields:
+        name: the name of the tags
+    
+    Args:
+        search_param (str): the search parameter
+        user_profile_obj (UserProfile): the instance of UserProfile that represents the user making this search.
+    
+    Returns:
+        list(dict): the list of tags that match the search parameter
+    """
+
+    user_tags = set(user_profile_obj.tagList.all())
+    search_param = search_param.lower()
+    
+    return list(map(
+        lambda tag: ({
+            "name": tag.name
+        }),
+        filter(
+            lambda tag: search_param in tag.name.lower() and tag not in user_tags,
+            list(Tag.objects.all())
+        )
+    ))
+
+
+@login_required
+def search_tags(request):
+    """Return the list of tags the match the search.
+    The request must contain the following GET parameters:
+        tag (str): the search parameter
+    The response is in json form which contains the following fields:
+        tags (list(dict)): the results returned by the find_tags function above
+    
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Return:
+        JsonResponse: the search result
+    """
+    try:
+        search_param = request.GET["tag"]
+        result = find_tags(search_param, request.user.user_profile)
+        return JsonResponse({
+            "tags": result
+        })
+    except AttributeError:
+        return HttpResponseBadRequest("GET parameters not found")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("tag GET parameter not found")
 
 
 @login_required

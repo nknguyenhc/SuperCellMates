@@ -188,11 +188,26 @@ def add_tag_admin(request):
                 return HttpResponseBadRequest("request does not contain form data")
             except MultiValueDictKeyError:
                 return HttpResponseBadRequest("request body is missing an important key")
-        elif request.method == 'GET':
-            return render(request, "user_auth/add_tags_admin.html")
         else:
-            return HttpResponseBadRequest(["GET", "POST"])
+            return HttpResponseNotAllowed(["POST"])
+    else:
+        return HttpResponseNotFound()
+    
 
+def new_tag_admin(request):
+    if request.user.is_superuser:
+        if request.method == "POST":
+            try:
+                tagName = request.POST["tag"]
+                tag = Tag(name=tagName)
+                tag.save()
+                return HttpResponse("tag added")
+            except AttributeError:
+                return HttpResponseBadRequest("request does not contain form data")
+            except MultiValueDictKeyError:
+                return HttpResponseBadRequest("request body is missing an important key")
+        else:
+            return HttpResponseNotAllowed(["POST"])
     else:
         return HttpResponseNotFound()
 
@@ -209,7 +224,7 @@ def remove_tag_request(request):
             except MultiValueDictKeyError:
                 return HttpResponseBadRequest("request body is missing an important key")
         else:
-            return HttpResponseNotAllowed(["GET", "POST"])
+            return HttpResponseNotAllowed(["POST"])
     else:
         return HttpResponseNotFound()
 
@@ -238,3 +253,10 @@ def add_tag_request(request):
         return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request is missing an important key")
+
+
+def admin(request):
+    if request.user.is_superuser:
+        return render(request, 'user_auth/admin.html')
+    else:
+        return HttpResponseNotFound()

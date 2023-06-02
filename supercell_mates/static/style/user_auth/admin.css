@@ -1,0 +1,23 @@
+#admin-page {
+    display: flex;
+    flex-direction: row;
+}
+
+#admin-side-nav {
+    width: 200px;
+    height: 90vh;
+    top: 60px;
+    align-self: flex-start;
+}
+
+#admin-content {
+    width: 100%;
+}
+
+.admin-content {
+    width: 100%;
+}
+
+#add-tags {
+    width: 40vw;
+}
