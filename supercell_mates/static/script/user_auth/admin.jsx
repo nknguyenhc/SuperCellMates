@@ -35,14 +35,18 @@ function ManageTags() {
                 <thead>
                     <tr>
                         <th scope="col" style={{width: "10%"}}>ID</th>
-                        <th scope="col" style={{width: "30%"}}>Tag</th>
-                        <th scope="col" style={{width: "30%"}}>Action</th>
+                        <th scope="col" style={{width: "15%"}}>Icon</th>
+                        <th scope="col" style={{width: "25%"}}>Tag</th>
+                        <th scope="col" style={{width: "25%"}}>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {requests.map(request => (
                         <tr>
                             <th scope="row">{request.id}</th>
+                            <td>
+                                <img src={request.icon} height="30" width="30" />
+                            </td>
                             <td>{request.name}</td>
                             <td>
                                 <button type="button" class="btn btn-success" onClick={() => {

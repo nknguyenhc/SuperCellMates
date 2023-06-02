@@ -254,16 +254,15 @@ def set_profile_image(request):
             img_bytearray = request.POST["img"].strip("[]").split(", ")
             img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
             img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
-        else:
+            user_profile_obj.profile_pic = img
+        elif "img" in request.FILES:
             img = request.FILES["img"]
+            user_profile_obj.profile_pic = img
         # TODO: check if the file submitted is of correct format
-        user_profile_obj.profile_pic = img
         user_profile_obj.save()
         return HttpResponse("success")
     except AttributeError:
         return HttpResponseBadRequest("request does not contain form data/image file")
-    except MultiValueDictKeyError:
-        return HttpResponse("image not submitted")
 
 
 @login_required

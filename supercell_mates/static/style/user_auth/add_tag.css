@@ -11,3 +11,9 @@
     gap: 10px;
     background-color: white;
 }
+
+#tag-request-icon-preview {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}

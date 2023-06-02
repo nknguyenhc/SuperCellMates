@@ -12,6 +12,14 @@ function AddTag() {
         x: 50,
         y: 100
     });
+    const [imagePreview, setImagePreview] = React.useState();
+    const imageInput = React.useRef(null);
+
+    function image() {
+        return (
+            <img src={URL.createObjectURL(imageInput.current.files[0])} style={{height: '25px'}} />
+        )
+    }
 
     function submitForm(event) {
         event.preventDefault();
@@ -19,7 +27,8 @@ function AddTag() {
             setErrMessage("Tag cannot be empty");
         } else {
             fetch('/add_tag_request', postRequestContent({
-                tag: tag
+                tag: tag,
+                img: imageInput.current.files[0]
             }))
                 .then(response => {
                     console.log(response.status);
@@ -76,8 +85,15 @@ function AddTag() {
                 </div>
                 <form autocomplete="off" onSubmit={submitForm}>
                     <div>
-                        <input className="form-control" type="text" name="tag" onChange={event => 
+                        <input className="form-control" type="text" name="tag" placeholder="Name" onChange={event => 
                             setTag(event.target.value)}></input>
+                    </div>
+                    <div id="tag-request-icon-preview" className="mt-3">
+                        <div>Icon:</div>
+                        {imagePreview}
+                    </div>
+                    <div className="mt-3">
+                        <input ref={imageInput} type="file" className="form-control" accept="image/*" onChange={() => setImagePreview(image())} />
                     </div>
                     <div className="mt-3">
                         <input type="submit" value="Request" className="btn btn-primary"></input>

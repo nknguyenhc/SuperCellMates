@@ -2,12 +2,13 @@ from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseNotAllowed
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseNotAllowed, FileResponse
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.http import url_has_allowed_host_and_scheme as is_safe_url
 from django.views.decorators.http import require_http_methods
-
+import io
+from django.core.files.images import ImageFile
 
 from .models import UserAuth, Tag, TagRequest
 from user_profile.models import UserProfile
@@ -238,7 +239,8 @@ def obtain_tag_requests(request):
         tag_request_objs = list(TagRequest.objects.all())
         tag_requests = list(map(lambda request_obj:{
             "id": request_obj.id,
-            "name": request_obj.name
+            "name": request_obj.name,
+            "icon": reverse("user_auth:get_tag_request_icon", args=(request_obj.name,)),
         }, tag_request_objs))
         return JsonResponse({"tag_requests": tag_requests})
     else:
@@ -249,8 +251,18 @@ def obtain_tag_requests(request):
 @require_http_methods(["POST"])
 def add_tag_request(request):
     try:
-        tagName = request.POST["tag"]
-        tag_request = TagRequest(name=tagName)
+        tag_name = request.POST["tag"]
+        if "img" in request.POST:
+            img_bytearray = request.POST["img"].strip("[]").split(", ")
+            img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
+            img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
+            tag_request = TagRequest(name=tag_name, image=img)
+        elif "img" in request.FILES:
+            img = request.FILES["img"]
+            tag_request = TagRequest(name=tag_name, image=img)
+        else:
+            tag_request = TagRequest(name=tag_name)
+        # TODO: check if the file submitted is of correct format
         tag_request.save()
         return HttpResponse("Successfully added tag request")
     except AttributeError:
@@ -262,5 +274,20 @@ def add_tag_request(request):
 def admin(request):
     if request.user.is_superuser:
         return render(request, 'user_auth/admin.html')
+    else:
+        return HttpResponseNotFound()
+
+
+def get_tag_request_icon(request, tag_name):
+    if request.user.is_superuser:
+        if not TagRequest.objects.filter(name=tag_name).exists():
+            return HttpResponseNotFound()
+        else:
+            icon = TagRequest.objects.get(name=tag_name).image
+            if not icon:
+                return redirect('/static/media/default-tag-icon.png')
+            else:
+                return FileResponse(icon)
+    
     else:
         return HttpResponseNotFound()
