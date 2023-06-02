@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse, FileResponse
 from django.http.response import FileResponse
 from django.utils.datastructures import MultiValueDictKeyError
 from django.core.exceptions import ObjectDoesNotExist
@@ -51,7 +51,9 @@ def index_context(user_auth_obj):
             user_profile: the dictionary contains the information on the profile of the current user, with the following fields:
                 name: the name of the current user
                 username: the username of the current user
-            tags: the list of tags of the current user. Each tag is represented by a dictionary with the field 'name',
+            tags: the list of tags of the current user. Each tag is represented by a dictionary with the following fields:
+                name: the name of the tag
+                icon: the URL to the icon of the tag
             whose corresponding value is the name of the tag.
             my_profile: whether the target user to be rendered on the template is the same as request user, True by default
             is_admin: whether the current user is an admin of this website, True if it is, False otherwise
@@ -59,7 +61,8 @@ def index_context(user_auth_obj):
 
     tags = list(map(
         lambda tag: ({
-            "name": tag.name
+            "name": tag.name,
+            "icon": reverse('user_profile:get_tag_icon', args=(tag.name,)),
         }),
         list(user_auth_obj.user_profile.tagList.all())
     ))
@@ -156,6 +159,7 @@ def obtain_tags(request):
     The corresponding value is the list of tags associated with the current user.
     Each tag (element) has the following fields:
         name (str): the string representation of this tag
+        icon (str): the URL to the icon of the tag
     
     Args:
         request (HttpRequest): the request made to this view
@@ -165,7 +169,8 @@ def obtain_tags(request):
     """
     
     tags = list(map(lambda tag: {
-        "name": tag.name
+        "name": tag.name,
+        "icon": reverse('user_profile:get_tag_icon', args=(tag.name,)),
     }, list(request.user.user_profile.tagList.all())))
     return JsonResponse({
         "tags": tags,
@@ -192,7 +197,8 @@ def find_tags(search_param, user_profile_obj):
     
     return list(map(
         lambda tag: ({
-            "name": tag.name
+            "name": tag.name,
+            "icon": reverse('user_profile:get_tag_icon', args=(tag.name,)),
         }),
         filter(
             lambda tag: search_param in tag.name.lower() and tag not in user_tags,
@@ -274,10 +280,33 @@ def get_profile_pic(request, username):
         FileResponse: the file of the image of the user, wrapped in a FileResponse instance
     """
     if not UserAuth.objects.filter(username=username).exists():
-        return HttpResponseBadRequest("username not found")
+        return HttpResponseNotFound()
     else:
         profile_pic = UserAuth.objects.get(username=username).user_profile.profile_pic
         if not profile_pic:
             return redirect('/static/media/default_profile_pic.jpg')
         else:
             return FileResponse(profile_pic)
+
+
+@login_required
+def get_tag_icon(request, tag_name):
+    """Obtain the icon of the tag.
+    The tag name must be spelled out clearly in the URL.
+
+    Args:
+        request (HttpRequest): the requesst made to this view
+        tag_name (str): the name of the tag to obtain
+    
+    Return:
+        FileResponse: the image of the icon
+    """
+
+    if not Tag.objects.filter(name=tag_name).exists():
+        return HttpResponseNotFound()
+    else:
+        icon = Tag.objects.get(name=tag_name).image
+        if not icon:
+            return redirect('/static/media/default-tag-icon.png')
+        else:
+            return FileResponse(icon)

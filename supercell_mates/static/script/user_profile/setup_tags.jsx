@@ -20,7 +20,7 @@ function SetupTags() {
         event.preventDefault();
         fetch('/profile/add_tags', postRequestContent({
             count: toBeSubmitted.length,
-            tags: toBeSubmitted
+            tags: toBeSubmitted.map(tag => tag.name)
         }))
             .then(response => {
                 if (response.status !== 200) {
@@ -42,9 +42,8 @@ function SetupTags() {
 
     function addNewTag(index) {
         if (tags.length + toBeSubmitted.length < tagCountLimit) {
-            const tagName = searchResults[index].name;
             setSearchResults(searchResults.filter((_, i) => i !== index));
-            setToBeSubmitted([...toBeSubmitted, tagName]);
+            setToBeSubmitted([...toBeSubmitted, searchResults[index]]);
         } else {
             addTagMessageButton.current.click();
         }
@@ -61,7 +60,10 @@ function SetupTags() {
                     <div className="add-tag-section-title py-5">Your Current Tags</div>
                     <div className="add-tag-section-body ps-2">
                         {tags.map(tag => (
-                            <div className="tag-display btn btn-outline-info">{tag.name}</div>
+                            <div className="tag-button btn btn-outline-info">
+                                <img src={tag.icon} />
+                                <div>{tag.name}</div>
+                            </div>
                         ))}
                     </div>
                 </div>
@@ -70,7 +72,10 @@ function SetupTags() {
                     <div className="add-tag-section-body">
                         {toBeSubmitted.map((tag, index) => (
                             <div className="new-tag-div">
-                                <div className="tag-display btn btn-outline-info">{tag}</div>
+                                <div className="tag-button btn btn-outline-info">
+                                    <img src={tag.icon} />
+                                    <div>{tag.name}</div>
+                                </div>
                                 <button type="button" class="btn-close" aria-label="Close" onClick={() => removeNewTag(index)}></button>
                             </div>
                         ))}
@@ -85,7 +90,10 @@ function SetupTags() {
                         </form>
                         <div id="search-tag-result">
                             {searchResults.map((tag, index) => (
-                                <div className="tag-display btn btn-outline-info" onClick={() => addNewTag(index)}>{tag.name}</div>
+                                <div className="tag-button btn btn-outline-info" onClick={() => addNewTag(index)}>
+                                    <img src={tag.icon} />
+                                    <div>{tag.name}</div>
+                                </div>
                             ))}
                         </div>
                     </div>

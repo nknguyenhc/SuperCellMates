@@ -24,14 +24,17 @@ def view_profile_context(user_auth_obj, request_user):
             user_profile: a dictionary with fields
                 name: the name of the target user
                 username: the username of the target user
-            tags: the list of tags of the target user
+            tags: the list of tags of the target user, each with the following fields:
+                name: the name of the tag
+                icon: the URL to the icon of the tag
             my_profile: whether the target user is the same as the user that made the request, False by default
             is_friend: whether the target user is friend with the request user
     """
 
     tags = list(map(
         lambda tag: ({
-            "name": tag.name
+            "name": tag.name,
+            "icon": reverse('user_profile:get_tag_icon', args=(tag.name,)),
         }),
         list(user_auth_obj.user_profile.tagList.all())
     ))

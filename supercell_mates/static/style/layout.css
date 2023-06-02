@@ -1,0 +1,23 @@
+#about-button {
+    position: fixed;
+    left: 30px;
+    bottom: 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    z-index: 9998;
+}
+
+.tag-button {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    width: fit-content;
+}
+
+.tag-button img {
+    height: 25px;
+    width: 25px;
+}

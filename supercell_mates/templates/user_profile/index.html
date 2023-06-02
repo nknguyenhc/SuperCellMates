@@ -9,7 +9,10 @@
     <div id="profile-tags">
         {% for tag in tags %} 
             <div class="tag">
-                <button class="btn btn-outline-info">{{ tag.name }}</button>
+                <button class="tag-button btn btn-outline-info">
+                    <img src="{{ tag.icon }}">
+                    <div>{{ tag.name }}</div>
+                </button>
             </div>
         {% endfor %} 
     </div>

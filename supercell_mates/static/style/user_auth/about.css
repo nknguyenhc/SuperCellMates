@@ -10,6 +10,10 @@
     flex-direction: column;
 }
 
+.introduction-read-me p {
+    text-align: justify;
+}
+
 .author-block {
     display: flex;
     flex-direction: row;
@@ -45,4 +49,8 @@
 .author-social-links img {
     height: 20px;
     width: 20px;
+}
+
+.author-readme p {
+    text-align: justify;
 }

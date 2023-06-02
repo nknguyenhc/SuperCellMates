@@ -41,10 +41,6 @@
     gap: 10px;
 }
 
-.tag-display {
-    width: fit-content;
-}
-
 .new-tag-div {
     display: flex;
     flex-direction: row;
