@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseNotAllowed, FileResponse
 from django.utils.datastructures import MultiValueDictKeyError
+from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.http import url_has_allowed_host_and_scheme as is_safe_url
 from django.views.decorators.http import require_http_methods
@@ -182,20 +183,52 @@ def logout_async(request):
     return HttpResponse("logged out")
 
 
+def duplicate_tag_exists(tag_name):
+    """Determine if any current tag/tag request is the same as the tag name
+
+    Args:
+        tag_name (str): the tag name to check against db
+    
+    Returns:
+        bool: whether there already exists a similar tag/tag request, True if it is so, False otherwise
+    """
+
+    tag_name = tag_name.lower()
+    def same_tag(db_tag_name):
+        if len(db_tag_name) != len(tag_name):
+            return False
+        return db_tag_name.lower() == tag_name
+    
+    return any(list(map(
+        lambda tag: same_tag(tag.name),
+        list(Tag.objects.all())
+    ))) or any(list(map(
+        lambda tag: same_tag(tag.name),
+        list(TagRequest.objects.all())
+    )))
+
+
 def add_tag_admin(request):
     if request.user.is_superuser:
         if request.method == "POST":
             try:
                 tag_request_id = request.POST["tag_request_id"]
-                TagRequest.objects.get(id=tag_request_id).delete()
-                tagName = request.POST["tag"]
-                tag = Tag(name=tagName)
+                tag_request_obj = TagRequest.objects.get(id=tag_request_id)
+                icon = tag_request_obj.image
+                tag_request_obj.delete()
+                tag_name = request.POST["tag"]
+                if not icon:
+                    tag = Tag(name=tag_name)
+                else:
+                    tag = Tag(name=tag_name, image=icon)
                 tag.save()
                 return HttpResponse("successfully added tag")
             except AttributeError:
                 return HttpResponseBadRequest("request does not contain form data")
             except MultiValueDictKeyError:
                 return HttpResponseBadRequest("request body is missing an important key")
+            except ObjectDoesNotExist:
+                return HttpResponseBadRequest("tag request not present/already deleted")
         else:
             return HttpResponseNotAllowed(["POST"])
     else:
@@ -255,6 +288,8 @@ def obtain_tag_requests(request):
 def add_tag_request(request):
     try:
         tag_name = request.POST["tag"]
+        if duplicate_tag_exists(tag_name):
+            return HttpResponse("tag already present/requested")
         if "img" in request.POST:
             img_bytearray = request.POST["img"].strip("[]").split(", ")
             img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))

@@ -6,7 +6,8 @@ function ManageTags() {
         setFetched(true);
         fetch('/obtain_tag_requests')
             .then(response => response.json())
-            .then(response => setRequests(response.tag_requests));
+            .then(response => setRequests(response.tag_requests))
+            .catch(() => triggerErrorMessage());
     }
 
     function submitTag(tag_request_id, tag) {

@@ -20,6 +20,29 @@ function renderSearchBoxPlaceholder() {
 }
 
 
+function NoResult() {
+    return (
+        <div id="search-box-no-result" class="text-body-tertiary">No result to show</div>
+    )
+}
+
+
+function renderNoResult() {
+    removeSearchBox();
+    const box = document.querySelector("#search-result-box");
+    const wrapper = document.createElement('div');
+    ReactDOM.render(<NoResult />, wrapper);
+    box.appendChild(wrapper);
+    wrapper.style.width = 'fit-content';
+    box.style = `
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    `;
+}
+
+
 function removeSearchBox() {
     const box = document.querySelector('#search-result-box');
     Array.from(box.children).forEach(child => box.removeChild(child));
@@ -46,16 +69,20 @@ function ResultListing(props) {
 
 
 function displayResult(listings) {
-    const box = document.querySelector('#search-result-box');
-    removeSearchBox();
-    listings.forEach(listing => {
-        const wrapper = document.createElement('div');
-        ReactDOM.render(<ResultListing name={listing.name} username={listing.username} profile_pic_url={listing.profile_pic_url} profile_link={listing.profile_link} />, wrapper);
-        box.appendChild(wrapper);
-    });
-    box.style = `
-        display: flex;
-        flex-direction: column;
-        gap: 2vh;
-    `;
+    if (listings.length === 0) {
+        renderNoResult();
+    } else {
+        const box = document.querySelector('#search-result-box');
+        removeSearchBox();
+        listings.forEach(listing => {
+            const wrapper = document.createElement('div');
+            ReactDOM.render(<ResultListing name={listing.name} username={listing.username} profile_pic_url={listing.profile_pic_url} profile_link={listing.profile_link} />, wrapper);
+            box.appendChild(wrapper);
+        });
+        box.style = `
+            display: flex;
+            flex-direction: column;
+            gap: 2vh;
+        `;
+    }
 }

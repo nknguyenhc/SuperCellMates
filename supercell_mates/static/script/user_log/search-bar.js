@@ -7,7 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
             event.preventDefault();
             fetch('/user/search?username=' + searchField.value)
                 .then(response => response.json())
-                .then(response => displayResult(response.users));
+                .then(response => displayResult(response.users))
+                .catch(() => triggerErrorMessage());
         });
         searchField.addEventListener('focus', () => {
             if (searchResultBox.style.display === "none") {

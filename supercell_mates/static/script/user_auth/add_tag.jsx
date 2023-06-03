@@ -12,8 +12,9 @@ function AddTag() {
         x: 50,
         y: 100
     });
-    const [imagePreview, setImagePreview] = React.useState();
+    const [imagePreview, setImagePreview] = React.useState(undefined);
     const imageInput = React.useRef(null);
+    const [tagRequestMessage, setTagRequestMessage] = React.useState('');
 
     function image() {
         return (
@@ -26,14 +27,23 @@ function AddTag() {
         if (tag === '') {
             setErrMessage("Tag cannot be empty");
         } else {
-            fetch('/add_tag_request', postRequestContent({
-                tag: tag,
-                img: imageInput.current.files[0]
-            }))
-                .then(response => {
+            const requestBody = {
+                tag: tag
+            }
+            if (imagePreview !== undefined) {
+                requestBody.img = imageInput.current.files[0]
+            }
+            fetch('/add_tag_request', postRequestContent(requestBody))
+                .then(async response => {
                     if (response.status !== 200) {
                         triggerErrorMessage();
                     } else {
+                        const text = await response.text();
+                        if (text === "tag already present/requested") {
+                            await setTagRequestMessage('Tag is already present/requested');
+                        } else {
+                            await setTagRequestMessage('Your request is sent, our admin will review your request.');
+                        }
                         document.querySelector("#tag_request_message_button").click();
                     }
                 })
@@ -109,7 +119,7 @@ function AddTag() {
                             <h1 className="modal-title fs-5" id="exampleModalLabel">Message</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div className="modal-body">Your request is sent, our admin will review your request.
+                        <div className="modal-body">{tagRequestMessage}
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>

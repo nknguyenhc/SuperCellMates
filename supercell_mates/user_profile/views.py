@@ -11,6 +11,7 @@ import io
 from django.core.files.images import ImageFile
 from django.views.decorators.http import require_http_methods
 import magic
+from django.conf import settings
 
 from user_auth.models import Tag
 
@@ -235,18 +236,26 @@ def search_tags(request):
 
 
 def verify_image(img):
-    # first check: file size
-    from django.conf import settings
+    """Check if the given image file is actually an image.
+    The input image goes through 4 following checks:
+    1. File size check: file size must be smaller than 5MB
+    2. Extension check: extension must be jpg/jpeg/png
+    3. Content type: image must be of the correct content type
+    4. Mime type: image must be of the correct mime type
+
+    Args:
+        img: image file to be checked
+    
+    Returns:
+        bool: whether the image file is an image. If it is, return True, otherwise False
+    """
     if img.size > settings.UPLOAD_FILE_MAX_SIZE:
         return False
-    # second check: extension
     extension = img.name.split('.')[-1]
     if not extension or extension.lower() not in settings.WHITELISTED_IMAGE_TYPES.keys():
         return False
-    # third check: content type
     if img.content_type not in settings.WHITELISTED_IMAGE_TYPES.values():
         return False
-    # fourth check: mime type
     mime_type = magic.from_buffer(img.read(1024), mime=True)
     if mime_type not in settings.WHITELISTED_IMAGE_TYPES.values() and mime_type != content_type:
         return False

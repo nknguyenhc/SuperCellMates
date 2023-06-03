@@ -9,11 +9,13 @@ function SetupTags() {
 
     if (!fetched) {
         setFetched(true);
-        fetch('/profile/obtain_tags').then(response => response.json())
+        fetch('/profile/obtain_tags')
+            .then(response => response.json())
             .then(response => {
                 setTags(response.tags);
                 setTagCountLimit(response.tag_count_limit);
-            });
+            })
+            .catch(() => triggerErrorMessage());
     }
 
     function submitTags(event) {
@@ -89,12 +91,16 @@ function SetupTags() {
                             <input type="submit" class="btn btn-outline-primary" value="Search"></input>
                         </form>
                         <div id="search-tag-result">
-                            {searchResults.map((tag, index) => (
-                                <div className="tag-button btn btn-outline-info" onClick={() => addNewTag(index)}>
-                                    <img src={tag.icon} />
-                                    <div>{tag.name}</div>
-                                </div>
-                            ))}
+                            {
+                            searchResults.length === 0 
+                                ? <div class='text-body-tertiary'>No result/No search is done</div> 
+                                : searchResults.map((tag, index) => (
+                                    <div className="tag-button btn btn-outline-info" onClick={() => addNewTag(index)}>
+                                        <img src={tag.icon} />
+                                        <div>{tag.name}</div>
+                                    </div>
+                                ))
+                            }
                         </div>
                     </div>
                 </div>
