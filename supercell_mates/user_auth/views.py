@@ -9,6 +9,9 @@ from django.utils.http import url_has_allowed_host_and_scheme as is_safe_url
 from django.views.decorators.http import require_http_methods
 import io
 from django.core.files.images import ImageFile
+import magic
+
+from user_profile.views import verify_image
 
 from .models import UserAuth, Tag, TagRequest
 from user_profile.models import UserProfile
@@ -256,9 +259,13 @@ def add_tag_request(request):
             img_bytearray = request.POST["img"].strip("[]").split(", ")
             img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
             img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
+            if not verify_image(img):
+                return HttpResponseBadRequest("not image")
             tag_request = TagRequest(name=tag_name, image=img)
         elif "img" in request.FILES:
             img = request.FILES["img"]
+            if not verify_image(img):
+                return HttpResponseBadRequest("not image")
             tag_request = TagRequest(name=tag_name, image=img)
         else:
             tag_request = TagRequest(name=tag_name)

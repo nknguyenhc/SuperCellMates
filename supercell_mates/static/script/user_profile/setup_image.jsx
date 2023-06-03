@@ -10,7 +10,7 @@ function SetupImage() {
 
     function submitPhoto(event) {
         event.preventDefault();
-        if (files.length === 0) {
+        if (imageInput.current.files.length === 0) {
             window.location.assign('/');
         } else {
             fetch('/profile/set_profile_image', postRequestContent({

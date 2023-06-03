@@ -10,6 +10,7 @@ from user_auth.models import UserAuth, Tag
 import io
 from django.core.files.images import ImageFile
 from django.views.decorators.http import require_http_methods
+import magic
 
 from user_auth.models import Tag
 
@@ -233,6 +234,25 @@ def search_tags(request):
         return HttpResponseBadRequest("tag GET parameter not found")
 
 
+def verify_image(img):
+    # first check: file size
+    from django.conf import settings
+    if img.size > settings.UPLOAD_FILE_MAX_SIZE:
+        return False
+    # second check: extension
+    extension = img.name.split('.')[-1]
+    if not extension or extension.lower() not in settings.WHITELISTED_IMAGE_TYPES.keys():
+        return False
+    # third check: content type
+    if img.content_type not in settings.WHITELISTED_IMAGE_TYPES.values():
+        return False
+    # fourth check: mime type
+    mime_type = magic.from_buffer(img.read(1024), mime=True)
+    if mime_type not in settings.WHITELISTED_IMAGE_TYPES.values() and mime_type != content_type:
+        return False
+    return True
+
+
 @login_required
 @require_http_methods(["POST"])
 def set_profile_image(request):
@@ -255,9 +275,13 @@ def set_profile_image(request):
             img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
             img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
             user_profile_obj.profile_pic = img
+            if not verify_image(img):
+                return HttpResponseBadRequest("not image")
         elif "img" in request.FILES:
             img = request.FILES["img"]
             user_profile_obj.profile_pic = img
+            if not verify_image(img):
+                return HttpResponseBadRequest("not image")
         # TODO: check if the file submitted is of correct format
         user_profile_obj.save()
         return HttpResponse("success")

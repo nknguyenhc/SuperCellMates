@@ -31,8 +31,6 @@ function AddTag() {
                 img: imageInput.current.files[0]
             }))
                 .then(response => {
-                    console.log(response.status);
-                    console.log(response.statusText);
                     if (response.status !== 200) {
                         triggerErrorMessage();
                     } else {

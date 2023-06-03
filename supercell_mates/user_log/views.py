@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.utils.datastructures import MultiValueDictKeyError
@@ -63,6 +63,8 @@ def view_profile(request, username):
 
     if UserAuth.objects.filter(username=username).exists() and request.user.username != username:
         return render(request, "user_log/view_profile.html", view_profile_context(UserAuth.objects.get(username=username), request.user))
+    elif request.user.username == username:
+        return redirect(reverse("user_profile:index"))
     else:
         return HttpResponseNotFound()
 
