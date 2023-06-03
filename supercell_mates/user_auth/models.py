@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser
 class TagRequest(models.Model):
     name = models.CharField(max_length=100)
     image = models.ImageField(upload_to='tag/', blank=True)
+    description = models.TextField(default='')
 
 
 class Tag(models.Model):

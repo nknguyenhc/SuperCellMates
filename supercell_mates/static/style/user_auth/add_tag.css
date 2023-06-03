@@ -17,3 +17,7 @@
     flex-direction: row;
     gap: 20px;
 }
+
+#tag-request-description {
+    resize: none;
+}

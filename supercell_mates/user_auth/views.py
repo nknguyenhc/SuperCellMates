@@ -277,6 +277,7 @@ def obtain_tag_requests(request):
             "id": request_obj.id,
             "name": request_obj.name,
             "icon": reverse("user_auth:get_tag_request_icon", args=(request_obj.name,)),
+            "description": request_obj.description
         }, tag_request_objs))
         return JsonResponse({"tag_requests": tag_requests})
     else:
@@ -288,6 +289,7 @@ def obtain_tag_requests(request):
 def add_tag_request(request):
     try:
         tag_name = request.POST["tag"]
+        description = request.POST["description"]
         if duplicate_tag_exists(tag_name):
             return HttpResponse("tag already present/requested")
         if "img" in request.POST:
@@ -296,14 +298,14 @@ def add_tag_request(request):
             img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
             if not verify_image(img):
                 return HttpResponseBadRequest("not image")
-            tag_request = TagRequest(name=tag_name, image=img)
+            tag_request = TagRequest(name=tag_name, image=img, description=description)
         elif "img" in request.FILES:
             img = request.FILES["img"]
             if not verify_image(img):
                 return HttpResponseBadRequest("not image")
-            tag_request = TagRequest(name=tag_name, image=img)
+            tag_request = TagRequest(name=tag_name, image=img, description=description)
         else:
-            tag_request = TagRequest(name=tag_name)
+            tag_request = TagRequest(name=tag_name, description=description)
         # TODO: check if the file submitted is of correct format
         tag_request.save()
         return HttpResponse("Successfully added tag request")

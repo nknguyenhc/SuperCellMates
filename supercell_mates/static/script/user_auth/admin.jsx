@@ -35,10 +35,11 @@ function ManageTags() {
             <table className="table table-striped table-hover table-bordered border-primary">
                 <thead>
                     <tr>
-                        <th scope="col" style={{width: "10%"}}>ID</th>
-                        <th scope="col" style={{width: "15%"}}>Icon</th>
-                        <th scope="col" style={{width: "25%"}}>Tag</th>
-                        <th scope="col" style={{width: "25%"}}>Action</th>
+                        <th scope="col" style={{width: "5%"}}>ID</th>
+                        <th scope="col" style={{width: "5%"}}>Icon</th>
+                        <th scope="col" style={{width: "20%"}}>Tag</th>
+                        <th scope="col" style={{width: "30%"}}>Description</th>
+                        <th scope="col" style={{width: "20%"}}>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -49,6 +50,7 @@ function ManageTags() {
                                 <img src={request.icon} height="30" width="30" />
                             </td>
                             <td>{request.name}</td>
+                            <td>{request.description}</td>
                             <td>
                                 <button type="button" class="btn btn-success" onClick={() => {
                                     submitTag(request.id, request.name);

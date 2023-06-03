@@ -15,6 +15,7 @@ function AddTag() {
     const [imagePreview, setImagePreview] = React.useState(undefined);
     const imageInput = React.useRef(null);
     const [tagRequestMessage, setTagRequestMessage] = React.useState('');
+    const [description, setDescription] = React.useState('');
 
     function image() {
         return (
@@ -28,7 +29,8 @@ function AddTag() {
             setErrMessage("Tag cannot be empty");
         } else {
             const requestBody = {
-                tag: tag
+                tag: tag,
+                description: description
             }
             if (imagePreview !== undefined) {
                 requestBody.img = imageInput.current.files[0]
@@ -93,8 +95,9 @@ function AddTag() {
                 </div>
                 <form autocomplete="off" onSubmit={submitForm}>
                     <div>
-                        <input className="form-control" type="text" name="tag" placeholder="Name" onChange={event => 
-                            setTag(event.target.value)}></input>
+                        <input className="form-control" type="text" name="tag" placeholder="Name" onChange={event => {
+                            setTag(event.target.value);
+                        }}></input>
                     </div>
                     <div id="tag-request-icon-preview" className="mt-3">
                         <div>Icon:</div>
@@ -102,6 +105,12 @@ function AddTag() {
                     </div>
                     <div className="mt-3">
                         <input ref={imageInput} type="file" className="form-control" accept="image/*" onChange={() => setImagePreview(image())} />
+                    </div>
+                    <div className="mt-3">
+                        <label for="tag-request-description" className="form-label">Description</label>
+                        <textarea id="tag-request-description" class="form-control" rows="3" placeholder="Description" onChange={event => {
+                            setDescription(event.target.value);
+                        }} />
                     </div>
                     <div className="mt-3">
                         <input type="submit" value="Request" className="btn btn-primary"></input>
