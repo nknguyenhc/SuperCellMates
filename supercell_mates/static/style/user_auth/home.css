@@ -1,0 +1,47 @@
+#home-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+}
+
+#create-post {
+    width: 50vw;
+    min-width: 500px;
+}
+
+#post-content {
+    resize: none;
+}
+
+.visibility-section {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.visibility-section button {
+    width: fit-content;
+}
+
+.visibility-indicator {
+    height: 30px;
+    width: 30px;
+}
+
+.visibility-indicator img {
+    width: 30px;
+}
+
+#post-choose-tag {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+#post-submit-button {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+}

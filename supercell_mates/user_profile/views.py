@@ -13,7 +13,7 @@ from django.views.decorators.http import require_http_methods
 import magic
 from django.conf import settings
 
-from user_auth.models import Tag
+from user_auth.models import Tag, UserAuth
 
 
 def layout_context(user_auth_obj):
@@ -40,6 +40,17 @@ def layout_context(user_auth_obj):
     }
 
 
+
+def get_tag_list(user_auth_obj):
+    return list(map(
+        lambda tag: ({
+            "name": tag.name,
+            "icon": reverse('user_profile:get_tag_icon', args=(tag.name,)),
+        }),
+        list(user_auth_obj.user_profile.tagList.all())
+    ))
+
+
 def index_context(user_auth_obj):
     """Returns the context to be used in profile page of the currently logged in user.
 
@@ -61,20 +72,22 @@ def index_context(user_auth_obj):
             is_admin: whether the current user is an admin of this website, True if it is, False otherwise
     """
 
-    tags = list(map(
-        lambda tag: ({
-            "name": tag.name,
-            "icon": reverse('user_profile:get_tag_icon', args=(tag.name,)),
-        }),
-        list(user_auth_obj.user_profile.tagList.all())
-    ))
     result = {
-        "tags": tags,
+        "tags": get_tag_list(user_auth_obj),
         "my_profile": True,
         "is_admin": user_auth_obj.is_superuser
     }
     result.update(layout_context(user_auth_obj))
     return result
+
+
+@login_required
+def get_user_tags(request, username):
+    try:
+        tags = get_tag_list(UserAuth.objects.get(username=username))
+        return JsonResponse({ "tags": tags })
+    except ObjectDoesNotExist:
+        return HttpResponseNotFound()
 
 
 @login_required
@@ -185,6 +198,7 @@ def find_tags(search_param, user_profile_obj):
     The search returns the tags that contains the search parameter, excluding those that the current user already has.
     Each item in the list is a dictionary with the following fields:
         name: the name of the tags
+        icon: the URL to the icon of the tag
     
     Args:
         search_param (str): the search parameter

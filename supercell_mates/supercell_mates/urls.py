@@ -24,7 +24,8 @@ urlpatterns = [
     path('', include('user_auth.urls')),
     path('profile/', include('user_profile.urls')),
     path('user/', include('user_log.urls')),
-    path('favicon.ico', RedirectView.as_view(url='/static/media/logo.png'))
+    path('favicon.ico', RedirectView.as_view(url='/static/media/logo.png')),
+    path('post/', include('posts.urls'))
 ]
 
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
