@@ -16,8 +16,7 @@ class Post(models.Model):
     tag_visible = models.BooleanField()
     public_visible = models.BooleanField()
     creator = models.ForeignKey('user_log.UserLog', on_delete=models.CASCADE, related_name="posts")
-    date_posted = models.DateField(auto_now=False, auto_now_add=True)
-    time_posted = models.TimeField(auto_now=False, auto_now_add=True)
+    time_posted = models.DateTimeField(auto_now=False, auto_now_add=True)
 
 
 class PostImage(models.Model):

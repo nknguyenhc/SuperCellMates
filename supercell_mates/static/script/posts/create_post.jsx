@@ -5,6 +5,8 @@ function CreatePost() {
     const [visibility, setVisibility] = React.useState('Visibility');
     const [userTags, setUserTags] = React.useState([]);
     const [fetched, setFetched] = React.useState(false);
+    const postCreateButton = React.useRef(null);
+    const [errorMessage, setErrorMessage] = React.useState('');
 
     if (!fetched) {
         setFetched(true);
@@ -15,6 +17,21 @@ function CreatePost() {
 
     function submitPost(event) {
         event.preventDefault();
+
+        if (title === '') {
+            setErrorMessage("Title cannot be empty");
+            return;
+        } else if (content === '') {
+            setErrorMessage("Content cannot be empty");
+            return;
+        } else if (tag === undefined) {
+            setErrorMessage("You must choose a tag to associate with this post");
+            return;
+        } else if (visibility === "Visibility") {
+            setErrorMessage("Please choose a visibility setting");
+            return;
+        }
+
         let visList;
         switch (visibility) {
             case "Public":
@@ -30,14 +47,21 @@ function CreatePost() {
                 visList = ["friends", "tag"];
                 break;
         }
+
         fetch('/post/create_post', postRequestContent({
             title: title,
             content: content,
             tag: tag.name,
             visibility: visList,
         }))
-            .then(response => response.text())
-            .then(response => console.log(response));
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    postCreateButton.current.click();
+                    setErrorMessage('');
+                }
+            });
     }
 
     return (
@@ -87,6 +111,27 @@ function CreatePost() {
             </div>
             <div className="mt-3" id="post-submit-button">
                 <button type="button" className="btn btn-primary" onClick={submitPost}>Post</button>
+            </div>
+            {
+                errorMessage === ''
+                ? ''
+                : <div className="mt-3 alert alert-danger" role="alert">{errorMessage}</div>
+            }
+            <button id="post-create-button" style={{display: 'none'}} ref={postCreateButton} type="button" data-bs-toggle="modal" data-bs-target="#post-create-message"></button>
+            <div class="modal fade" id="post-create-message" tabindex="-1" aria-labelledby="post-create-label" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="post-create-label">Message</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">Post created!
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </React.Fragment>
     );
