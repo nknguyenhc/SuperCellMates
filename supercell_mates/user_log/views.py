@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from user_profile.views import layout_context
 
 from user_auth.models import UserAuth
+from .models import FriendRequest
 
 
 def view_profile_context(user_auth_obj, request_user):
@@ -108,7 +109,8 @@ def add_friend_request(request):
         username = request.POST["username"]
         user_log_obj = UserAuth.objects.get(username=username).user_log
         if user_log_obj not in request.user.user_log.friend_list.all():
-            user_log_obj.friend_requests.add(request.user.user_log)
+            friend_request = FriendRequest(from_user=request.user.user_log, to_user=user_log_obj)
+            friend_request.save()
             return HttpResponse("ok")
         else:
             return HttpResponse("already in friend list")
@@ -183,7 +185,10 @@ def get_friend_requests_list(user):
             "profile_pic_url": reverse("user_profile:get_profile_pic", args=(friend.user_auth.username,)),
             "profile_link": reverse("user_log:view_profile", args=(friend.user_auth.username,))
         }),
-        list(user.user_log.friend_requests.all())
+        map(
+            lambda friend_request_obj: friend_request_obj.from_user,
+            list(user.user_log.friend_requests.all())
+        )
     ))
 
 
@@ -226,8 +231,8 @@ def add_friend(request):
         friend_username = request.POST["username"]
         user_log_obj = UserAuth.objects.get(username=friend_username).user_log
         accepted = request.POST["accepted"]
-        if user_log_obj in list(request.user.user_log.friend_requests.all()):
-            request.user.user_log.friend_requests.remove(user_log_obj)
+        if request.user.user_log.friend_requests.filter(from_user=user_log_obj).exists():
+            request.user.user_log.friend_requests.get(from_user=user_log_obj).delete()
             if accepted == "true":
                 request.user.user_log.friend_list.add(user_log_obj)
             return HttpResponse("ok")
