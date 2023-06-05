@@ -72,3 +72,33 @@
     height: 20px;
     width: 20px;
 }
+
+#profile-posts {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}
+
+.post-creator-info {
+    display: flex;
+    flex-direction: row;
+    align-items: end;
+    gap: 15px;
+}
+
+.post-creator-profile-pic {
+    height: 50px;
+    width: 50px;
+}
+
+.post-creator-profile-pic img {
+    height: 50px;
+    width: 50px;
+}
+
+.post-creator-text-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}

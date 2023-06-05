@@ -96,8 +96,11 @@ def parse_post_object(post):
             tag: the tag of the post, represented by a dictionary with the following fields:
                 name: the name of the tag
                 icon: the link to the icon of the tag
-            creator name: the name of the creator
-            creator username: the username of the creator
+            creator: a dictionary representing the creator of the post, with the following fields:
+                name: the name of the creator
+                username: the username of the creator
+                profile_pic_url: the URL to the profile pic of the creator
+                profile_link: the link to the profile of the creator
             time_posted: the time posted given in a dictionary with the following fields:
                 year (int)
                 month (int)
@@ -113,8 +116,12 @@ def parse_post_object(post):
             "name": post.tag.name,
             "icon": reverse("user_profile:get_tag_icon", args=(post.tag.name,)),
         },
-        "creator_name": post.creator.user_profile.name,
-        "creator_username": post.creator.user_auth.username,
+        "creator": {
+            "name": post.creator.user_profile.name,
+            "username": post.creator.user_auth.username,
+            "profile_pic_url": reverse("user_profile:get_profile_pic", args=(post.creator.user_auth.username,)),
+            "profile_link": reverse("user_log:view_profile", args=(post.creator.user_auth.username,)),
+        },
         "time_posted": {
             "year": post.time_posted.year,
             "month": post.time_posted.month,

@@ -1,6 +1,8 @@
-/* #navbar-container {
-    height: 60px;
-} */
+#search-result-wrapper {
+    height: 0px;
+    width: 100vw;
+    position: sticky;
+}
 
 #search-result-box {
     border: solid;
@@ -14,8 +16,9 @@
     padding-top: 2vh;
     padding-bottom: 2vh;
     min-height: 10vh;
-    position: absolute;
-    right: 0px;
+    position: fixed;
+    top: 58px;
+    right: 20px;
 }
 
 .search-result-listing {
