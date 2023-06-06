@@ -239,6 +239,8 @@ def search_tags(request):
     """
     try:
         search_param = request.GET["tag"]
+        if type(search_param) != str:
+            return HttpResponseBadRequest("tag GET parameter malformed")
         result = find_tags(search_param, request.user.user_profile)
         return JsonResponse({
             "tags": result

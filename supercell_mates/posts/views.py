@@ -148,8 +148,6 @@ def has_access(user_auth_obj, post):
     
     if post.public_visible:
         return True
-    elif not user_auth_obj.is_authenticated:
-        return False
     
     if post.friend_visible:
         if post.tag_visible:
@@ -160,6 +158,7 @@ def has_access(user_auth_obj, post):
         return post.tag in user_auth_obj.user_profile.tagList.all()
 
 
+@login_required
 def get_post(request, post_id):
     """Return the data of the post in the form of JsonResponse.
     The view checks the privilege of the request user. If the request user has enough privilege, return the json response.
@@ -185,6 +184,7 @@ def get_post(request, post_id):
         return HttpResponseNotFound()
 
 
+@login_required
 def get_profile_posts(request, username):
     """Return the posts of the user with the given username within a time frame.
     The time limits are given in the GET parameters. The URL therefore must contain the following GET paramters:
@@ -212,6 +212,8 @@ def get_profile_posts(request, username):
             ))
         })
     
+    except AttributeError:
+        return HttpResponseBadRequest("GET parameter(s) malformed")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("start or end date not found in GET parameter")
     except ObjectDoesNotExist:

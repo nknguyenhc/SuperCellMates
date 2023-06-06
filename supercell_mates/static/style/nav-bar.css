@@ -1,9 +1,3 @@
-#search-result-wrapper {
-    height: 0px;
-    width: 100vw;
-    position: sticky;
-}
-
 #search-result-box {
     border: solid;
     border-color: black;
@@ -17,7 +11,7 @@
     padding-bottom: 2vh;
     min-height: 10vh;
     position: fixed;
-    top: 58px;
+    top: 56px;
     right: 20px;
 }
 
