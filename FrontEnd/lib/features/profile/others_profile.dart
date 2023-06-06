@@ -17,21 +17,39 @@ class OthersProfilePage extends StatefulWidget {
 }
 
 class OthersProfilePageState extends State<OthersProfilePage> {
-  bool dataLoaded = false;
+  bool profileImageLoaded = false;
   dynamic profileImage;
+
+  int tagListCount = 0;
+  var dataLoaded = [];
+  var tagIcons = [];
 
   @override
   void initState() {
-    dataLoaded = false;
+    profileImageLoaded = false;
     super.initState();
     initProfileImage();
+    tagListCount = widget.data["tags"].length;
+    dataLoaded = List<bool>.filled(tagListCount, false, growable: true);
+    tagIcons = List<Image?>.filled(tagListCount, null, growable: true);
+    for (int i = 0; i < tagListCount; i++) {
+      loadTagIcons(i);
+    }
+  }
+
+  void loadTagIcons(index) async {
+    tagIcons[index] =
+        await getImage(widget.data["tags"][index]["icon"]);
+    setState(() {
+      dataLoaded[index] = true;
+    });
   }
 
   void initProfileImage() async {
-    dataLoaded = false;
+    profileImageLoaded = false;
     profileImage = await getImage(widget.data["image_url"]);
     setState(() {
-      dataLoaded = true;
+      profileImageLoaded = true;
     });
   }
 
@@ -83,7 +101,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
               width: 50,
               child: IconButton(
                 padding: EdgeInsets.zero,
-                icon: dataLoaded
+                icon: profileImageLoaded
                     ? profileImage!
                     : const CircularProgressIndicator(),
                 onPressed: () {},
@@ -212,9 +230,11 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                     itemBuilder: (BuildContext context, int index) {
                       return tagList[index] == null
                           ? Container()
-                          : TextButton(
-                              onPressed: () => {},
-                              child: Text(tagList[index]["name"]));
+                          : IconButton(
+                            onPressed: () {},
+                            icon: dataLoaded[index]
+                              ? tagIcons[index]
+                              : const CircularProgressIndicator());
                     }),
               )
             ]),

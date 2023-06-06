@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
+import 'package:supercellmates/http_requests/get_image.dart';
 import 'package:supercellmates/router/router.gr.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -17,6 +18,30 @@ class ProfilePage extends StatefulWidget {
 }
 
 class ProfilePageState extends State<ProfilePage> {
+  int tagListCount = 0;
+  var dataLoaded = [];
+  var tagIcons = [];
+
+  @override
+  void initState() {
+    super.initState();
+    tagListCount = widget.data["tags"].length;
+    dataLoaded = List<bool>.filled(tagListCount, false, growable: true);
+    tagIcons = List<Image?>.filled(tagListCount, null, growable: true);
+    for (int i = 0; i < tagListCount; i++) {
+      loadTagIcon(i);
+    }
+  }
+
+  void loadTagIcon(index) async {
+    tagIcons[index] =
+        await getImage(widget.data["tags"][index]["icon"]);
+    setState(() {
+      dataLoaded[index] = true;
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     var tagList = widget.data["tags"];
@@ -43,9 +68,11 @@ class ProfilePageState extends State<ProfilePage> {
                     return index < tagList.length
                         ? tagList[index] == ""
                             ? Container()
-                            : TextButton(
-                                onPressed: () => {},
-                                child: Text(tagList[index]))
+                            : IconButton(
+                              onPressed: () => {}, 
+                              icon: dataLoaded[index]
+                                ? tagIcons[index]
+                                : const CircularProgressIndicator())
                         : IconButton(
                             onPressed: () => AutoRouter.of(context).push(
                                 AddTagRoute(
