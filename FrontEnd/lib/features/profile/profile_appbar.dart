@@ -54,7 +54,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
           height: 25,
           width: 300,
           child: Text(
-            widget.profileMap["name"],
+            widget.profileMap["user_profile"]["name"],
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20,
@@ -66,7 +66,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
           height: 20,
           width: 300,
           child: Text(
-            widget.profileMap["username"],
+            widget.profileMap["user_profile"]["username"],
             style: const TextStyle(fontSize: 15, color: Colors.blueGrey),
           ),
         ),

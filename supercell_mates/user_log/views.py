@@ -93,7 +93,7 @@ def view_profile_async(request, username):
 @require_http_methods(["POST"])
 def add_friend_request(request):
     """Add friend with the target user.
-    Request must user post method, body must contain form data and must contain the following fields:
+    Request must use post method, body must contain form data and must contain the following fields:
         username: the username of the target user
     
     Args:

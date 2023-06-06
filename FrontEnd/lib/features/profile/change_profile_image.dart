@@ -26,7 +26,7 @@ class ChangeProfileImageButton extends StatelessWidget {
               showSuccessDialog(
                   context, "Successfully updated profile image.");
             } else {
-              showErrorDialog(context, response);
+              showErrorDialog(context, "Image is not in supported format.");
             }
           }
         },

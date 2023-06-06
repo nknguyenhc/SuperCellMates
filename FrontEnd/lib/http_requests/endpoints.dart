@@ -13,10 +13,10 @@ enum EndPoints {
   viewFriends,
   viewFriendRequests,
   addFriendRequest,
-  searchUsers, 
+  search,
   viewProfile,
   addFriend,
-
+  deleteFriend,
 }
 
 extension ExtendedEndPoints on EndPoints {
@@ -33,11 +33,10 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.viewFriends: "/user/friends_async",
     EndPoints.viewFriendRequests: "/user/friend_requests_async",
     EndPoints.addFriendRequest: "/user/add_friend_request",
-    EndPoints.searchUsers: "/user/search_users_async", // TODO: broader search and remove '/user'
+    EndPoints.search: "/user/search", // TODO: broader search and remove '/user'
     EndPoints.viewProfile: "/user/profile_async",
     EndPoints.addFriend: "/user/add_friend",
-    
-
+    EndPoints.deleteFriend: "/user/delete_friend",
   };
 
   String get endpoint => endpoints[this]!;

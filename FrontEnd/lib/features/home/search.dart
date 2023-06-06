@@ -9,7 +9,7 @@ import 'package:supercellmates/features/friends/user_listview.dart';
 Future<Widget> searchUser(BuildContext context, input) async {
   dynamic query = {"username": input};
   dynamic userList = jsonDecode(
-      await getRequest(EndPoints.searchUsers.endpoint, query))["users"];
+      await getRequest(EndPoints.search.endpoint, query))["users"];
 
   Widget list = UserListView(userList: userList);
 

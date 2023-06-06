@@ -138,7 +138,11 @@ MEDIA_ROOT = BASE_DIR / 'media/'
 WHITELISTED_IMAGE_TYPES = {
     'jpeg': 'image/jpeg',
     'jpg': 'image/jpeg',
-    'png': 'image/png'
+    'png': 'image/png',
+    'bmp': 'image/bmp',
+    'webp': 'image/webp',
+    'svg': 'image/svg',
+    'heic': 'image/heic'
 }
 
 UPLOAD_FILE_MAX_SIZE = 5242880 # 5 MB

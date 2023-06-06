@@ -29,7 +29,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
 
   void initProfileImage() async {
     dataLoaded = false;
-    profileImage =  await getImage(widget.data["image_url"]);
+    profileImage = await getImage(widget.data["image_url"]);
     setState(() {
       dataLoaded = true;
     });
@@ -37,7 +37,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    var tagList = widget.data["tagListString"];
+    var tagList = widget.data["tags"];
     double myPostsHeight = MediaQuery.of(context).size.height;
     myPostsHeight -= 80; // appbar height
     myPostsHeight -= 60; // taglist height
@@ -45,13 +45,26 @@ class OthersProfilePageState extends State<OthersProfilePage> {
     myPostsHeight -= 30; // buffer
 
     void sendFriendRequest() async {
-      dynamic body = {"username": widget.data["username"]};
+      dynamic body = {"username": widget.data["user_profile"]["username"]};
 
       dynamic message =
           await postWithCSRF(EndPoints.addFriendRequest.endpoint, body);
 
       if (message == "ok") {
         showSuccessDialog(context, "Friend request sent!");
+      } else {
+        showErrorDialog(context, message);
+      }
+    }
+
+    void deleteFriend() async {
+      dynamic body = {"username": widget.data["user_profile"]["username"]};
+
+      dynamic message =
+          await postWithCSRF(EndPoints.deleteFriend.endpoint, body);
+
+      if (message == "friend deleted") {
+        showSuccessDialog(context, "Successfully removed friend!");
       } else {
         showErrorDialog(context, message);
       }
@@ -83,7 +96,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                 height: 25,
                 width: 130,
                 child: Text(
-                  widget.data["name"],
+                  widget.data["user_profile"]["name"],
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -95,7 +108,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                 height: 20,
                 width: 130,
                 child: Text(
-                  widget.data["username"],
+                  widget.data["user_profile"]["username"],
                   style: const TextStyle(fontSize: 14, color: Colors.blueGrey),
                 ),
               ),
@@ -104,7 +117,33 @@ class OthersProfilePageState extends State<OthersProfilePage> {
         ),
         actions: [
           widget.data["is_friend"]
-              ? Container()
+              ? Column(
+                  children: [
+                    const Padding(padding: EdgeInsets.all(3)),
+                    SizedBox(
+                      height: 40,
+                      child: IconButton(
+                        icon: const Icon(Icons.remove_circle),
+                        onPressed: () {
+                          showConfirmationDialog(
+                              context,
+                              "Are you sure to unfriend ${widget.data["user_profile"]["name"]}?",
+                              deleteFriend);
+                        },
+                        iconSize: 35,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 30,
+                      child: Text(
+                        "Unfriend",
+                        style: TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ],
+                )
               : Column(
                   children: [
                     const Padding(padding: EdgeInsets.all(3)),
@@ -140,7 +179,8 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                 child: IconButton(
                   icon: const Icon(Icons.pentagon),
                   onPressed: () => AutoRouter.of(context).push(AchievementRoute(
-                      name: widget.data["name"], myProfile: false)),
+                      name: widget.data["user_profile"]["name"],
+                      myProfile: false)),
                   iconSize: 35,
                 ),
               ),

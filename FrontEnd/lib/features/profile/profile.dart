@@ -19,7 +19,7 @@ class ProfilePage extends StatefulWidget {
 class ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
-    var tagList = widget.data["tagListString"].split(";");
+    var tagList = widget.data["tags"];
     double myPostsHeight = MediaQuery.of(context).size.height;
     myPostsHeight -= 80; // appbar height
     myPostsHeight -= 60; // taglist height

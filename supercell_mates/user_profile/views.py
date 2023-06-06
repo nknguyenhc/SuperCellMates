@@ -298,8 +298,8 @@ def set_profile_image(request):
             img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
             img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
             user_profile_obj.profile_pic = img
-            if not verify_image(img):
-                return HttpResponseBadRequest("not image")
+            # TODO: figure out how to check if it's image file based on the data
+            return HttpResponse("success")
         elif "img" in request.FILES:
             img = request.FILES["img"]
             user_profile_obj.profile_pic = img
