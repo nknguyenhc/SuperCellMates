@@ -29,11 +29,11 @@ class ProfilePageState extends State<ProfilePage> {
     dataLoaded = List<bool>.filled(tagListCount, false, growable: true);
     tagIcons = List<Image?>.filled(tagListCount, null, growable: true);
     for (int i = 0; i < tagListCount; i++) {
-      loadTagIcon(i);
+      loadTagIcons(i);
     }
   }
 
-  void loadTagIcon(index) async {
+  void loadTagIcons(index) async {
     tagIcons[index] =
         await getImage(widget.data["tags"][index]["icon"]);
     setState(() {
