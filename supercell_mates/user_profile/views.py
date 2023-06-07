@@ -97,7 +97,7 @@ def index(request):
 
     Args:
         request (HttpRequest): the request made to this view
-    
+
     Returns:
         HttpResponse: the template rendered with the given context
     """
@@ -110,7 +110,7 @@ def index_async(request):
 
     Args:
         request (HttpRequest): the request made to this view
-    
+
     Returns:
         JsonResponse: the json response sent to front-end of mobile app
     """
@@ -124,10 +124,10 @@ def add_tags(request):
     The request method must be post, and the body (request.POST) must have the following attributes:
         count: the number of tags to be added
         tags: the list of tags (in string form, e.g. "['Mathematics', 'Physics']") to be added, each element is a string representing the tag
-    
+
     Args:
         request (HttpRequest): the request made to this view
-    
+
     Returns:
         HttpResponse: feedback of whether the tags were added successfully.
         Status code is 200 only when it is successfully, otherwise status code 405 is returned with the text as explanation for the error.
@@ -138,7 +138,7 @@ def add_tags(request):
         count = int(request.POST["count"])
         if count + len(list(user_profile_obj.tagList.all())) > user_profile_obj.tag_count_limit:
             return HttpResponseBadRequest("tag limit exceeded")
-        requested_tags = request.POST["tags"].strip("[]").split(",")
+        requested_tags = request.POST.getlist("tags")
         for i in range(count):
             user_profile_obj.tagList.add(Tag.objects.get(name=requested_tags[i]))
         return HttpResponse("success")
@@ -152,6 +152,8 @@ def add_tags(request):
         return HttpResponseBadRequest("number of tags submitted is smaller than tag count")
     except ObjectDoesNotExist:
         return HttpResponseBadRequest("one of the tag names is malformed")
+    except TypeError:
+        return HttpResponseBadRequest("tags input field is not array")
 
 
 @login_required
@@ -160,7 +162,7 @@ def setup(request):
 
     Args:
         request (HttpRequest): the request made to this view
-    
+
     Returns:
         HttpResponse: the template of the setup view wrapped in an http response
     """
@@ -175,14 +177,14 @@ def obtain_tags(request):
     Each tag (element) has the following fields:
         name (str): the string representation of this tag
         icon (str): the URL to the icon of the tag
-    
+
     Args:
         request (HttpRequest): the request made to this view
-    
+
     Returns:
         JsonResponse: response containing the list of currently available tags and indication of whether the current user has the tags
     """
-    
+
     tags = list(map(lambda tag: {
         "name": tag.name,
         "icon": reverse('user_profile:get_tag_icon', args=(tag.name,)),
@@ -199,18 +201,18 @@ def find_tags(search_param, user_profile_obj):
     Each item in the list is a dictionary with the following fields:
         name: the name of the tags
         icon: the URL to the icon of the tag
-    
+
     Args:
         search_param (str): the search parameter
         user_profile_obj (UserProfile): the instance of UserProfile that represents the user making this search.
-    
+
     Returns:
         list(dict): the list of tags that match the search parameter
     """
 
     user_tags = set(user_profile_obj.tagList.all())
     search_param = search_param.lower()
-    
+
     return list(map(
         lambda tag: ({
             "name": tag.name,
@@ -230,15 +232,17 @@ def search_tags(request):
         tag (str): the search parameter
     The response is in json form which contains the following fields:
         tags (list(dict)): the results returned by the find_tags function above
-    
+
     Args:
         request (HttpRequest): the request made to this view
-    
+
     Return:
         JsonResponse: the search result
     """
     try:
         search_param = request.GET["tag"]
+        if type(search_param) != str:
+            return HttpResponseBadRequest("tag GET parameter malformed")
         result = find_tags(search_param, request.user.user_profile)
         return JsonResponse({
             "tags": result
@@ -259,7 +263,7 @@ def verify_image(img):
 
     Args:
         img: image file to be checked
-    
+
     Returns:
         bool: whether the image file is an image. If it is, return True, otherwise False
     """
@@ -287,7 +291,7 @@ def set_profile_image(request):
 
     Args:
         request (HttpRequest): the request made to this view
-    
+
     Returns:
         HttpResponse: the feedback of the image processing. If successfully, status code is 200. Otherwise, status code is 405.
     """
@@ -302,9 +306,9 @@ def set_profile_image(request):
             return HttpResponse("success")
         elif "img" in request.FILES:
             img = request.FILES["img"]
-            user_profile_obj.profile_pic = img
             if not verify_image(img):
                 return HttpResponseBadRequest("not image")
+            user_profile_obj.profile_pic = img
         # TODO: check if the file submitted is of correct format
         user_profile_obj.save()
         return HttpResponse("success")
@@ -321,7 +325,7 @@ def get_profile_pic(request, username):
     Args:
         request (HttpRequest): the request made to this view
         username (str): the username of the user whose profile picture is to be obtained
-    
+
     Returns:
         FileResponse: the file of the image of the user, wrapped in a FileResponse instance
     """
@@ -343,7 +347,7 @@ def get_tag_icon(request, tag_name):
     Args:
         request (HttpRequest): the requesst made to this view
         tag_name (str): the name of the tag to obtain
-    
+
     Return:
         FileResponse: the image of the icon
     """

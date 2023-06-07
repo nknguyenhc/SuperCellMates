@@ -1,5 +1,4 @@
 from django.db import models
-# from django_random_id_model import RandomIDModel
 import uuid
 
 
@@ -20,5 +19,7 @@ class Post(models.Model):
 
 
 class PostImage(models.Model):
+    id = models.CharField(unique=True, primary_key=True, default=random_str, max_length=50)
+    order = models.IntegerField()
     image = models.ImageField(upload_to='post/')
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="images")
