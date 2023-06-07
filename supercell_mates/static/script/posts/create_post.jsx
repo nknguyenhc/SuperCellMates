@@ -7,12 +7,18 @@ function CreatePost() {
     const [fetched, setFetched] = React.useState(false);
     const postCreateButton = React.useRef(null);
     const [errorMessage, setErrorMessage] = React.useState('');
+    const imagesInput = React.useRef(null);
+    const [imgs, setImgs] = React.useState([]);
 
     if (!fetched) {
         setFetched(true);
         fetch('/profile/user_tags/' + document.querySelector("#welcome-message").innerHTML.split("@")[1])
             .then(response => response.json())
             .then(response => setUserTags(response.tags));
+    }
+
+    function removeImage(index) {
+        setImgs(imgs.filter((_, i) => i !== index));
     }
 
     function submitPost(event) {
@@ -53,6 +59,7 @@ function CreatePost() {
             content: content,
             tag: tag.name,
             visibility: visList,
+            imgs: imgs
         }))
             .then(response => {
                 if (response.status !== 200) {
@@ -109,6 +116,24 @@ function CreatePost() {
                     ))
                 }
             </div>
+            <div class="mt-3">
+                <label for="post-choose-images" class="form-label">Images</label>
+                <input ref={imagesInput} class="form-control" type="file" id="post-choose-images" multiple onChange={() => {
+                    setImgs(imgs.concat(Array.from(imagesInput.current.files)));
+                }} />
+            </div>
+            <div className="mt-4" id="post-images-preview">
+                {
+                    imgs.map((imgFile, i) => ((
+                        <div className="post-image-preview-div">
+                            <img src={URL.createObjectURL(imgFile)} />
+                            <div className="post-image-preview-close">
+                                <button type="button" class="btn-close" aria-label="Close" onClick={() => removeImage(i)} />
+                            </div>
+                        </div>
+                    )))
+                }
+            </div>
             <div className="mt-3" id="post-submit-button">
                 <button type="button" className="btn btn-primary" onClick={submitPost}>Post</button>
             </div>
@@ -125,8 +150,7 @@ function CreatePost() {
                             <h1 class="modal-title fs-5" id="post-create-label">Message</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">Post created!
-                        </div>
+                        <div class="modal-body">Post created!</div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>

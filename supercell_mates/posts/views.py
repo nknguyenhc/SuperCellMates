@@ -8,6 +8,8 @@ from django.core.exceptions import ObjectDoesNotExist
 import datetime
 from pytz import timezone
 
+from user_profile.views import verify_image
+
 from user_auth.models import Tag, UserAuth
 from .models import Post, PostImage
 
@@ -23,12 +25,14 @@ def create_post(request):
         images (optional): the list of images associated with this post.
         visibility (compulsory): the list of the visibility options. Values:
             "public": the post is visible to public
-            "friend": the post is visible to friends
+            "friends": the post is visible to friends
             "tag": the post is visible to the people of same tags
             if "public" is True, the other two options do not mean anything
-            if "public" is False and both "friend" and "tag" are true,
+            if "public" is False and both "friends" and "tag" are true,
             the post is only available to friends with the same tag
-
+            if "public" is False and only one of "friends" and "tag" is true,
+            the post is available to friends/people of same tag respectively
+        
     
     Args:
         request (HttpRequest): the request made to this view
@@ -39,18 +43,20 @@ def create_post(request):
     """
 
     try:
+        # basic info: title and content
         title = request.POST["title"]
         content = request.POST["content"]
         if title == '' or content == '':
             return HttpResponseBadRequest("title or content is empty")
 
+        # tag
         tag_name = request.POST["tag"]
         tag_object = Tag.objects.get(name=tag_name)
         if tag_object not in request.user.user_profile.tagList.all():
             return HttpResponseBadRequest("tag submitted does not belong to user")
 
-        visibility = request.POST["visibility"]
-        visibility = set(visibility.strip("[]").split(","))
+        # visibility
+        visibility = request.POST.getlist("visibility")
         friend_visible = False
         tag_visible = False
         public_visible = False
@@ -73,14 +79,37 @@ def create_post(request):
             creator=request.user.user_log
         )
         post.save()
+
+        # images
+        if "imgs" in request.POST:
+            # do not change the method of getting the list of imgs
+            imgs = request.POST.getlist("imgs")
+            for (i, img_raw) in enumerate(imgs):
+                img_bytearray = img_raw.strip("[]").split(", ")
+                img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
+                img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
+                if not verify_image(img):
+                    return HttpResponseBadRequest("not image")
+                img_obj = PostImage(order=i, image=img, post=post)
+                img_obj.save()
+        else:
+            imgs = request.FILES.getlist("imgs")
+            for (i, img) in enumerate(imgs):
+                if not verify_image(img):
+                    return HttpResponseBadRequest("not image")
+                img_obj = PostImage(order=i, image=img, post=post)
+                img_obj.save()
+        
         return HttpResponse("post created")
     
     except AttributeError:
         return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:
-        return HttpResponseBadRequest("request is missing an important key")
+        return HttpResponseBadRequest("request body is missing an important key")
     except ObjectDoesNotExist:
         return HttpResponseBadRequest("tag with provided name not found")
+    except TypeError:
+        return HttpResponseBadRequest("imgs key submitted is not of type array")
 
 
 def parse_post_object(post):
@@ -91,6 +120,7 @@ def parse_post_object(post):
     
     Returns:
         (dict): the information of the post, with the following fields:
+            id: the id of the post in the database
             title: the title of the post
             content: the content of the post
             tag: the tag of the post, represented by a dictionary with the following fields:
@@ -108,8 +138,17 @@ def parse_post_object(post):
                 hour (int)
                 minute (int)
                 second (int)
+            images: the list of URL to the images of the post
     """
+    images = list(PostImage.objects.filter(post=post))
+    images.sort(key=lambda image:image.order)
+    images = list(map(
+        lambda image: reverse("posts:get_post_pic", args=(image.id,)),
+        images
+    ))
+
     return {
+        "id": post.id,
         "title": post.title,
         "content": post.content,
         "tag": {
@@ -129,7 +168,8 @@ def parse_post_object(post):
             "hour": post.time_posted.hour,
             "minute": post.time_posted.minute,
             "second": post.time_posted.second,
-        }
+        },
+        "images": images
     }
 
 
@@ -173,13 +213,25 @@ def get_post(request, post_id):
         JsonResponse: the post data
     """
     try:
-        post_object = Post.objects.get(id=post_id)
-        post_dict = parse_post_object(post_object)
         if has_access(request.user, post):
+            post_object = Post.objects.get(id=post_id)
+            post_dict = parse_post_object(post_object)
             return JsonResponse(post_dict)
         else:
             return HttpResponseNotFound()
     
+    except ObjectDoesNotExist:
+        return HttpResponseNotFound()
+
+
+@login_required
+def get_post_pic(request, pic_id):
+    try:
+        image_obj = PostImage.objects.get(id=pic_id)
+        if has_access(request.user, image_obj.post):
+            return FileResponse(image_obj.image)
+        else:
+            return HttpResponseNotFound()
     except ObjectDoesNotExist:
         return HttpResponseNotFound()
 
@@ -202,14 +254,16 @@ def get_profile_posts(request, username):
         # only meant to be in SG. If post is made at another point of the world, have to fix this time display
         user_log_obj = UserAuth.objects.get(username=username).user_log
 
+        posts = list(map(
+            lambda post: parse_post_object(post),
+            filter(
+                lambda post: has_access(request.user, post),
+                list(user_log_obj.posts.filter(time_posted__range=(start_time, end_time)).all())
+            )
+        ))
+        posts.reverse()
         return JsonResponse({
-            "posts": list(map(
-                lambda post: parse_post_object(post),
-                filter(
-                    lambda post: has_access(request.user, post),
-                    list(user_log_obj.posts.filter(time_posted__range=(start_time, end_time)).all())
-                )
-            ))
+            "posts": posts
         })
     
     except AttributeError:

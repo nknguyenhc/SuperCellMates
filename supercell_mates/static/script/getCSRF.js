@@ -1,19 +1,26 @@
-function getCSRF() {
-    const csrftoken = "csrftoken";
-    const cookies = document.cookie.split("; ")
-    for (i in cookies) {
-        if (cookies[i].slice(0, csrftoken.length) === csrftoken) {
-            return cookies[i].slice(csrftoken.length + 1);
-        }
-    }
-    return '';
-}
-
 function postRequestContent(dict) {
+    function getCSRF() {
+        const csrftoken = "csrftoken";
+        const cookies = document.cookie.split("; ")
+        for (i in cookies) {
+            if (cookies[i].slice(0, csrftoken.length) === csrftoken) {
+                return cookies[i].slice(csrftoken.length + 1);
+            }
+        }
+        return '';
+    }
+
     const formData = new FormData();
     for (key in dict) {
-        formData.append(key, dict[key]);
+        if (Array.isArray(dict[key])) {
+            for (let i = 0; i < dict[key].length; i++) {
+                formData.append(key, dict[key][i]);
+            }
+        } else {
+            formData.append(key, dict[key]);
+        }
     }
+
     return {
         method: "POST",
         headers: {

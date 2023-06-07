@@ -138,7 +138,7 @@ def add_tags(request):
         count = int(request.POST["count"])
         if count + len(list(user_profile_obj.tagList.all())) > user_profile_obj.tag_count_limit:
             return HttpResponseBadRequest("tag limit exceeded")
-        requested_tags = request.POST["tags"].strip("[]").split(",")
+        requested_tags = request.POST.getlist("tags")
         for i in range(count):
             user_profile_obj.tagList.add(Tag.objects.get(name=requested_tags[i]))
         return HttpResponse("success")
@@ -152,6 +152,8 @@ def add_tags(request):
         return HttpResponseBadRequest("number of tags submitted is smaller than tag count")
     except ObjectDoesNotExist:
         return HttpResponseBadRequest("one of the tag names is malformed")
+    except TypeError:
+        return HttpResponseBadRequest("tags input field is not array")
 
 
 @login_required
@@ -299,14 +301,14 @@ def set_profile_image(request):
             img_bytearray = request.POST["img"].strip("[]").split(", ")
             img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
             img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
-            user_profile_obj.profile_pic = img
             if not verify_image(img):
                 return HttpResponseBadRequest("not image")
+            user_profile_obj.profile_pic = img
         elif "img" in request.FILES:
             img = request.FILES["img"]
-            user_profile_obj.profile_pic = img
             if not verify_image(img):
                 return HttpResponseBadRequest("not image")
+            user_profile_obj.profile_pic = img
         # TODO: check if the file submitted is of correct format
         user_profile_obj.save()
         return HttpResponse("success")
