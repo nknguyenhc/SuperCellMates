@@ -8,6 +8,7 @@ enum EndPoints {
   profileIndex,
   addTags,
   obtainTags,
+  searchTags,
   setProfileImage,
 
   viewFriends,
@@ -29,6 +30,7 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.profileIndex: "/profile/async",
     EndPoints.addTags: "/profile/add_tags",
     EndPoints.obtainTags: "/profile/obtain_tags",
+    EndPoints.searchTags: "/profile/search_tags",
     EndPoints.setProfileImage: "/profile/set_profile_image",
     EndPoints.viewFriends: "/user/friends_async",
     EndPoints.viewFriendRequests: "/user/friend_requests_async",

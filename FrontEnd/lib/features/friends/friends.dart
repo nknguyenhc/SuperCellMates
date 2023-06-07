@@ -85,7 +85,7 @@ class FriendsPageState extends State<FriendsPage> {
                         navigate(0);
                       },
                       child: Text(
-                        "Friendlist",
+                        "Friends",
                         style: TextStyle(
                             fontSize: 18,
                             color: navigationBarIndex == 0
@@ -118,7 +118,6 @@ class FriendsPageState extends State<FriendsPage> {
             ],
             //backgroundColor: Colors.white,
             selectedIndex: navigationBarIndex,
-            indicatorColor: Colors.red,
             shadowColor: Colors.grey,
           ),
           !dataLoaded

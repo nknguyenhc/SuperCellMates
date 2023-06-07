@@ -1,0 +1,146 @@
+import 'package:flutter/material.dart';
+import 'package:supercellmates/http_requests/get_image.dart';
+
+import 'package:supercellmates/features/dialogs.dart';
+import 'package:supercellmates/http_requests/endpoints.dart';
+import 'package:supercellmates/http_requests/make_requests.dart';
+
+class TagListView extends StatefulWidget {
+  const TagListView(
+      {Key? key,
+      required this.tagList,
+      required this.isAddTag,
+      this.onAddCallBack})
+      : super(key: key);
+
+  final dynamic tagList;
+  final bool isAddTag;
+  final dynamic onAddCallBack;
+
+  @override
+  State<TagListView> createState() => TagListViewState();
+}
+
+class TagListViewState extends State<TagListView> {
+  int count = 0;
+  var dataLoaded = [];
+  var tagIcons = [];
+
+  @override
+  void initState() {
+    super.initState();
+    count = widget.tagList.length;
+    dataLoaded = List<bool>.filled(count, false, growable: true);
+    tagIcons = List<Image?>.filled(count, null, growable: true);
+    for (int i = 0; i < count; i++) {
+      loadImage(i);
+    }
+  }
+
+  void loadImage(index) async {
+    tagIcons[index] = await getImage(widget.tagList[index]["icon"]);
+    setState(() {
+      dataLoaded[index] = true;
+    });
+  }
+
+  void _addTags(dynamic names) async {
+    String listToAddString = "";
+    // currently only supports adding one tag
+    // backend implementation needs to be changed if want multiple
+    // for (int i = 0; i < names.length - 1; i++) {
+    //   listToAddString += "'${names[i]}', ";
+    // }
+    listToAddString += "${names[names.length - 1]}";
+    print(listToAddString);
+    var body = {
+      "tags": listToAddString,
+      "count": names.length,
+    };
+    var response = await postWithCSRF(EndPoints.addTags.endpoint, body);
+    if (response == "success") {
+      widget.onAddCallBack();
+      showSuccessDialog(context, "Successfully added tag!");
+    }
+  }
+
+  void _requestConfirmationForTag(dynamic indexes) {
+    var namesToAdd =
+        indexes.map((index) => widget.tagList[index]["name"]).toList();
+    String tagListString = namesToAdd[0];
+    for (int i = 1; i < namesToAdd.length; i++) {
+      namesToAdd += ", ${namesToAdd[i]}";
+    }
+
+    showConfirmationDialog(
+      context,
+      "Are you sure to add $tagListString?",
+      () => _addTags(namesToAdd),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ListView list = ListView.builder(
+        itemCount: count,
+        itemBuilder: (context, index) {
+          String name = widget.tagList[index]["name"];
+          return Column(
+            children: [
+              TextButton(
+                onPressed: () async {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  // TODO: show description
+                },
+                child: Row(children: [
+                  SizedBox(
+                    height: 50,
+                    width: 50,
+                    child: dataLoaded[index]
+                        ? IconButton(
+                            onPressed: () {},
+                            icon: tagIcons[index],
+                            iconSize: 50,
+                          )
+                        : const CircularProgressIndicator(),
+                  ),
+                  Column(
+                    children: [
+                      const Padding(padding: EdgeInsets.all(2)),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width - 140,
+                        child: Text(
+                          name,
+                          style: const TextStyle(
+                              color: Colors.black, fontSize: 16),
+                        ),
+                      ),
+                    ],
+                  ),
+                  widget.isAddTag
+                      ? TextButton(
+                          onPressed: () {
+                            _requestConfirmationForTag([index]);
+                          },
+                          style: const ButtonStyle(
+                              backgroundColor:
+                                  MaterialStatePropertyAll(Colors.blue)),
+                          child: const Text(
+                            "Add",
+                            style: TextStyle(color: Colors.white),
+                          ))
+                      : Container(),
+                ]),
+              ),
+              const Divider(
+                height: 1,
+                color: Colors.grey,
+                indent: 10,
+                endIndent: 10,
+              )
+            ],
+          );
+        });
+    return list;
+  }
+}

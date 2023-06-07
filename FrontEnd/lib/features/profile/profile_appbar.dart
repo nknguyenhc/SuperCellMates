@@ -105,7 +105,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
               child: IconButton(
                 icon: const Icon(Icons.pentagon),
                 onPressed: () => AutoRouter.of(context).push(AchievementRoute(
-                    name: widget.profileMap["name"], myProfile: true)),
+                    name: widget.profileMap["user_profile"]["name"], myProfile: true)),
                 iconSize: 35,
               ),
             ),

@@ -139,7 +139,9 @@ def add_tags(request):
         if count + len(list(user_profile_obj.tagList.all())) > user_profile_obj.tag_count_limit:
             return HttpResponseBadRequest("tag limit exceeded")
         requested_tags = request.POST.getlist("tags")
+        print(requested_tags)
         for i in range(count):
+            print(requested_tags[i])
             user_profile_obj.tagList.add(Tag.objects.get(name=requested_tags[i]))
         return HttpResponse("success")
     except AttributeError:
@@ -302,6 +304,7 @@ def set_profile_image(request):
             img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
             img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
             user_profile_obj.profile_pic = img
+            user_profile_obj.save()
             # TODO: figure out how to check if it's image file based on the data
             return HttpResponse("success")
         elif "img" in request.FILES:

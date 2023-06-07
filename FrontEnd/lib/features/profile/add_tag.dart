@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
+import 'package:supercellmates/features/profile/search_tag_appbar.dart';
+import 'package:supercellmates/features/profile/tag_listview.dart';
 
 @RoutePage()
 class AddTagPage extends StatefulWidget {
@@ -17,85 +20,120 @@ class AddTagPage extends StatefulWidget {
 }
 
 class AddTagPageState extends State<AddTagPage> {
+  var myTagsList = [];
   bool dataLoaded = false;
+  var tagCount = 0;
+  var tagLimit = 0;
+  int navigationBarIndex = 0;
+  Timer? _searchTimer;
+  Widget? searchTagsResult = Container();
 
   @override
   void initState() {
-    dataLoaded = false;
     super.initState();
-    obtainAllTagsList();
+    obtainMyTagsList();
   }
 
-  dynamic allTagsList;
-
-  void obtainAllTagsList() async {
+  void obtainMyTagsList() async {
     dataLoaded = false;
-    allTagsList =
-        jsonDecode(await getRequest(EndPoints.obtainTags.endpoint, null))["tags"];
+    dynamic response =
+        jsonDecode(await getRequest(EndPoints.obtainTags.endpoint, null));
+    myTagsList = response["tags"];
     setState(() {
-      dataLoaded = true;
+      tagLimit = response["tag_count_limit"];
+      tagCount = myTagsList.length;
     });
+    dataLoaded = true;
   }
 
   // currently only supports adding one tag at a time
-  void _addTags(dynamic indexes) async {
-    var listToAdd =
-        indexes.map((index) => allTagsList[index]["tag_id"]).toList();
-    var body = {
-      "tags": listToAdd,
-      "count": listToAdd.length,
-    };
-    var response = await postWithCSRF(EndPoints.addTags.endpoint, body);
-    if (response == "success") {
-      obtainAllTagsList();
-      widget.updateCallBack();
-      showSuccessDialog(context, "Successfully added tag!");
+
+  void navigate(int index) {
+    if (navigationBarIndex != index) {
+      if (index == 0) {
+        obtainMyTagsList();
+        updateSearchTagsResult(Container());
+      } else {
+        obtainMyTagsList();
+      }
+      setState(() {
+        navigationBarIndex = index;
+      });
     }
   }
 
-  void _requestConfirmationForTag(dynamic indexes) {
-    var namesToAdd =
-        indexes.map((index) => allTagsList[index]["tag_name"]).toList();
-    String tagListString = namesToAdd[0];
-    for (int i = 1; i < namesToAdd.length; i++) {
-      namesToAdd += ", ${namesToAdd[i]}";
-    }
-
-    showConfirmationDialog(
-      context,
-      "Are you sure to add $tagListString?",
-      () => _addTags(indexes),
-    );
+  void updateSearchTagsResult(Widget result) {
+    setState(() {
+      searchTagsResult = result;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return dataLoaded
-        ? Scaffold(
-            appBar: AppBar(
-              titleSpacing: 0,
-              title: const Text("Add tags to my profile")),
-            body: Container(
-                height: 700,
-                width: 100,
-                alignment: Alignment.center,
-                child: ListView.builder(
-                    itemCount: allTagsList != null ? allTagsList.length : 0,
-                    itemBuilder: (BuildContext context, int index) {
-                      return allTagsList[index]["in"]
-                          ? TextButton(
-                              onPressed: () => {},
-                              child: Text(
-                                allTagsList[index]["tag_name"],
-                                style: const TextStyle(color: Colors.grey),
-                              ),
-                            )
-                          : TextButton(
-                              onPressed: () =>
-                                  _requestConfirmationForTag([index]),
-                              child: Text(allTagsList[index]["tag_name"]));
-                    })),
-          )
-        : const CircularProgressIndicator();
+    return Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: navigationBarIndex == 0
+            ? AppBar(titleSpacing: 18, title: const Text("Manage my tags"))
+            : SearchTagAppBar(
+                updateCallBack: updateSearchTagsResult,
+                onAddCallBack: () => navigate(0)),
+        body: Column(children: [
+          NavigationBar(
+            height: 50,
+            destinations: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 40,
+                    child: TextButton(
+                      onPressed: () {
+                        navigate(0);
+                      },
+                      child: Text(
+                        "My Tags",
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: navigationBarIndex == 0
+                                ? Colors.blue
+                                : Colors.blueGrey),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 40,
+                    child: TextButton(
+                      onPressed: () {
+                        navigate(1);
+                      },
+                      child: Text("Add new tags",
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: navigationBarIndex == 1
+                                  ? Colors.blue
+                                  : Colors.blueGrey)),
+                    ),
+                  ),
+                ],
+              )
+            ],
+            selectedIndex: navigationBarIndex,
+            shadowColor: Colors.grey,
+          ),
+          SizedBox(
+              height: navigationBarIndex == 0
+                  ? MediaQuery.of(context).size.height - 140
+                  : MediaQuery.of(context).size.height - 170,
+              child: dataLoaded
+                  ? navigationBarIndex == 0
+                      ? TagListView(tagList: myTagsList, isAddTag: false)
+                      : searchTagsResult ?? Container()
+                  : const CircularProgressIndicator())
+        ]));
   }
 }
