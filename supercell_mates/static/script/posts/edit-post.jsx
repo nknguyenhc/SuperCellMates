@@ -1,4 +1,4 @@
-function CreatePost() {
+function EditPost() {
     const [title, setTitle] = React.useState('');
     const [content, setContent] = React.useState('');
     const [tag, setTag] = React.useState(undefined);
@@ -9,10 +9,11 @@ function CreatePost() {
     const [errorMessage, setErrorMessage] = React.useState('');
     const imagesInput = React.useRef(null);
     const [imgs, setImgs] = React.useState([]);
+    const username = document.querySelector("#profile-id").innerHTML.slice(1);
 
     if (!fetched) {
         setFetched(true);
-        fetch('/profile/user_tags/' + document.querySelector("#welcome-message").innerHTML.split("@")[1])
+        fetch('/profile/user_tags/' + username)
             .then(response => response.json())
             .then(response => setUserTags(response.tags));
     }
@@ -159,7 +160,7 @@ function CreatePost() {
                             <h1 class="modal-title fs-5" id="post-create-label">Message</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">Post created!</div>
+                        <div class="modal-body">Post edited!</div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
@@ -170,4 +171,20 @@ function CreatePost() {
     );
 }
 
-ReactDOM.render(<CreatePost />, document.querySelector("#create-post"));
+const editPage = document.querySelector("#edit-post");
+editPage.addEventListener("click", event => {
+    const editWindow = editPage.querySelector("#edit-window");
+    if (!editWindow.contains(event.target)) {
+        editPage.style.display = "none";
+    }
+})
+
+function popEditView(postId) {
+    Array.from(editPage.children).forEach(child => editPage.removeChild(child));
+    const newWindow = document.createElement("div");
+    newWindow.id = "edit-window";
+    newWindow.className = "p-3";
+    ReactDOM.render(<EditPost />, newWindow);
+    editPage.appendChild(newWindow)
+    editPage.style.display = "block";
+}

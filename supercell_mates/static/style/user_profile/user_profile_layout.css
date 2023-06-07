@@ -103,6 +103,10 @@
     gap: 2px;
 }
 
+.post-content {
+    white-space: pre-line;
+}
+
 .post-images {
     display: flex;
     flex-direction: row;

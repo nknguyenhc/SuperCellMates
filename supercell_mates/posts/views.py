@@ -57,15 +57,9 @@ def create_post(request):
 
         # visibility
         visibility = request.POST.getlist("visibility")
-        friend_visible = False
-        tag_visible = False
-        public_visible = False
-        if "public" in visibility:
-            public_visible = True
-        if "friends" in visibility:
-            friend_visible = True
-        if "tag" in visibility:
-            tag_visible = True
+        friend_visible = "friends" in visibility
+        tag_visible = "tag" in visibility
+        public_visible = "public" in visibility
         if not friend_visible and not tag_visible and not public_visible:
             return HttpResponseBadRequest("visibility malformed")
         
@@ -110,6 +104,53 @@ def create_post(request):
         return HttpResponseBadRequest("tag with provided name not found")
     except TypeError:
         return HttpResponseBadRequest("imgs key submitted is not of type array")
+
+
+def edit_post(request, post_id):
+    """Allow user to edit the post, with the new information given in the body, except images will not be received. 
+    Removing/adding photos to posts are handled in a separate view.
+    Tag will not be changed
+    
+    Args:
+        request (HttpRequest): the request made to this view
+        post_id: the id of the post
+    
+    Returns:
+        HttpResponse: the feedback of the process
+    """
+
+    try:
+        post = Post.objects.get(id=post_id)
+        if not post in request.user.user_log.posts.objects.all():
+            return HttpResponseBadRequest("post with provided id does not belong to you")
+
+        # basic info: title and content
+        title = request.POST["title"]
+        content = request.POST["content"]
+        if title == '' or content == '':
+            return HttpResponseBadRequest("title or content is empty")
+
+        # visibility
+        visibility = request.POST.getlist("visibility")
+        friend_visible = "friends" in visibility
+        tag_visible = "tag" in visibility
+        public_visible = "public" in visibility
+        if not friend_visible and not tag_visible and not public_visible:
+            return HttpResponseBadRequest("visibility malformed")
+        
+        post.title = title
+        post.content = content
+        post.friend_visible = friend_visible
+        post.tag_visible = tag_visible
+        post.public_visible = public_visible
+        return HttpResponse("post updated")
+
+    except AttributeError:
+        return HttpResponseBadRequest("request does not contain form data")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body is missing an important key")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("post with provided id not found")
 
 
 def parse_post_object(post):
@@ -226,6 +267,17 @@ def get_post(request, post_id):
 
 @login_required
 def get_post_pic(request, pic_id):
+    """Return the picture with the given id.
+    This view checks the user privilege to the post first before returning the image.
+    If the user does not have privilege, or there is no picture with the given id, return not found.
+
+    Args:
+        request (HttpRequest): the request made to this view
+        pic_id (str): the id of the post picture
+    
+    Returns:
+        FileResponse / HttpResponseNotFound: the picture, or response not found
+    """
     try:
         image_obj = PostImage.objects.get(id=pic_id)
         if has_access(request.user, image_obj.post):
@@ -242,6 +294,11 @@ def get_profile_posts(request, username):
     The time limits are given in the GET parameters. The URL therefore must contain the following GET paramters:
         start (str): the string of the start date given in the format YYYY-MM-DD-HH-MM-SS
         end (str): the string of the end date given in the format YYYY-MM-DD-HH-MM-SS
+    
+    The returned json response contains the following fields:
+        posts (list(dict)): the list of posts, each represented by a dictionary
+        hasOlderPosts (bool): whether there are posts older than the requested start time, True if there is, false otherwise
+        myProfile (bool): whether the request user has the username
     """
 
     try:
@@ -263,7 +320,9 @@ def get_profile_posts(request, username):
         ))
         posts.reverse()
         return JsonResponse({
-            "posts": posts
+            "posts": posts,
+            "hasOlderPosts": user_log_obj.posts.filter(time_posted__lt=start_time).exists(),
+            "myProfile": request.user.username == username,
         })
     
     except AttributeError:

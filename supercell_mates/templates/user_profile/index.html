@@ -3,6 +3,7 @@
 {% block style %} 
     {{ block.super }}
     <link rel="stylesheet" href="/static/style/user_profile/index.css">
+    <link rel="stylesheet" href="/static/style/posts/post.css">
 {% endblock %} 
 
 {% block content %} 
@@ -16,4 +17,6 @@
             </div>
         {% endfor %} 
     </div>
+    <div id="edit-post" style="display: none"></div>
+    <script type="text/babel" src="/static/script/posts/edit-post.jsx"></script>
 {% endblock %} 

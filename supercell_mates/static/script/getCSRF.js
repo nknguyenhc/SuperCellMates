@@ -33,3 +33,8 @@ function postRequestContent(dict) {
 function triggerErrorMessage() {
     alert("An error has occurred, please try again later.");
 }
+
+function formatNumber(num, numOfDigits) {
+    const str = num.toString();
+    return '0'.repeat(numOfDigits - str.length) + str;
+}
