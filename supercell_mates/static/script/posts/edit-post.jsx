@@ -1,25 +1,49 @@
-function EditPost() {
+function EditPost(props) {
     const [title, setTitle] = React.useState('');
     const [content, setContent] = React.useState('');
     const [tag, setTag] = React.useState(undefined);
     const [visibility, setVisibility] = React.useState('Visibility');
-    const [userTags, setUserTags] = React.useState([]);
     const [fetched, setFetched] = React.useState(false);
-    const postCreateButton = React.useRef(null);
     const [errorMessage, setErrorMessage] = React.useState('');
     const imagesInput = React.useRef(null);
     const [imgs, setImgs] = React.useState([]);
-    const username = document.querySelector("#profile-id").innerHTML.slice(1);
+    const postId = props.postId;
 
     if (!fetched) {
         setFetched(true);
-        fetch('/profile/user_tags/' + username)
+        fetch('/post/post/' + postId)
             .then(response => response.json())
-            .then(response => setUserTags(response.tags));
+            .then(response => {
+                setTitle(response.title);
+                setContent(response.content);
+                setTag(response.tag);
+                if (response.public_visible) {
+                    setVisibility("Public");
+                } else {
+                    if (response.friend_visible) {
+                        if (response.tag_visible) {
+                            setVisibility("Friends with same tag");
+                        } else {
+                            setVisibility("Friends");
+                        }
+                    } else {
+                        setVisibility("People with same tag");
+                    }
+                }
+            })
+            .catch(() => triggerErrorMessage());
     }
 
     function removeImage(index) {
         setImgs(imgs.filter((_, i) => i !== index));
+    }
+
+    function addImages(fileArray) {
+        setImgs(imgs.concat(fileArray));
+    }
+
+    function deleteAllImages() {
+        setImgs([]);
     }
 
     function submitPost(event) {
@@ -30,12 +54,6 @@ function EditPost() {
             return;
         } else if (content === '') {
             setErrorMessage("Content cannot be empty");
-            return;
-        } else if (tag === undefined) {
-            setErrorMessage("You must choose a tag to associate with this post");
-            return;
-        } else if (visibility === "Visibility") {
-            setErrorMessage("Please choose a visibility setting");
             return;
         }
 
@@ -55,19 +73,19 @@ function EditPost() {
                 break;
         }
 
-        fetch('/post/create_post', postRequestContent({
+        fetch('/post/post/edit/' + postId, postRequestContent({
             title: title,
             content: content,
-            tag: tag.name,
-            visibility: visList,
-            imgs: imgs
+            visibility: visList
         }))
-            .then(response => {
+            .then(async response => {
                 if (response.status !== 200) {
                     triggerErrorMessage();
+                    console.log(await response.text());
                 } else {
-                    postCreateButton.current.click();
+                    editPage.style.display = 'none';
                     setErrorMessage('');
+                    document.querySelector("#post-edit-button").click();
                 }
             });
     }
@@ -76,13 +94,13 @@ function EditPost() {
         <React.Fragment>
             <div className="mb-3">
                 <label htmlFor="post-title" className="form-label">Title</label>
-                <input type="text" id="post-title" className="form-control" onChange={event => {
+                <input type="text" id="post-title" className="form-control" value={title} onChange={event => {
                     setTitle(event.target.value);
                 }} />
             </div>
             <div className="mb-3">
                 <label htmlFor="post-content" className="form-label">Content</label>
-                <textarea id="post-content" rows="8" className="form-control" onChange={event => {
+                <textarea id="post-content" rows="8" className="form-control" value={content} onChange={event => {
                     setContent(event.target.value);
                 }}></textarea>
             </div>
@@ -104,25 +122,19 @@ function EditPost() {
             </div>
             <div className="mt-3" id="post-choose-tag">
                 {
-                    userTags.length === 0
-                    ? 'Your profile needs at least one tag to post!'
-                    : userTags.map(tag => (
-                        <React.Fragment>
-                            <input type="radio" class="btn-check" name="options" id={"post-tag-" + tag.name} autocomplete="off" />
-                            <label class="tag-button btn btn-outline-info" for={"post-tag-" + tag.name} onClick={() => {
-                                setTag(tag);
-                            }}>
-                                <img src={tag.icon} />
-                                <div>{tag.name}</div>
-                            </label>
-                        </React.Fragment>
-                    ))
+                    tag === undefined
+                    ? ''
+                    :
+                        <div class="tag-button btn btn-outline-info">
+                            <img src={tag.icon} />
+                            <div>{tag.name}</div>
+                        </div>
                 }
             </div>
             <div class="mt-3">
                 <label for="post-choose-images" class="form-label">Images</label>
                 <input ref={imagesInput} class="form-control" type="file" id="post-choose-images" multiple onChange={() => {
-                    setImgs(imgs.concat(Array.from(imagesInput.current.files)));
+                    addImages(Array.from(imagesInput.current.files));
                 }} />
             </div>
             <div className="mt-4" id="post-images-preview">
@@ -141,32 +153,17 @@ function EditPost() {
                 {
                     imgs.length === 0
                     ? ''
-                    : <div id="post-delete-all-button" className="btn btn-secondary" onClick={() => setImgs([])}>Clear All Photos</div>
+                    : <div id="post-delete-all-button" className="btn btn-secondary" onClick={() => deleteAllImages()}>Clear All Photos</div>
                 }
             </div>
             <div className="mt-3" id="post-submit-button">
-                <button type="button" className="btn btn-primary" onClick={submitPost}>Post</button>
+                <button type="button" className="btn btn-primary" onClick={submitPost}>Edit Post</button>
             </div>
             {
                 errorMessage === ''
                 ? ''
                 : <div className="mt-3 alert alert-danger" role="alert">{errorMessage}</div>
             }
-            <button id="post-create-button" style={{display: 'none'}} ref={postCreateButton} type="button" data-bs-toggle="modal" data-bs-target="#post-create-message"></button>
-            <div class="modal fade" id="post-create-message" tabindex="-1" aria-labelledby="post-create-label" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="post-create-label">Message</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">Post edited!</div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </React.Fragment>
     );
 }
@@ -174,7 +171,7 @@ function EditPost() {
 const editPage = document.querySelector("#edit-post");
 editPage.addEventListener("click", event => {
     const editWindow = editPage.querySelector("#edit-window");
-    if (!editWindow.contains(event.target)) {
+    if (!editWindow.contains(event.target) && editPage.contains(event.target)) {
         editPage.style.display = "none";
     }
 })
@@ -184,7 +181,7 @@ function popEditView(postId) {
     const newWindow = document.createElement("div");
     newWindow.id = "edit-window";
     newWindow.className = "p-3";
-    ReactDOM.render(<EditPost />, newWindow);
+    ReactDOM.render(<EditPost postId={postId}/>, newWindow);
     editPage.appendChild(newWindow)
     editPage.style.display = "block";
 }

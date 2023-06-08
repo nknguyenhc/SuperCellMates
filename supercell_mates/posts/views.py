@@ -93,7 +93,9 @@ def create_post(request):
                     return HttpResponseBadRequest("not image")
                 img_obj = PostImage(order=i, image=img, post=post)
                 img_obj.save()
-        
+        post.img_count = len(imgs)
+        post.save()
+
         return HttpResponse("post created")
     
     except AttributeError:
@@ -106,10 +108,16 @@ def create_post(request):
         return HttpResponseBadRequest("imgs key submitted is not of type array")
 
 
+@login_required
+@require_http_methods(["POST"])
 def edit_post(request, post_id):
     """Allow user to edit the post, with the new information given in the body, except images will not be received. 
     Removing/adding photos to posts are handled in a separate view.
-    Tag will not be changed
+    Tag will not be changed.
+    Required fields in the form data of the request:
+        title: the new title of the post
+        content: the new content of the post
+        visibility: the new visibility list of the post
     
     Args:
         request (HttpRequest): the request made to this view
@@ -121,7 +129,7 @@ def edit_post(request, post_id):
 
     try:
         post = Post.objects.get(id=post_id)
-        if not post in request.user.user_log.posts.objects.all():
+        if not post in request.user.user_log.posts.all():
             return HttpResponseBadRequest("post with provided id does not belong to you")
 
         # basic info: title and content
@@ -143,6 +151,7 @@ def edit_post(request, post_id):
         post.friend_visible = friend_visible
         post.tag_visible = tag_visible
         post.public_visible = public_visible
+        post.save()
         return HttpResponse("post updated")
 
     except AttributeError:
@@ -151,6 +160,78 @@ def edit_post(request, post_id):
         return HttpResponseBadRequest("request body is missing an important key")
     except ObjectDoesNotExist:
         return HttpResponseBadRequest("post with provided id not found")
+
+
+@login_required
+@require_http_methods(["POST"])
+def add_photo(request):
+    try:
+        post_id = request.POST["post_id"]
+        post = Post.objects.get(id=post_id)
+        if not post in request.user.user_log.posts.all():
+            return HttpResponseBadRequest("you are not the owner of this post")
+        if "img" in request.POST:
+            img_raw = request.POST["img"]
+            img_bytearray = img_raw.strip("[]").split(", ")
+            img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
+            img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
+            if not verify_image(img):
+                return HttpResponseBadRequest("not image")
+        else:
+            img = request.FILES["img"]
+            if not verify_image(img):
+                return HttpResponseBadRequest("not image")
+        img_obj = PostImage(order=post.img_count, image=img, post=post)
+        img_obj.save()
+        return HttpResponse("photo saved")
+    
+    except AttributeError:
+        return HttpResponseBadRequest("request does not contain form data/image")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request does not contain an important key")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("post with provided id not found")
+
+
+@login_required
+@require_http_methods(["POST"])
+def delete_photo(request):
+    try:
+        post_id = request.POST["post_id"]
+        pic_id = request.POST["pic_id"]
+        post = Post.objects.get(id=post_id)
+        if post not in request.user.user_log.posts.all():
+            return HttpResponseBadRequest("you are not the owner of this post")
+        pic = PostImage.objects.get(id=pic_id)
+        pic.delete()
+        return HttpResponse("picture deleted")
+    
+    except AttributeError:
+        return HttpResponseBadRequest("request does not contain form data")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body does not contain an important key")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("picture with given id/post with given id not found")
+
+
+@login_required
+@require_http_methods(["POST"])
+def delete_post(request):
+    try:
+        post_id = request.POST["post_id"]
+        post = Post.objects.get(id=post_id)
+        if post not in request.user.user_log.posts.all():
+            return HttpResponseBadRequest("you are not the owner of this post")
+        post.delete()
+        return HttpResponse("post deleted")
+    
+    except AttributeError:
+        return HttpResponseBadRequest("request does not contain form data")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body does not contain an important key")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("post with given id not found")
+
 
 
 def parse_post_object(post):
@@ -167,6 +248,7 @@ def parse_post_object(post):
             tag: the tag of the post, represented by a dictionary with the following fields:
                 name: the name of the tag
                 icon: the link to the icon of the tag
+            public_visible, friend_visible, tag_visible: follow the convention set in the create_post view
             creator: a dictionary representing the creator of the post, with the following fields:
                 name: the name of the creator
                 username: the username of the creator
@@ -196,6 +278,9 @@ def parse_post_object(post):
             "name": post.tag.name,
             "icon": reverse("user_profile:get_tag_icon", args=(post.tag.name,)),
         },
+        "public_visible": post.public_visible,
+        "friend_visible": post.friend_visible,
+        "tag_visible": post.tag_visible,
         "creator": {
             "name": post.creator.user_profile.name,
             "username": post.creator.user_auth.username,
@@ -254,8 +339,8 @@ def get_post(request, post_id):
         JsonResponse: the post data
     """
     try:
-        if has_access(request.user, post):
-            post_object = Post.objects.get(id=post_id)
+        post_object = Post.objects.get(id=post_id)
+        if has_access(request.user, post_object):
             post_dict = parse_post_object(post_object)
             return JsonResponse(post_dict)
         else:

@@ -9,10 +9,11 @@ function CreatePost() {
     const [errorMessage, setErrorMessage] = React.useState('');
     const imagesInput = React.useRef(null);
     const [imgs, setImgs] = React.useState([]);
+    const username = document.querySelector("#welcome-message").innerHTML.split("@")[1];
 
     if (!fetched) {
         setFetched(true);
-        fetch('/profile/user_tags/' + document.querySelector("#welcome-message").innerHTML.split("@")[1])
+        fetch('/profile/user_tags/' + username)
             .then(response => response.json())
             .then(response => setUserTags(response.tags));
     }

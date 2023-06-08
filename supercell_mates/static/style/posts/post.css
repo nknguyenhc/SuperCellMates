@@ -88,6 +88,8 @@
 
 #edit-window {
     width: 50vw;
+    height: 87vh;
+    overflow-y: scroll;
     position: absolute;
     left: 50vw;
     top: 70px;

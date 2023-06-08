@@ -93,14 +93,10 @@ function Post(props) {
                 }
             });
         })
-        .catch((e) => {
-            triggerErrorMessage();
-            console.log(e);
-        });
+        .catch(() => triggerErrorMessage());
     
     function loadMorePosts() {
         const prevDate = new Date(currDate - oneDayTime);
-        console.log(`/post/posts/${username}?start=${formatTime(prevDate)}&end=${formatTime(currDate)}`);
         fetch(`/post/posts/${username}?start=${formatTime(prevDate)}&end=${formatTime(currDate)}`)
             .then(response => response.json())
             .then(response => {
