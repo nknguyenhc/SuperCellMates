@@ -38,3 +38,11 @@ function formatNumber(num, numOfDigits) {
     const str = num.toString();
     return '0'.repeat(numOfDigits - str.length) + str;
 }
+
+function imgURLsIntoFiles (urls, files) {
+    urls.forEach((url, i) => {
+        fetch(url)
+            .then(response => response.blob())
+            .then(blob => files[i] = blob);
+    })
+}

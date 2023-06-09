@@ -114,10 +114,12 @@ def edit_post(request, post_id):
     """Allow user to edit the post, with the new information given in the body, except images will not be received. 
     Removing/adding photos to posts are handled in a separate view.
     Tag will not be changed.
+    All old images will be deleted, frontend needs to keep track of the old images
     Required fields in the form data of the request:
         title: the new title of the post
         content: the new content of the post
         visibility: the new visibility list of the post
+        imgs: the list of new images attached to this post
     
     Args:
         request (HttpRequest): the request made to this view
@@ -127,44 +129,85 @@ def edit_post(request, post_id):
         HttpResponse: the feedback of the process
     """
 
-    try:
-        post = Post.objects.get(id=post_id)
-        if not post in request.user.user_log.posts.all():
-            return HttpResponseBadRequest("post with provided id does not belong to you")
+    # try:
+    post = Post.objects.get(id=post_id)
+    if not post in request.user.user_log.posts.all():
+        return HttpResponseBadRequest("post with provided id does not belong to you")
 
-        # basic info: title and content
-        title = request.POST["title"]
-        content = request.POST["content"]
-        if title == '' or content == '':
-            return HttpResponseBadRequest("title or content is empty")
+    # basic info: title and content
+    title = request.POST["title"]
+    content = request.POST["content"]
+    if title == '' or content == '':
+        return HttpResponseBadRequest("title or content is empty")
 
-        # visibility
-        visibility = request.POST.getlist("visibility")
-        friend_visible = "friends" in visibility
-        tag_visible = "tag" in visibility
-        public_visible = "public" in visibility
-        if not friend_visible and not tag_visible and not public_visible:
-            return HttpResponseBadRequest("visibility malformed")
-        
-        post.title = title
-        post.content = content
-        post.friend_visible = friend_visible
-        post.tag_visible = tag_visible
-        post.public_visible = public_visible
-        post.save()
-        return HttpResponse("post updated")
+    # visibility
+    visibility = request.POST.getlist("visibility")
+    friend_visible = "friends" in visibility
+    tag_visible = "tag" in visibility
+    public_visible = "public" in visibility
+    if not friend_visible and not tag_visible and not public_visible:
+        return HttpResponseBadRequest("visibility malformed")
+    
+    post.title = title
+    post.content = content
+    post.friend_visible = friend_visible
+    post.tag_visible = tag_visible
+    post.public_visible = public_visible
+    
+    # images
+    for img in post.images.all():
+        img.delete()
+    if "imgs" in request.POST:
+        imgs = request.POST.getlist("imgs")
+        for (i, img_raw) in enumerate(imgs):
+            try:
+                img_bytearray = img_raw.strip("[]").split(", ")
+                img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
+                img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
+                if not verify_image(img):
+                    return HttpResponseBadRequest("not image")
+            except:
+                img = img_raw
+                if not verify_image(img):
+                    return HttpResponseBadRequest("not image")
+            img_obj = PostImage(order=i, image=img, post=post)
+            img_obj.save()
+    else:
+        print("img passed to request.FILES")
+        imgs = request.FILES.getlist("imgs")
+        for (i, img) in enumerate(imgs):
+            if not verify_image(img):
+                return HttpResponseBadRequest("not image")
+            img_obj = PostImage(order=i, image=img, post=post)
+            img_obj.save()
+    post.img_count = len(imgs)
+    post.save()
 
-    except AttributeError:
-        return HttpResponseBadRequest("request does not contain form data")
-    except MultiValueDictKeyError:
-        return HttpResponseBadRequest("request body is missing an important key")
-    except ObjectDoesNotExist:
-        return HttpResponseBadRequest("post with provided id not found")
+    return HttpResponse("post updated")
+
+    # except AttributeError:
+    #     return HttpResponseBadRequest("request does not contain form data")
+    # except MultiValueDictKeyError:
+    #     return HttpResponseBadRequest("request body is missing an important key")
+    # except ObjectDoesNotExist:
+    #     return HttpResponseBadRequest("post with provided id not found")
 
 
 @login_required
 @require_http_methods(["POST"])
 def add_photo(request):
+    """Attempt to add one photo associated with a given post.
+    The photo is given in the "img" field, either in request.POST as binary or request.FILES as file.
+    The post is given by the "post_id" field in request.POST .
+    The view checks whether the request user is the owner of the post first before making edits to the post.
+
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        HttpResponse: the URL to the image, or the feedback of the process if failed
+    """
+
     try:
         post_id = request.POST["post_id"]
         post = Post.objects.get(id=post_id)
@@ -183,7 +226,9 @@ def add_photo(request):
                 return HttpResponseBadRequest("not image")
         img_obj = PostImage(order=post.img_count, image=img, post=post)
         img_obj.save()
-        return HttpResponse("photo saved")
+        post.img_count += 1
+        post.save()
+        return HttpResponse(reverse("posts:get_post_pic", args=(img_obj.id,)))
     
     except AttributeError:
         return HttpResponseBadRequest("request does not contain form data/image")
@@ -196,6 +241,18 @@ def add_photo(request):
 @login_required
 @require_http_methods(["POST"])
 def delete_photo(request):
+    """Attempt to delete a post photo from the database.
+    The request body contains the following fields:
+        post_id: the id of the post
+        pic_id: the id of the pic
+    The view checks whether the request user is the owner of the post before deleting the photo.
+
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        HttpResponse: the feedback of the process
+    """
     try:
         post_id = request.POST["post_id"]
         pic_id = request.POST["pic_id"]

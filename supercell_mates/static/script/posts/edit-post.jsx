@@ -7,6 +7,9 @@ function EditPost(props) {
     const [errorMessage, setErrorMessage] = React.useState('');
     const imagesInput = React.useRef(null);
     const [imgs, setImgs] = React.useState([]);
+    const [numOfImgsToLoad, setNumOfImgsToLoad] = React.useState(-1);
+    const [imgLinks, setImgLinks] = React.useState([]);
+    const [allImgsLoaded, setAllImgsLoaded] = React.useState(false);
     const postId = props.postId;
 
     if (!fetched) {
@@ -30,8 +33,27 @@ function EditPost(props) {
                         setVisibility("People with same tag");
                     }
                 }
+                setImgLinks(response.images)
+                setNumOfImgsToLoad(response.images.length);
+                if (response.images.length === 0) {
+                    setAllImgsLoaded(true);
+                }
             })
             .catch(() => triggerErrorMessage());
+    }
+
+    if (numOfImgsToLoad !== -1 && imgs.length !== numOfImgsToLoad && !allImgsLoaded) {
+        fetch(imgLinks[imgs.length])
+            .then(response => response.blob())
+            .then(blob => {
+                const file = new File([blob], 'image.jpeg', {
+                    type: blob.type,
+                })
+                setImgs([...imgs, file]);
+                if (imgs.length === numOfImgsToLoad - 1) {
+                    setAllImgsLoaded(true);
+                }
+            })
     }
 
     function removeImage(index) {
@@ -73,15 +95,17 @@ function EditPost(props) {
                 break;
         }
 
+        console.log(imgs);
         fetch('/post/post/edit/' + postId, postRequestContent({
             title: title,
             content: content,
-            visibility: visList
+            visibility: visList,
+            imgs: imgs
         }))
             .then(async response => {
                 if (response.status !== 200) {
-                    triggerErrorMessage();
                     console.log(await response.text());
+                    triggerErrorMessage();
                 } else {
                     editPage.style.display = 'none';
                     setErrorMessage('');
@@ -139,9 +163,9 @@ function EditPost(props) {
             </div>
             <div className="mt-4" id="post-images-preview">
                 {
-                    imgs.map((imgFile, i) => ((
+                    imgs.map((imgLink, i) => ((
                         <div className="post-image-preview-div">
-                            <img src={URL.createObjectURL(imgFile)} />
+                            <img src={URL.createObjectURL(imgLink)} />
                             <div className="post-image-preview-close">
                                 <button type="button" class="btn-close" aria-label="Close" onClick={() => removeImage(i)} />
                             </div>
