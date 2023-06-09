@@ -274,6 +274,16 @@ def delete_photo(request):
 @login_required
 @require_http_methods(["POST"])
 def delete_post(request):
+    """Attempts to delete the post
+    The body must contain the "post_id" field, which is the id of the post to delete.
+    This view checks whether the request user is the owner of the post first before deleting.
+
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        HttpResponse: the feedback of the process
+    """
     try:
         post_id = request.POST["post_id"]
         post = Post.objects.get(id=post_id)

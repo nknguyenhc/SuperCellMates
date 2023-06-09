@@ -116,7 +116,26 @@ function Post(props) {
     function addNewPostCard(post, myProfile) {
         const newPostCard = document.createElement("div");
         newPostCard.className = "post-card";
+        newPostCard.id = "post-card-" + post.id;
         ReactDOM.render(<Post post={post} myProfile={myProfile} />, newPostCard);
         document.querySelector('#profile-posts').appendChild(newPostCard);
     }
 })();
+
+
+function editPostCard(postId) {
+    const oldCard = document.getElementById("post-card-" + postId);
+    fetch('/post/post/' + postId)
+        .then(response => response.json())
+        .then(post => {
+            ReactDOM.render(<Post post={post} myProfile={true} />, oldCard);
+        })
+        .catch(() => triggerErrorMessage());
+}
+
+
+function deletePostCard(postId) {
+    document.getElementById("post-card-" + postId).remove();
+    Array.from(editPage.children).forEach(child => editPage.removeChild(child));
+    editPage.style.display = "none";
+}

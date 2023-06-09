@@ -11,6 +11,7 @@ function EditPost(props) {
     const [imgLinks, setImgLinks] = React.useState([]);
     const [allImgsLoaded, setAllImgsLoaded] = React.useState(false);
     const postId = props.postId;
+    const [deleteMessage, setDeleteMessage] = React.useState('');
 
     if (!fetched) {
         setFetched(true);
@@ -95,23 +96,46 @@ function EditPost(props) {
                 break;
         }
 
-        console.log(imgs);
         fetch('/post/post/edit/' + postId, postRequestContent({
             title: title,
             content: content,
             visibility: visList,
             imgs: imgs
         }))
-            .then(async response => {
+            .then(response => {
                 if (response.status !== 200) {
-                    console.log(await response.text());
                     triggerErrorMessage();
                 } else {
                     editPage.style.display = 'none';
                     setErrorMessage('');
                     document.querySelector("#post-edit-button").click();
+                    editPostCard(postId);
                 }
             });
+    }
+
+    function popDeleteMessage() {
+        setDeleteMessage('Are you sure to delete this post? This action is irreversible.');
+        setTimeout(() => {
+            const editWindow = document.querySelector("#edit-window");
+            editWindow.scrollTo({
+                behaviour: "smooth",
+                top: editWindow.scrollHeight
+            })
+        }, 200);
+    }
+
+    function deletePost() {
+        fetch('/post/delete', postRequestContent({
+            post_id: postId
+        }))
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    deletePostCard(postId);
+                }
+            })
     }
 
     return (
@@ -124,7 +148,7 @@ function EditPost(props) {
             </div>
             <div className="mb-3">
                 <label htmlFor="post-content" className="form-label">Content</label>
-                <textarea id="post-content" rows="8" className="form-control" value={content} onChange={event => {
+                <textarea id="post-content" rows="6" className="form-control" value={content} onChange={event => {
                     setContent(event.target.value);
                 }}></textarea>
             </div>
@@ -161,7 +185,7 @@ function EditPost(props) {
                     addImages(Array.from(imagesInput.current.files));
                 }} />
             </div>
-            <div className="mt-4" id="post-images-preview">
+            <div className="mt-4" id="edit-post-images-preview">
                 {
                     imgs.map((imgLink, i) => ((
                         <div className="post-image-preview-div">
@@ -180,9 +204,25 @@ function EditPost(props) {
                     : <div id="post-delete-all-button" className="btn btn-secondary" onClick={() => deleteAllImages()}>Clear All Photos</div>
                 }
             </div>
-            <div className="mt-3" id="post-submit-button">
-                <button type="button" className="btn btn-primary" onClick={submitPost}>Edit Post</button>
+            <div className="post-edit-buttons mt-3">
+                <div id="post-delete-button">
+                    <button type="button" className="btn btn-danger btn-sm" onClick={() => popDeleteMessage()}>Delete Post</button>
+                </div>
+                <div id="post-submit-button">
+                    <button type="button" className="btn btn-primary" onClick={submitPost}>Edit Post</button>
+                </div>
             </div>
+            {
+                deleteMessage === ''
+                ? ''
+                : <div className="delete-warning">
+                    <div className="mt-3 alert alert-danger" role="alert">{deleteMessage}</div>
+                    <div className="mt-3 delete-confirm-buttons">
+                        <button className="btn btn-success" onClick={() => deletePost()}>Yes</button>
+                        <button className="btn btn-danger" onClick={() => setDeleteMessage('')}>No</button>
+                    </div>
+                </div>
+            }
             {
                 errorMessage === ''
                 ? ''

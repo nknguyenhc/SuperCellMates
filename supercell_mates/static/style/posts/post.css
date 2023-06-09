@@ -54,6 +54,7 @@
     height: 200px;
     width: 200px;
     position: relative;
+    overflow: hidden;
 }
 
 .post-image-preview-div img {
@@ -65,9 +66,8 @@
 
 .post-image-preview-close {
     position: absolute;
-    top: 0px;
-    right: 0px;
-    transform: translate(50%, -50%);
+    top: 2px;
+    right: 2px;
     background: #CDCBCB;
     border-radius: 5px;
 }
@@ -96,4 +96,26 @@
     transform: translateX(-50%);
     background-color: white;
     border-radius: 5px;
+}
+
+#edit-post-images-preview {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    flex-wrap: wrap;
+    overflow: scroll;
+    height: 220px;
+}
+
+.post-edit-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.delete-confirm-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
 }

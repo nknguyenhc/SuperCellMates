@@ -1,6 +1,8 @@
 function CreatePost() {
     const [title, setTitle] = React.useState('');
+    const titleInput = React.useRef(null);
     const [content, setContent] = React.useState('');
+    const contentInput = React.useRef(null);
     const [tag, setTag] = React.useState(undefined);
     const [visibility, setVisibility] = React.useState('Visibility');
     const [userTags, setUserTags] = React.useState([]);
@@ -68,21 +70,32 @@ function CreatePost() {
                 } else {
                     postCreateButton.current.click();
                     setErrorMessage('');
+                    clearInput();
                 }
             });
+    }
+
+    function clearInput() {
+        titleInput.current.value = '';
+        contentInput.current.value = '';
+        setVisibility('Visibility');
+        for (let i = 0; i < userTags.length; i++) {
+            document.getElementById("post-tag-" + userTags[i].name).checked = false;
+        }
+        setImgs([]);
     }
 
     return (
         <React.Fragment>
             <div className="mb-3">
                 <label htmlFor="post-title" className="form-label">Title</label>
-                <input type="text" id="post-title" className="form-control" onChange={event => {
+                <input type="text" id="post-title" className="form-control" ref={titleInput} onChange={event => {
                     setTitle(event.target.value);
                 }} />
             </div>
             <div className="mb-3">
                 <label htmlFor="post-content" className="form-label">Content</label>
-                <textarea id="post-content" rows="8" className="form-control" onChange={event => {
+                <textarea id="post-content" rows="8" className="form-control" ref={contentInput} onChange={event => {
                     setContent(event.target.value);
                 }}></textarea>
             </div>
