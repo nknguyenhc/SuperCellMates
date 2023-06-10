@@ -183,6 +183,95 @@ def logout_async(request):
     return HttpResponse("logged out")
 
 
+@login_required
+def settings(request):
+    """Render template for settings.
+
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        HttpResponse: the template for adjusting settings
+    """
+    return render(request, "user_auth/settings.html")
+
+
+@login_required
+@require_http_methods(["POST"])
+def change_username(request):
+    """Attempt to change the username of the user.
+    The new username must be provided in the body of the request, with key "new_username"
+    Besides, password must also be provided to confirm the change of username, with key "password"
+
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        HttpResponse: the feedback of the process, if there is a frontend error, return status code 4xx
+    """
+
+    try:
+        new_username = request.POST["new_username"]
+        password = request.POST["password"]
+        if new_username == '' or password == '':
+            return HttpResponseBadRequest("empty username/password")
+        if UserAuth.objects.filter(username=new_username).exists():
+            return HttpResponse("Username already taken")
+
+        user = authenticate(request, username=request.user.username, password=password)
+        if user == request.user:
+            user.username = new_username
+            user.save()
+            login(request, user)
+            return HttpResponse("Username changed")
+        else:
+            return HttpResponse("Password is incorrect")
+    
+    except AttributeError:
+        return HttpResponseBadRequest("request does not contain form data")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body does not contain an important key")
+
+
+@login_required
+@require_http_methods(["POST"])
+def change_password(request):
+    """Attempt to change the password of the user.
+    The body of the request must contain the following fields:
+        old_password: the old password of the user, to verify that the user is actually making the request
+        new_password: the new password to change to
+    
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        HttpResponse: the feedback of the process, if there is a frontend error, return status code 4xx
+    """
+    try:
+        old_password = request.POST["old_password"]
+        new_password = request.POST["new_password"]
+        if old_password == '' or new_password == '':
+            return HttpResponseBadRequest("either password is empty")
+        user = authenticate(request, username=request.user.username, password=old_password)
+        if user == request.user:
+            user.set_password(new_password)
+            user.save()
+            login(request, user)
+            return HttpResponse("Password changed")
+        else:
+            return HttpResponse("Old password is incorrect")
+    
+    except AttributeError:
+        return HttpResponseBadRequest("request does not contain form data")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body does not contain an important key")
+
+
+@login_required
+def apply_admin(request):
+    return render(request, "user_auth/apply_admin.html")
+
+
 def duplicate_tag_exists(tag_name):
     """Determine if any current tag/tag request is the same as the tag name
 

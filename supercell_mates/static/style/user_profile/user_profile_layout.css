@@ -73,6 +73,11 @@
     width: 20px;
 }
 
+#profile-page-content {
+    width: 60vw;
+    min-width: 400px;
+}
+
 #profile-posts {
     margin-top: 40px;
     display: flex;
@@ -105,6 +110,7 @@
 
 .post-content {
     white-space: pre-line;
+    text-align: justify;
 }
 
 .post-images {

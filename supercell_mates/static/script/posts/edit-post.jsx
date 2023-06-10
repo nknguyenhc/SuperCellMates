@@ -117,7 +117,7 @@ function EditPost(props) {
     function popDeleteMessage() {
         setDeleteMessage('Are you sure to delete this post? This action is irreversible.');
         setTimeout(() => {
-            const editWindow = document.querySelector("#edit-window");
+            const editWindow = document.querySelector(".edit-window");
             editWindow.scrollTo({
                 behaviour: "smooth",
                 top: editWindow.scrollHeight
@@ -185,18 +185,22 @@ function EditPost(props) {
                     addImages(Array.from(imagesInput.current.files));
                 }} />
             </div>
-            <div className="mt-4" id="edit-post-images-preview">
-                {
-                    imgs.map((imgLink, i) => ((
-                        <div className="post-image-preview-div">
-                            <img src={URL.createObjectURL(imgLink)} />
-                            <div className="post-image-preview-close">
-                                <button type="button" class="btn-close" aria-label="Close" onClick={() => removeImage(i)} />
+            {
+                imgs.length === 0
+                ? ''
+                : <div className="mt-4" id="edit-post-images-preview">
+                    {
+                        imgs.map((imgLink, i) => ((
+                            <div className="post-image-preview-div">
+                                <img src={URL.createObjectURL(imgLink)} />
+                                <div className="post-image-preview-close">
+                                    <button type="button" class="btn-close" aria-label="Close" onClick={() => removeImage(i)} />
+                                </div>
                             </div>
-                        </div>
-                    )))
-                }
-            </div>
+                        )))
+                    }
+                </div>
+            }
             <div className="mt-3" id="post-delete-all">
                 {
                     imgs.length === 0
@@ -232,19 +236,11 @@ function EditPost(props) {
     );
 }
 
-const editPage = document.querySelector("#edit-post");
-editPage.addEventListener("click", event => {
-    const editWindow = editPage.querySelector("#edit-window");
-    if (!editWindow.contains(event.target) && editPage.contains(event.target)) {
-        editPage.style.display = "none";
-    }
-})
-
 function popEditView(postId) {
+    const editPage = document.querySelector("#edit-post");
     Array.from(editPage.children).forEach(child => editPage.removeChild(child));
     const newWindow = document.createElement("div");
-    newWindow.id = "edit-window";
-    newWindow.className = "p-3";
+    newWindow.className = "edit-window p-3";
     ReactDOM.render(<EditPost postId={postId}/>, newWindow);
     editPage.appendChild(newWindow)
     editPage.style.display = "block";

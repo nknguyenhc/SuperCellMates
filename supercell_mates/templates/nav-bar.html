@@ -36,6 +36,11 @@
                             <a href="{% url 'user_profile:index' %}" class="nav-link">Your Profile</a>
                         </li>
                     {% endif %} 
+                    {% if user.is_authenticated %} 
+                        <li class="nav-item">
+                            <a href="{% url 'user_auth:settings' %}" class="nav-link">Settings</a>
+                        </li>
+                    {% endif %} 
                     {% if user.is_superuser %} 
                         <li class="nav-item">
                             <a href="{% url 'user_auth:admin' %}" class="nav-link">Admin</a>

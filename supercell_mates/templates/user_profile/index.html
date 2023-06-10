@@ -6,6 +6,11 @@
     <link rel="stylesheet" href="/static/style/posts/post.css">
 {% endblock %} 
 
+{% block script %} 
+    <script type="text/babel" src="/static/script/posts/edit-post.jsx"></script>
+    <script type="text/babel" src="/static/script/posts/display-post.jsx"></script>
+{% endblock %} 
+
 {% block content %} 
     <div id="profile-tags">
         {% for tag in tags %} 
@@ -17,10 +22,8 @@
             </div>
         {% endfor %} 
     </div>
-    <div id="edit-post" style="display: none"></div>
-    <script type="text/babel" src="/static/script/posts/edit-post.jsx"></script>
+    <div id="edit-post" class="edit-page" style="display: none"></div>
     <div id="profile-posts"></div>
-    <script type="text/babel" src="/static/script/posts/display-post.jsx"></script>
     <button id="post-edit-button" style="display: none" type="button" data-bs-toggle="modal" data-bs-target="#post-edit-message"></button>
     <div class="modal fade" id="post-edit-message" tabindex="-1" aria-labelledby="post-edit-label" aria-hidden="true">
         <div class="modal-dialog">
