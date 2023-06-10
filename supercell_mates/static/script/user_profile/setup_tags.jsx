@@ -28,7 +28,9 @@ function SetupTags() {
                 if (response.status !== 200) {
                     triggerErrorMessage();
                 } else {
-                    pop_setup_page(1);
+                    popSetupMessage("Tags updated successfully!");
+                    setTags([...tags].concat(toBeSubmitted));
+                    setToBeSubmitted([]);
                 }
             });
     }
