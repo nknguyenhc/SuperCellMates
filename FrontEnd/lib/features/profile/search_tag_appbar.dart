@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:auto_route/auto_route.dart';
+import 'package:supercellmates/router/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:supercellmates/features/home/search.dart';
@@ -50,7 +52,9 @@ class SearchTagAppBarState extends State<SearchTagAppBar> {
       searchHintText: "Search tag names...",
       actions: [
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            AutoRouter.of(context).push(const RequestTagRoute());
+          },
           icon: const Icon(Icons.add_circle),
           iconSize: 25,
         )

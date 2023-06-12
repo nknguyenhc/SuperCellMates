@@ -385,8 +385,8 @@ def add_tag_request(request):
             img_bytearray = request.POST["img"].strip("[]").split(", ")
             img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
             img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
-            if not verify_image(img):
-                return HttpResponseBadRequest("not image")
+            # if not verify_image(img):
+            #     return HttpResponseBadRequest("not image")
             tag_request = TagRequest(name=tag_name, image=img, description=description)
         elif "img" in request.FILES:
             img = request.FILES["img"]

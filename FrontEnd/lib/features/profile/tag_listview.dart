@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:supercellmates/http_requests/get_image.dart';
 
+import 'package:supercellmates/http_requests/get_image.dart';
 import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';

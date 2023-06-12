@@ -3,7 +3,6 @@ import 'package:auto_route/auto_route.dart';
 import 'dart:convert';
 import 'dart:async';
 
-import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
 import 'package:supercellmates/features/profile/search_tag_appbar.dart';
@@ -91,7 +90,7 @@ class AddTagPageState extends State<AddTagPage> {
                         navigate(0);
                       },
                       child: Text(
-                        "My Tags",
+                        "My tags",
                         style: TextStyle(
                             fontSize: 18,
                             color: navigationBarIndex == 0
