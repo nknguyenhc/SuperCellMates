@@ -120,7 +120,7 @@ class TagListViewState extends State<TagListView> {
                     children: [
                       const Padding(padding: EdgeInsets.only(left: 2)),
                       SizedBox(
-                        width: MediaQuery.of(context).size.width - 140,
+                        width: MediaQuery.of(context).size.width - 150,
                         child: Text(
                           name,
                           style: const TextStyle(

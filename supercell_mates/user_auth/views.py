@@ -100,10 +100,9 @@ def login_user(request):
         return redirect(reverse("user_auth:home"))
 
 
-@require_http_methods(["POST"])
 def check_unique_username_async(request):
     try:
-        username = request.POST["username"]
+        username = request.GET["username"]
         if UserAuth.objects.filter(username = username).exists():
             return HttpResponse("username is already taken")
         return HttpResponse("username is unique")

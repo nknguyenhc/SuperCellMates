@@ -59,25 +59,27 @@ class UserListViewState extends State<UserListView> {
                 },
                 child: Row(children: [
                   SizedBox(
-                    height: 50,
-                    width: 50,
+                    height: 45,
+                    width: 45,
                     child: dataLoaded[index]
                         ? IconButton(
                             onPressed: () {},
                             icon: profileImages[index],
-                            iconSize: 50,
+                            iconSize: 45,
+                            padding: EdgeInsets.zero,
                           )
                         : const CircularProgressIndicator(),
                   ),
+                  const Padding(padding: EdgeInsets.all(5)),
                   Column(
                     children: [
-                      const Padding(padding: EdgeInsets.all(2)),
+                      const Padding(padding: EdgeInsets.only(left: 2)),
                       SizedBox(
                         width: MediaQuery.of(context).size.width - 80,
                         child: Text(
                           name,
                           style: const TextStyle(
-                              color: Colors.black, fontSize: 16),
+                              color: Colors.black, fontSize: 17),
                         ),
                       ),
                       SizedBox(
@@ -154,16 +156,20 @@ class FriendRequestListState extends State<FriendRequestListView> {
             children: [
               Row(
                 children: [
+                  const Padding(padding: EdgeInsets.only(left: 12)),
                   SizedBox(
-                      height: 50,
-                      width: 50,
+                      height: 45,
+                      width: 45,
                       child: IconButton(
                         onPressed: () {},
                         icon: dataLoaded[index]
                             ? profileImages[index]
                             : const CircularProgressIndicator(),
+                        iconSize: 45,
+                        padding: EdgeInsets.zero,
                       )),
                   TextButton(
+                      style: const ButtonStyle(padding: MaterialStatePropertyAll(EdgeInsets.all(8))),
                       onPressed: () async {
                         FocusManager.instance.primaryFocus?.unfocus();
                         dynamic data = await getRequest(
@@ -174,16 +180,17 @@ class FriendRequestListState extends State<FriendRequestListView> {
                       },
                       child: Column(
                         children: [
-                          const Padding(padding: EdgeInsets.all(2)),
-                          SizedBox(
+                          Container(
+                            padding: const EdgeInsets.only(left: 2),
                             width: MediaQuery.of(context).size.width - 230,
                             child: Text(
                               name,
                               style: const TextStyle(
-                                  color: Colors.black, fontSize: 16),
+                                  color: Colors.black, fontSize: 17),
                             ),
                           ),
-                          SizedBox(
+                          Container(
+                            padding: const EdgeInsets.only(left: 2),
                             width: MediaQuery.of(context).size.width - 230,
                             child: Text(username,
                                 style: const TextStyle(

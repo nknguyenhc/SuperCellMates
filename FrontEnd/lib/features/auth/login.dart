@@ -57,11 +57,11 @@ class LoginPageState extends State<LoginPage> {
           "Please read and agree to our data privacy agreement");
     }
 
-    Map<String?, String?> body = {
+    Map<String, String?> body = {
       "username": data.name, // unique immutable username
     };
 
-    var response = postWithCSRF(EndPoints.checkUniqueUsername.endpoint, body);
+    var response = getRequest(EndPoints.checkUniqueUsername.endpoint, body);
 
     return response.then((message) {
       if (message == "username is unique") {
