@@ -20,12 +20,18 @@ Future<Widget> searchUser(BuildContext context, input) async {
   );
 }
 
-Future<Widget> searchTag(BuildContext context, input, onAddCallBack) async {
+Future<Widget> searchTag(
+    BuildContext context, bool tagLimitReached, input, onAddCallBack) async {
   dynamic query = {"tag": input};
   dynamic tagList = jsonDecode(
       await getRequest(EndPoints.searchTags.endpoint, query))["tags"];
 
-  Widget list = TagListView(tagList: tagList, isAddTag: true, onAddCallBack: onAddCallBack,);
+  Widget list = TagListView(
+    tagList: tagList,
+    isAddTag: true,
+    tagLimitReached: tagLimitReached,
+    onAddCallBack: onAddCallBack,
+  );
 
   return Column(
     children: [

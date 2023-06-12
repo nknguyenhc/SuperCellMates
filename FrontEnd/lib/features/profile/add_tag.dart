@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:supercellmates/features/dialogs.dart';
 import 'dart:convert';
 import 'dart:async';
 
@@ -74,6 +75,7 @@ class AddTagPageState extends State<AddTagPage> {
         appBar: navigationBarIndex == 0
             ? AppBar(titleSpacing: 18, title: const Text("Manage my tags"))
             : SearchTagAppBar(
+                tagLimitReached: tagCount >= tagLimit,
                 updateCallBack: updateSearchTagsResult,
                 onAddCallBack: () => navigate(0)),
         body: Column(children: [
@@ -124,10 +126,38 @@ class AddTagPageState extends State<AddTagPage> {
             selectedIndex: navigationBarIndex,
             shadowColor: Colors.grey,
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                height: 30,
+                alignment: Alignment.bottomCenter,
+                child: Text("Tag count limit: ${tagCount}/${tagLimit}",
+                style: TextStyle(fontSize: 15),),
+              ),
+              Container(
+                height: 30,
+                alignment: Alignment.bottomCenter,
+                child: IconButton(
+                  onPressed: () => showCustomDialog(
+                      context,
+                      "Tag count limit",
+                      "By limiting the number of tags, we hope you can join communities" +
+                          " that you are most passionate about.\n\nBut fret not, you can unlock" + 
+                          " a higher limit by completing achievements!"),
+                  icon: const Icon(
+                    Icons.info,
+                    size: 20,
+                  ),
+                  padding: const EdgeInsets.only(top: 8),
+                ),
+              ),
+            ],
+          ),
           SizedBox(
               height: navigationBarIndex == 0
-                  ? MediaQuery.of(context).size.height - 140
-                  : MediaQuery.of(context).size.height - 170,
+                  ? MediaQuery.of(context).size.height - 160
+                  : MediaQuery.of(context).size.height - 190,
               child: dataLoaded
                   ? navigationBarIndex == 0
                       ? TagListView(tagList: myTagsList, isAddTag: false)

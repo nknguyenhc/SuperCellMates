@@ -10,11 +10,13 @@ class TagListView extends StatefulWidget {
       {Key? key,
       required this.tagList,
       required this.isAddTag,
+      this.tagLimitReached,
       this.onAddCallBack})
       : super(key: key);
 
   final dynamic tagList;
   final bool isAddTag;
+  final bool? tagLimitReached;
   final dynamic onAddCallBack;
 
   @override
@@ -65,6 +67,14 @@ class TagListViewState extends State<TagListView> {
   }
 
   void _requestConfirmationForTag(dynamic indexes) {
+    if (widget.tagLimitReached!) {
+      showCustomDialog(
+          context,
+          "Tag count limit reached",
+          "oops, you can't add more tags... for now.\n\nLevel up to claim more tags!");
+      return;
+    }
+
     var namesToAdd =
         indexes.map((index) => widget.tagList[index]["name"]).toList();
     String tagListString = namesToAdd[0];

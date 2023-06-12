@@ -8,9 +8,13 @@ import 'package:supercellmates/features/home/search.dart';
 
 class SearchTagAppBar extends AppBar {
   SearchTagAppBar(
-      {Key? key, required this.updateCallBack, required this.onAddCallBack})
+      {Key? key,
+      required this.tagLimitReached,
+      required this.updateCallBack,
+      required this.onAddCallBack})
       : super(key: key);
 
+  bool tagLimitReached;
   dynamic updateCallBack;
   dynamic onAddCallBack;
 
@@ -39,13 +43,13 @@ class SearchTagAppBarState extends State<SearchTagAppBar> {
         if (_searchTimer == null || !_searchTimer!.isActive) {
           _searchTimer = Timer(const Duration(milliseconds: 1000), () async {
             widget.updateCallBack(
-                await searchTag(context, input, widget.onAddCallBack));
+                await searchTag(context, widget.tagLimitReached, input, widget.onAddCallBack));
           });
         } else {
           _searchTimer!.cancel();
           _searchTimer = Timer(const Duration(milliseconds: 1000), () async {
             widget.updateCallBack(
-                await searchTag(context, input, widget.onAddCallBack));
+                await searchTag(context, widget.tagLimitReached, input, widget.onAddCallBack));
           });
         }
       },

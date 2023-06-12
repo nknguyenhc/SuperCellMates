@@ -88,7 +88,8 @@ class RequestTagPageState extends State<RequestTagPage> {
                         setIcon(img);
                       }
                     },
-                    icon: const Icon(Icons.add_a_photo)),
+                    icon: const Icon(Icons.photo_library,
+                    size: 35,)),
                 const Padding(padding: EdgeInsets.all(10)),
                 tagIcon == null
                     ? Container()
