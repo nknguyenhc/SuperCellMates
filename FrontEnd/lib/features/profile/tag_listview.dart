@@ -111,18 +111,20 @@ class TagListViewState extends State<TagListView> {
                             onPressed: () {},
                             icon: tagIcons[index],
                             iconSize: 50,
+                            padding: EdgeInsets.zero,
                           )
                         : const CircularProgressIndicator(),
                   ),
+                  const Padding(padding: EdgeInsets.all(6)),
                   Column(
                     children: [
-                      const Padding(padding: EdgeInsets.all(2)),
+                      const Padding(padding: EdgeInsets.only(left: 2)),
                       SizedBox(
                         width: MediaQuery.of(context).size.width - 140,
                         child: Text(
                           name,
                           style: const TextStyle(
-                              color: Colors.black, fontSize: 16),
+                              color: Colors.black, fontSize: 17),
                         ),
                       ),
                     ],

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:supercellmates/features/dialogs.dart';
 import 'dart:convert';
-import 'dart:async';
 
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
@@ -25,7 +24,6 @@ class AddTagPageState extends State<AddTagPage> {
   var tagCount = 0;
   var tagLimit = 0;
   int navigationBarIndex = 0;
-  Timer? _searchTimer;
   Widget? searchTagsResult = Container();
 
   @override

@@ -36,6 +36,7 @@ class ProfilePageState extends State<ProfilePage> {
     for (int i = 0; i < tagListCount; i++) {
       loadTagIcons(i);
     }
+    setState(() => data = data);
   }
 
   void loadTagIcons(index) async {
@@ -66,33 +67,41 @@ class ProfilePageState extends State<ProfilePage> {
                   Expanded(
                     child: ListView.builder(
                         shrinkWrap: true,
-                        itemCount: tagList.length + 1,
+                        itemCount: tagList.length + 2,
                         scrollDirection: Axis.horizontal,
                         itemBuilder: (BuildContext context, int index) {
-                          return index < tagList.length
-                              ? tagList[index] == ""
-                                  ? Container()
+                          return index == 0
+                              ? const Padding(padding: EdgeInsets.all(6))
+                              : index < tagList.length + 1
+                                  ? tagList[index - 1] == ""
+                                      ? Container()
+                                      : SizedBox(
+                                          width: 45,
+                                          height: 45,
+                                          child: IconButton(
+                                            onPressed: () => {},
+                                            icon: dataLoaded[index - 1]
+                                                ? tagIcons[index - 1]
+                                                : const CircularProgressIndicator(),
+                                            padding: EdgeInsets.all(4),
+                                          ))
                                   : IconButton(
-                                      onPressed: () => {},
-                                      icon: dataLoaded[index]
-                                          ? tagIcons[index]
-                                          : const CircularProgressIndicator())
-                              : IconButton(
-                                  onPressed: () => AutoRouter.of(context)
-                                      .push(AddTagRoute(
-                                          updateCallBack:
-                                              widget.updateCallBack))
-                                      .then((value) => loadData()),
-                                  icon: const Icon(
-                                      Icons.add_circle_outline_rounded),
-                                  iconSize: 50,
-                                );
+                                      onPressed: () => AutoRouter.of(context)
+                                          .push(AddTagRoute(
+                                              updateCallBack:
+                                                  widget.updateCallBack))
+                                          .then((value) => loadData()),
+                                      icon: const Icon(
+                                          Icons.add_circle_outline_rounded),
+                                      iconSize: 45,
+                                      padding: EdgeInsets.zero,
+                                    );
                         }),
                   )
                 ]),
               ),
               const Divider(
-                height: 10,
+                height: 1,
                 color: Colors.grey,
                 indent: 15,
                 endIndent: 15,

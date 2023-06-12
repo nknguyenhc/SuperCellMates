@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/rendering.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'dart:io';
 
+import 'package:supercellmates/functions/crop_image.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/features/dialogs.dart';
@@ -19,10 +20,10 @@ class RequestTagPage extends StatefulWidget {
 class RequestTagPageState extends State<RequestTagPage> {
   ImagePicker imagePicker = ImagePicker();
   String tagName = "";
-  XFile? tagIcon;
+  CroppedFile? tagIcon;
   String tagDescription = "";
 
-  void setIcon(XFile icon) {
+  void setIcon(CroppedFile icon) {
     setState(() {
       tagIcon = icon;
     });
@@ -84,12 +85,16 @@ class RequestTagPageState extends State<RequestTagPage> {
                     onPressed: () async {
                       XFile? img = await imagePicker.pickImage(
                           source: ImageSource.gallery);
-                      if (img != null) {
-                        setIcon(img);
+                      if (img == null) return;
+                      CroppedFile? croppedImg = await cropSquaredImage(img);
+                      if (croppedImg != null) {
+                        setIcon(croppedImg);
                       }
                     },
-                    icon: const Icon(Icons.photo_library,
-                    size: 35,)),
+                    icon: const Icon(
+                      Icons.photo_library,
+                      size: 35,
+                    )),
                 const Padding(padding: EdgeInsets.all(10)),
                 tagIcon == null
                     ? Container()
