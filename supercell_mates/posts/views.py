@@ -57,15 +57,9 @@ def create_post(request):
 
         # visibility
         visibility = request.POST.getlist("visibility")
-        friend_visible = False
-        tag_visible = False
-        public_visible = False
-        if "public" in visibility:
-            public_visible = True
-        if "friends" in visibility:
-            friend_visible = True
-        if "tag" in visibility:
-            tag_visible = True
+        friend_visible = "friends" in visibility
+        tag_visible = "tag" in visibility
+        public_visible = "public" in visibility
         if not friend_visible and not tag_visible and not public_visible:
             return HttpResponseBadRequest("visibility malformed")
         
@@ -99,7 +93,9 @@ def create_post(request):
                     return HttpResponseBadRequest("not image")
                 img_obj = PostImage(order=i, image=img, post=post)
                 img_obj.save()
-        
+        post.img_count = len(imgs)
+        post.save()
+
         return HttpResponse("post created")
     
     except AttributeError:
@@ -110,6 +106,199 @@ def create_post(request):
         return HttpResponseBadRequest("tag with provided name not found")
     except TypeError:
         return HttpResponseBadRequest("imgs key submitted is not of type array")
+
+
+@login_required
+@require_http_methods(["POST"])
+def edit_post(request, post_id):
+    """Allow user to edit the post, with the new information given in the body, except images will not be received. 
+    Removing/adding photos to posts are handled in a separate view.
+    Tag will not be changed.
+    All old images will be deleted, frontend needs to keep track of the old images
+    Required fields in the form data of the request:
+        title: the new title of the post
+        content: the new content of the post
+        visibility: the new visibility list of the post
+        imgs: the list of new images attached to this post
+    
+    Args:
+        request (HttpRequest): the request made to this view
+        post_id: the id of the post
+    
+    Returns:
+        HttpResponse: the feedback of the process
+    """
+
+    # try:
+    post = Post.objects.get(id=post_id)
+    if not post in request.user.user_log.posts.all():
+        return HttpResponseBadRequest("post with provided id does not belong to you")
+
+    # basic info: title and content
+    title = request.POST["title"]
+    content = request.POST["content"]
+    if title == '' or content == '':
+        return HttpResponseBadRequest("title or content is empty")
+
+    # visibility
+    visibility = request.POST.getlist("visibility")
+    friend_visible = "friends" in visibility
+    tag_visible = "tag" in visibility
+    public_visible = "public" in visibility
+    if not friend_visible and not tag_visible and not public_visible:
+        return HttpResponseBadRequest("visibility malformed")
+    
+    post.title = title
+    post.content = content
+    post.friend_visible = friend_visible
+    post.tag_visible = tag_visible
+    post.public_visible = public_visible
+    
+    # images
+    for img in post.images.all():
+        img.delete()
+    if "imgs" in request.POST:
+        imgs = request.POST.getlist("imgs")
+        for (i, img_raw) in enumerate(imgs):
+            try:
+                img_bytearray = img_raw.strip("[]").split(", ")
+                img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
+                img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
+                if not verify_image(img):
+                    return HttpResponseBadRequest("not image")
+            except:
+                img = img_raw
+                if not verify_image(img):
+                    return HttpResponseBadRequest("not image")
+            img_obj = PostImage(order=i, image=img, post=post)
+            img_obj.save()
+    else:
+        print("img passed to request.FILES")
+        imgs = request.FILES.getlist("imgs")
+        for (i, img) in enumerate(imgs):
+            if not verify_image(img):
+                return HttpResponseBadRequest("not image")
+            img_obj = PostImage(order=i, image=img, post=post)
+            img_obj.save()
+    post.img_count = len(imgs)
+    post.save()
+
+    return HttpResponse("post updated")
+
+    # except AttributeError:
+    #     return HttpResponseBadRequest("request does not contain form data")
+    # except MultiValueDictKeyError:
+    #     return HttpResponseBadRequest("request body is missing an important key")
+    # except ObjectDoesNotExist:
+    #     return HttpResponseBadRequest("post with provided id not found")
+
+
+@login_required
+@require_http_methods(["POST"])
+def add_photo(request):
+    """Attempt to add one photo associated with a given post.
+    The photo is given in the "img" field, either in request.POST as binary or request.FILES as file.
+    The post is given by the "post_id" field in request.POST .
+    The view checks whether the request user is the owner of the post first before making edits to the post.
+
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        HttpResponse: the URL to the image, or the feedback of the process if failed
+    """
+
+    try:
+        post_id = request.POST["post_id"]
+        post = Post.objects.get(id=post_id)
+        if not post in request.user.user_log.posts.all():
+            return HttpResponseBadRequest("you are not the owner of this post")
+        if "img" in request.POST:
+            img_raw = request.POST["img"]
+            img_bytearray = img_raw.strip("[]").split(", ")
+            img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
+            img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
+            if not verify_image(img):
+                return HttpResponseBadRequest("not image")
+        else:
+            img = request.FILES["img"]
+            if not verify_image(img):
+                return HttpResponseBadRequest("not image")
+        img_obj = PostImage(order=post.img_count, image=img, post=post)
+        img_obj.save()
+        post.img_count += 1
+        post.save()
+        return HttpResponse(reverse("posts:get_post_pic", args=(img_obj.id,)))
+    
+    except AttributeError:
+        return HttpResponseBadRequest("request does not contain form data/image")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request does not contain an important key")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("post with provided id not found")
+
+
+@login_required
+@require_http_methods(["POST"])
+def delete_photo(request):
+    """Attempt to delete a post photo from the database.
+    The request body contains the following fields:
+        post_id: the id of the post
+        pic_id: the id of the pic
+    The view checks whether the request user is the owner of the post before deleting the photo.
+
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        HttpResponse: the feedback of the process
+    """
+    try:
+        post_id = request.POST["post_id"]
+        pic_id = request.POST["pic_id"]
+        post = Post.objects.get(id=post_id)
+        if post not in request.user.user_log.posts.all():
+            return HttpResponseBadRequest("you are not the owner of this post")
+        pic = PostImage.objects.get(id=pic_id)
+        pic.delete()
+        return HttpResponse("picture deleted")
+    
+    except AttributeError:
+        return HttpResponseBadRequest("request does not contain form data")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body does not contain an important key")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("picture with given id/post with given id not found")
+
+
+@login_required
+@require_http_methods(["POST"])
+def delete_post(request):
+    """Attempts to delete the post
+    The body must contain the "post_id" field, which is the id of the post to delete.
+    This view checks whether the request user is the owner of the post first before deleting.
+
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        HttpResponse: the feedback of the process
+    """
+    try:
+        post_id = request.POST["post_id"]
+        post = Post.objects.get(id=post_id)
+        if post not in request.user.user_log.posts.all():
+            return HttpResponseBadRequest("you are not the owner of this post")
+        post.delete()
+        return HttpResponse("post deleted")
+    
+    except AttributeError:
+        return HttpResponseBadRequest("request does not contain form data")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body does not contain an important key")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("post with given id not found")
+
 
 
 def parse_post_object(post):
@@ -126,6 +315,7 @@ def parse_post_object(post):
             tag: the tag of the post, represented by a dictionary with the following fields:
                 name: the name of the tag
                 icon: the link to the icon of the tag
+            public_visible, friend_visible, tag_visible: follow the convention set in the create_post view
             creator: a dictionary representing the creator of the post, with the following fields:
                 name: the name of the creator
                 username: the username of the creator
@@ -155,6 +345,9 @@ def parse_post_object(post):
             "name": post.tag.name,
             "icon": reverse("user_profile:get_tag_icon", args=(post.tag.name,)),
         },
+        "public_visible": post.public_visible,
+        "friend_visible": post.friend_visible,
+        "tag_visible": post.tag_visible,
         "creator": {
             "name": post.creator.user_profile.name,
             "username": post.creator.user_auth.username,
@@ -213,8 +406,8 @@ def get_post(request, post_id):
         JsonResponse: the post data
     """
     try:
-        if has_access(request.user, post):
-            post_object = Post.objects.get(id=post_id)
+        post_object = Post.objects.get(id=post_id)
+        if has_access(request.user, post_object):
             post_dict = parse_post_object(post_object)
             return JsonResponse(post_dict)
         else:
@@ -226,6 +419,17 @@ def get_post(request, post_id):
 
 @login_required
 def get_post_pic(request, pic_id):
+    """Return the picture with the given id.
+    This view checks the user privilege to the post first before returning the image.
+    If the user does not have privilege, or there is no picture with the given id, return not found.
+
+    Args:
+        request (HttpRequest): the request made to this view
+        pic_id (str): the id of the post picture
+    
+    Returns:
+        FileResponse / HttpResponseNotFound: the picture, or response not found
+    """
     try:
         image_obj = PostImage.objects.get(id=pic_id)
         if has_access(request.user, image_obj.post):
@@ -242,6 +446,11 @@ def get_profile_posts(request, username):
     The time limits are given in the GET parameters. The URL therefore must contain the following GET paramters:
         start (str): the string of the start date given in the format YYYY-MM-DD-HH-MM-SS
         end (str): the string of the end date given in the format YYYY-MM-DD-HH-MM-SS
+    
+    The returned json response contains the following fields:
+        posts (list(dict)): the list of posts, each represented by a dictionary
+        hasOlderPosts (bool): whether there are posts older than the requested start time, True if there is, false otherwise
+        myProfile (bool): whether the request user has the username
     """
 
     try:
@@ -263,7 +472,9 @@ def get_profile_posts(request, username):
         ))
         posts.reverse()
         return JsonResponse({
-            "posts": posts
+            "posts": posts,
+            "hasOlderPosts": user_log_obj.posts.filter(time_posted__lt=start_time).exists(),
+            "myProfile": request.user.username == username,
         })
     
     except AttributeError:

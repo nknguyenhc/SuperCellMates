@@ -33,3 +33,18 @@ function postRequestContent(dict) {
 function triggerErrorMessage() {
     alert("An error has occurred, please try again later.");
 }
+
+function formatNumber(num, numOfDigits) {
+    const str = num.toString();
+    return '0'.repeat(numOfDigits - str.length) + str;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const editPages = document.querySelectorAll(".edit-page");
+    editPages.forEach(editPage => editPage.addEventListener("click", event => {
+        const window = editPage.querySelector(".edit-window");
+        if (!window.contains(event.target) && editPage.contains(event.target)) {
+            editPage.style.display = "none";
+        }
+    }));
+})

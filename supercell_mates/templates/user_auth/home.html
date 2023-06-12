@@ -6,12 +6,16 @@
 
 {% block style %} 
     <link rel="stylesheet" href="/static/style/user_auth/home.css">
+    <link rel="stylesheet" href="/static/style/posts/post.css">
+{% endblock %} 
+
+{% block script %} 
+    <script type="text/babel" src="/static/script/posts/create_post.jsx"></script>
 {% endblock %} 
 
 {% block body %} 
     <div id="home-content" class="pt-3 pb-5">
         <h3 id="welcome-message">Welcome, {{ user.user_profile.name }} @{{ user.username }}</h3>
         <div id="create-post"></div>
-        <script type="text/babel" src="/static/script/posts/create_post.jsx"></script>
     </div>
 {% endblock %} 

@@ -1,6 +1,8 @@
 function CreatePost() {
     const [title, setTitle] = React.useState('');
+    const titleInput = React.useRef(null);
     const [content, setContent] = React.useState('');
+    const contentInput = React.useRef(null);
     const [tag, setTag] = React.useState(undefined);
     const [visibility, setVisibility] = React.useState('Visibility');
     const [userTags, setUserTags] = React.useState([]);
@@ -9,10 +11,11 @@ function CreatePost() {
     const [errorMessage, setErrorMessage] = React.useState('');
     const imagesInput = React.useRef(null);
     const [imgs, setImgs] = React.useState([]);
+    const username = document.querySelector("#welcome-message").innerHTML.split("@")[1];
 
     if (!fetched) {
         setFetched(true);
-        fetch('/profile/user_tags/' + document.querySelector("#welcome-message").innerHTML.split("@")[1])
+        fetch('/profile/user_tags/' + username)
             .then(response => response.json())
             .then(response => setUserTags(response.tags));
     }
@@ -67,21 +70,32 @@ function CreatePost() {
                 } else {
                     postCreateButton.current.click();
                     setErrorMessage('');
+                    clearInput();
                 }
             });
+    }
+
+    function clearInput() {
+        titleInput.current.value = '';
+        contentInput.current.value = '';
+        setVisibility('Visibility');
+        for (let i = 0; i < userTags.length; i++) {
+            document.getElementById("post-tag-" + userTags[i].name).checked = false;
+        }
+        setImgs([]);
     }
 
     return (
         <React.Fragment>
             <div className="mb-3">
                 <label htmlFor="post-title" className="form-label">Title</label>
-                <input type="text" id="post-title" className="form-control" onChange={event => {
+                <input type="text" id="post-title" className="form-control" ref={titleInput} onChange={event => {
                     setTitle(event.target.value);
                 }} />
             </div>
             <div className="mb-3">
                 <label htmlFor="post-content" className="form-label">Content</label>
-                <textarea id="post-content" rows="8" className="form-control" onChange={event => {
+                <textarea id="post-content" rows="8" className="form-control" ref={contentInput} onChange={event => {
                     setContent(event.target.value);
                 }}></textarea>
             </div>
@@ -103,7 +117,9 @@ function CreatePost() {
             </div>
             <div className="mt-3" id="post-choose-tag">
                 {
-                    userTags.map(tag => (
+                    userTags.length === 0
+                    ? 'Your profile needs at least one tag to post!'
+                    : userTags.map(tag => (
                         <React.Fragment>
                             <input type="radio" class="btn-check" name="options" id={"post-tag-" + tag.name} autocomplete="off" />
                             <label class="tag-button btn btn-outline-info" for={"post-tag-" + tag.name} onClick={() => {
@@ -132,6 +148,13 @@ function CreatePost() {
                             </div>
                         </div>
                     )))
+                }
+            </div>
+            <div className="mt-3" id="post-delete-all">
+                {
+                    imgs.length === 0
+                    ? ''
+                    : <div id="post-delete-all-button" className="btn btn-secondary" onClick={() => setImgs([])}>Clear All Photos</div>
                 }
             </div>
             <div className="mt-3" id="post-submit-button">

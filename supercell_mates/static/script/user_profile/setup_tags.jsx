@@ -28,7 +28,9 @@ function SetupTags() {
                 if (response.status !== 200) {
                     triggerErrorMessage();
                 } else {
-                    pop_setup_page(1);
+                    popSetupMessage("Tags updated successfully!");
+                    setTags([...tags].concat(toBeSubmitted));
+                    setToBeSubmitted([]);
                 }
             });
     }
@@ -38,7 +40,7 @@ function SetupTags() {
         fetch("/profile/search_tags?tag=" + searchParam)
             .then(response => response.json())
             .then(response => {
-                setSearchResults(response.tags)
+                setSearchResults(response.tags.filter(tag => toBeSubmitted.find(addedTag => addedTag.name === tag.name) === undefined));
             })
     }
 

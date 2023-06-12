@@ -4,14 +4,32 @@
     <title>Setup Profile</title>
 {% endblock %} 
 
-{% block script %} 
+{% block style %} 
     <link rel="stylesheet" href="/static/style/user_profile/setup.css">
 {% endblock %}
 
-{% block body %} 
-    <div id="setup_tags"></div>
+{% block script %} 
     <script type="text/babel" src="/static/script/user_profile/setup_tags.jsx"></script>
-    <div id="setup_image" style="display: none"></div>
     <script type="text/babel" src="/static/script/user_profile/setup_image.jsx"></script>
     <script src="/static/script/user_profile/setup.js"></script>
+{% endblock %} 
+
+{% block body %} 
+    <div id="setup_image"></div>
+    <div id="setup_tags"></div>
+    <button id="setup-button" style="display: none" type="button" data-bs-toggle="modal" data-bs-target="#setup-message"></button>
+    <div class="modal fade" id="setup-message" tabindex="-1" aria-labelledby="setup-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="setup-label">Message</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div id="setup-message-body" class="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %} 

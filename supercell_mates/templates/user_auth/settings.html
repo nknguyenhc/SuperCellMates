@@ -1,0 +1,45 @@
+{% extends 'layout.html' %} 
+
+{% block title %} 
+    <title>Settings</title>
+{% endblock %} 
+
+{% block style %} 
+    <link rel="stylesheet" href="/static/style/user_auth/settings.css">
+{% endblock %} 
+
+{% block script %} 
+    <script src="/static/script/user_auth/settings.js"></script>
+    <script type="text/babel" src="/static/script/user_auth/change_authentication.jsx"></script>
+{% endblock %} 
+
+{% block body %} 
+    <div id="settings-page" class="mt-3">
+        <div class="settings-section">
+            <div class="settings-label">Authentication</div>
+            <div id="settings-change-username">
+                <button id="change-username-button" class="btn btn-success">Change Username</button>
+                <div id="change-username-page" class="edit-page" style="display: none"></div>
+            </div>
+            <div id="settings-change-password">
+                <button id="change-password-button" class="btn btn-success">Change Password</button>
+                <div id="change-password-page" class="edit-page" style="display: none"></div>
+            </div>
+        </div>
+    </div>
+    <button id="change-authentication-button" style="display: none" type="button" data-bs-toggle="modal" data-bs-target="#change-authentication-message"></button>
+    <div class="modal fade" id="change-authentication-message" tabindex="-1" aria-labelledby="change-authentication-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="change-authentication-label">Message</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div id="change-authentication-message-body" class="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %} 

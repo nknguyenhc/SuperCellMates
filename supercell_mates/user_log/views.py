@@ -108,12 +108,12 @@ def add_friend_request(request):
     try:
         username = request.POST["username"]
         user_log_obj = UserAuth.objects.get(username=username).user_log
-        if user_log_obj not in request.user.user_log.friend_list.all():
+        if user_log_obj not in request.user.user_log.friend_list.all() and not FriendRequest.objects.filter(from_user=request.user.user_log, to_user=user_log_obj).exists():
             friend_request = FriendRequest(from_user=request.user.user_log, to_user=user_log_obj)
             friend_request.save()
             return HttpResponse("ok")
         else:
-            return HttpResponse("already in friend list")
+            return HttpResponse("already in friend list / friend request already sent")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("no username submitted")
     except ObjectDoesNotExist:

@@ -33,7 +33,7 @@ function Post(props) {
     }
 
     return (
-        <div className="post-card">
+        <React.Fragment>
             <div className="post-creator-info mb-2">
                 <div className="post-creator-profile-pic">
                     <img src={post.creator.profile_pic_url} />
@@ -42,6 +42,15 @@ function Post(props) {
                     <div className="post-creator-name">{post.creator.name}</div>
                     <a className="post-creator-username" href={post.creator.profile_link}>@{post.creator.username}</a>
                 </div>
+                {
+                    props.myProfile
+                    ? <div>
+                        <button className="btn btn-secondary btn-sm" onClick={() => {
+                            popEditView(post.id);
+                        }}>Edit</button>
+                    </div>
+                    : ''
+                }
             </div>
             <h4 className='mb-2'>{post.title}</h4>
             <div className="post-tag mb-2">
@@ -58,34 +67,75 @@ function Post(props) {
                     : <PostImages />
                 }
             </div>
-        </div>
-    );
-}
-
-function Posts() {
-    const [fetched, setFetched] = React.useState(false);
-    const [posts, setPosts] = React.useState([]);
-    const [username, setUsername] = React.useState('');
-
-    if (!fetched) {
-        setUsername(document.querySelector("#profile-id").innerHTML.slice(1));
-        if (username !== '') {
-            setFetched(true);
-            fetch(`/post/posts/${username}?start=2023-06-05-00-00-00&end=2023-06-09-23-59-00`)
-                .then(response => response.json())
-                .then(response => {
-                    console.log(response.posts);
-                    setPosts(response.posts);
-                })
-                .catch(() => triggerErrorMessage());
-        }
-    }
-
-    return (
-        <React.Fragment>
-            {posts.map(post => <Post post={post} />)}
         </React.Fragment>
     );
 }
 
-ReactDOM.render(<Posts />, document.querySelector("#profile-posts"));
+(() => {
+    const username = document.querySelector("#profile-id").innerHTML.slice(1);
+    let allPostsLoaded = true;
+    const oneDayTime = 1000 * 24 * 60 * 60;
+    const now = new Date();
+    const yest = new Date(new Date().getTime() - oneDayTime);
+    let currDate = yest;
+
+    fetch(`/post/posts/${username}?start=${formatTime(yest)}&end=${formatTime(now)}`)
+        .then(response => response.json())
+        .then(response => {
+            response.posts.forEach(post => {
+                addNewPostCard(post, response.myProfile);
+            });
+            allPostsLoaded = !response.hasOlderPosts;
+            document.addEventListener("scroll", () => {
+                if (!allPostsLoaded && document.body.offsetHeight - window.innerHeight - window.scrollY < 100) {
+                    allPostsLoaded = true;
+                    loadMorePosts();
+                }
+            });
+        })
+        .catch(() => triggerErrorMessage());
+    
+    function loadMorePosts() {
+        const prevDate = new Date(currDate - oneDayTime);
+        fetch(`/post/posts/${username}?start=${formatTime(prevDate)}&end=${formatTime(currDate)}`)
+            .then(response => response.json())
+            .then(response => {
+                currDate = prevDate;
+                response.posts.forEach(post => {
+                    addNewPostCard(post, response.myProfile);
+                });
+                allPostsLoaded = !response.hasOlderPosts;
+            })
+            .catch(() => triggerErrorMessage());
+    }
+
+    function formatTime(date) {
+        return `${formatNumber(date.getFullYear(), 4)}-${formatNumber(date.getMonth() + 1, 2)}-${formatNumber(date.getDate(), 2)}-${formatNumber(date.getHours(), 2)}-${formatNumber(date.getMinutes(), 2)}-${formatNumber(date.getSeconds(), 2)}`
+    }
+
+    function addNewPostCard(post, myProfile) {
+        const newPostCard = document.createElement("div");
+        newPostCard.className = "post-card";
+        newPostCard.id = "post-card-" + post.id;
+        ReactDOM.render(<Post post={post} myProfile={myProfile} />, newPostCard);
+        document.querySelector('#profile-posts').appendChild(newPostCard);
+    }
+})();
+
+
+function editPostCard(postId) {
+    const oldCard = document.getElementById("post-card-" + postId);
+    fetch('/post/post/' + postId)
+        .then(response => response.json())
+        .then(post => {
+            ReactDOM.render(<Post post={post} myProfile={true} />, oldCard);
+        })
+        .catch(() => triggerErrorMessage());
+}
+
+
+function deletePostCard(postId) {
+    document.getElementById("post-card-" + postId).remove();
+    Array.from(editPage.children).forEach(child => editPage.removeChild(child));
+    editPage.style.display = "none";
+}
