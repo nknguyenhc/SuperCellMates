@@ -11,6 +11,7 @@ from django.views.decorators.http import require_http_methods
 import io
 from django.core.files.images import ImageFile
 import magic
+from PIL import Image
 
 from user_profile.views import verify_image
 
@@ -384,8 +385,11 @@ def add_tag_request(request):
             img_bytearray = request.POST["img"].strip("[]").split(", ")
             img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
             img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
-            # if not verify_image(img):
-            #     return HttpResponseBadRequest("not image")
+            try:
+                pil_img = Image.open(img)
+                pil_img.verify()
+            except (IOError, SyntaxError):
+                return HttpResponseBadRequest("not image")
             tag_request = TagRequest(name=tag_name, image=img, description=description)
         elif "img" in request.FILES:
             img = request.FILES["img"]

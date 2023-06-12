@@ -54,7 +54,6 @@ class TagListViewState extends State<TagListView> {
     //   listToAddString += "'${names[i]}', ";
     // }
     listToAddString += "${names[names.length - 1]}";
-    print(listToAddString);
     var body = {
       "tags": listToAddString,
       "count": names.length,

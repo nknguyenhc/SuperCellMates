@@ -12,6 +12,7 @@ from django.core.files.images import ImageFile
 from django.views.decorators.http import require_http_methods
 import magic
 from django.conf import settings
+from PIL import Image
 
 from user_auth.models import Tag, UserAuth
 
@@ -262,6 +263,7 @@ def verify_image(img):
     2. Extension check: extension must be jpg/jpeg/png
     3. Content type: image must be of the correct content type
     4. Mime type: image must be of the correct mime type
+    5. PIL "verify" method: image must not be detected as broken by PIL
 
     Args:
         img: image file to be checked
@@ -277,7 +279,12 @@ def verify_image(img):
     if img.content_type not in settings.WHITELISTED_IMAGE_TYPES.values():
         return False
     mime_type = magic.from_buffer(img.read(1024), mime=True)
-    if mime_type not in settings.WHITELISTED_IMAGE_TYPES.values() and mime_type != content_type:
+    if mime_type not in settings.WHITELISTED_IMAGE_TYPES.values() and mime_type != img.content_type:
+        return False
+    try:
+        pil_img = Image.open(img)
+        pil_img.verify()
+    except (IOError, SyntaxError):
         return False
     return True
 
@@ -303,9 +310,13 @@ def set_profile_image(request):
             img_bytearray = request.POST["img"].strip("[]").split(", ")
             img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
             img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
+            try:
+                pil_img = Image.open(img)
+                pil_img.verify()
+            except (IOError, SyntaxError):
+                return HttpResponseBadRequest("not image")
             user_profile_obj.profile_pic = img
             user_profile_obj.save()
-            # TODO: figure out how to check if it's image file based on the data
             return HttpResponse("success")
         elif "img" in request.FILES:
             img = request.FILES["img"]
