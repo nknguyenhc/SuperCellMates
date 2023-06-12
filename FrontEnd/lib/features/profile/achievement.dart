@@ -3,11 +3,11 @@ import 'package:auto_route/auto_route.dart';
 
 @RoutePage()
 class AchievementPage extends StatefulWidget {
-  AchievementPage({Key? key, required this.name, required this.myProfile})
+  const AchievementPage({Key? key, required this.name, required this.myProfile})
       : super(key: key);
 
-  String name;
-  bool myProfile;
+  final String name;
+  final bool myProfile;
 
   @override
   State<AchievementPage> createState() => AchievementPageState();

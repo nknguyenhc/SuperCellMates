@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 Future<CroppedFile?> cropSquaredImage(XFile imageFile) async {
   return ImageCropper().cropImage(
     sourcePath: imageFile.path,
-    aspectRatio: CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
+    aspectRatio: const CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
     uiSettings: [
       AndroidUiSettings(
           toolbarTitle: 'Crop a squared image',

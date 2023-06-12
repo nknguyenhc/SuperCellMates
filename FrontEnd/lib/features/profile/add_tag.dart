@@ -130,8 +130,8 @@ class AddTagPageState extends State<AddTagPage> {
               Container(
                 height: 30,
                 alignment: Alignment.bottomCenter,
-                child: Text("Tag count limit: ${tagCount}/${tagLimit}",
-                style: TextStyle(fontSize: 15),),
+                child: Text("Tag count limit: $tagCount/$tagLimit",
+                style: const TextStyle(fontSize: 15),),
               ),
               Container(
                 height: 30,
@@ -140,8 +140,8 @@ class AddTagPageState extends State<AddTagPage> {
                   onPressed: () => showCustomDialog(
                       context,
                       "Tag count limit",
-                      "By limiting the number of tags, we hope you can join communities" +
-                          " that you are most passionate about.\n\nBut fret not, you can unlock" + 
+                      "By limiting the number of tags, we hope you can join communities"
+                          " which you are most passionate about.\n\nBut fret not, you can unlock"
                           " a higher limit by completing achievements!"),
                   icon: const Icon(
                     Icons.info,

@@ -83,7 +83,7 @@ class ProfilePageState extends State<ProfilePage> {
                                             icon: dataLoaded[index - 1]
                                                 ? tagIcons[index - 1]
                                                 : const CircularProgressIndicator(),
-                                            padding: EdgeInsets.all(4),
+                                            padding: const EdgeInsets.all(4),
                                           ))
                                   : IconButton(
                                       onPressed: () => AutoRouter.of(context)

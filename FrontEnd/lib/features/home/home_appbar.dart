@@ -57,7 +57,7 @@ class HomeAppBarState extends State<HomeAppBar> {
         icon: const Icon(Icons.settings),
         iconSize: 25,
       ),
-      title: Text("Match Miner"),
+      title: const Text("Match Miner"),
       actions: [
         isAdmin
             ? IconButton(

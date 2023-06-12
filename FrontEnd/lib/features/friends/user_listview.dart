@@ -204,7 +204,7 @@ class FriendRequestListState extends State<FriendRequestListView> {
                   TextButton(
                       onPressed: () {
                         showConfirmationDialog(context,
-                            "Are you sure to accept ${name}'s friend request?",
+                            "Are you sure to accept $name's friend request?",
                             () async {
                           dynamic body = {
                             "username": username,
@@ -235,7 +235,7 @@ class FriendRequestListState extends State<FriendRequestListView> {
                   TextButton(
                       onPressed: () {
                         showConfirmationDialog(context,
-                            "Are you sure to reject ${name}'s friend request?",
+                            "Are you sure to reject $name's friend request?",
                             () async {
                           dynamic body = {
                             "username": username,

@@ -121,7 +121,7 @@ class FriendsPageState extends State<FriendsPage> {
             shadowColor: Colors.grey,
           ),
           !dataLoaded
-              ? CircularProgressIndicator()
+              ? const CircularProgressIndicator()
               : SizedBox(
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height - 140,

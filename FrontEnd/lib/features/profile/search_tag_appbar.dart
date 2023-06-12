@@ -14,9 +14,9 @@ class SearchTagAppBar extends AppBar {
       required this.onAddCallBack})
       : super(key: key);
 
-  bool tagLimitReached;
-  dynamic updateCallBack;
-  dynamic onAddCallBack;
+  final bool tagLimitReached;
+  final dynamic updateCallBack;
+  final dynamic onAddCallBack;
 
   @override
   State<SearchTagAppBar> createState() => SearchTagAppBarState();
@@ -42,14 +42,14 @@ class SearchTagAppBarState extends State<SearchTagAppBar> {
         }
         if (_searchTimer == null || !_searchTimer!.isActive) {
           _searchTimer = Timer(const Duration(milliseconds: 1000), () async {
-            widget.updateCallBack(
-                await searchTag(context, widget.tagLimitReached, input, widget.onAddCallBack));
+            widget.updateCallBack(await searchTag(
+                context, widget.tagLimitReached, input, widget.onAddCallBack));
           });
         } else {
           _searchTimer!.cancel();
           _searchTimer = Timer(const Duration(milliseconds: 1000), () async {
-            widget.updateCallBack(
-                await searchTag(context, widget.tagLimitReached, input, widget.onAddCallBack));
+            widget.updateCallBack(await searchTag(
+                context, widget.tagLimitReached, input, widget.onAddCallBack));
           });
         }
       },
