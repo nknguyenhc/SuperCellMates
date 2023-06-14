@@ -106,7 +106,7 @@ function EditPost(props) {
                 if (response.status !== 200) {
                     triggerErrorMessage();
                 } else {
-                    editPage.style.display = 'none';
+                    document.querySelector("#edit-post").style.display = 'none';
                     setErrorMessage('');
                     document.querySelector("#post-edit-button").click();
                     editPostCard(postId);

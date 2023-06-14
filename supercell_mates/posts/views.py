@@ -173,7 +173,6 @@ def edit_post(request, post_id):
             img_obj = PostImage(order=i, image=img, post=post)
             img_obj.save()
     else:
-        print("img passed to request.FILES")
         imgs = request.FILES.getlist("imgs")
         for (i, img) in enumerate(imgs):
             if not verify_image(img):
