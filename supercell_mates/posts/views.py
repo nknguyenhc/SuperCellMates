@@ -6,6 +6,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, Http
 from django.views.decorators.http import require_http_methods
 from django.core.exceptions import ObjectDoesNotExist
 import datetime
+from PIL import Image
 from pytz import timezone
 
 from user_profile.views import verify_image
@@ -82,7 +83,10 @@ def create_post(request):
                 img_bytearray = img_raw.strip("[]").split(", ")
                 img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
                 img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
-                if not verify_image(img):
+                try:
+                    pil_img = Image.open(img)
+                    pil_img.verify()
+                except (IOError, SyntaxError):
                     return HttpResponseBadRequest("not image")
                 img_obj = PostImage(order=i, image=img, post=post)
                 img_obj.save()

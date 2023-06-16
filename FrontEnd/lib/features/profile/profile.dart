@@ -1,5 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:supercellmates/features/dialogs.dart';
 import 'dart:convert';
 
 import 'package:supercellmates/http_requests/make_requests.dart';
@@ -19,6 +21,7 @@ class ProfilePage extends StatefulWidget {
 class ProfilePageState extends State<ProfilePage> {
   dynamic data;
   int tagListCount = 0;
+  int selectedTagIndex = -1;
   var dataLoaded = [];
   var tagIcons = [];
 
@@ -43,6 +46,12 @@ class ProfilePageState extends State<ProfilePage> {
     tagIcons[index] = await getImage(data["tags"][index]["icon"]);
     setState(() {
       dataLoaded[index] = true;
+    });
+  }
+
+  void chooseTag(index) {
+    setState(() {
+      selectedTagIndex = index;
     });
   }
 
@@ -78,12 +87,29 @@ class ProfilePageState extends State<ProfilePage> {
                                       : SizedBox(
                                           width: 45,
                                           height: 45,
-                                          child: IconButton(
-                                            onPressed: () => {},
-                                            icon: dataLoaded[index - 1]
-                                                ? tagIcons[index - 1]
-                                                : const CircularProgressIndicator(),
-                                            padding: const EdgeInsets.all(4),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              IconButton(
+                                                onPressed: () =>
+                                                    {chooseTag(index)},
+                                                icon: dataLoaded[index - 1]
+                                                    ? tagIcons[index - 1]
+                                                    : const CircularProgressIndicator(),
+                                                padding:
+                                                    const EdgeInsets.all(4),
+                                              ),
+                                              selectedTagIndex == index
+                                                  ? const Divider(
+                                                      height: 3,
+                                                      thickness: 2.5,
+                                                      indent: 4,
+                                                      endIndent: 4,
+                                                      color: Colors.blue,
+                                                    )
+                                                  : Container()
+                                            ],
                                           ))
                                   : IconButton(
                                       onPressed: () => AutoRouter.of(context)
@@ -112,7 +138,12 @@ class ProfilePageState extends State<ProfilePage> {
                   IconButton(
                     icon: const Icon(Icons.note_add, size: 50),
                     onPressed: () {
-                      AutoRouter.of(context).push(const CreatePostRoute());
+                      if (selectedTagIndex == -1) {
+                        showCustomDialog(context, "Hold on",
+                            "Please select a tag you want to post under!");
+                        return;
+                      }
+                      AutoRouter.of(context).push(CreatePostRoute(tagName: data["tags"][selectedTagIndex - 1]["name"]));
                     },
                   )
                 ],

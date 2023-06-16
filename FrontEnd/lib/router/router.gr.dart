@@ -58,9 +58,13 @@ abstract class $AppRouter extends _i12.RootStackRouter {
       );
     },
     CreatePostRoute.name: (routeData) {
+      final args = routeData.argsAs<CreatePostRouteArgs>();
       return _i12.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i6.CreatePostPage(),
+        child: _i6.CreatePostPage(
+          key: args.key,
+          tagName: args.tagName,
+        ),
       );
     },
     AchievementRoute.name: (routeData) {
@@ -185,16 +189,40 @@ class MainScaffold extends _i12.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i6.CreatePostPage]
-class CreatePostRoute extends _i12.PageRouteInfo<void> {
-  const CreatePostRoute({List<_i12.PageRouteInfo>? children})
-      : super(
+class CreatePostRoute extends _i12.PageRouteInfo<CreatePostRouteArgs> {
+  CreatePostRoute({
+    _i13.Key? key,
+    required String tagName,
+    List<_i12.PageRouteInfo>? children,
+  }) : super(
           CreatePostRoute.name,
+          args: CreatePostRouteArgs(
+            key: key,
+            tagName: tagName,
+          ),
           initialChildren: children,
         );
 
   static const String name = 'CreatePostRoute';
 
-  static const _i12.PageInfo<void> page = _i12.PageInfo<void>(name);
+  static const _i12.PageInfo<CreatePostRouteArgs> page =
+      _i12.PageInfo<CreatePostRouteArgs>(name);
+}
+
+class CreatePostRouteArgs {
+  const CreatePostRouteArgs({
+    this.key,
+    required this.tagName,
+  });
+
+  final _i13.Key? key;
+
+  final String tagName;
+
+  @override
+  String toString() {
+    return 'CreatePostRouteArgs{key: $key, tagName: $tagName}';
+  }
 }
 
 /// generated route for
