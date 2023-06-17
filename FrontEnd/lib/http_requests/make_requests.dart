@@ -3,7 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:supercellmates/config/config.dart';
 
 /// For sending POST request, returns the JSON response from backend
-Future<dynamic> postWithCSRF(String postEndPoint, Map postBody) async {
+Future<dynamic> postWithCSRF(String postEndPoint, dynamic postBody) async {
   String getURL = _composeURL("/async");
   String postURL = _composeURL(postEndPoint);
 

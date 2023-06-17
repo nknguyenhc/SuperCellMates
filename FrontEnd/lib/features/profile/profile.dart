@@ -51,7 +51,7 @@ class ProfilePageState extends State<ProfilePage> {
 
   void chooseTag(index) {
     setState(() {
-      selectedTagIndex = index;
+      selectedTagIndex = selectedTagIndex == index ? -1 : index;
     });
   }
 
@@ -143,7 +143,8 @@ class ProfilePageState extends State<ProfilePage> {
                             "Please select a tag you want to post under!");
                         return;
                       }
-                      AutoRouter.of(context).push(CreatePostRoute(tagName: data["tags"][selectedTagIndex - 1]["name"]));
+                      AutoRouter.of(context).push(CreatePostRoute(
+                          tagName: data["tags"][selectedTagIndex - 1]["name"]));
                     },
                   )
                 ],

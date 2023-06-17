@@ -19,6 +19,8 @@ enum EndPoints {
   viewProfile,
   addFriend,
   deleteFriend,
+
+  createPost
 }
 
 extension ExtendedEndPoints on EndPoints {
@@ -41,6 +43,7 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.viewProfile: "/user/profile_async",
     EndPoints.addFriend: "/user/add_friend",
     EndPoints.deleteFriend: "/user/delete_friend",
+    EndPoints.createPost: "/post/create_post",
   };
 
   String get endpoint => endpoints[this]!;
