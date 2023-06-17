@@ -253,9 +253,5 @@ def get_image(request, message_id):
 
         file_field = message.file_field
         return FileResponse(file_field)
-        # if verify_image(file_field):
-        #     return FileResponse(file_field)
-        # else:
-        #     return HttpResponse("file is not image")
     except ObjectDoesNotExist:
         return HttpResponseNotFound("message not found")

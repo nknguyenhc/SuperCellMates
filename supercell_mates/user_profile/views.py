@@ -216,7 +216,7 @@ def find_tags(search_param, user_profile_obj):
     user_tags = set(user_profile_obj.tagList.all())
     search_param = search_param.lower()
 
-    return list(map(
+    result = list(map(
         lambda tag: ({
             "name": tag.name,
             "icon": reverse('user_profile:get_tag_icon', args=(tag.name,)),
@@ -226,6 +226,8 @@ def find_tags(search_param, user_profile_obj):
             list(Tag.objects.all())
         )
     ))
+    result.sort(key=lambda tag: tag["name"].lower())
+    return result
 
 
 @login_required
