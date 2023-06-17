@@ -8,6 +8,15 @@ function ChatPage() {
     const [username, setUsername] = React.useState('');
     const [chatSelected, setChatSelected] = React.useState(false);
     const messageLog = React.useRef(null);
+    const [moreMenuDisplay, setMoreMenuDisplay] = React.useState(false);
+    const menuMouseOutTimer = React.useRef(null);
+    const fileUpload = React.useRef(null);
+    const [filePreview, setFilePreview] = React.useState('');
+    const [showFilePreview, setShowFilePreview] = React.useState(false);
+    const [fileToBeSubmitted, setFileToBeSubmitted] = React.useState(null);
+    const filePreviewWindow = React.useRef(null);
+    const [currChatId, setCurrChatId] = React.useState('');
+    const imageExtensions = ['png', 'jpg', 'jpeg']
 
     React.useEffect(() => {
         fetch('/messages/get_private_chats')
@@ -29,7 +38,7 @@ function ChatPage() {
 
     React.useEffect(() => {
         setUsername(document.querySelector('input#username-hidden').value);
-    })
+    }, []);
 
     function openChat(chatid) {
         setChatSelected(true);
@@ -37,6 +46,7 @@ function ChatPage() {
         fetch('/messages/get_private_messages/' + chatid)
             .then(response => response.json())
             .then(response => {
+                console.log(response);
                 const currTexts = response.messages;
                 setTexts(response.messages);
                 setTimeout(() => {
@@ -57,14 +67,9 @@ function ChatPage() {
                 
                 chatSocket.onmessage = function(e) {
                     const data = JSON.parse(e.data);
-                    currTexts.push(data)
+                    currTexts.push(data);
                     setTexts([...currTexts]);
                     testAndScrollToBottom();
-                };
-                
-                chatSocket.onclose = function(e) {
-                    console.error('Chat socket closed unexpectedly');
-                    // triggerErrorMessage();
                 };
 
                 setCurrSocket(chatSocket);
@@ -81,10 +86,76 @@ function ChatPage() {
 
     function sendMessage() {
         currSocket.send(JSON.stringify({
+            type: "text",
             message: inputText
-        }))
+        }));
         setInputText('');
         testAndScrollToBottom();
+    }
+
+    function hoverMenu() {
+        setMoreMenuDisplay(true);
+        if (menuMouseOutTimer.current !== null) {
+            clearInterval(menuMouseOutTimer.current);
+        }
+    }
+
+    function blurMenu() {
+        menuMouseOutTimer.current = setTimeout(() => {
+            setMoreMenuDisplay(false);
+        }, 500);
+    }
+
+    function uploadFile() {
+        const file = fileUpload.current.files[0];
+        let fileImgPreview;
+        if (imageExtensions.includes(file.name.split('.').at(-1)) && imageExtensions.includes(file.type.split('/').at(-1))) {
+            fileImgPreview = <img src={URL.createObjectURL(file)} />;
+        } else {
+            fileImgPreview = <React.Fragment>
+                <div>No preview available</div>
+                <div>{file.name}</div>
+            </React.Fragment>
+        }
+        setShowFilePreview(true);
+        setFileToBeSubmitted(file);
+        setFilePreview((
+            <div className="file-preview-window" ref={filePreviewWindow}>
+                <div className="img-preview">
+                    {fileImgPreview}
+                </div>
+                <div className="file-upload-buttons">
+                    <button className="btn btn-danger" onClick={() => setShowFilePreview(false)}>Cancel</button>
+                    <button className="btn btn-success" onClick={() => submitFile(file)}>Send</button>
+                </div>
+            </div>
+        ))
+    }
+
+    function submitFile(file) {
+        fetch('/messages/upload_file', postRequestContent({
+            chat_id: currChatId,
+            file: file,
+            file_name: file.name
+        }))
+            .then(async response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                    return;
+                }
+                const messageId = await response.text();
+                currSocket.send(JSON.stringify({
+                    type: "file",
+                    message_id: messageId,
+                }));
+                setShowFilePreview(false);
+            })
+    }
+
+    function clickExitPreview(event) {
+        if (!filePreviewWindow.current.contains(event.target)) {
+            setShowFilePreview(false);
+        }
     }
 
     return (
@@ -100,6 +171,7 @@ function ChatPage() {
                             privateChats.map((privateChat, i) => (
                                 <div className="chat-listing" onClick={() => {
                                     openChat(privateChat.id);
+                                    setCurrChatId(privateChat.id);
                                     setHighlighting(i);
                                 }} style={{
                                     backgroundColor: highlighting === i ? "#CDCBCB" : '',
@@ -126,7 +198,15 @@ function ChatPage() {
                                     <div className="text-line-user-img">
                                         <img src={text.user.profile_img_url} />
                                     </div>
-                                    <div className="text-line-content p-1 border border-primary">{text.message}</div>
+                                    <div className="text-line-content p-1 border border-primary">{
+                                        text.type === "text" 
+                                        ? text.message 
+                                        : text.is_image 
+                                        ? <img className="text-line-img" src={"/messages/image/" + text.id} />
+                                        : <a href={"/messages/image/" + text.id} target='_blank'>
+                                            {text.file_name}
+                                        </a>
+                                    }</div>
                                 </div>
                             ))
                         }
@@ -135,7 +215,21 @@ function ChatPage() {
                 {
                     chatSelected
                     ? <div id="chat-input" className="p-2">
-                        <input type="text" className="form-control" value={inputText} onChange={event => setInputText(event.target.value)}
+                        <div id="chat-more-input" onMouseEnter={() => hoverMenu()} onMouseLeave={() => blurMenu()}>
+                            <div id="chat-more-menu" style={{
+                                display: moreMenuDisplay ? "" : "none"
+                            }}>
+                                <div className="chat-more-option">
+                                    <label htmlFor="chat-file-upload" onClick={() => fileUpload.current.click()}>
+                                        <img src="/static/media/docs-icon.png" />
+                                    </label>
+                                    <input type="file" ref={fileUpload} onChange={uploadFile} />
+                                </div>
+                                <div className="chat-more-option"></div>
+                            </div>
+                            <img src="/static/media/plus-icon.png" />
+                        </div>
+                        <input id="chat-text-input" type="text" className="form-control" value={inputText} onChange={event => setInputText(event.target.value)}
                         onKeyUp={event => {
                             if (event.key === "Enter") {
                                 sendMessage();
@@ -145,6 +239,9 @@ function ChatPage() {
                     </div>
                     : ''
                 }
+                <div className="file-preview" style={{
+                    display: showFilePreview ? '' : 'none',
+                }} onClick={clickExitPreview}>{filePreview}</div>
             </div>
         </div>
     )

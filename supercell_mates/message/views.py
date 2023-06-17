@@ -1,9 +1,13 @@
 from django.shortcuts import render
 from django.urls import reverse
-from django.http import JsonResponse, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest, FileResponse, HttpResponseNotFound
 from django.contrib.auth.decorators import login_required
+from django.utils.datastructures import MultiValueDictKeyError
+from django.core.exceptions import ObjectDoesNotExist
+from django.views.decorators.http import require_http_methods
+from user_profile.views import verify_image
 
-from .models import TextMessage, PrivateChat
+from .models import TextMessage, PrivateChat, FileMessage, PrivateFileMessage
 
 
 @login_required
@@ -139,11 +143,36 @@ def message_info(message_obj):
             "profile_link": reverse("user_log:view_profile", args=(message_obj.user.username,)),
             "profile_img_url": reverse("user_profile:get_profile_pic", args=(message_obj.user.username,)),
         },
-        "type": "text" if isinstance(message_obj, TextMessage) else "unknown"
+        "type": "text" if isinstance(message_obj, TextMessage) else "file" if isinstance(message_obj, FileMessage) else "unknown"
     }
     if result["type"] == "text":
         result["message"] = message_obj.text
+    elif result["type"] == "file":
+        result.update({
+            "file_name": message_obj.file_name,
+            "is_image": message_obj.is_image
+        })
     return result
+
+
+def merge_messages(all_text_messages, all_file_messages):
+    all_messages = []
+    text_i = 0
+    file_i = 0
+    while text_i < len(all_text_messages) or file_i < len(all_file_messages):
+        if text_i == len(all_text_messages):
+            all_messages.append(all_file_messages[file_i])
+            file_i += 1
+        elif file_i == len(all_file_messages):
+            all_messages.append(all_text_messages[text_i])
+            text_i += 1
+        elif all_text_messages[text_i].timestamp < all_file_messages[file_i].timestamp:
+            all_messages.append(all_text_messages[text_i])
+            text_i += 1
+        else:
+            all_messages.append(all_file_messages[file_i])
+            file_i += 1
+    return all_messages
 
 
 @login_required
@@ -165,8 +194,12 @@ def get_private_messages(request, chat_id):
     except ObjectDoesNotExist:
         return HttpResponseBadRequest("chat does not exist")
     
-    all_messages = list(chat_obj.text_messages.all())
-    # sort messages by time
+    if not chat_obj.users.filter(username=request.user.username).exists():
+        return HttpResponseBadRequest("you do not have access to this chat")
+    
+    all_text_messages = list(chat_obj.text_messages.all())
+    all_file_messages = list(chat_obj.file_messages.all())
+    all_messages = merge_messages(all_text_messages, all_file_messages)
 
     return JsonResponse({
         "messages": list(map(
@@ -174,3 +207,55 @@ def get_private_messages(request, chat_id):
             all_messages
         ))
     })
+
+
+@login_required
+@require_http_methods(["POST"])
+def upload_file(request):
+    """Upload a file through a message.
+    The view checks for access privileges before processing file uploading
+    The request body must contain the following fields:
+        file: the file to be uploaded
+        file_name: the name of the file
+        chat_id: the id of the chat to upload
+    """
+    try:
+        chat_id = request.POST["chat_id"]
+        if PrivateChat.objects.filter(id=chat_id).exists():
+            chat_obj = PrivateChat.objects.get(id=chat_id)
+        else:
+            return HttpResponseBadRequest("no chat room found")
+        
+        if not chat_obj.users.filter(username=request.user.username).exists():
+            return HttpResponseBadRequest("you do not have access to this chat")
+        
+        file_uploaded = request.FILES["file"]
+        file_name = request.POST["file_name"]
+        file_message = PrivateFileMessage(file_field=file_uploaded, file_name=file_name, chat=chat_obj, user=request.user, is_image=verify_image(file_uploaded))
+        file_message.save()
+        return HttpResponse(file_message.id)
+    
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request is missing an important key")
+
+
+@login_required
+def get_image(request, message_id):
+    """Attempt to get an image by the message id.
+    The user must be in the chat in order to see the file.
+    If the id does not match any message, return 404.
+    Checking whether the returned file is an image must be done in elsewhere.
+    """
+    try:
+        message = PrivateFileMessage.objects.get(id=message_id)
+        if not message.chat.users.filter(username=request.user.username).exists():
+            return HttpResponseBadRequest("you do not have access to this chat message")
+
+        file_field = message.file_field
+        return FileResponse(file_field)
+        # if verify_image(file_field):
+        #     return FileResponse(file_field)
+        # else:
+        #     return HttpResponse("file is not image")
+    except ObjectDoesNotExist:
+        return HttpResponseNotFound("message not found")
