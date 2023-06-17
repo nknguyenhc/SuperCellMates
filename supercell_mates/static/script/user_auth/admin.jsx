@@ -1,14 +1,12 @@
 function ManageTags() {
     const [requests, setRequests] = React.useState([]);
-    const [fetched, setFetched] = React.useState(false);
 
-    if (!fetched) {
-        setFetched(true);
+    React.useEffect(() => {
         fetch('/obtain_tag_requests')
             .then(response => response.json())
             .then(response => setRequests(response.tag_requests))
             .catch(() => triggerErrorMessage());
-    }
+    }, []);
 
     function submitTag(tag_request_id, tag) {
         fetch('/add_tag_admin', postRequestContent({

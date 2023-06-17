@@ -6,19 +6,17 @@ function CreatePost() {
     const [tag, setTag] = React.useState(undefined);
     const [visibility, setVisibility] = React.useState('Visibility');
     const [userTags, setUserTags] = React.useState([]);
-    const [fetched, setFetched] = React.useState(false);
     const postCreateButton = React.useRef(null);
     const [errorMessage, setErrorMessage] = React.useState('');
     const imagesInput = React.useRef(null);
     const [imgs, setImgs] = React.useState([]);
     const username = document.querySelector("#welcome-message").innerHTML.split("@")[1];
 
-    if (!fetched) {
-        setFetched(true);
+    React.useEffect(() => {
         fetch('/profile/user_tags/' + username)
             .then(response => response.json())
             .then(response => setUserTags(response.tags));
-    }
+    }, []);
 
     function removeImage(index) {
         setImgs(imgs.filter((_, i) => i !== index));

@@ -1,14 +1,12 @@
 function SetupTags() {
     const [tags, setTags] = React.useState([]);
-    const [fetched, setFetched] = React.useState(false);
     const [searchParam, setSearchParam] = React.useState('')
     const [searchResults, setSearchResults] = React.useState([]);
     const [toBeSubmitted, setToBeSubmitted] = React.useState([]);
     const [tagCountLimit, setTagCountLimit] = React.useState(0);
     const addTagMessageButton = React.useRef(null);
 
-    if (!fetched) {
-        setFetched(true);
+    React.useEffect(() => {
         fetch('/profile/obtain_tags')
             .then(response => response.json())
             .then(response => {
@@ -16,7 +14,7 @@ function SetupTags() {
                 setTagCountLimit(response.tag_count_limit);
             })
             .catch(() => triggerErrorMessage());
-    }
+    }, []);
 
     function submitTags(event) {
         event.preventDefault();
