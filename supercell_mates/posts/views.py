@@ -6,6 +6,8 @@ from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, Http
 from django.views.decorators.http import require_http_methods
 from django.core.exceptions import ObjectDoesNotExist
 import datetime
+import io
+from django.core.files.images import ImageFile
 from PIL import Image
 from pytz import timezone
 
@@ -57,7 +59,7 @@ def create_post(request):
             return HttpResponseBadRequest("tag submitted does not belong to user")
 
         # visibility
-        visibility = request.POST.getlist("visibility")
+        visibility = get_list_from_post_body(request, "visibility")
         friend_visible = "friends" in visibility
         tag_visible = "tag" in visibility
         public_visible = "public" in visibility
@@ -78,9 +80,9 @@ def create_post(request):
         # images
         if "imgs" in request.POST:
             # do not change the method of getting the list of imgs
-            imgs = request.POST.getlist("imgs")
+            imgs = request.POST["imgs"].strip('[[]]').split('], [')
             for (i, img_raw) in enumerate(imgs):
-                img_bytearray = img_raw.strip("[]").split(", ")
+                img_bytearray = img_raw.split(", ")
                 img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
                 img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
                 try:
@@ -111,6 +113,26 @@ def create_post(request):
     except TypeError:
         return HttpResponseBadRequest("imgs key submitted is not of type array")
 
+def get_list_from_post_body(request, key):
+    """Used when the post body contains a value of list type.
+    For web version, the value is passed as FormData, and can be retrieved directly using getlist.
+    For mobile version, the value is encoded as FormURL. It becomes a String after decoding.
+
+    Args:
+        request (HttpRequest): the request made to this view
+        key: the key of the entry that contains a list in the value
+
+    Returns:
+        the list value passed from frontend, or
+        HttpBadRequest, when the keys for both versions are absent
+
+    """
+    if key in request.POST:
+        return request.POST.getlist(key)
+    elif f'{key}_async' in request.POST:
+        return request.POST[f'{key}_async'].strip('[]').split(", ")
+    else:
+        return HttpResponseBadRequest("request body is missing an important key")
 
 @login_required
 @require_http_methods(["POST"])

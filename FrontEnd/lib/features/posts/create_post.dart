@@ -1,12 +1,13 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:convert';
+import 'dart:math';
 
 import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
-import 'package:supercellmates/router/router.gr.dart';
 
 @RoutePage()
 class CreatePostPage extends StatefulWidget {
@@ -32,7 +33,8 @@ class CreatePostPageState extends State<CreatePostPage> {
   String postContent = "";
 
   ImagePicker imagePicker = ImagePicker();
-  List<XFile> postImages = [];
+  List<Uint8List> postImages = [];
+  int imageCount = 0;
   List<Widget> imagesPreview = List<Widget>.filled(
       9,
       const SizedBox(
@@ -80,9 +82,10 @@ class CreatePostPageState extends State<CreatePostPage> {
   }
 
   void setImage(int index, XFile img) {
-    postImages.add(img);
+    imageCount++;
     img.readAsBytes().then((value) {
       setState(() {
+        postImages.add(value);
         imagesPreview[index] =
             Image.memory(value, width: 90, height: 90, fit: BoxFit.cover);
       });
@@ -109,21 +112,19 @@ class CreatePostPageState extends State<CreatePostPage> {
       postVisibility.add("tag");
     }
 
-
     Map<String, dynamic> body = {
       "title": postTitle,
       "content": postContent,
       "tag": widget.tagName,
-      "imgs": [],
-      "visibility": postVisibility,
+      "imgs": postImages,
+      "visibility_async": postVisibility,
     };
 
     dynamic r = await postWithCSRF(EndPoints.createPost.endpoint, body);
 
     if (r == "post created") {
-      showSuccessDialog(context, "Successfully created post!");
-      AutoRouter.of(context)
-          .pushAndPopUntil(const MainScaffold(), predicate: (_) => true);
+      AutoRouter.of(context).pop().then(
+          (value) => showSuccessDialog(context, "Successfully created post!"));
     }
   }
 
@@ -138,6 +139,7 @@ class CreatePostPageState extends State<CreatePostPage> {
             IconButton(
                 onPressed: () {
                   collapseVisibilities();
+                  FocusManager.instance.primaryFocus?.unfocus();
                   showConfirmationDialog(
                       context, "Are you sure to create this post?", createPost);
                 },
@@ -157,6 +159,8 @@ class CreatePostPageState extends State<CreatePostPage> {
                     SizedBox(
                       width: MediaQuery.of(context).size.width - 150,
                       child: TextField(
+                        onTap: collapseVisibilities,
+                        onTapOutside: (e) => FocusManager.instance.primaryFocus?.unfocus(),
                         decoration: const InputDecoration(
                             isDense: true,
                             contentPadding: EdgeInsets.fromLTRB(8, 0, 0, 1),
@@ -186,6 +190,8 @@ class CreatePostPageState extends State<CreatePostPage> {
                         width: MediaQuery.of(context).size.width - 40,
                         height: MediaQuery.of(context).size.height - 555,
                         child: TextField(
+                          onTap: collapseVisibilities,
+                          onTapOutside: (e) => FocusManager.instance.primaryFocus?.unfocus(),
                           decoration: const InputDecoration(
                               border: OutlineInputBorder(),
                               contentPadding: EdgeInsets.fromLTRB(8, 15, 0, 0),
@@ -230,14 +236,14 @@ class CreatePostPageState extends State<CreatePostPage> {
                                       await imagePicker.pickMultiImage();
                                   for (XFile? img in imgs) {
                                     if (img != null) {
-                                      if (postImages.length >= 9) {
+                                      if (imageCount >= 9) {
                                         showCustomDialog(
                                             context,
                                             "Too many images",
                                             "Please only pick up to 9 images");
                                         return;
                                       }
-                                      setImage(postImages.length, img);
+                                      setImage(imageCount, img);
                                     }
                                   }
                                 },
@@ -337,7 +343,9 @@ class CreatePostPageState extends State<CreatePostPage> {
                                   " $visibility",
                                 ),
                                 Transform.rotate(
-                                  angle: 3.1415926 / 2 * 3,
+                                  angle: showVisibilites 
+                                          ? pi / 2
+                                          : pi / 2 * 3,
                                   child: const Icon(
                                     Icons.arrow_right,
                                   ),
