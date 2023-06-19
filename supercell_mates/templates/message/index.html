@@ -1,0 +1,18 @@
+{% extends 'layout.html' %} 
+
+{% block title %} 
+    <title>Messages</title>
+{% endblock %} 
+
+{% block style %} 
+    <link rel="stylesheet" href="/static/style/message/index.css">
+{% endblock %} 
+
+{% block script %} 
+    <script type="text/babel" src="/static/script/message/index.jsx"></script>
+{% endblock %} 
+
+{% block body %} 
+    <input type="hidden" id="username-hidden" value="{{ user.username }}">
+    <div id="chat-page"></div>
+{% endblock %} 

@@ -1,0 +1,35 @@
+{
+    "name": "user_profile",
+    "views": [
+        {
+            "name": "User Profile",
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "CharField",
+                    "description": "The (full) name of the user"
+                },
+                {
+                    "name": "user_auth",
+                    "type": "OneToOneField(UserAuth)",
+                    "description": "The UserAuth instance that this profile is binded to"
+                },
+                {
+                    "name": "tagList",
+                    "type": "ManyToManyField(Tag)",
+                    "description": "The list of tags that this user has"
+                },
+                {
+                    "name": "profile_pic",
+                    "type": "ImageField",
+                    "description": "The profile picture of the user"
+                },
+                {
+                    "name": "tag_count_limit",
+                    "type": "IntegerField",
+                    "description": "The maximum number of tags that this user can have"
+                }
+            ]
+        }
+    ]
+}

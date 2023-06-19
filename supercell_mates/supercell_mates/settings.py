@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ["10.0.2.2", "127.0.0.1"]
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'user_profile',
     'user_log',
     'posts',
+    'message',
 ]
 
 MIDDLEWARE = [
@@ -157,3 +159,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = "/login/"
 
 LOGIN_REDIRECT_URL = "/login/"
+
+# configure ASGI application
+ASGI_APPLICATION = "supercell_mates.asgi.application"
+
+# define channel layers
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}

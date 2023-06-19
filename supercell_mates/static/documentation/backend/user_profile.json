@@ -1,0 +1,143 @@
+{
+    "name": "user_profile",
+    "views": [
+        {
+            "path": "/profile/async",
+            "description": "Returns the context to be used for rendering in front-end of mobile app.",
+            "getParams": [],
+            "postParams": [],
+            "return": {
+                "tags": [
+                    {
+                        "name": "<user's tag 1 name>",
+                        "icon": "<user's tag 1 icon>"
+                    },
+                    {
+                        "name": "<user's tag 2 name>",
+                        "icon": "<user's tag 2 icon>"
+                    },
+                    {
+                        "name": "<user's tag 3 name>",
+                        "icon": "<user's tag 3 icon>"
+                    }
+                ],
+                "my_profile": true,
+                "is_admin": "<whether the user is an admin of this website>"
+            }
+        },
+        {
+            "path": "/profile/setup",
+            "description": "Returns the list of tags and the tag count limit of the current user.",
+            "getParams": [],
+            "postParams": [],
+            "return": {
+                "tags": [
+                    {
+                        "name": "<user's tag 1 name>",
+                        "icon": "<user's tag 1 icon>"
+                    },
+                    {
+                        "name": "<user's tag 2 name>",
+                        "icon": "<user's tag 2 icon>"
+                    },
+                    {
+                        "name": "<user's tag 3 name>",
+                        "icon": "<user's tag 3 icon>"
+                    }
+                ],
+                "tag_count_limit": "<user's tag count limit>"
+            }
+        },
+        {
+            "path": "/profile/add_tags",
+            "description": "Add tags for the currently logged in user.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "count",
+                    "description": "The number of tags to be added"
+                },
+                {
+                    "name": "tags",
+                    "description": "The list of tags, each is the name of the tag"
+                }
+            ],
+            "return": "<success status 200, or status 4xx if request is invalid>"
+        },
+        {
+            "path": "/profile/set_profile_image",
+            "description": "Set profile image for the current user.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "img",
+                    "description": "The image in bytearray (from mobile frontend) or file (from web frontend)"
+                }
+            ],
+            "return": "<success status 200, or status 4xx if request is invalid>"
+        },
+        {
+            "path": "/profile/img/<str:username>",
+            "description": "Get profile picture of the user with the given username",
+            "getParams": [],
+            "postParams": [],
+            "return": "<profile picture of the user with the given username>"
+        },
+        {
+            "path": "/profile/search_tags",
+            "description": "Return the list of tags that match the search",
+            "getParams": [
+                {
+                    "name": "tag",
+                    "description": "The search phrase, which all result tags would have as substring (case insensitive)"
+                }
+            ],
+            "postParams": [],
+            "return": {
+                "tags": [
+                    {
+                        "name": "<name of tag 1>",
+                        "icon": "<icon of tag 1>"
+                    },
+                    {
+                        "name": "<name of tag 2>",
+                        "icon": "<icon of tag 2>"
+                    },
+                    {
+                        "name": "<name of tag 3>",
+                        "icon": "<icon of tag 3>"
+                    }
+                ]
+            }
+        },
+        {
+            "path": "/profile/tag/<str:tagname>",
+            "description": "Obtain the icon of the tag",
+            "getParams": [],
+            "postParams": [],
+            "return": "<the image of the icon associated with the tag>"
+        },
+        {
+            "path": "/profile/user_tags/<str:username>",
+            "description": "Get tags associated with the user with the given username",
+            "getParams": [],
+            "postParams": [],
+            "return": {
+                "tags": [
+                    {
+                        "name": "<user's tag 1 name>",
+                        "icon": "<user's tag 1 icon>"
+                    },
+                    {
+                        "name": "<user's tag 2 name>",
+                        "icon": "<user's tag 2 icon>"
+                    },
+                    {
+                        "name": "<user's tag 3 name>",
+                        "icon": "<user's tag 3 icon>"
+                    }
+                ]
+            }
+        }
+    ]
+}

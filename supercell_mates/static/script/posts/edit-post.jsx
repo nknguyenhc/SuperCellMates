@@ -3,7 +3,6 @@ function EditPost(props) {
     const [content, setContent] = React.useState('');
     const [tag, setTag] = React.useState(undefined);
     const [visibility, setVisibility] = React.useState('Visibility');
-    const [fetched, setFetched] = React.useState(false);
     const [errorMessage, setErrorMessage] = React.useState('');
     const imagesInput = React.useRef(null);
     const [imgs, setImgs] = React.useState([]);
@@ -13,8 +12,7 @@ function EditPost(props) {
     const postId = props.postId;
     const [deleteMessage, setDeleteMessage] = React.useState('');
 
-    if (!fetched) {
-        setFetched(true);
+    React.useEffect(() => {
         fetch('/post/post/' + postId)
             .then(response => response.json())
             .then(response => {
@@ -41,7 +39,7 @@ function EditPost(props) {
                 }
             })
             .catch(() => triggerErrorMessage());
-    }
+    }, []);
 
     if (numOfImgsToLoad !== -1 && imgs.length !== numOfImgsToLoad && !allImgsLoaded) {
         fetch(imgLinks[imgs.length])

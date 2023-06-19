@@ -1,0 +1,45 @@
+{
+    "name": "user_log",
+    "views": [
+        {
+            "name": "User Log",
+            "fields": [
+                {
+                    "name": "user_auth",
+                    "type": "OneToOneKey(UserAuth)",
+                    "description": "The UserAuth instance binded to this UserLog"
+                },
+                {
+                    "name": "user_profile",
+                    "type": "OneToOneField(UserProfile)",
+                    "description": "The UserProfile instance binded to this UserLog"
+                },
+                {
+                    "name": "friend_list",
+                    "type": "ManyToManyField(self)",
+                    "description": "The list of friends"
+                },
+                {
+                    "name": "last_login",
+                    "type": "TimeField",
+                    "description": "Not yet implemented"
+                }
+            ]
+        },
+        {
+            "name": "Friend Request",
+            "fields": [
+                {
+                    "name": "from_user",
+                    "type": "ForeignKey(UserLog)",
+                    "description": "The user that sent this friend request"
+                },
+                {
+                    "name": "to_user",
+                    "type": "ForeignKey(UserLog)",
+                    "description": "The user that received this friend request"
+                }
+            ]
+        }
+    ]
+}

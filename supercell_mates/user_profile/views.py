@@ -124,7 +124,7 @@ def add_tags(request):
     """Attempt to add tags for the currently logged in user and return the feedback of the result.
     The request method must be post, and the body (request.POST) must have the following attributes:
         count: the number of tags to be added
-        tags: the list of tags (in string form, e.g. "['Mathematics', 'Physics']") to be added, each element is a string representing the tag
+        tags: the list of tags to be added, each element is a string representing the tag
 
     Args:
         request (HttpRequest): the request made to this view
@@ -175,7 +175,9 @@ def setup(request):
 @login_required
 def obtain_tags(request):
     """Return the list of tags associated with the current user.
-    The response is in the form of json, which consists of one field "tags".
+    The response is in the form of json, which consists of the following fields:
+        tags: the tags of the current user
+        tag_count_limit: the limit on the number of tags of the current user
     The corresponding value is the list of tags associated with the current user.
     Each tag (element) has the following fields:
         name (str): the string representation of this tag
@@ -216,7 +218,7 @@ def find_tags(search_param, user_profile_obj):
     user_tags = set(user_profile_obj.tagList.all())
     search_param = search_param.lower()
 
-    return list(map(
+    result = list(map(
         lambda tag: ({
             "name": tag.name,
             "icon": reverse('user_profile:get_tag_icon', args=(tag.name,)),
@@ -226,11 +228,13 @@ def find_tags(search_param, user_profile_obj):
             list(Tag.objects.all())
         )
     ))
+    result.sort(key=lambda tag: tag["name"].lower())
+    return result
 
 
 @login_required
 def search_tags(request):
-    """Return the list of tags the match the search.
+    """Return the list of tags that match the search.
     The request must contain the following GET parameters:
         tag (str): the search parameter
     The response is in json form which contains the following fields:
@@ -323,10 +327,9 @@ def set_profile_image(request):
             if not verify_image(img):
                 return HttpResponseBadRequest("not image")
             user_profile_obj.profile_pic = img
-        # TODO: check if the file submitted is of correct format
         user_profile_obj.save()
         return HttpResponse("success")
-    except AttributeError:
+    except (AttributeError, NameError):
         return HttpResponseBadRequest("request does not contain form data/image file")
 
 

@@ -20,6 +20,10 @@ from user_profile.models import UserProfile
 from user_log.models import UserLog
 
 
+def documentation(request):
+    return render(request, 'user_auth/documentation.html')
+
+
 def about(request):
     return render(request, "user_auth/about.html")
 
@@ -328,8 +332,10 @@ def new_tag_admin(request):
     if request.user.is_superuser:
         if request.method == "POST":
             try:
-                tagName = request.POST["tag"]
-                tag = Tag(name=tagName)
+                tag_name = request.POST["tag"]
+                if TagRequest.objects.filter(name=tag_name).exists() or Tag.objects.filter(name=tag_name).exists():
+                    return HttpResponseBadRequest("tag already exists/tag request already exists")
+                tag = Tag(name=tag_name)
                 tag.save()
                 return HttpResponse("tag added")
             except AttributeError:
@@ -353,6 +359,8 @@ def remove_tag_request(request):
                 return HttpResponseBadRequest("request does not contain form data")
             except MultiValueDictKeyError:
                 return HttpResponseBadRequest("request body is missing an important key")
+            except ObjectDoesNotExist:
+                return HttpResponseBadRequest("tag request with the given id not found")
         else:
             return HttpResponseNotAllowed(["POST"])
     else:
@@ -398,7 +406,6 @@ def add_tag_request(request):
             tag_request = TagRequest(name=tag_name, image=img, description=description)
         else:
             tag_request = TagRequest(name=tag_name, description=description)
-        # TODO: check if the file submitted is of correct format
         tag_request.save()
         return HttpResponse("Successfully added tag request")
     except AttributeError:

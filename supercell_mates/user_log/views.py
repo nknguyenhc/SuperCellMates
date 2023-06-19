@@ -5,10 +5,12 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, HttpResponseNotFound
 from django.views.decorators.http import require_http_methods
 from django.core.exceptions import ObjectDoesNotExist
+from datetime import datetime
 from user_profile.views import layout_context
 
 from user_auth.models import UserAuth
 from .models import FriendRequest
+from message.models import PrivateChat
 
 
 def view_profile_context(user_auth_obj, request_user):
@@ -235,6 +237,11 @@ def add_friend(request):
             request.user.user_log.friend_requests.get(from_user=user_log_obj).delete()
             if accepted == "true":
                 request.user.user_log.friend_list.add(user_log_obj)
+                new_chat = PrivateChat(timestamp=datetime.now())
+                new_chat.save()
+                new_chat.users.add(request.user)
+                new_chat.users.add(user_log_obj.user_auth)
+                new_chat.save()
             return HttpResponse("ok")
         else:
             return HttpResponseBadRequest("the user with provided username did not send a friend request to you")

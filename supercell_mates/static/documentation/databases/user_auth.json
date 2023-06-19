@@ -1,0 +1,55 @@
+{
+    "name": "user_auth",
+    "views": [
+        {
+            "name": "User Auth",
+            "fields": [
+                {
+                    "name": "username",
+                    "type": "CharField",
+                    "description": "The username of the user"
+                },
+                {
+                    "name": "password",
+                    "type": "CharField",
+                    "description": "A combination of hash and salt of the password"
+                }
+            ]
+        },
+        {
+            "name": "Tag Request",
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "CharField",
+                    "description": "The display name of the tag"
+                },
+                {
+                    "name": "image",
+                    "type": "ImageField",
+                    "description": "The representative image of the tag"
+                },
+                {
+                    "name": "description",
+                    "type": "TextField",
+                    "description": "The description of what the tag is about"
+                }
+            ]
+        },
+        {
+            "name": "Tag",
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "CharField",
+                    "description": "The display name of the tag"
+                },
+                {
+                    "name": "image",
+                    "type": "ImageField",
+                    "description": "The representative image of the tag"
+                }
+            ]
+        }
+    ]
+}
