@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:supercellmates/features/dialogs.dart';
+import 'package:supercellmates/features/posts/post_listview.dart';
 import 'dart:convert';
 
 import 'package:supercellmates/http_requests/make_requests.dart';
@@ -24,6 +25,8 @@ class ProfilePageState extends State<ProfilePage> {
   int selectedTagIndex = -1;
   var dataLoaded = [];
   var tagIcons = [];
+  dynamic profilePosts;
+  bool profilePostsLoaded = false;
 
   @override
   void initState() {
@@ -40,6 +43,14 @@ class ProfilePageState extends State<ProfilePage> {
       loadTagIcons(i);
     }
     setState(() => data = data);
+    profilePostsLoaded = false;
+    dynamic profilePostsResponse = jsonDecode(await getRequest(
+        EndPoints.getProfilePosts.endpoint + data["user_profile"]["username"],
+        {"start": "2023-06-17-00-00-00", "end": "2023-06-20-00-00-00"}));
+    assert(profilePostsResponse["myProfile"]);
+    profilePosts = profilePostsResponse["posts"];
+
+    setState(() => profilePostsLoaded = true);
   }
 
   void loadTagIcons(index) async {
@@ -152,25 +163,16 @@ class ProfilePageState extends State<ProfilePage> {
                   )
                 ],
               ),
-              // TODO: Change to Posts class
-              // The Posts should return a column whose width is full width of phone
-              // and pass this column to a flex expanded so that can scroll down
               SizedBox(
-                height: myPostsHeight,
-                width: MediaQuery.of(context).size.width,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: 30,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Container(
-                      alignment: Alignment.center,
-                      width: 100,
-                      height: 30,
-                      child: Text("Post Entry $index"),
-                    );
-                  },
-                ),
-              ),
+                  height: myPostsHeight,
+                  width: MediaQuery.of(context).size.width,
+                  child: profilePostsLoaded
+                      ? PostListView(
+                          postList: profilePosts,
+                          isInProfile: true,
+                          isMyPost: true,
+                        )
+                      : const CircularProgressIndicator()),
             ],
           )
         : const CircularProgressIndicator();

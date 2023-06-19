@@ -262,6 +262,7 @@ class CreatePostPageState extends State<CreatePostPage> {
                         Column(
                           children: [
                             SizedBox(
+                              // TODO: Change to grid view
                               width: MediaQuery.of(context).size.width - 40,
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,

@@ -10,3 +10,9 @@ Future<Image> getImage(String endpoint) async {
   return Image.memory(response.bodyBytes);
 }
 
+Future<Image> getSquaredImage(String endpoint, double width) async {
+  String profileImageURL = GetIt.I<Config>().restBaseURL + endpoint;
+  var response = await Requests.get(profileImageURL);
+  return Image.memory(response.bodyBytes,
+      width: width, height: width, fit: BoxFit.cover);
+}

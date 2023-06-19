@@ -458,6 +458,7 @@ def get_post_pic(request, pic_id):
     try:
         image_obj = PostImage.objects.get(id=pic_id)
         if has_access(request.user, image_obj.post):
+            print(image_obj.image)
             return FileResponse(image_obj.image)
         else:
             return HttpResponseNotFound()
