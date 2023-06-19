@@ -1,0 +1,154 @@
+{
+    "name": "user_log",
+    "views": [
+        {
+            "path": "user/profile_async/<str:username>",
+            "description": "Returns the information on the target user to be viewed on mobile.",
+            "getParams": [],
+            "postParams": [],
+            "return": {
+                "tags": [
+                    {
+                        "name": "<user's tag 1 name>",
+                        "icon": "<user's tag 1 icon>"
+                    },
+                    {
+                        "name": "<user's tag 2 name>",
+                        "icon": "<user's tag 2 icon>"
+                    },
+                    {
+                        "name": "<user's tag 3 name>",
+                        "icon": "<user's tag 3 icon>"
+                    }
+                ],
+                "my_profile": false,
+                "is_friend": "<whether current user is friend with this user>"
+            }
+        },
+        {
+            "path": "user/add_friend_request",
+            "description": "Add a friend request from the current user to the target user.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "username",
+                    "description": "The username of the target user"
+                }
+            ],
+            "return": "<success status 200, or status 4xx if the request is invalid>"
+        },
+        {
+            "path": "user/friends_async",
+            "description": "Returns the list of friends of the current user.",
+            "getParams": [],
+            "postParams": [],
+            "return": [
+                {
+                    "name": "<friend 1 name>",
+                    "username": "<friend 1 username>",
+                    "profile_pic_url": "<URL to profile pic of friend 1>",
+                    "profile_link": "<URL to profile of friend 1>"
+                },
+                {
+                    "name": "<friend 2 name>",
+                    "username": "<friend 2 username>",
+                    "profile_pic_url": "<URL to profile pic of friend 2>",
+                    "profile_link": "<URL to profile of friend 2>"
+                },
+                {
+                    "name": "<friend 3 name>",
+                    "username": "<friend 3 username>",
+                    "profile_pic_url": "<URL to profile pic of friend 3>",
+                    "profile_link": "<URL to profile of friend 3>"
+                }
+            ]
+        },
+        {
+            "path": "user/friend_requests_async",
+            "description": "Returns the list of friend requests to the current user.",
+            "getParams": [],
+            "postParams": [],
+            "return": [
+                {
+                    "name": "<user 1 name>",
+                    "username": "<user 1 username>",
+                    "profile_pic_url": "<URL to profile pic of user 1>",
+                    "profile_link": "<URL to profile of user 1>"
+                },
+                {
+                    "name": "<user 2 name>",
+                    "username": "<user 2 username>",
+                    "profile_pic_url": "<URL to profile pic of user 2>",
+                    "profile_link": "<URL to profile of user 2>"
+                },
+                {
+                    "name": "<user 3 name>",
+                    "username": "<user 3 username>",
+                    "profile_pic_url": "<URL to profile pic of user 3>",
+                    "profile_link": "<URL to profile of user 3>"
+                }
+            ]
+        },
+        {
+            "path": "user/add_friend",
+            "description": "Add another user as a friend to the current user. The other user must have sent friend request to the current user.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "username",
+                    "description": "The username of the target user"
+                },
+                {
+                    "name": "accepted",
+                    "description": "Whether the current user accepts the invitation from the other user, 'true' if he does"
+                }
+            ],
+            "return": "<success status 200, or status 4xx if the request is invalid>"
+        },
+        {
+            "path": "user/search",
+            "description": "Returns search results of users.",
+            "getParams": [
+                {
+                    "name": "username",
+                    "description": "The search phrase, which all the returned results will contain as substring"
+                }
+            ],
+            "postParams": [],
+            "return": {
+                "users": [
+                    {
+                        "name": "<user 1 name>",
+                        "username": "<user 1 username>",
+                        "profile_pic_url": "<URL to profile pic of user 1>",
+                        "profile_link": "<URL to profile of user 1>"
+                    },
+                    {
+                        "name": "<user 2 name>",
+                        "username": "<user 2 username>",
+                        "profile_pic_url": "<URL to profile pic of user 2>",
+                        "profile_link": "<URL to profile of user 2>"
+                    },
+                    {
+                        "name": "<user 3 name>",
+                        "username": "<user 3 username>",
+                        "profile_pic_url": "<URL to profile pic of user 3>",
+                        "profile_link": "<URL to profile of user 3>"
+                    }
+                ]
+            }
+        },
+        {
+            "path": "user/delete_friend",
+            "description": "Delete a user from the current user's list of friends",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "username",
+                    "description": "Username of the friend to delete"
+                }
+            ],
+            "return": "<success status 200, or status 4xx if the request is invalid>"
+        }
+    ]
+}

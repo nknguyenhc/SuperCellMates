@@ -1,3 +1,8 @@
+def test(arg1, arg2):
+    """Some test function
+    """
+    print(arg1)
+
 import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "supercell_mates.settings")
 import django

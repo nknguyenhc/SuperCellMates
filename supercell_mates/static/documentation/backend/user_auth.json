@@ -1,0 +1,192 @@
+{
+    "name": "user_auth",
+    "views": [
+        {
+            "path": "/async",
+            "description": "Entry to the host from mobile frontend.",
+            "getParams": [],
+            "postParams": [],
+            "return": ""
+        },
+        {
+            "path": "/login_async",
+            "description": "Log in a user by authenticating the provided credentials.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "username",
+                    "description": "The username of the user to authenticate"
+                },
+                {
+                    "name": "password",
+                    "description": "The password of the user to authenticate"
+                }
+            ],
+            "return": "<authentication success or fail status 200, or status 4xx if the request is invalid>"
+        },
+        {
+            "path": "/register_async",
+            "description": "Register a user with the provided details.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "username",
+                    "description": "The username of the new account"
+                },
+                {
+                    "name": "password",
+                    "description": "The password of the new account"
+                },
+                {
+                    "name": "name",
+                    "description": "The name of the new user"
+                }
+            ],
+            "return": "<registration success or fail status 200, or status 4xx if the request is invalid>"
+        },
+        {
+            "path": "/check_unique_username_async",
+            "description": "Check whether a given username has been taken.",
+            "getParams": [
+                {
+                    "name": "username",
+                    "description": "The username to be checked against the database"
+                }
+            ],
+            "postParams": [],
+            "return": "'username is already taken' or 'username is unique'"
+        },
+        {
+            "path": "/logout_async",
+            "description": "Log out a user.",
+            "getParams": [],
+            "postParams": [],
+            "return": "logged out"
+        },
+        {
+            "path": "/add_tag_admin",
+            "description": "Add a tag based on a request. You must be an admin to access this API.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "tag_request_id",
+                    "description": "The id of the tag request to create a tag from"
+                },
+                {
+                    "name": "tag",
+                    "description": "The name of the new tag"
+                }
+            ],
+            "return": "<success status 200, or status 4xx if the request is invalid>"
+        },
+        {
+            "path": "/remove_tag_request",
+            "description": "Remove a tag request without any further action (i.e. reject tag suggestion). You must be an admin to access this API.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "tag_request_id",
+                    "description": "The id of the tag request to remove"
+                }
+            ],
+            "return": "<success status 200, or status 4xx if the request is invalid>"
+        },
+        {
+            "path": "/add_tag_request",
+            "description": "Add a tag request.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "tag",
+                    "description": "The name of the new tag"
+                },
+                {
+                    "name": "description",
+                    "description": "The description of what the new tag is about"
+                },
+                {
+                    "name": "img",
+                    "description": "The icon to represent the tag"
+                }
+            ],
+            "return": "<success status 200, or status 4xx if the request is invalid>"
+        },
+        {
+            "path": "/obtain_tag_requests",
+            "description": "Obtain the current tag requests. You must be an admin to access this API.",
+            "getParams": [],
+            "postParams": [],
+            "return": [
+                {
+                    "id": "<id of tag request 1>",
+                    "name": "<name of tag request 1>",
+                    "icon": "<URL to icon of tag request 1>",
+                    "description": "<description of tag request 1>"
+                },
+                {
+                    "id": "<id of tag request 2>",
+                    "name": "<name of tag request 2>",
+                    "icon": "<URL to icon of tag request 2>",
+                    "description": "<description of tag request 2>"
+                },
+                {
+                    "id": "<id of tag request 3>",
+                    "name": "<name of tag request 3>",
+                    "icon": "<URL to icon of tag request 3>",
+                    "description": "<description of tag request 3>"
+                }
+            ]
+        },
+        {
+            "path": "/new_tag_admin",
+            "description": "Add a new tag as an admin. This bypasses the requirement of having an active tag request with the same name. You must be an admin to access this API.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "tag",
+                    "description": "The name of the new tag"
+                }
+            ],
+            "return": "<success status 200, or status 4xx if the request is invalid>"
+        },
+        {
+            "path": "/tag_request/<str:tag_name>",
+            "description": "Returns the icon of the tag with the given name, as an image",
+            "getParams": [],
+            "postParams": [],
+            "return": "<the icon of the tag>"
+        },
+        {
+            "path": "/change_username",
+            "description": "Change username of the current user. Current password must be provided for authentication purposes.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "new_username",
+                    "description": "The new username to change to"
+                },
+                {
+                    "name": "password",
+                    "description": "The password of the current user, for authentication purposes"
+                }
+            ],
+            "return": "<success or fail status 200, or status 4xx if the request is invalid>"
+        },
+        {
+            "path": "/change_password",
+            "description": "Change password of the current user. Current password must be provided for authentication purposes.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "old_password",
+                    "description": "The current password for authentication purposes"
+                },
+                {
+                    "name": "new_password",
+                    "description": "The new password to change to"
+                }
+            ],
+            "return": "<success or fail status 200, or status 4xx if the request is invalid>"
+        }
+    ]
+}
