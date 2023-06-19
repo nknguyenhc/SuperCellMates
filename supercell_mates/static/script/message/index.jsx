@@ -22,19 +22,18 @@ function ChatPage() {
         fetch('/messages/get_private_chats')
             .then(response => response.json())
             .then(async response => {
-                await setPrivateChats(
-                    response.privates
-                        .map(chat => {
-                            return {
-                                id: chat.id,
-                                timestamp: chat.timestamp,
-                                chatName: chat.user.username,
-                                image: chat.user.profile_img_url
-                            };
-                        })
-                );
+                const newPrivateChats = response.privates.map(chat => {
+                    return {
+                        id: chat.id,
+                        timestamp: chat.timestamp,
+                        chatName: chat.user.username,
+                        image: chat.user.profile_img_url
+                    };
+                });
+                await setPrivateChats(newPrivateChats);
+                return newPrivateChats;
             })
-            .then(() => {
+            .then(newPrivateChats => {
                 const idQueries = window.location.search
                     .slice(1)
                     .split("&")
@@ -43,12 +42,15 @@ function ChatPage() {
                 if (idQueries.length > 0) {
                     let index = 0;
                     const id = idQueries[0][1];
-                    while (index < privateChats.length) {
-                        if (privateChats[index].id === id) {
-                            index++;
+                    while (index < newPrivateChats.length) {
+                        if (newPrivateChats[index].id === id) {
+                            break;
                         }
+                        index++;
                     }
-                    clickOpenChat(id, index, false);
+                    if (index < newPrivateChats.length) {
+                        clickOpenChat(id, index, false);
+                    }
                 }
             });
     }, []);
@@ -217,9 +219,9 @@ function ChatPage() {
                                 <div className="text-line" style={{
                                     flexDirection: text.user.username === username ? "row-reverse" : "row",
                                 }}>
-                                    <div className="text-line-user-img">
+                                    <a className="text-line-user-img" href={text.user.profile_link}>
                                         <img src={text.user.profile_img_url} />
-                                    </div>
+                                    </a>
                                     <div className="text-line-content p-1 border border-primary">{
                                         text.type === "text" 
                                         ? text.message 

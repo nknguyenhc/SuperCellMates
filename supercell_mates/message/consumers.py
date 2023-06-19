@@ -1,4 +1,4 @@
-from json import loads, JSONDecodeError
+from json import loads, dumps, JSONDecodeError
 from channels.db import database_sync_to_async
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
@@ -117,7 +117,7 @@ class PrivateMessageConsumer(AsyncWebsocketConsumer):
 
     async def chat_message(self, event):
         """Called in response to a user sending a message."""
-        await self.send(text_data=json.dumps({
+        await self.send(text_data=dumps({
             "message": event["message"],
             "user": event["user"],
             "type": "text",
@@ -128,7 +128,7 @@ class PrivateMessageConsumer(AsyncWebsocketConsumer):
 
     async def file_message(self, event):
         """Called in response to a user sending a file."""
-        await self.send(text_data=json.dumps({
+        await self.send(text_data=dumps({
             "file_name": event["file_name"],
             "user": event["user"],
             "type": "file",
