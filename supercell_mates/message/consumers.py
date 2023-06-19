@@ -1,4 +1,4 @@
-import json
+from json import loads, JSONDecodeError
 from channels.db import database_sync_to_async
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
@@ -9,6 +9,18 @@ from .models import PrivateChat, GroupChat, PrivateTextMessage, PrivateFileMessa
 
 
 class PrivateMessageConsumer(AsyncWebsocketConsumer):
+    """Available instance fields:
+    user: the UserAuth instance of the current user
+    user_info: dictionary containing info of the current user with the following fields:
+        name: the name of the user
+        username: the username of the user
+        profile_link: link to the profile of the user
+        profile_img_url: URL to the profile image of the user
+    chat_object: the instance of AbstractChat of this chat
+    chat_name: the id of the current chat in the database
+    channel_layer, channel_name: inherit from AsyncWebsocketConsumer
+    """
+
     @database_sync_to_async
     def verify_room(self):
         if not self.user.is_authenticated:
@@ -50,6 +62,8 @@ class PrivateMessageConsumer(AsyncWebsocketConsumer):
     
 
     async def connect(self):
+        """Called when a user attempts to connect."""
+
         self.chat_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.user = self.scope["user"]
 
@@ -62,38 +76,47 @@ class PrivateMessageConsumer(AsyncWebsocketConsumer):
 
 
     async def disconnect(self, close_code):
+        """Called when a user disconnects."""
         await self.channel_layer.group_discard(self.chat_name, self.channel_name)
 
 
     async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
+        """Called when a user sends data to the channel.
+        The corresponding channel layer then call the method with the same name as the value to the "type" field of the event.
+        """
+        try:
+            text_data_json = loads(text_data)
+        except JSONDecodeError:
+            pass
 
         if text_data_json["type"] == "text":
-            message = text_data_json["message"]
-            text_id, timestamp = await self.add_text_message(message)
-
-            await self.channel_layer.group_send(
-                self.chat_name, {
-                    "type": "chat_message", 
-                    "message": message,
-                    "user": self.user_info,
-                    "id": text_id,
-                    "timestamp": timestamp,
-                }
-            )
+            if "message" in text_data_json.keys():
+                message = text_data_json["message"]
+                text_id, timestamp = await self.add_text_message(message)
+                await self.channel_layer.group_send(
+                    self.chat_name, {
+                        "type": "chat_message", 
+                        "message": message,
+                        "user": self.user_info,
+                        "id": text_id,
+                        "timestamp": timestamp,
+                    }
+                )
         
         elif text_data_json["type"] == "file":
-            message_id = text_data_json["message_id"]
-            message = await self.get_file_message(message_id)
-            message.update({
-                "id": message_id,
-                "type": "file_message",
-                "user": self.user_info
-            })
-            await self.channel_layer.group_send(self.chat_name, message)
+            if "message_id" in text_data_json.keys():
+                message_id = text_data_json["message_id"]
+                message = await self.get_file_message(message_id)
+                message.update({
+                    "id": message_id,
+                    "type": "file_message",
+                    "user": self.user_info
+                })
+                await self.channel_layer.group_send(self.chat_name, message)
 
 
     async def chat_message(self, event):
+        """Called in response to a user sending a message."""
         await self.send(text_data=json.dumps({
             "message": event["message"],
             "user": event["user"],
@@ -104,6 +127,7 @@ class PrivateMessageConsumer(AsyncWebsocketConsumer):
     
 
     async def file_message(self, event):
+        """Called in response to a user sending a file."""
         await self.send(text_data=json.dumps({
             "file_name": event["file_name"],
             "user": event["user"],

@@ -20,6 +20,7 @@
     width: 24vw;
     display: flex;
     flex-direction: column;
+    flex-shrink: none;
 }
 
 #chat-categories {
