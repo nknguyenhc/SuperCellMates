@@ -270,7 +270,7 @@ def find_users(search_param, my_username):
     search_param = search_param.lower()
     my_username = my_username.lower()
 
-    return list(map(
+    result = list(map(
         lambda user: ({
             "name": user.user_profile.name,
             "username": user.username,
@@ -282,6 +282,8 @@ def find_users(search_param, my_username):
             list(UserAuth.objects.all())
         )
     ))
+    result.sort(key=lambda user: user["name"].lower())
+    return result
 
 
 @login_required
