@@ -1,4 +1,5 @@
 import "dart:convert";
+import "dart:typed_data";
 import "package:auto_route/auto_route.dart";
 import "package:flutter/material.dart";
 
@@ -6,14 +7,16 @@ import "package:supercellmates/http_requests/get_image.dart";
 import "package:supercellmates/http_requests/make_requests.dart";
 import "package:supercellmates/router/router.gr.dart";
 import "package:supercellmates/http_requests/endpoints.dart";
+import "package:supercellmates/features/dialogs.dart";
 
 class PostListView extends StatefulWidget {
-  const PostListView(
-      {Key? key,
-      required this.postList,
-      required this.isInProfile,
-      required this.isMyPost})
-      : super(key: key);
+  const PostListView({
+    Key? key,
+    required this.postList,
+    required this.isInProfile,
+    required this.isMyPost,
+    this.refreshCallBack,
+  }) : super(key: key);
 
   final dynamic postList;
   // if the posts are displayed in someone's profile,
@@ -22,6 +25,7 @@ class PostListView extends StatefulWidget {
   // if the posts belong to the user themselves,
   // the user should be able to edit the post
   final bool isMyPost;
+  final dynamic refreshCallBack;
 
   @override
   State<PostListView> createState() => PostListViewState();
@@ -31,7 +35,7 @@ class PostListViewState extends State<PostListView> {
   int count = 0;
   List<bool> dataLoaded = [];
   List<Image?> profileImages = [];
-  List<List<dynamic>?> postImages = [];
+  List<List<Uint8List>?> postImagesRaw = [];
 
   @override
   void initState() {
@@ -39,7 +43,7 @@ class PostListViewState extends State<PostListView> {
     count = widget.postList.length;
     dataLoaded = List.filled(count, false, growable: true);
     profileImages = List.filled(count, null, growable: true);
-    postImages = List.filled(count, null, growable: true);
+    postImagesRaw = List.filled(count, null, growable: true);
     for (int i = 0; i < count; i++) {
       loadImages(i);
     }
@@ -49,12 +53,12 @@ class PostListViewState extends State<PostListView> {
     profileImages[index] =
         await getImage(widget.postList[index]["creator"]["profile_pic_url"]);
 
-    postImages[index] =
-        List.filled(widget.postList[index]["images"].length, null);
+    postImagesRaw[index] = List.filled(
+        widget.postList[index]["images"].length, Uint8List.fromList([]),
+        growable: true);
     for (int i = 0; i < widget.postList[index]["images"].length; i++) {
-      postImages[index]![i] = await getSquaredImage(
-          widget.postList[index]["images"][i],
-          MediaQuery.of(context).size.width / 2);
+      postImagesRaw[index]![i] =
+          await getRawImageData(widget.postList[index]["images"][i]);
     }
     setState(() {
       dataLoaded[index] = true;
@@ -71,7 +75,8 @@ class PostListViewState extends State<PostListView> {
           String username = widget.postList[index]["creator"]["username"];
           String title = widget.postList[index]["title"];
           String content = widget.postList[index]["content"];
-          List<dynamic>? images = dataLoaded[index] ? postImages[index] : null;
+          List<Uint8List>? images =
+              dataLoaded[index] ? postImagesRaw[index] : null;
           return Column(children: [
             TextButton(
               onPressed: widget.isInProfile
@@ -183,7 +188,18 @@ class PostListViewState extends State<PostListView> {
                                                   mainAxisSpacing: 10,
                                                   crossAxisSpacing: 10),
                                           itemBuilder: (context, imageIndex) {
-                                            return images[imageIndex];
+                                            return Image.memory(
+                                              images[imageIndex],
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  2,
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  2,
+                                              fit: BoxFit.cover,
+                                            );
                                           },
                                         ),
                                       )
@@ -215,7 +231,18 @@ class PostListViewState extends State<PostListView> {
                                                   mainAxisSpacing: 10,
                                                   crossAxisSpacing: 10),
                                           itemBuilder: (context, imageIndex) {
-                                            return images[imageIndex];
+                                            return Image.memory(
+                                              images[imageIndex],
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  2,
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  2,
+                                              fit: BoxFit.cover,
+                                            );
                                           },
                                         ),
                                       )
@@ -224,6 +251,8 @@ class PostListViewState extends State<PostListView> {
                 ],
               ),
             ),
+
+            // post time, edit and delete
             SizedBox(
               width: MediaQuery.of(context).size.width,
               height: 40,
@@ -231,7 +260,7 @@ class PostListViewState extends State<PostListView> {
                 children: [
                   const Padding(padding: EdgeInsets.only(left: 30)),
                   const Text("post time"),
-                  widget.isInProfile
+                  widget.isInProfile && dataLoaded[index]
                       ? SizedBox(
                           width: MediaQuery.of(context).size.width - 120,
                           child: Row(
@@ -240,7 +269,14 @@ class PostListViewState extends State<PostListView> {
                               SizedBox(
                                 width: 30,
                                 child: IconButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    AutoRouter.of(context).push(EditPostRoute(
+                                        tagName: widget.postList[index]["tag"]
+                                            ["name"],
+                                        oldPostData: widget.postList[index],
+                                        oldPostImages: postImagesRaw[index],
+                                        refreshCallBack: widget.refreshCallBack));
+                                  },
                                   icon: const Icon(
                                     Icons.edit_outlined,
                                     color: Colors.black,
@@ -252,7 +288,24 @@ class PostListViewState extends State<PostListView> {
                               SizedBox(
                                   width: 30,
                                   child: IconButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      showConfirmationDialog(context,
+                                          "Are you sure to delete this post?",
+                                          () async {
+                                        dynamic body = {
+                                          "post_id": widget.postList[index]
+                                              ["id"],
+                                        };
+                                        dynamic r = await postWithCSRF(
+                                            EndPoints.deletePost.endpoint,
+                                            body);
+                                        if (r == "post deleted") {
+                                          widget.refreshCallBack();
+                                          showSuccessDialog(context,
+                                              "Successfully deleted post");
+                                        }
+                                      });
+                                    },
                                     icon: const Icon(
                                       Icons.delete,
                                       color: Colors.pink,

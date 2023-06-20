@@ -167,7 +167,7 @@ def edit_post(request, post_id):
         return HttpResponseBadRequest("title or content is empty")
 
     # visibility
-    visibility = request.POST.getlist("visibility")
+    visibility = get_list_from_post_body(request, "visibility")
     friend_visible = "friends" in visibility
     tag_visible = "tag" in visibility
     public_visible = "public" in visibility
@@ -184,18 +184,16 @@ def edit_post(request, post_id):
     for img in post.images.all():
         img.delete()
     if "imgs" in request.POST:
-        imgs = request.POST.getlist("imgs")
+        imgs = request.POST["imgs"].strip('[[]]').split('], [')
         for (i, img_raw) in enumerate(imgs):
+            img_bytearray = img_raw.split(", ")
+            img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
+            img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
             try:
-                img_bytearray = img_raw.strip("[]").split(", ")
-                img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
-                img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
-                if not verify_image(img):
-                    return HttpResponseBadRequest("not image")
-            except:
-                img = img_raw
-                if not verify_image(img):
-                    return HttpResponseBadRequest("not image")
+                pil_img = Image.open(img)
+                pil_img.verify()
+            except (IOError, SyntaxError):
+                return HttpResponseBadRequest("not image")
             img_obj = PostImage(order=i, image=img, post=post)
             img_obj.save()
     else:

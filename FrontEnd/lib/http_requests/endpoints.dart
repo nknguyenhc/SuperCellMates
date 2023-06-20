@@ -22,6 +22,8 @@ enum EndPoints {
 
   createPost,
   getProfilePosts,
+  editPost,
+  deletePost,
 
 }
 
@@ -47,6 +49,8 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.deleteFriend: "/user/delete_friend",
     EndPoints.createPost: "/post/create_post",
     EndPoints.getProfilePosts: "/post/posts/",
+    EndPoints.editPost: "/post/post/edit/",
+    EndPoints.deletePost: "/post/delete",
 
   };
 

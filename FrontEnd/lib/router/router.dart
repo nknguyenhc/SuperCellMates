@@ -16,9 +16,11 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: SettingsRoute.page),
         AutoRoute(page: AddTagRoute.page),
         AutoRoute(page: EditProfileRoute.page),
-        AutoRoute(page: CreatePostRoute.page),
         AutoRoute(page: OthersProfileRoute.page),
         AutoRoute(page: RequestTagRoute.page),
+        AutoRoute(page: CreatePostRoute.page),
+        AutoRoute(page: EditPostRoute.page),
+        
         
       ];
 }
