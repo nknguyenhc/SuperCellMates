@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,7 @@ class OthersProfilePage extends StatefulWidget {
 
 class OthersProfilePageState extends State<OthersProfilePage> {
   bool profileImageLoaded = false;
-  dynamic profileImage;
+  Uint8List profileImage = Uint8List.fromList([]);
   bool profilePostsLoaded = false;
   dynamic profilePosts;
 
@@ -69,7 +70,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
 
   void initProfileImage() async {
     profileImageLoaded = false;
-    profileImage = await getImage(widget.data["image_url"]);
+    profileImage = await getRawImageData(widget.data["image_url"]);
     setState(() {
       profileImageLoaded = true;
     });
@@ -132,9 +133,12 @@ class OthersProfilePageState extends State<OthersProfilePage> {
               child: IconButton(
                 padding: EdgeInsets.zero,
                 icon: profileImageLoaded
-                    ? profileImage!
+                    ? Image.memory(profileImage)
                     : const CircularProgressIndicator(),
-                onPressed: () {},
+                onPressed: () {
+                  AutoRouter.of(context).push(
+                      SinglePhotoViewer(photoBytes: profileImage, actions: []));
+                },
                 iconSize: 50,
               ),
             ),

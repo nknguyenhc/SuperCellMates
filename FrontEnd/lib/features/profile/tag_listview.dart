@@ -1,9 +1,13 @@
+import 'dart:typed_data';
+
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
 import 'package:supercellmates/http_requests/get_image.dart';
 import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
+import 'package:supercellmates/router/router.gr.dart';
 
 class TagListView extends StatefulWidget {
   const TagListView(
@@ -33,14 +37,14 @@ class TagListViewState extends State<TagListView> {
     super.initState();
     count = widget.tagList.length;
     dataLoaded = List<bool>.filled(count, false, growable: true);
-    tagIcons = List<Image?>.filled(count, null, growable: true);
+    tagIcons = List<Uint8List?>.filled(count, Uint8List.fromList([]), growable: true);
     for (int i = 0; i < count; i++) {
       loadImage(i);
     }
   }
 
   void loadImage(index) async {
-    tagIcons[index] = await getImage(widget.tagList[index]["icon"]);
+    tagIcons[index] = await getRawImageData(widget.tagList[index]["icon"]);
     setState(() {
       dataLoaded[index] = true;
     });
@@ -67,9 +71,7 @@ class TagListViewState extends State<TagListView> {
 
   void _requestConfirmationForTag(dynamic indexes) {
     if (widget.tagLimitReached!) {
-      showCustomDialog(
-          context,
-          "Tag count limit reached",
+      showCustomDialog(context, "Tag count limit reached",
           "oops, you can't add more tags... for now.\n\nLevel up to claim more tags!");
       return;
     }
@@ -107,8 +109,11 @@ class TagListViewState extends State<TagListView> {
                     width: 50,
                     child: dataLoaded[index]
                         ? IconButton(
-                            onPressed: () {},
-                            icon: tagIcons[index],
+                            onPressed: () {
+                              AutoRouter.of(context).push(SinglePhotoViewer(
+                                  photoBytes: tagIcons[index], actions: []));
+                            },
+                            icon: Image.memory(tagIcons[index]),
                             iconSize: 50,
                             padding: EdgeInsets.zero,
                           )

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -29,7 +31,8 @@ class UserListViewState extends State<UserListView> {
     super.initState();
     count = widget.userList.length;
     dataLoaded = List<bool>.filled(count, false, growable: true);
-    profileImages = List<Image?>.filled(count, null, growable: true);
+    profileImages =
+        List<Uint8List>.filled(count, Uint8List.fromList([]), growable: true);
     for (int i = 0; i < count; i++) {
       loadImage(i);
     }
@@ -37,7 +40,7 @@ class UserListViewState extends State<UserListView> {
 
   void loadImage(index) async {
     profileImages[index] =
-        await getImage(widget.userList[index]["profile_pic_url"]);
+        await getRawImageData(widget.userList[index]["profile_pic_url"]);
     setState(() {
       dataLoaded[index] = true;
     });
@@ -60,24 +63,27 @@ class UserListViewState extends State<UserListView> {
                   AutoRouter.of(context).push(OthersProfileRoute(
                       data: jsonDecode(data),
                       onDeleteFriendCallBack: () {
-                            count -= 1;
-                            dataLoaded.removeAt(index);
-                            profileImages.removeAt(index);
-                            widget.updateCallBack();
+                        count -= 1;
+                        dataLoaded.removeAt(index);
+                        profileImages.removeAt(index);
+                        widget.updateCallBack();
                       }));
                 },
                 child: Row(children: [
                   SizedBox(
                     height: 45,
                     width: 45,
-                    child: dataLoaded[index]
-                        ? IconButton(
-                            onPressed: () {},
-                            icon: profileImages[index],
-                            iconSize: 45,
-                            padding: EdgeInsets.zero,
-                          )
-                        : const CircularProgressIndicator(),
+                    child: IconButton(
+                        onPressed: () {
+                          AutoRouter.of(context).push(SinglePhotoViewer(
+                              photoBytes: profileImages[index], actions: []));
+                        },
+                        icon: dataLoaded[index]
+                            ? Image.memory(profileImages[index])
+                            : const CircularProgressIndicator(),
+                        iconSize: 45,
+                        padding: EdgeInsets.zero,
+                      )
                   ),
                   const Padding(padding: EdgeInsets.all(5)),
                   Column(
@@ -140,7 +146,7 @@ class FriendRequestListState extends State<FriendRequestListView> {
     super.initState();
     count = widget.friendRequestList.length;
     dataLoaded = List<bool>.filled(count, false, growable: true);
-    profileImages = List<Image?>.filled(count, null, growable: true);
+    profileImages = List<Uint8List>.filled(count, Uint8List.fromList([]), growable: true);
     for (int i = 0; i < count; i++) {
       loadImage(i);
     }
@@ -148,7 +154,7 @@ class FriendRequestListState extends State<FriendRequestListView> {
 
   void loadImage(index) async {
     profileImages[index] =
-        await getImage(widget.friendRequestList[index]["profile_pic_url"]);
+        await getRawImageData(widget.friendRequestList[index]["profile_pic_url"]);
     setState(() {
       dataLoaded[index] = true;
     });
@@ -170,9 +176,12 @@ class FriendRequestListState extends State<FriendRequestListView> {
                       height: 45,
                       width: 45,
                       child: IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          AutoRouter.of(context).push(SinglePhotoViewer(
+                              photoBytes: profileImages[index], actions: []));
+                        },
                         icon: dataLoaded[index]
-                            ? profileImages[index]
+                            ? Image.memory(profileImages[index])
                             : const CircularProgressIndicator(),
                         iconSize: 45,
                         padding: EdgeInsets.zero,

@@ -34,7 +34,7 @@ class PostListView extends StatefulWidget {
 class PostListViewState extends State<PostListView> {
   int count = 0;
   List<bool> dataLoaded = [];
-  List<Image?> profileImages = [];
+  List<Uint8List> profileImages = [];
   List<List<Uint8List>?> postImagesRaw = [];
 
   @override
@@ -42,7 +42,7 @@ class PostListViewState extends State<PostListView> {
     super.initState();
     count = widget.postList.length;
     dataLoaded = List.filled(count, false, growable: true);
-    profileImages = List.filled(count, null, growable: true);
+    profileImages = List.filled(count, Uint8List.fromList([]), growable: true);
     postImagesRaw = List.filled(count, null, growable: true);
     for (int i = 0; i < count; i++) {
       loadImages(i);
@@ -50,8 +50,8 @@ class PostListViewState extends State<PostListView> {
   }
 
   void loadImages(index) async {
-    profileImages[index] =
-        await getImage(widget.postList[index]["creator"]["profile_pic_url"]);
+    profileImages[index] = await getRawImageData(
+        widget.postList[index]["creator"]["profile_pic_url"]);
 
     postImagesRaw[index] = List.filled(
         widget.postList[index]["images"].length, Uint8List.fromList([]),
@@ -70,7 +70,7 @@ class PostListViewState extends State<PostListView> {
     ListView list = ListView.builder(
         itemCount: count,
         itemBuilder: (context, index) {
-          Image? profileImage = dataLoaded[index] ? profileImages[index] : null;
+          Uint8List profileImageRawData = profileImages[index];
           String name = widget.postList[index]["creator"]["name"];
           String username = widget.postList[index]["creator"]["username"];
           String title = widget.postList[index]["title"];
@@ -78,6 +78,7 @@ class PostListViewState extends State<PostListView> {
           List<Uint8List>? images =
               dataLoaded[index] ? postImagesRaw[index] : null;
           return Column(children: [
+            // post creator info header
             TextButton(
               onPressed: widget.isInProfile
                   ? () {}
@@ -95,8 +96,11 @@ class PostListViewState extends State<PostListView> {
                   width: 40,
                   child: dataLoaded[index]
                       ? IconButton(
-                          onPressed: () {},
-                          icon: profileImage!,
+                          onPressed: () {
+                            AutoRouter.of(context).push(SinglePhotoViewer(
+                                photoBytes: profileImageRawData, actions: []));
+                          },
+                          icon: Image.memory(profileImageRawData),
                           iconSize: 40,
                           padding: EdgeInsets.zero,
                         )
@@ -157,6 +161,8 @@ class PostListViewState extends State<PostListView> {
                           ],
                         ),
                         const Padding(padding: EdgeInsets.only(top: 10)),
+
+                        // images
                         dataLoaded[index]
                             ? images!.isEmpty
                                 ? Container()
@@ -188,18 +194,33 @@ class PostListViewState extends State<PostListView> {
                                                   mainAxisSpacing: 10,
                                                   crossAxisSpacing: 10),
                                           itemBuilder: (context, imageIndex) {
-                                            return Image.memory(
-                                              images[imageIndex],
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width /
-                                                  2,
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .width /
-                                                  2,
-                                              fit: BoxFit.cover,
-                                            );
+                                            return IconButton(
+                                                splashColor: Colors.transparent,
+                                                highlightColor: Colors
+                                                    .transparent,
+                                                padding: EdgeInsets.zero,
+                                                onPressed: () =>
+                                                    AutoRouter.of(context).push(
+                                                        MultiplePhotosViewer(
+                                                            listOfPhotoBytes:
+                                                                postImagesRaw[
+                                                                    index]!,
+                                                            initialIndex:
+                                                                imageIndex,
+                                                            actionFunction:
+                                                                null)),
+                                                icon: Image.memory(
+                                                  images[imageIndex],
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      2,
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      2,
+                                                  fit: BoxFit.cover,
+                                                ));
                                           },
                                         ),
                                       )
@@ -231,18 +252,33 @@ class PostListViewState extends State<PostListView> {
                                                   mainAxisSpacing: 10,
                                                   crossAxisSpacing: 10),
                                           itemBuilder: (context, imageIndex) {
-                                            return Image.memory(
-                                              images[imageIndex],
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width /
-                                                  2,
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .width /
-                                                  2,
-                                              fit: BoxFit.cover,
-                                            );
+                                            return IconButton(
+                                                splashColor: Colors.transparent,
+                                                highlightColor: Colors
+                                                    .transparent,
+                                                padding: EdgeInsets.zero,
+                                                onPressed: () =>
+                                                    AutoRouter.of(context).push(
+                                                        MultiplePhotosViewer(
+                                                            listOfPhotoBytes:
+                                                                postImagesRaw[
+                                                                    index]!,
+                                                            initialIndex:
+                                                                imageIndex,
+                                                            actionFunction:
+                                                                null)),
+                                                icon: Image.memory(
+                                                  images[imageIndex],
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      2,
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      2,
+                                                  fit: BoxFit.cover,
+                                                ));
                                           },
                                         ),
                                       )

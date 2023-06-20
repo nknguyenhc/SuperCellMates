@@ -20,6 +20,8 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: RequestTagRoute.page),
         AutoRoute(page: CreatePostRoute.page),
         AutoRoute(page: EditPostRoute.page),
+        AutoRoute(page: SinglePhotoViewer.page),
+        AutoRoute(page: MultiplePhotosViewer.page),
         
         
       ];

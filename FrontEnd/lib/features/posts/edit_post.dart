@@ -8,6 +8,7 @@ import 'dart:math';
 import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
+import 'package:supercellmates/router/router.gr.dart';
 
 @RoutePage()
 class EditPostPage extends StatefulWidget {
@@ -44,12 +45,8 @@ class EditPostPageState extends State<EditPostPage> {
   ImagePicker imagePicker = ImagePicker();
   List<Uint8List> postImages = [];
   int imageCount = 0;
-  List<Widget> imagesPreview = List<Widget>.filled(
-      9,
-      const SizedBox(
-        width: 90,
-        height: 90,
-      ));
+  double previewImageWidth = 0;
+  List<Widget?> imagesPreview = List.filled(9, null, growable: true);
 
   @override
   void initState() {
@@ -131,6 +128,15 @@ class EditPostPageState extends State<EditPostPage> {
     });
   }
 
+  void removeImage(int index) {
+    imageCount--;
+    setState(() {
+      postImages.removeAt(index);
+      imagesPreview.removeAt(index);
+      imagesPreview.add(null);
+    });
+  }
+
   void editPost() async {
     if (postTitle == "") {
       showCustomDialog(context, "Oops", "Post title cannot be empty");
@@ -170,6 +176,7 @@ class EditPostPageState extends State<EditPostPage> {
 
   @override
   Widget build(BuildContext context) {
+    previewImageWidth = (MediaQuery.of(context).size.width - 100) / 3;
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
@@ -262,7 +269,7 @@ class EditPostPageState extends State<EditPostPage> {
                     Container(
                       alignment: Alignment.topLeft,
                       width: MediaQuery.of(context).size.width - 40,
-                      height: 340,
+                      height: previewImageWidth * 3 + 70,
                       decoration: BoxDecoration(
                           border: Border.all(
                             color: Colors.grey,
@@ -303,51 +310,58 @@ class EditPostPageState extends State<EditPostPage> {
                             )
                           ],
                         ),
-                        Column(
-                          children: [
-                            SizedBox(
-                              // TODO: Change to grid view
-                              width: MediaQuery.of(context).size.width - 40,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  imagesPreview[0],
-                                  const Padding(padding: EdgeInsets.all(3)),
-                                  imagesPreview[1],
-                                  const Padding(padding: EdgeInsets.all(3)),
-                                  imagesPreview[2],
-                                ],
-                              ),
-                            ),
-                            const Padding(padding: EdgeInsets.all(3)),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width - 40,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  imagesPreview[3],
-                                  const Padding(padding: EdgeInsets.all(3)),
-                                  imagesPreview[4],
-                                  const Padding(padding: EdgeInsets.all(3)),
-                                  imagesPreview[5],
-                                ],
-                              ),
-                            ),
-                            const Padding(padding: EdgeInsets.all(3)),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width - 40,
-                              child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    imagesPreview[6],
-                                    const Padding(padding: EdgeInsets.all(3)),
-                                    imagesPreview[7],
-                                    const Padding(padding: EdgeInsets.all(3)),
-                                    imagesPreview[8],
-                                  ]),
-                            ),
-                          ],
-                        )
+                        SizedBox(
+                            width: MediaQuery.of(context).size.width - 100,
+                            height: previewImageWidth * 3,
+                            child: GridView.builder(
+                              itemCount: 9,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                      mainAxisSpacing: 10,
+                                      crossAxisSpacing: 10),
+                              itemBuilder: (context, imageIndex) {
+                                return imageIndex < imageCount
+                                    ? IconButton(
+                                        splashColor: Colors.transparent,
+                                        highlightColor: Colors.transparent,
+                                        padding: EdgeInsets.zero,
+                                        onPressed: () => AutoRouter.of(context)
+                                            .push(MultiplePhotosViewer(
+                                                listOfPhotoBytes: postImages,
+                                                initialIndex: imageIndex,
+                                                actionFunction: (currIndex) {
+                                                  return [
+                                                    IconButton(
+                                                      onPressed: () {
+                                                        showConfirmationDialog(
+                                                            context,
+                                                            "Are you sure to remove this image?",
+                                                            () {
+                                                          removeImage(
+                                                              currIndex);
+                                                          AutoRouter.of(context)
+                                                              .pop();
+                                                        });
+                                                      },
+                                                      icon: Icon(Icons.delete),
+                                                    )
+                                                  ];
+                                                })),
+                                        icon: imagesPreview[imageIndex] ??
+                                            SizedBox(
+                                              width: previewImageWidth,
+                                              height: previewImageWidth,
+                                            ),
+                                      )
+                                    : SizedBox(
+                                        width: previewImageWidth,
+                                        height: previewImageWidth,
+                                      );
+                              },
+                            ))
                       ]),
                     ),
                   ],
