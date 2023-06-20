@@ -1,0 +1,228 @@
+{
+    "name": "posts",
+    "views": [
+        {
+            "path": "/post/create_post",
+            "description": "Create a post via form data.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "title",
+                    "description": "The title of the post"
+                },
+                {
+                    "name": "content",
+                    "description": "The text content of the post"
+                },
+                {
+                    "name": "tag",
+                    "description": "The name of the tag to associate the post with"
+                },
+                {
+                    "name": "imgs",
+                    "description": "The list of images associated with this post"
+                },
+                {
+                    "name": "visibility",
+                    "description": "The list of visibility options. If 'public' is present, the post is visible to public. If 'friends' and 'tag' are present, the post is visible only to friends with the same tag. If either one of them is missing, the post is visible to users fulfilling the other criterion."
+                }
+            ],
+            "return": "<success status 200, or status 4xx if the request is invalid>"
+        },
+        {
+            "path": "/post/post/<str:post_id>",
+            "description": "Get information of the post with the given id. Only available if you have viewing privilege for the post.",
+            "getParams": [],
+            "postParams": [],
+            "return": {
+                "id": "<id of post>",
+                "title": "<title of post>",
+                "content": "<content of post>",
+                "tag": {
+                    "name": "<name of tag>",
+                    "icon": "<URL to icon of tag>"
+                },
+                "public_visible": "<public visibility setting>",
+                "friend_visible": "<friend visibility setting>",
+                "tag_visible": "<users with same tag visibility setting>",
+                "creator": {
+                    "name": "<name of post creator>",
+                    "usename": "<username of post creator>",
+                    "profile_pic_url": "<URL to profile pic of post creator>",
+                    "profile_link": "<link to profile of post creator>"
+                },
+                "time_posted": {
+                    "year": "<year posted>",
+                    "month": "<month posted>",
+                    "day": "<day posted>",
+                    "hour": "<hour posted>",
+                    "minute": "<minute posted>",
+                    "second": "<second posted>"
+                },
+                "images": [
+                    "<URL to image 1>",
+                    "<URL to image 2>",
+                    "<URL to image 3>"
+                ]
+            }
+        },
+        {
+            "path": "/post/posts/<str:username>",
+            "description": "Get posts of the target user with the given username within a given time frame. Only posts that request user has view access will be returned. Each post is represented by a json object",
+            "getParams": [
+                {
+                    "name": "start",
+                    "description": "Start time to search for posts, in the format YYYY-MM-DD-HH-MM-SS"
+                },
+                {
+                    "name": "end",
+                    "description": "End time to search for posts, in the format YYYY-MM-DD-HH-MM-SS"
+                }
+            ],
+            "postParams": [],
+            "return": {
+                "posts": [
+                    {
+                        "id": "<id of post 1>",
+                        "title": "<title of post 1>",
+                        "content": "<content of post 1>",
+                        "tag": {
+                            "name": "<name of tag>",
+                            "icon": "<URL to icon of tag>"
+                        },
+                        "public_visible": "<public visibility setting>",
+                        "friend_visible": "<friend visibility setting>",
+                        "tag_visible": "<users with same tag visibility setting>",
+                        "creator": {
+                            "name": "<name of post 1 creator>",
+                            "usename": "<username of post 1 creator>",
+                            "profile_pic_url": "<URL to profile pic of post 1 creator>",
+                            "profile_link": "<link to profile of post 1 creator>"
+                        },
+                        "time_posted": {
+                            "year": "<year posted>",
+                            "month": "<month posted>",
+                            "day": "<day posted>",
+                            "hour": "<hour posted>",
+                            "minute": "<minute posted>",
+                            "second": "<second posted>"
+                        },
+                        "images": [
+                            "<URL to image 1>",
+                            "<URL to image 2>",
+                            "<URL to image 3>"
+                        ]
+                    },
+                    {
+                        "id": "<id of post 2>",
+                        "title": "<title of post 2>",
+                        "content": "<content of post 2>",
+                        "tag": {
+                            "name": "<name of tag>",
+                            "icon": "<URL to icon of tag>"
+                        },
+                        "public_visible": "<public visibility setting>",
+                        "friend_visible": "<friend visibility setting>",
+                        "tag_visible": "<users with same tag visibility setting>",
+                        "creator": {
+                            "name": "<name of post 2 creator>",
+                            "usename": "<username of post 2 creator>",
+                            "profile_pic_url": "<URL to profile pic of post 2 creator>",
+                            "profile_link": "<link to profile of post 2 creator>"
+                        },
+                        "time_posted": {
+                            "year": "<year posted>",
+                            "month": "<month posted>",
+                            "day": "<day posted>",
+                            "hour": "<hour posted>",
+                            "minute": "<minute posted>",
+                            "second": "<second posted>"
+                        },
+                        "images": [
+                            "<URL to image 1>",
+                            "<URL to image 2>",
+                            "<URL to image 3>"
+                        ]
+                    }
+                ],
+                "hasOlderPosts": "<whether there are still older posts, to inform frontend of whether to continue sending request for post loading>",
+                "myProfile": "<whether the user that sent request is the same as the target request>"
+            }
+        },
+        {
+            "path": "post/post/img/<str:pic_id>",
+            "description": "Returns the post picture with the given id. Only users with view access to the associated post will be given access to view this photo.",
+            "getParams": [],
+            "postParams": [],
+            "return": "<the image>"
+        },
+        {
+            "path": "/post/post/edit/<str:post_id>",
+            "description": "Edit a post. Only the author can edit the post with the given id.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "title",
+                    "description": "The new title of the post"
+                },
+                {
+                    "name": "content",
+                    "description": "The new content of the post"
+                },
+                {
+                    "name": "visibility",
+                    "description": "The new visibility settings of the post"
+                },
+                {
+                    "name": "imgs",
+                    "description": "The new set of images of the post. The old set of images will be wiped."
+                }
+            ],
+            "return": "<success status 200, or status 4xx if the request is invalid>"
+        },
+        {
+            "path": "/post/post/photo/add",
+            "description": "Add a photo to the given post. Only the author can add a photo to his/her post",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "post_id",
+                    "description": "The id of the post to target"
+                },
+                {
+                    "name": "img",
+                    "description": "The image to add to the post"
+                }
+            ],
+            "return": "<success status 200, or status 4xx if the request is invalid>"
+        },
+        {
+            "path": "/post/post/photo/delete",
+            "description": "Delete a post photo from the database. Only the author of the post can perform this action",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "post_id",
+                    "description": "The id of the post to target"
+                },
+                {
+                    "name": "pic_id",
+                    "description": "The id of the post image to remove"
+                }
+            ],
+            "return": "<success status 200, or status 4xx if the request is invalid>"
+        },
+        {
+            "path": "/post/delete",
+            "description": "Delete a post. Only the author of the post can perform this action.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "post_id",
+                    "description": "The id of the post to delete"
+                }
+            ],
+            "return": "<success status 200, or status 4xx if the request is invalid>"
+        }
+    ]
+}

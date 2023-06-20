@@ -25,6 +25,11 @@
                 <button id="change-password-button" class="btn btn-success">Change Password</button>
                 <div id="change-password-page" class="edit-page" style="display: none"></div>
             </div>
+            <a href="{% url 'user_auth:logout' %}"><button class="btn btn-secondary">Log Out</button></a>
+        </div>
+        <div class="settings-section">
+            <div class="settings-label">Profile</div>
+            <a href="{% url 'user_profile:setup' %}"><button class="btn btn-primary">Edit Profile</button></a>
         </div>
     </div>
     <button id="change-authentication-button" style="display: none" type="button" data-bs-toggle="modal" data-bs-target="#change-authentication-message"></button>

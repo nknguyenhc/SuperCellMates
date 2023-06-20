@@ -24,7 +24,7 @@ def create_post(request):
         title (compulsory): the title of the post.
         content (compulsory): the text content of the post.
         tag (compulsory): the tag name associated with this post. There can only be one tag associated
-        images (optional): the list of images associated with this post.
+        imgs (optional): the list of images associated with this post.
         visibility (compulsory): the list of the visibility options. Values:
             "public": the post is visible to public
             "friends": the post is visible to friends

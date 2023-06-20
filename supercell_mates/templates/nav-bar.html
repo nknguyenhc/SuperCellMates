@@ -16,11 +16,6 @@
                             <a href="{% url 'user_auth:login' %}" class="nav-link">Login</a>
                         </li>
                     {% endif %} 
-                    {% if user.is_authenticated %} 
-                        <li class="nav-item">
-                            <a href="{% url 'user_auth:logout' %}" class="nav-link">Logout</a>
-                        </li>
-                    {% endif %} 
                     {% if not user.is_authenticated %} 
                         <li class="nav-item">
                             <a href="{% url 'user_auth:register' %}" class="nav-link">Register</a>
@@ -38,11 +33,6 @@
                     {% endif %} 
                     {% if user.is_authenticated %} 
                         <li class="nav-item">
-                            <a href="{% url 'user_auth:settings' %}" class="nav-link">Settings</a>
-                        </li>
-                    {% endif %} 
-                    {% if user.is_authenticated %} 
-                        <li class="nav-item">
                             <a href="{% url 'message:index' %}" class="nav-link">Messages</a>
                         </li>
                     {% endif %} 
@@ -54,6 +44,11 @@
                     {% if user.is_superuser %} 
                         <li class="nav-item">
                             <a href="{% url 'user_auth:manage_admin' %}" class="nav-link">Manage Admins</a>
+                        </li>
+                    {% endif %} 
+                    {% if user.is_authenticated %} 
+                        <li class="nav-item">
+                            <a href="{% url 'user_auth:settings' %}" class="nav-link">Settings</a>
                         </li>
                     {% endif %} 
                 </ul>
