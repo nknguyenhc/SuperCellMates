@@ -10,4 +10,5 @@ urlpatterns = [
     path('get_private_messages/<str:chat_id>', views.get_private_messages, name='get_private_messages'),
     path('upload_file', views.upload_file, name='upload_file'),
     path('image/<str:message_id>', views.get_image, name='get_image'),
+    path('get_private_chat_id/<str:username>', views.get_private_chat_id, name='get_private_chat_id'),
 ]

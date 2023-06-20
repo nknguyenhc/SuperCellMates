@@ -7,6 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.http import require_http_methods
 from user_profile.views import verify_image
 
+from user_auth.models import UserAuth
 from .models import TextMessage, PrivateChat, FileMessage, PrivateFileMessage
 
 
@@ -255,3 +256,24 @@ def get_image(request, message_id):
         return FileResponse(file_field)
     except ObjectDoesNotExist:
         return HttpResponseNotFound("message not found")
+
+
+@login_required
+def get_private_chat_id(request, username):
+    """Get the id of the private chat between request user and target user.
+    
+    Args:
+        request (HttpRequest): the request made to this view
+        username (str): the username of the target user
+    
+    Returns:
+        HttpResponse: the response with the id of the private chat
+    """
+
+    if not UserAuth.objects.get(username=username).user_log.friend_list.filter(user_auth=request.user).exists():
+        return HttpResponseBadRequest("You are not friend with this user!")
+    result = list(filter(
+        lambda chat: chat.users.filter(username=username).exists(),
+        list(request.user.private_chats.all())
+    ))[0]
+    return HttpResponse(result.id)

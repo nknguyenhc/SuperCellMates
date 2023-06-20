@@ -21,24 +21,52 @@ function ChatPage() {
     React.useEffect(() => {
         fetch('/messages/get_private_chats')
             .then(response => response.json())
-            .then(response => {
-                setPrivateChats(
-                    response.privates
-                        .map(chat => {
-                            return {
-                                id: chat.id,
-                                timestamp: chat.timestamp,
-                                chatName: chat.user.username,
-                                image: chat.user.profile_img_url
-                            };
-                        })
-                );
+            .then(async response => {
+                const newPrivateChats = response.privates.map(chat => {
+                    return {
+                        id: chat.id,
+                        timestamp: chat.timestamp,
+                        chatName: chat.user.username,
+                        image: chat.user.profile_img_url
+                    };
+                });
+                await setPrivateChats(newPrivateChats);
+                return newPrivateChats;
+            })
+            .then(newPrivateChats => {
+                const idQueries = window.location.search
+                    .slice(1)
+                    .split("&")
+                    .map(eqn => eqn.split("="))
+                    .filter(pair => pair[0] === "chatid");
+                if (idQueries.length > 0) {
+                    let index = 0;
+                    const id = idQueries[0][1];
+                    while (index < newPrivateChats.length) {
+                        if (newPrivateChats[index].id === id) {
+                            break;
+                        }
+                        index++;
+                    }
+                    if (index < newPrivateChats.length) {
+                        clickOpenChat(id, index, false);
+                    }
+                }
             });
     }, []);
 
     React.useEffect(() => {
         setUsername(document.querySelector('input#username-hidden').value);
     }, []);
+
+    function clickOpenChat(privateChatId, i, pushState) {
+        openChat(privateChatId);
+        setCurrChatId(privateChatId);
+        setHighlighting(i);
+        if (pushState) {
+            history.pushState('', '', `?chatid=${privateChatId}`);
+        }
+    }
 
     function openChat(chatid) {
         setChatSelected(true);
@@ -169,11 +197,7 @@ function ChatPage() {
                     <div id="chat-list-private">
                         {
                             privateChats.map((privateChat, i) => (
-                                <div className="chat-listing" onClick={() => {
-                                    openChat(privateChat.id);
-                                    setCurrChatId(privateChat.id);
-                                    setHighlighting(i);
-                                }} style={{
+                                <div className="chat-listing" onClick={() => clickOpenChat(privateChat.id, i, true)} style={{
                                     backgroundColor: highlighting === i ? "#CDCBCB" : '',
                                 }}>
                                     <div className="chat-listing-image">
@@ -195,9 +219,9 @@ function ChatPage() {
                                 <div className="text-line" style={{
                                     flexDirection: text.user.username === username ? "row-reverse" : "row",
                                 }}>
-                                    <div className="text-line-user-img">
+                                    <a className="text-line-user-img" href={text.user.profile_link}>
                                         <img src={text.user.profile_img_url} />
-                                    </div>
+                                    </a>
                                     <div className="text-line-content p-1 border border-primary">{
                                         text.type === "text" 
                                         ? text.message 

@@ -1,9 +1,10 @@
 function Buttons() {
     const [friendDeleted, setFriendDeleted] = React.useState(false);
+    const username = document.querySelector("#profile-id").innerText.slice(1);
 
     function deleteFriend() {
         fetch('/user/delete_friend', postRequestContent({
-            username: document.querySelector("#profile-id").innerHTML.slice(1)
+            username: username
         }))
             .then(response => {
                 if (response.status === 200) {
@@ -14,10 +15,21 @@ function Buttons() {
             });
     }
 
+    function toMessagePage() {
+        fetch('/messages/get_private_chat_id/' + username)
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                    return;
+                }
+                response.text().then(id => window.location.assign(`/messages/?chatid=${id}`));
+            });
+    }
+
     if (!friendDeleted) {
         return (
             <React.Fragment>
-                <button type="button" class="btn btn-outline-primary">Message</button>
+                <button type="button" class="btn btn-outline-primary" onClick={toMessagePage}>Message</button>
                 <button id="delete-friend-button" class='btn btn-outline-danger' type="button" data-bs-toggle="modal" data-bs-target="#delete-friend-message">Unfriend</button>
                 <div class="modal fade" id="delete-friend-message" tabindex="-1" aria-labelledby="deleteFriendLabel" aria-hidden="true">
                     <div class="modal-dialog">

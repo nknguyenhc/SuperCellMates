@@ -101,6 +101,13 @@
     gap: 50px;
 }
 
+.post-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .post-creator-info {
     display: flex;
     flex-direction: row;

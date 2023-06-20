@@ -34,23 +34,26 @@ function Post(props) {
 
     return (
         <React.Fragment>
-            <div className="post-creator-info mb-2">
-                <div className="post-creator-profile-pic">
-                    <img src={post.creator.profile_pic_url} />
-                </div>
-                <div className="post-creator-text-info">
-                    <div className="post-creator-name">{post.creator.name}</div>
-                    <a className="post-creator-username" href={post.creator.profile_link}>@{post.creator.username}</a>
-                </div>
-                {
-                    props.myProfile
-                    ? <div>
-                        <button className="btn btn-secondary btn-sm" onClick={() => {
-                            popEditView(post.id);
-                        }}>Edit</button>
+            <div className="post-header">
+                <div className="post-creator-info mb-2">
+                    <div className="post-creator-profile-pic">
+                        <img src={post.creator.profile_pic_url} />
                     </div>
-                    : ''
-                }
+                    <div className="post-creator-text-info">
+                        <div className="post-creator-name">{post.creator.name}</div>
+                        <a className="post-creator-username" href={post.creator.profile_link}>@{post.creator.username}</a>
+                    </div>
+                    {
+                        props.myProfile
+                        ? <div>
+                            <button className="btn btn-secondary btn-sm" onClick={() => {
+                                popEditView(post.id);
+                            }}>Edit</button>
+                        </div>
+                        : ''
+                    }
+                </div>
+                <div className="post-date">{`${formatNumber(post.time_posted.day, 2)}/${formatNumber(post.time_posted.month, 2)}/${formatNumber(post.time_posted.year, 4)} ${formatNumber(post.time_posted.hour, 2)}:${formatNumber(post.time_posted.minute, 2)}`}</div>
             </div>
             <h4 className='mb-2'>{post.title}</h4>
             <div className="post-tag mb-2">

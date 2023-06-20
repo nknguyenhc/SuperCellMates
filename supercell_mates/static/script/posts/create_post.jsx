@@ -116,7 +116,7 @@ function CreatePost() {
             <div className="mt-3" id="post-choose-tag">
                 {
                     userTags.length === 0
-                    ? 'Your profile needs at least one tag to post!'
+                    ? <div className="text-danger">Your profile needs at least one tag to post!</div>
                     : userTags.map(tag => (
                         <React.Fragment>
                             <input type="radio" class="btn-check" name="options" id={"post-tag-" + tag.name} autocomplete="off" />

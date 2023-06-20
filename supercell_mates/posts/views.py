@@ -5,11 +5,10 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseNotFound, FileResponse
 from django.views.decorators.http import require_http_methods
 from django.core.exceptions import ObjectDoesNotExist
-import datetime
 import io
 from django.core.files.images import ImageFile
 from PIL import Image
-from pytz import timezone
+from datetime import datetime, timedelta
 
 from user_profile.views import verify_image
 
@@ -359,6 +358,7 @@ def parse_post_object(post):
         lambda image: reverse("posts:get_post_pic", args=(image.id,)),
         images
     ))
+    post_timing = post.time_posted + timedelta(hours=8) # SG time
 
     return {
         "id": post.id,
@@ -378,12 +378,12 @@ def parse_post_object(post):
             "profile_link": reverse("user_log:view_profile", args=(post.creator.user_auth.username,)),
         },
         "time_posted": {
-            "year": post.time_posted.year,
-            "month": post.time_posted.month,
-            "day": post.time_posted.day,
-            "hour": post.time_posted.hour,
-            "minute": post.time_posted.minute,
-            "second": post.time_posted.second,
+            "year": post_timing.year,
+            "month": post_timing.month,
+            "day": post_timing.day,
+            "hour": post_timing.hour,
+            "minute": post_timing.minute,
+            "second": post_timing.second,
         },
         "images": images
     }
@@ -481,8 +481,8 @@ def get_profile_posts(request, username):
         end_arr = request.GET["end"].split("-")
         if len(start_arr) != 6 or len(end_arr) != 6:
             return HttpResponseBadRequest("start or end date malformed")
-        start_time = datetime.datetime(year=int(start_arr[0]), month=int(start_arr[1]), day=int(start_arr[2]), hour=int(start_arr[3]), minute=int(start_arr[4]), second=int(start_arr[5]))
-        end_time = datetime.datetime(year=int(end_arr[0]), month=int(end_arr[1]), day=int(end_arr[2]), hour=int(end_arr[3]), minute=int(end_arr[4]), second=int(end_arr[5]))
+        start_time = datetime(year=int(start_arr[0]), month=int(start_arr[1]), day=int(start_arr[2]), hour=int(start_arr[3]), minute=int(start_arr[4]), second=int(start_arr[5]))
+        end_time = datetime(year=int(end_arr[0]), month=int(end_arr[1]), day=int(end_arr[2]), hour=int(end_arr[3]), minute=int(end_arr[4]), second=int(end_arr[5]))
         # only meant to be in SG. If post is made at another point of the world, have to fix this time display
         user_log_obj = UserAuth.objects.get(username=username).user_log
 
