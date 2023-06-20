@@ -12,9 +12,12 @@ import 'package:supercellmates/router/router.gr.dart';
 
 @RoutePage()
 class CreatePostPage extends StatefulWidget {
-  const CreatePostPage({Key? key, required this.tagName}) : super(key: key);
+  const CreatePostPage(
+      {Key? key, required this.tagName, required this.updateCallBack})
+      : super(key: key);
 
   final String tagName;
+  final dynamic updateCallBack;
 
   @override
   State<CreatePostPage> createState() => CreatePostPageState();
@@ -129,6 +132,7 @@ class CreatePostPageState extends State<CreatePostPage> {
     dynamic r = await postWithCSRF(EndPoints.createPost.endpoint, body);
 
     if (r == "post created") {
+      widget.updateCallBack();
       AutoRouter.of(context).pop().then(
           (value) => showSuccessDialog(context, "Successfully created post!"));
     }
@@ -196,7 +200,7 @@ class CreatePostPageState extends State<CreatePostPage> {
                     const Padding(padding: EdgeInsets.all(10)),
                     SizedBox(
                         width: MediaQuery.of(context).size.width - 40,
-                        height: MediaQuery.of(context).size.height - 555,
+                        height: MediaQuery.of(context).size.height - 575,
                         child: TextField(
                           onTap: collapseVisibilities,
                           onTapOutside: (e) =>
@@ -225,9 +229,8 @@ class CreatePostPageState extends State<CreatePostPage> {
                   children: [
                     const Padding(padding: EdgeInsets.only(left: 20)),
                     Container(
-                      alignment: Alignment.topLeft,
                       width: MediaQuery.of(context).size.width - 40,
-                      height: previewImageWidth * 3 + 70,
+                      height: previewImageWidth * 3 + 60,
                       decoration: BoxDecoration(
                           border: Border.all(
                             color: Colors.grey,
@@ -237,10 +240,11 @@ class CreatePostPageState extends State<CreatePostPage> {
                               const BorderRadius.all(Radius.circular(3))),
                       child: Column(children: [
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Padding(padding: EdgeInsets.only(left: 25)),
-                            IconButton(
+                            TextButton(
                                 onPressed: () async {
+                                  collapseVisibilities();
                                   List<XFile?> imgs =
                                       await imagePicker.pickMultiImage();
                                   for (XFile? img in imgs) {
@@ -256,16 +260,21 @@ class CreatePostPageState extends State<CreatePostPage> {
                                     }
                                   }
                                 },
-                                icon: const Icon(
-                                  Icons.photo_library,
-                                  size: 35,
+                                child: const Row(
+                                  children: [
+                                    Icon(
+                                      Icons.photo_library,
+                                      size: 35,
+                                    ),
+                                    Padding(padding: EdgeInsets.only(left: 10)),
+                                    Text(
+                                      "Pick up to 9 images",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
                                 )),
-                            const Text(
-                              "Pick up to 9 images",
-                              style: TextStyle(
-                                  color: Colors.blueGrey,
-                                  fontWeight: FontWeight.bold),
-                            )
+                            const Padding(padding: EdgeInsets.only(right: 20)),
                           ],
                         ),
                         SizedBox(
@@ -286,28 +295,33 @@ class CreatePostPageState extends State<CreatePostPage> {
                                         splashColor: Colors.transparent,
                                         highlightColor: Colors.transparent,
                                         padding: EdgeInsets.zero,
-                                        onPressed: () => AutoRouter.of(context)
-                                            .push(MultiplePhotosViewer(
-                                                listOfPhotoBytes: postImages,
-                                                initialIndex: imageIndex,
-                                                actionFunction: (currIndex) {
-                                                  return [
-                                                    IconButton(
-                                                      onPressed: () {
-                                                        showConfirmationDialog(
-                                                            context,
-                                                            "Are you sure to remove this image?",
-                                                            () {
-                                                          removeImage(
-                                                              currIndex);
-                                                          AutoRouter.of(context)
-                                                              .pop();
-                                                        });
-                                                      },
-                                                      icon: Icon(Icons.delete),
-                                                    )
-                                                  ];
-                                                })),
+                                        onPressed: () {
+                                          collapseVisibilities();
+                                          AutoRouter.of(context)
+                                              .push(MultiplePhotosViewer(
+                                                  listOfPhotoBytes: postImages,
+                                                  initialIndex: imageIndex,
+                                                  actionFunction: (currIndex) {
+                                                    return [
+                                                      IconButton(
+                                                        onPressed: () {
+                                                          showConfirmationDialog(
+                                                              context,
+                                                              "Are you sure to remove this image?",
+                                                              () {
+                                                            removeImage(
+                                                                currIndex);
+                                                            AutoRouter.of(
+                                                                    context)
+                                                                .pop();
+                                                          });
+                                                        },
+                                                        icon:
+                                                            Icon(Icons.delete),
+                                                      )
+                                                    ];
+                                                  }));
+                                        },
                                         icon: imagesPreview[imageIndex] ??
                                             SizedBox(
                                               width: previewImageWidth,
