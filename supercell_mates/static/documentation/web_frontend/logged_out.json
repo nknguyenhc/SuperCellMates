@@ -1,0 +1,40 @@
+{
+    "name": "logged_out",
+    "views": [
+        {
+            "path": "/register",
+            "description": "Register a new user/account.",
+            "APIs": [
+                {
+                    "path": "/check_unique_username",
+                    "trigger": "When the user finishes typing his/her username",
+                    "purpose": "To inform the user of whether the username has been taken, save user some time of resubmitting registration form"
+                }
+            ],
+            "redirects": [
+                {
+                    "path": "/profile/setup",
+                    "description": "Redirect user to the profile setup page once registration of account is successful.",
+                    "where": "When the user presses submit button to create account, and registration is successful"
+                }
+            ]
+        },
+        {
+            "path": "/login",
+            "description": "Log in to an existing account.",
+            "APIs": [],
+            "redirects": [
+                {
+                    "path": "/",
+                    "description": "Back to home when the user successfully log in.",
+                    "where": "When the user presses submit button to log in, and the authentication is successful"
+                },
+                {
+                    "path": "/login",
+                    "description": "Back to the same login page when the user fails to provide correct credentials.",
+                    "where": "When the user presses submit button to log in, and the authentication fails"
+                }
+            ]
+        }
+    ]
+}

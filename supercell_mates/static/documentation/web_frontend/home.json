@@ -1,0 +1,22 @@
+{
+    "name": "home",
+    "views": [
+        {
+            "path": "/",
+            "description": "Home page of this website. User can post, and (in a future implementation) scroll through others' posts.",
+            "APIs": [
+                {
+                    "path": "/profile/user_tags",
+                    "trigger": "First load",
+                    "purpose": "Obtain the current user's tag for posting"
+                },
+                {
+                    "path": "/post/create_post",
+                    "trigger": "When the user press the button to create a new post",
+                    "purpose": "Create a new post and save it in the database"
+                }
+            ],
+            "redirects": []
+        }
+    ]
+}

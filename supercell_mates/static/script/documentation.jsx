@@ -14,16 +14,26 @@ function Documentation() {
             name: "Databases",
             path: "databases",
             apps: siteApps
+        },
+        {
+            name: "Web Frontend",
+            path: "web_frontend",
+            apps: [
+                "logged_out",
+                "home",
+                "layout",
+            ]
         }
     ];
     const [structureSelected, setStructureSelected] = React.useState(-1);
     const [tabSelected, setTabSelected] = React.useState(-1);
     const [backendDocViews, setBackendDocViews] = React.useState([]);
     const [databaseDocViews, setDatabaseDocViews] = React.useState([]);
+    const [webFrontendDocViews, setWebFrontendDocViews] = React.useState([]);
     const [details, setDetails] = React.useState('');
-    const chapters = [backendDocViews, databaseDocViews];
-    const chapterSetters = [setBackendDocViews, setDatabaseDocViews];
-    const chapterRenderers = [backend, database];
+    const chapters = [backendDocViews, databaseDocViews, webFrontendDocViews];
+    const chapterSetters = [setBackendDocViews, setDatabaseDocViews, setWebFrontendDocViews];
+    const chapterRenderers = [backend, database, webFrontend];
 
     React.useEffect(() => {
         structures.forEach((structure, i) => {
@@ -40,7 +50,10 @@ function Documentation() {
     function backend(backendDocBody) {
         return (
             <div className='documentation-block'>
-                <input className="backend-documentation-path form-control" value={backendDocBody.path} />
+                <div className="backend-documentation-path-display">
+                    <div className="backend-documentation-path-label">Path:</div>
+                    <input className="backend-documentation-path form-control" value={backendDocBody.path} />
+                </div>
                 <div className="backend-documentation-description">{backendDocBody.description}</div>
                  {
                     backendDocBody.getParams.length > 0 &&
@@ -97,6 +110,46 @@ function Documentation() {
                                 <div className="database-documentation-field-name border ps-2">{field.name}</div>
                                 <div className="database-documentation-field-type border ps-2">{field.type}</div>
                                 <div className="database-documentation-field-description border ps-2">{field.description}</div>
+                            </div>
+                        ))
+                    }
+                </div>
+            </div>
+        )
+    }
+
+    function webFrontend(webFrontendDocBody) {
+        return (
+            <div className="documentation-block">
+                <div className="web-frontend-documentation-path-display">
+                    <div className="web-frontend-documentation-path-label">Path:</div>
+                    <input className="web-frontend-documentation-path form-control" value={webFrontendDocBody.path} />
+                </div>
+                <div className="web-frontend-documentation-description">{webFrontendDocBody.description}</div>
+                <div className="web-frontend-documentation-apis">
+                    <h6 className="web-frontend-documentation-apis-label">API Calls</h6>
+                    {
+                        webFrontendDocBody.APIs.length === 0
+                        ? <div className="fst-italic">No API call to show</div>
+                        : webFrontendDocBody.APIs.map(apiCall => (
+                            <div className="web-frontend-documentation-api">
+                                <input className="form-control web-frontend-documentation-api-path" value={apiCall.path} />
+                                <div className="web-frontend-api-trigger"><u>When?</u> {apiCall.trigger}</div>
+                                <div className="web-frontend-api purpose"><u>For?</u> {apiCall.purpose}</div>   
+                            </div>
+                        ))
+                    }
+                </div>
+                <div className="web-frontend-documentation-redirects">
+                    <h6 className="web-frontend-documentation-redirects-label">Visible Links</h6>
+                    {
+                        webFrontendDocBody.redirects.length === 0
+                        ? <div className="fst-italic">No visible link to show</div>
+                        : webFrontendDocBody.redirects.map(redirect => (
+                            <div className="web-frontend-documentation-redirect">
+                                <input className="form-control web-frontend-documentation-redirect-path" value={redirect.path} />
+                                <div className="web-frontend-documentation-redirect-description">{redirect.description}</div>
+                                <div className="web-frontend-documentation-redirect-where"><u>Where is this link found?</u> {redirect.where}</div>
                             </div>
                         ))
                     }

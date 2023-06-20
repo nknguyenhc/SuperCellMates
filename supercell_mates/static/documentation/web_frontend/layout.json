@@ -1,0 +1,89 @@
+{
+    "name": "layout",
+    "views": [
+        {
+            "path": "Home button",
+            "description": "Redirect to home page.",
+            "APIs": [],
+            "redirects": [
+                {
+                    "path": "/",
+                    "description": "When the user presses on home page button",
+                    "where": "<NA>"
+                }
+            ]
+        },
+        {
+            "path": "Logout button",
+            "description": "Log the user out of the page.",
+            "APIs": [],
+            "redirects": [
+                {
+                    "path": "/logout",
+                    "description": "Log the user out of the page, then redirect to login page",
+                    "where": "<NA>"
+                }
+            ]
+        },
+        {
+            "path": "Request Tag button",
+            "description": "Allow user to request a new tag for the page. Our two programmers cannot think of all possible tags in this world.",
+            "APIs": [
+                {
+                    "path": "/add_tag_request",
+                    "trigger": "When the user presses submit to request a new tag",
+                    "purpose": "To send the tag request to backend and record in the database"
+                }
+            ],
+            "redirects": []
+        },
+        {
+            "path": "Your Profile button",
+            "description": "Redirect to your profile page.",
+            "APIs": [],
+            "redirects": [
+                {
+                    "path": "/profile/",
+                    "description": "Your profile page.",
+                    "where": "<NA>"
+                }
+            ]
+        },
+        {
+            "path": "Settings button",
+            "description": "Redirect to the settings page for your account.",
+            "APIs": [],
+            "redirects": [
+                {
+                    "path": "/settings",
+                    "description": "Settings page for your account.",
+                    "where": "<NA>"
+                }
+            ]
+        },
+        {
+            "path": "Messages button",
+            "description": "Redirect to the page for messaging.",
+            "APIs": [],
+            "redirects": [
+                {
+                    "path": "/messages/",
+                    "description": "Page specifically for managing messages.",
+                    "where": "<NA>"
+                }
+            ]
+        },
+        {
+            "path": "Admin",
+            "description": "Link to admin page. This link is only available when you are an admin of this page.",
+            "APIs": [],
+            "redirects": [
+                {
+                    "path": "/manage_page",
+                    "description": "Redirect to the admin page.",
+                    "where": "<NA>"
+                }
+            ]
+        }
+    ]
+}

@@ -53,7 +53,7 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 60px;
+    gap: 100px;
 }
 
 .documentation-block {
@@ -61,6 +61,17 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+}
+
+.backend-documentation-path-display {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+.backend-documentation-path-label {
+    flex-shrink: 0;
 }
 
 .backend-documentation-section-body {
@@ -111,4 +122,25 @@
 
 .database-documentation-field-description {
     flex-grow: 1;
+}
+
+.web-frontend-documentation-path-display {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+.web-frontend-documentation-path-label {
+    flex-shrink: 0;
+}
+
+.web-frontend-documentation-apis, .web-frontend-documentation-redirects {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.web-frontend-documentation-api-path, .web-frontend-documentation-redirect-path {
+    width: fit-content;
 }
