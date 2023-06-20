@@ -155,11 +155,9 @@ class ProfilePageState extends State<ProfilePage> {
                             "Please select a tag you want to post under!");
                         return;
                       }
-                      AutoRouter.of(context)
-                          .push(CreatePostRoute(
-                              tagName: data["tags"][selectedTagIndex - 1]
-                                  ["name"]))
-                          .then((value) => loadData());
+                      AutoRouter.of(context).push(CreatePostRoute(
+                          tagName: data["tags"][selectedTagIndex - 1]["name"],
+                          updateCallBack: loadData));
                     },
                   )
                 ],

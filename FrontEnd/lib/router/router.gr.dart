@@ -69,6 +69,7 @@ abstract class $AppRouter extends _i15.RootStackRouter {
         child: _i6.CreatePostPage(
           key: args.key,
           tagName: args.tagName,
+          updateCallBack: args.updateCallBack,
         ),
       );
     },
@@ -235,12 +236,14 @@ class CreatePostRoute extends _i15.PageRouteInfo<CreatePostRouteArgs> {
   CreatePostRoute({
     _i16.Key? key,
     required String tagName,
+    required dynamic updateCallBack,
     List<_i15.PageRouteInfo>? children,
   }) : super(
           CreatePostRoute.name,
           args: CreatePostRouteArgs(
             key: key,
             tagName: tagName,
+            updateCallBack: updateCallBack,
           ),
           initialChildren: children,
         );
@@ -255,15 +258,18 @@ class CreatePostRouteArgs {
   const CreatePostRouteArgs({
     this.key,
     required this.tagName,
+    required this.updateCallBack,
   });
 
   final _i16.Key? key;
 
   final String tagName;
 
+  final dynamic updateCallBack;
+
   @override
   String toString() {
-    return 'CreatePostRouteArgs{key: $key, tagName: $tagName}';
+    return 'CreatePostRouteArgs{key: $key, tagName: $tagName, updateCallBack: $updateCallBack}';
   }
 }
 
