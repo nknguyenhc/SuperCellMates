@@ -1,8 +1,7 @@
 #settings-page {
     display: flex;
     flex-direction: row;
-    justify-content: center;
-    gap: 30px;
+    justify-content: space-around;
 }
 
 .settings-section {
