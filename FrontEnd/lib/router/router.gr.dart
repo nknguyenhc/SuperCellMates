@@ -106,6 +106,7 @@ abstract class $AppRouter extends _i13.RootStackRouter {
         child: _i10.OthersProfilePage(
           key: args.key,
           data: args.data,
+          onDeleteFriendCallBack: args.onDeleteFriendCallBack,
         ),
       );
     },
@@ -124,7 +125,7 @@ abstract class $AppRouter extends _i13.RootStackRouter {
           tagName: args.tagName,
           oldPostData: args.oldPostData,
           oldPostImages: args.oldPostImages,
-          refreshCallBack: args.refreshCallBack,
+          updateCallBack: args.updateCallBack,
         ),
       );
     },
@@ -364,12 +365,14 @@ class OthersProfileRoute extends _i13.PageRouteInfo<OthersProfileRouteArgs> {
   OthersProfileRoute({
     _i14.Key? key,
     required dynamic data,
+    dynamic onDeleteFriendCallBack,
     List<_i13.PageRouteInfo>? children,
   }) : super(
           OthersProfileRoute.name,
           args: OthersProfileRouteArgs(
             key: key,
             data: data,
+            onDeleteFriendCallBack: onDeleteFriendCallBack,
           ),
           initialChildren: children,
         );
@@ -384,15 +387,18 @@ class OthersProfileRouteArgs {
   const OthersProfileRouteArgs({
     this.key,
     required this.data,
+    this.onDeleteFriendCallBack,
   });
 
   final _i14.Key? key;
 
   final dynamic data;
 
+  final dynamic onDeleteFriendCallBack;
+
   @override
   String toString() {
-    return 'OthersProfileRouteArgs{key: $key, data: $data}';
+    return 'OthersProfileRouteArgs{key: $key, data: $data, onDeleteFriendCallBack: $onDeleteFriendCallBack}';
   }
 }
 
@@ -418,7 +424,7 @@ class EditPostRoute extends _i13.PageRouteInfo<EditPostRouteArgs> {
     required String tagName,
     required dynamic oldPostData,
     required dynamic oldPostImages,
-    dynamic refreshCallBack,
+    dynamic updateCallBack,
     List<_i13.PageRouteInfo>? children,
   }) : super(
           EditPostRoute.name,
@@ -427,7 +433,7 @@ class EditPostRoute extends _i13.PageRouteInfo<EditPostRouteArgs> {
             tagName: tagName,
             oldPostData: oldPostData,
             oldPostImages: oldPostImages,
-            refreshCallBack: refreshCallBack,
+            updateCallBack: updateCallBack,
           ),
           initialChildren: children,
         );
@@ -444,7 +450,7 @@ class EditPostRouteArgs {
     required this.tagName,
     required this.oldPostData,
     required this.oldPostImages,
-    this.refreshCallBack,
+    this.updateCallBack,
   });
 
   final _i14.Key? key;
@@ -455,10 +461,10 @@ class EditPostRouteArgs {
 
   final dynamic oldPostImages;
 
-  final dynamic refreshCallBack;
+  final dynamic updateCallBack;
 
   @override
   String toString() {
-    return 'EditPostRouteArgs{key: $key, tagName: $tagName, oldPostData: $oldPostData, oldPostImages: $oldPostImages, refreshCallBack: $refreshCallBack}';
+    return 'EditPostRouteArgs{key: $key, tagName: $tagName, oldPostData: $oldPostData, oldPostImages: $oldPostImages, updateCallBack: $updateCallBack}';
   }
 }

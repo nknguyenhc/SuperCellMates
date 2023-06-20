@@ -35,7 +35,10 @@ class FriendsPageState extends State<FriendsPage> {
             friendRequestList: friendList,
             updateCallBack: getFriendRequestList,
           )
-        : UserListView(userList: friendList);
+        : UserListView(
+            userList: friendList,
+            updateCallBack: getFriendList,
+          );
     setState(() {
       dataLoaded = true;
     });
@@ -46,9 +49,6 @@ class FriendsPageState extends State<FriendsPage> {
     friendList =
         jsonDecode(await getRequest(EndPoints.viewFriends.endpoint, null));
     updateFriendPageBody(friendList, false);
-    setState(() {
-      dataLoaded = true;
-    });
   }
 
   void getFriendRequestList() async {
@@ -116,7 +116,6 @@ class FriendsPageState extends State<FriendsPage> {
                 ],
               )
             ],
-            //backgroundColor: Colors.white,
             selectedIndex: navigationBarIndex,
             shadowColor: Colors.grey,
           ),

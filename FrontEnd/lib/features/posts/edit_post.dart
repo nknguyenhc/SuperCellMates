@@ -16,13 +16,13 @@ class EditPostPage extends StatefulWidget {
     required this.tagName,
     required this.oldPostData,
     required this.oldPostImages,
-    this.refreshCallBack,
+    this.updateCallBack,
   }) : super(key: key);
 
   final dynamic oldPostData;
   final dynamic oldPostImages;
   final String tagName;
-  final dynamic refreshCallBack;
+  final dynamic updateCallBack;
 
   @override
   State<EditPostPage> createState() => EditPostPageState();
@@ -162,7 +162,7 @@ class EditPostPageState extends State<EditPostPage> {
         EndPoints.editPost.endpoint + widget.oldPostData["id"], body);
 
     if (r == "post updated") {
-      widget.refreshCallBack();
+      widget.updateCallBack();
       AutoRouter.of(context).pop().then(
           (value) => showSuccessDialog(context, "Successfully updated post!"));
     }

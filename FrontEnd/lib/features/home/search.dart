@@ -10,7 +10,12 @@ Future<Widget> searchUser(BuildContext context, input) async {
   dynamic userList =
       jsonDecode(await getRequest(EndPoints.search.endpoint, query))["users"];
 
-  Widget list = UserListView(userList: userList);
+  Widget list = UserListView(
+    userList: userList,
+    updateCallBack: () {
+      // TODO: refresh home feed
+    },
+  );
 
   return Column(
     children: [

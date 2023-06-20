@@ -81,6 +81,7 @@ class ProfilePageState extends State<ProfilePage> {
         ? Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              // Tags
               SizedBox(
                 height: 60,
                 child: Flex(direction: Axis.horizontal, children: [
@@ -171,7 +172,7 @@ class ProfilePageState extends State<ProfilePage> {
                           postList: profilePosts,
                           isInProfile: true,
                           isMyPost: true,
-                          refreshCallBack: loadData,
+                          updateCallBack: loadData,
                         )
                       : const CircularProgressIndicator()),
             ],

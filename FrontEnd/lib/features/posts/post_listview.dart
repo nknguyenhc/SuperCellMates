@@ -15,7 +15,7 @@ class PostListView extends StatefulWidget {
     required this.postList,
     required this.isInProfile,
     required this.isMyPost,
-    this.refreshCallBack,
+    this.updateCallBack,
   }) : super(key: key);
 
   final dynamic postList;
@@ -25,7 +25,7 @@ class PostListView extends StatefulWidget {
   // if the posts belong to the user themselves,
   // the user should be able to edit the post
   final bool isMyPost;
-  final dynamic refreshCallBack;
+  final dynamic updateCallBack;
 
   @override
   State<PostListView> createState() => PostListViewState();
@@ -260,7 +260,7 @@ class PostListViewState extends State<PostListView> {
                 children: [
                   const Padding(padding: EdgeInsets.only(left: 30)),
                   const Text("post time"),
-                  widget.isInProfile && dataLoaded[index]
+                  widget.isMyPost && dataLoaded[index]
                       ? SizedBox(
                           width: MediaQuery.of(context).size.width - 120,
                           child: Row(
@@ -275,7 +275,7 @@ class PostListViewState extends State<PostListView> {
                                             ["name"],
                                         oldPostData: widget.postList[index],
                                         oldPostImages: postImagesRaw[index],
-                                        refreshCallBack: widget.refreshCallBack));
+                                        updateCallBack: widget.updateCallBack));
                                   },
                                   icon: const Icon(
                                     Icons.edit_outlined,
@@ -300,7 +300,7 @@ class PostListViewState extends State<PostListView> {
                                             EndPoints.deletePost.endpoint,
                                             body);
                                         if (r == "post deleted") {
-                                          widget.refreshCallBack();
+                                          widget.updateCallBack();
                                           showSuccessDialog(context,
                                               "Successfully deleted post");
                                         }

@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:supercellmates/features/posts/post_listview.dart';
 import 'package:supercellmates/http_requests/get_image.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
@@ -8,9 +11,12 @@ import 'package:supercellmates/features/dialogs.dart';
 
 @RoutePage()
 class OthersProfilePage extends StatefulWidget {
-  const OthersProfilePage({Key? key, required this.data}) : super(key: key);
+  const OthersProfilePage(
+      {Key? key, required this.data, this.onDeleteFriendCallBack})
+      : super(key: key);
 
   final dynamic data;
+  final dynamic onDeleteFriendCallBack;
 
   @override
   State<OthersProfilePage> createState() => OthersProfilePageState();
@@ -19,27 +25,43 @@ class OthersProfilePage extends StatefulWidget {
 class OthersProfilePageState extends State<OthersProfilePage> {
   bool profileImageLoaded = false;
   dynamic profileImage;
+  bool profilePostsLoaded = false;
+  dynamic profilePosts;
 
   int tagListCount = 0;
   var dataLoaded = [];
   var tagIcons = [];
+  int selectedTagIndex = -1;
 
   @override
   void initState() {
-    profileImageLoaded = false;
     super.initState();
+    loadData();
+  }
+
+  void loadData() async {
+    // profile image
     initProfileImage();
+    // tags
     tagListCount = widget.data["tags"].length;
     dataLoaded = List<bool>.filled(tagListCount, false, growable: true);
     tagIcons = List<Image?>.filled(tagListCount, null, growable: true);
     for (int i = 0; i < tagListCount; i++) {
       loadTagIcons(i);
     }
+    // posts
+    profilePostsLoaded = false;
+    dynamic profilePostsResponse = jsonDecode(await getRequest(
+        EndPoints.getProfilePosts.endpoint +
+            widget.data["user_profile"]["username"],
+        {"start": "2023-06-17-00-00-00", "end": "2023-06-21-00-00-00"}));
+    assert(!profilePostsResponse["myProfile"]);
+    profilePosts = profilePostsResponse["posts"];
+    setState(() => profilePostsLoaded = true);
   }
 
   void loadTagIcons(index) async {
-    tagIcons[index] =
-        await getImage(widget.data["tags"][index]["icon"]);
+    tagIcons[index] = await getImage(widget.data["tags"][index]["icon"]);
     setState(() {
       dataLoaded[index] = true;
     });
@@ -50,6 +72,12 @@ class OthersProfilePageState extends State<OthersProfilePage> {
     profileImage = await getImage(widget.data["image_url"]);
     setState(() {
       profileImageLoaded = true;
+    });
+  }
+
+  void chooseTag(index) {
+    setState(() {
+      selectedTagIndex = selectedTagIndex == index ? -1 : index;
     });
   }
 
@@ -82,7 +110,9 @@ class OthersProfilePageState extends State<OthersProfilePage> {
           await postWithCSRF(EndPoints.deleteFriend.endpoint, body);
 
       if (message == "friend deleted") {
-        showSuccessDialog(context, "Successfully removed friend!");
+        widget.onDeleteFriendCallBack();
+        AutoRouter.of(context).pop().then((value) =>
+            showSuccessDialog(context, "Successfully removed friend!"));
       } else {
         showErrorDialog(context, message);
       }
@@ -219,22 +249,44 @@ class OthersProfilePageState extends State<OthersProfilePage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // Tags
           SizedBox(
             height: 60,
             child: Flex(direction: Axis.horizontal, children: [
               Expanded(
                 child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: tagList.length,
+                    itemCount: tagList.length + 1,
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (BuildContext context, int index) {
-                      return tagList[index] == null
-                          ? Container()
-                          : IconButton(
-                            onPressed: () {},
-                            icon: dataLoaded[index]
-                              ? tagIcons[index]
-                              : const CircularProgressIndicator());
+                      return index == 0
+                          ? const Padding(padding: EdgeInsets.all(6))
+                          : SizedBox(
+                              width: 45,
+                              height: 45,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  IconButton(
+                                    onPressed: () {
+                                      chooseTag(index);
+                                    },
+                                    icon: dataLoaded[index - 1]
+                                        ? tagIcons[index - 1]
+                                        : const CircularProgressIndicator(),
+                                    padding: const EdgeInsets.all(4),
+                                  ),
+                                  selectedTagIndex == index
+                                      ? const Divider(
+                                          height: 3,
+                                          thickness: 2.5,
+                                          indent: 4,
+                                          endIndent: 4,
+                                          color: Colors.blue,
+                                        )
+                                      : Container(),
+                                ],
+                              ));
                     }),
               )
             ]),
@@ -249,21 +301,16 @@ class OthersProfilePageState extends State<OthersProfilePage> {
           // The Posts should return a column whose width is full width of phone
           // and pass this column to a flex expanded so that can scroll down
           SizedBox(
-            height: myPostsHeight,
-            width: MediaQuery.of(context).size.width,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: 30,
-              itemBuilder: (BuildContext context, int index) {
-                return Container(
-                  alignment: Alignment.center,
-                  width: 100,
-                  height: 30,
-                  child: Text("Post Entry $index"),
-                );
-              },
-            ),
-          ),
+              height: myPostsHeight,
+              width: MediaQuery.of(context).size.width,
+              child: profilePostsLoaded
+                  ? PostListView(
+                      postList: profilePosts,
+                      isInProfile: true,
+                      isMyPost: false,
+                      updateCallBack: loadData,
+                    )
+                  : const CircularProgressIndicator()),
         ],
       ),
     );

@@ -8,9 +8,12 @@ import 'package:supercellmates/router/router.gr.dart';
 import 'package:supercellmates/features/dialogs.dart';
 
 class UserListView extends StatefulWidget {
-  const UserListView({Key? key, required this.userList}) : super(key: key);
+  const UserListView(
+      {Key? key, required this.userList, required this.updateCallBack})
+      : super(key: key);
 
   final dynamic userList;
+  final dynamic updateCallBack;
 
   @override
   State<UserListView> createState() => UserListViewState();
@@ -54,8 +57,14 @@ class UserListViewState extends State<UserListView> {
                   FocusManager.instance.primaryFocus?.unfocus();
                   dynamic data = await getRequest(
                       "${EndPoints.viewProfile.endpoint}/$username", null);
-                  AutoRouter.of(context)
-                      .push(OthersProfileRoute(data: jsonDecode(data)));
+                  AutoRouter.of(context).push(OthersProfileRoute(
+                      data: jsonDecode(data),
+                      onDeleteFriendCallBack: () {
+                            count -= 1;
+                            dataLoaded.removeAt(index);
+                            profileImages.removeAt(index);
+                            widget.updateCallBack();
+                      }));
                 },
                 child: Row(children: [
                   SizedBox(
@@ -169,7 +178,8 @@ class FriendRequestListState extends State<FriendRequestListView> {
                         padding: EdgeInsets.zero,
                       )),
                   TextButton(
-                      style: const ButtonStyle(padding: MaterialStatePropertyAll(EdgeInsets.all(8))),
+                      style: const ButtonStyle(
+                          padding: MaterialStatePropertyAll(EdgeInsets.all(8))),
                       onPressed: () async {
                         FocusManager.instance.primaryFocus?.unfocus();
                         dynamic data = await getRequest(
