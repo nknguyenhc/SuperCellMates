@@ -1,0 +1,107 @@
+{% extends 'layout.html' %} 
+
+{% block title %} 
+    <title>Manage Admin</title>
+{% endblock %} 
+
+{% block style %} 
+    <style>
+        #manage-admin-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 100px;
+            padding-top: 50px;
+        }
+        #manage-admin-page > * {
+            width: 50vw;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .admin-line {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+    </style>
+{% endblock %} 
+
+{% block script %} 
+    <script type="text/babel">
+        function ManageAdmin() {
+            const [applications, setApplications] = React.useState([]);
+            const [admins, setAdmins] = React.useState([]);
+
+            React.useEffect(resetData, []);
+
+            function resetData() {
+                fetch('/get_admin_requests')
+                    .then(response => response.json())
+                    .then(response => setApplications(response.requests));
+                fetch('/get_admins')
+                    .then(response => response.json())
+                    .then(response => setAdmins(response.admins));
+            }
+
+            function addAdmin(username) {
+                fetch('/add_admin', postRequestContent({
+                    username: username
+                }))
+                    .then(response => {
+                        if (response.status !== 200) {
+                            triggerErrorMessage();
+                        } else {
+                            resetData();
+                        }
+                    })
+            }
+
+            function removeAdmin(username) {
+                fetch('/remove_admin', postRequestContent({
+                    username: username
+                }))
+                    .then(response => {
+                        if (response.status !== 200) {
+                            triggerErrorMessage();
+                        } else {
+                            resetData();
+                        }
+                    })
+            }
+
+            return (
+                <React.Fragment>
+                    <div class="admin-request">
+                        <h4>Admin Requests</h4>
+                        {
+                            applications.map(application => (
+                                <div className="admin-line">
+                                    <div class="admin-request-username">{application}</div>
+                                    <button type="button" class="admin-request-accept btn btn-success" onClick={() => addAdmin(application)}>Approve</button>
+                                </div>
+                            ))
+                        }
+                    </div>
+                    <div class="current-admins">
+                        <h4>Admins</h4>
+                        {
+                            admins.map(admin => (
+                                <div className="admin-line">
+                                    <div class="admin-username">{admin}</div>
+                                    <button type="button" class="btn btn-danger" onClick={() => removeAdmin(admin)}>Remove</button>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </React.Fragment>
+            )
+        }
+
+        ReactDOM.render(<ManageAdmin />, document.querySelector("#manage-admin-page"));
+    </script>
+{% endblock %} 
+
+{% block body %} 
+    <div id="manage-admin-page"></div>
+{% endblock %} 

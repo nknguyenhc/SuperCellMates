@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseNotAllowed, FileResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseNotAllowed, HttpResponseForbidden, FileResponse
 from django.utils.datastructures import MultiValueDictKeyError
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -15,7 +15,7 @@ from PIL import Image
 
 from user_profile.views import verify_image
 
-from .models import UserAuth, Tag, TagRequest
+from .models import UserAuth, Tag, TagRequest, AdminApplication
 from user_profile.models import UserProfile
 from user_log.models import UserLog
 
@@ -271,11 +271,6 @@ def change_password(request):
         return HttpResponseBadRequest("request body does not contain an important key")
 
 
-@login_required
-def apply_admin(request):
-    return render(request, "user_auth/apply_admin.html")
-
-
 def duplicate_tag_exists(tag_name):
     """Determine if any current tag/tag request is the same as the tag name
 
@@ -302,7 +297,7 @@ def duplicate_tag_exists(tag_name):
 
 
 def add_tag_admin(request):
-    if request.user.is_superuser:
+    if request.user.is_staff:
         if request.method == "POST":
             try:
                 tag_request_id = request.POST["tag_request_id"]
@@ -325,11 +320,11 @@ def add_tag_admin(request):
         else:
             return HttpResponseNotAllowed(["POST"])
     else:
-        return HttpResponseNotFound()
+        return HttpResponseForbidden()
     
 
 def new_tag_admin(request):
-    if request.user.is_superuser:
+    if request.user.is_staff:
         if request.method == "POST":
             try:
                 tag_name = request.POST["tag"]
@@ -345,11 +340,11 @@ def new_tag_admin(request):
         else:
             return HttpResponseNotAllowed(["POST"])
     else:
-        return HttpResponseNotFound()
+        return HttpResponseForbidden()
 
 
 def remove_tag_request(request):
-    if request.user.is_superuser:
+    if request.user.is_staff:
         if request.method == "POST":
             try:
                 tag_request_id = request.POST["tag_request_id"]
@@ -364,11 +359,11 @@ def remove_tag_request(request):
         else:
             return HttpResponseNotAllowed(["POST"])
     else:
-        return HttpResponseNotFound()
+        return HttpResponseForbidden()
 
 
 def obtain_tag_requests(request):
-    if request.user.is_superuser:
+    if request.user.is_staff:
         tag_request_objs = list(TagRequest.objects.all())
         tag_requests = list(map(lambda request_obj:{
             "id": request_obj.id,
@@ -378,7 +373,7 @@ def obtain_tag_requests(request):
         }, tag_request_objs))
         return JsonResponse({"tag_requests": tag_requests})
     else:
-        return HttpResponseNotFound()
+        return HttpResponseForbidden()
 
 
 @login_required
@@ -415,14 +410,14 @@ def add_tag_request(request):
 
 
 def admin(request):
-    if request.user.is_superuser:
+    if request.user.is_staff:
         return render(request, 'user_auth/admin.html')
     else:
-        return HttpResponseNotFound()
+        return HttpResponseForbidden()
 
 
 def get_tag_request_icon(request, tag_name):
-    if request.user.is_superuser:
+    if request.user.is_staff:
         if not TagRequest.objects.filter(name=tag_name).exists():
             return HttpResponseNotFound()
         else:
@@ -432,5 +427,75 @@ def get_tag_request_icon(request, tag_name):
             else:
                 return FileResponse(icon)
     
+    else:
+        return HttpResponseForbidden()
+
+
+@login_required
+def admin_application(request):
+    if request.method == "POST":
+        if not hasattr(request.user, 'admin_application') and not request.user.is_staff:
+            admin_application = AdminApplication(user=request.user)
+            admin_application.save()
+            return HttpResponse("ok")
+        else:
+            return HttpResponse("You have already applied for admin")
+    else:
+        return render(request, "user_auth/admin_application.html")
+
+
+def manage_admin(request):
+    if request.user.is_superuser:
+        return render(request, 'user_auth/manage_admin.html')
+    else:
+        return HttpResponseNotFound()
+
+
+def get_admin_requests(request):
+    if request.user.is_superuser:
+        return JsonResponse({
+            "requests": list(map(
+                lambda application: application.user.username,
+                list(AdminApplication.objects.all())
+            ))
+        })
+    else:
+        return HttpResponseNotFound()
+
+
+def get_admins(request):
+    if request.user.is_superuser:
+        return JsonResponse({
+            "admins": list(map(
+                lambda user: user.username,
+                list(UserAuth.objects.filter(is_staff=True, is_superuser=False).all())
+            ))
+        })
+    else:
+        return HttpResponseNotFound()
+
+
+def add_admin(request):
+    if request.user.is_superuser:
+        username = request.POST["username"]
+        user = UserAuth.objects.get(username=username)
+        user.is_staff = True
+        user.admin_application.delete()
+        user.save()
+        return HttpResponse("privilege upgraded")
+    else:
+        return HttpResponseNotFound()
+
+
+def remove_admin(request):
+    if request.user.is_superuser:
+        username = request.POST["username"]
+        user = UserAuth.objects.get(username=username)
+        if not user.is_superuser:
+            user.is_staff = False
+            user.save()
+            return HttpResponse("privilege downgraded")
+        else:
+            return HttpResponse("stop messing around ...")
     else:
         return HttpResponseNotFound()

@@ -25,4 +25,10 @@ urlpatterns = [
     path('change_username', views.change_username, name="change_username"),
     path('change_password', views.change_password, name="change_password"),
     path('documentation', views.documentation, name='documentation'),
+    path('apply_admin', views.admin_application, name='admin_application'),
+    path('manage_admin', views.manage_admin, name='manage_admin'),
+    path('get_admin_requests', views.get_admin_requests, name='get_admin_requests'),
+    path('get_admins', views.get_admins, name='get_admins'),
+    path('add_admin', views.add_admin, name='add_admin'),
+    path('remove_admin', views.remove_admin, name='remove_admin'),
 ]

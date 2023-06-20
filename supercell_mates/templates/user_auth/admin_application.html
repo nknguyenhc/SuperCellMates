@@ -1,0 +1,32 @@
+{% extends 'layout.html' %} 
+
+{% block title %} 
+    <title>Apply for Admin</title>
+{% endblock %} 
+
+{% block script %} 
+    <script src="/static/script/user_auth/apply_admin.js"></script>
+{% endblock %} 
+
+{% block body %} 
+    <div class="apply-admin-page p-4">
+        <div class="alert alert-primary">Section coming soon.</div>
+        <div class="apply-admin-note">Note to Orbital reviewers: If you want to access our admin interfaces, please click <a href="javascript:void(0)" id="apply-admin-link">here</a>, and inform either one of us, Nguyen or Jiale on Telegram. We will get back to you as soon as we can!</div>
+        <button id="apply-admin-notif-button" style="display: none" type="button" data-bs-toggle="modal" data-bs-target="#apply-admin-message"></button>
+        <div class="modal fade" id="apply-admin-message" tabindex="-1" aria-labelledby="apply-admin-label" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="apply-admin-label">Message</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="apply-admin-message-body">We have received your request.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %} 

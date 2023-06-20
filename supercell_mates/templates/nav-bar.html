@@ -46,9 +46,14 @@
                             <a href="{% url 'message:index' %}" class="nav-link">Messages</a>
                         </li>
                     {% endif %} 
-                    {% if user.is_superuser %} 
+                    {% if user.is_staff %} 
                         <li class="nav-item">
                             <a href="{% url 'user_auth:admin' %}" class="nav-link">Admin</a>
+                        </li>
+                    {% endif %} 
+                    {% if user.is_superuser %} 
+                        <li class="nav-item">
+                            <a href="{% url 'user_auth:manage_admin' %}" class="nav-link">Manage Admins</a>
                         </li>
                     {% endif %} 
                 </ul>

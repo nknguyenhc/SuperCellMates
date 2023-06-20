@@ -15,3 +15,7 @@ class Tag(models.Model):
 
 class UserAuth(AbstractUser, models.Model):
     pass
+
+
+class AdminApplication(models.Model):
+    user = models.OneToOneField(UserAuth, on_delete=models.CASCADE, related_name="admin_application")
