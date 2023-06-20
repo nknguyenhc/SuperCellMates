@@ -1,0 +1,85 @@
+{
+    "name": "posts",
+    "views": [
+        {
+            "name": "Post",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "CharField",
+                    "description": "The id of the post"
+                },
+                {
+                    "name": "title",
+                    "type": "TextField",
+                    "description": "The title of the post"
+                },
+                {
+                    "name": "content",
+                    "type": "TextField",
+                    "description": "The text content of the post"
+                },
+                {
+                    "name": "tag",
+                    "type": "ForeignKey(Tag)",
+                    "description": "The tag associated with the post"
+                },
+                {
+                    "name": "friend_visible",
+                    "type": "BooleanField",
+                    "description": "Friend visibility settings"
+                },
+                {
+                    "name": "tag_visible",
+                    "type": "BooleanField",
+                    "description": "Users with the same tag visibility settings"
+                },
+                {
+                    "name": "public_visible",
+                    "type": "BooleanField",
+                    "description": "Public visiblity settings"
+                },
+                {
+                    "name": "creator",
+                    "type": "ForeignKey(UserLog)",
+                    "description": "The creator of the post"
+                },
+                {
+                    "name": "time_posted",
+                    "type": "DateTimeField",
+                    "description": "The time that the post was created/last edited"
+                },
+                {
+                    "name": "img_count",
+                    "type": "IntegerField",
+                    "description": "The rough number of images in this post. Only to be used internally, not to be exposed to frontend."
+                }
+            ]
+        },
+        {
+            "name": "Post Image",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "CharField",
+                    "description": "The id of the image"
+                },
+                {
+                    "name": "order",
+                    "type": "IntegerField",
+                    "description": "The order that the image should appear in the post, with 1 being the first"
+                },
+                {
+                    "name": "image",
+                    "type": "ImageField",
+                    "description": "The actual image"
+                },
+                {
+                    "name": "post",
+                    "type": "ForeignKey(Post)",
+                    "description": "The post that this image is associated to"
+                }
+            ]
+        }
+    ]
+}

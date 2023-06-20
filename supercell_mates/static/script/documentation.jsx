@@ -3,6 +3,7 @@ function Documentation() {
         "user_auth",
         "user_profile",
         "user_log",
+        "posts"
     ]
     const structures = [
         {
@@ -34,8 +35,10 @@ function Documentation() {
     const chapters = [backendDocViews, databaseDocViews, webFrontendDocViews];
     const chapterSetters = [setBackendDocViews, setDatabaseDocViews, setWebFrontendDocViews];
     const chapterRenderers = [backend, database, webFrontend];
+    const defaultDetails = <div className="text-body-tertiary">Select a chapter to start viewing documentation ...</div>;
 
     React.useEffect(() => {
+        setDetails(defaultDetails);
         structures.forEach((structure, i) => {
             Promise.all(structure.apps.map(app => {
                 return fetch('/static/documentation/' + structure.path + '/' + app + '.json')
@@ -171,7 +174,7 @@ function Documentation() {
     function showStructure(i) {
         setStructureSelected(i);
         setTabSelected(-1);
-        setDetails('');
+        setDetails(defaultDetails);
     }
 
     function showDocs(i, j) {
