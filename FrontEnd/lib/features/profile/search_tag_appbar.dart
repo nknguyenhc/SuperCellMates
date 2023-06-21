@@ -54,15 +54,6 @@ class SearchTagAppBarState extends State<SearchTagAppBar> {
         }
       },
       searchHintText: "Search tag names...",
-      actions: [
-        IconButton(
-          onPressed: () {
-            AutoRouter.of(context).push(const RequestTagRoute());
-          },
-          icon: const Icon(Icons.add_circle),
-          iconSize: 25,
-        )
-      ],
       title: const Text("Search for new tags"),
       backgroundColor: Colors.white,
       appBarHeight: 80,

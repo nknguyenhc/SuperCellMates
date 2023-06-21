@@ -357,9 +357,10 @@ class PostListViewState extends State<PostListView> {
 
             const Divider(
               height: 1,
-              color: Colors.grey,
-              indent: 20,
-              endIndent: 20,
+              thickness: 0.3,
+              color: Colors.blueGrey,
+              indent: 15,
+              endIndent: 15,
             )
           ]);
         });

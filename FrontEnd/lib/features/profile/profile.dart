@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -38,7 +40,8 @@ class ProfilePageState extends State<ProfilePage> {
     data = jsonDecode(await getRequest(EndPoints.profileIndex.endpoint, null));
     tagListCount = data["tags"].length;
     dataLoaded = List<bool>.filled(tagListCount, false, growable: true);
-    tagIcons = List<Image?>.filled(tagListCount, null, growable: true);
+    tagIcons = List<Uint8List>.filled(tagListCount, Uint8List.fromList([]),
+        growable: true);
     for (int i = 0; i < tagListCount; i++) {
       loadTagIcons(i);
     }
@@ -54,7 +57,7 @@ class ProfilePageState extends State<ProfilePage> {
   }
 
   void loadTagIcons(index) async {
-    tagIcons[index] = await getImage(data["tags"][index]["icon"]);
+    tagIcons[index] = await getRawImageData(data["tags"][index]["icon"]);
     setState(() {
       dataLoaded[index] = true;
     });
@@ -69,13 +72,11 @@ class ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     var tagList = data != null ? data["tags"] : null;
-    double myPostsHeight = MediaQuery.of(context).size.height;
-    myPostsHeight -= 80; // appbar height
-    myPostsHeight -= 60; // taglist height
-    myPostsHeight -= 10; // divider height
-    myPostsHeight -= 66; // createPost height
-    myPostsHeight -= 82; // bottom navigation bar height
-    myPostsHeight -= 30; // buffer
+    // app bar: 80, taglist: 65, divider: 10, selected tag info: 70,
+    // bottom navigation bar: 82, buffer: 25
+    double myPostsHeight = selectedTagIndex == -1
+        ? MediaQuery.of(context).size.height - 257
+        : MediaQuery.of(context).size.height - 317;
 
     return data != null
         ? Column(
@@ -83,7 +84,7 @@ class ProfilePageState extends State<ProfilePage> {
             children: [
               // Tags
               SizedBox(
-                height: 60,
+                height: 65,
                 child: Flex(direction: Axis.horizontal, children: [
                   Expanded(
                     child: ListView.builder(
@@ -107,7 +108,11 @@ class ProfilePageState extends State<ProfilePage> {
                                                 onPressed: () =>
                                                     {chooseTag(index)},
                                                 icon: dataLoaded[index - 1]
-                                                    ? tagIcons[index - 1]
+                                                    ? Image.memory(
+                                                        tagIcons[index - 1],
+                                                        width: 45,
+                                                        height: 45,
+                                                        fit: BoxFit.cover)
                                                     : const CircularProgressIndicator(),
                                                 padding:
                                                     const EdgeInsets.all(4),
@@ -138,30 +143,71 @@ class ProfilePageState extends State<ProfilePage> {
                   )
                 ]),
               ),
+              selectedTagIndex == -1
+                  ? Container()
+                  : const Divider(
+                      height: 1,
+                      thickness: 0.5,
+                      color: Colors.blue,
+                    ),
+
+              // selected tag info, create post button
+              selectedTagIndex == -1
+                  ? Container()
+                  : SizedBox(
+                      height: 60,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                "My posts about the tag",
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              Text(
+                                "\"${tagList[selectedTagIndex - 1]["name"]}\"",
+                                style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black),
+                              )
+                            ],
+                          ),
+                          const Padding(padding: EdgeInsets.only(left: 20)),
+                          TextButton(
+                            onPressed: () {
+                              if (selectedTagIndex == -1) {
+                                showCustomDialog(context, "Hold on",
+                                    "Please select a tag you want to post about!");
+                                return;
+                              }
+                              AutoRouter.of(context).push(CreatePostRoute(
+                                  tagName: data["tags"][selectedTagIndex - 1]
+                                      ["name"],
+                                  updateCallBack: loadData));
+                            },
+                            child: const Row(children: [
+                              Icon(Icons.post_add, size: 40),
+                              Text(
+                                "New post",
+                              )
+                            ]),
+                          ),
+                        ],
+                      ),
+                    ),
+
               const Divider(
+                color: Colors.blueGrey,
                 height: 1,
-                color: Colors.grey,
+                thickness: 0.3,
                 indent: 15,
                 endIndent: 15,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.note_add, size: 50),
-                    onPressed: () {
-                      if (selectedTagIndex == -1) {
-                        showCustomDialog(context, "Hold on",
-                            "Please select a tag you want to post under!");
-                        return;
-                      }
-                      AutoRouter.of(context).push(CreatePostRoute(
-                          tagName: data["tags"][selectedTagIndex - 1]["name"],
-                          updateCallBack: loadData));
-                    },
-                  )
-                ],
-              ),
+
+              // posts
               SizedBox(
                   height: myPostsHeight,
                   width: MediaQuery.of(context).size.width,

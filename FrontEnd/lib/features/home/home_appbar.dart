@@ -49,7 +49,7 @@ class HomeAppBarState extends State<HomeAppBar> {
           );
         }
       },
-      searchHintText: "Names, Usernames, Posts...",
+      searchHintText: "Names, Usernames...",
       leading: IconButton(
         onPressed: () {
           AutoRouter.of(context).push(const SettingsRoute());
