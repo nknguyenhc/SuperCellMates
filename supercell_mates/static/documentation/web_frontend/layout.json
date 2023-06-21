@@ -9,19 +9,7 @@
                 {
                     "path": "/",
                     "description": "When the user presses on home page button",
-                    "where": "<NA>"
-                }
-            ]
-        },
-        {
-            "path": "Logout button",
-            "description": "Log the user out of the page.",
-            "APIs": [],
-            "redirects": [
-                {
-                    "path": "/logout",
-                    "description": "Log the user out of the page, then redirect to login page",
-                    "where": "<NA>"
+                    "where": "In the top navigation bar of the layout"
                 }
             ]
         },
@@ -45,7 +33,7 @@
                 {
                     "path": "/profile/",
                     "description": "Your profile page.",
-                    "where": "<NA>"
+                    "where": "In the top navigation bar of the layout"
                 }
             ]
         },
@@ -57,7 +45,7 @@
                 {
                     "path": "/settings",
                     "description": "Settings page for your account.",
-                    "where": "<NA>"
+                    "where": "In the top navigation bar of the layout"
                 }
             ]
         },
@@ -69,7 +57,7 @@
                 {
                     "path": "/messages/",
                     "description": "Page specifically for managing messages.",
-                    "where": "<NA>"
+                    "where": "In the top navigation bar of the layout"
                 }
             ]
         },
@@ -81,7 +69,37 @@
                 {
                     "path": "/manage_page",
                     "description": "Redirect to the admin page.",
-                    "where": "<NA>"
+                    "where": "In the top navigation bar of the layout"
+                }
+            ]
+        },
+        {
+            "path": "Search bar",
+            "description": "Search for user, and (in future) search for posts and tags",
+            "APIs": [
+                {
+                    "path": "/user/search",
+                    "trigger": "When the user hits enter/search on the search bar",
+                    "purpose": "To obtain matching users to the search query"
+                }
+            ],
+            "redirects": [
+                {
+                    "path": "/user/profile/<str:username>",
+                    "description": "The profile page of another user",
+                    "where": "At each listing of the seach results"
+                }
+            ]
+        },
+        {
+            "path": "About",
+            "description": "Link to the about page. This page is publicly visible, no logged in account needed.",
+            "APIs": [],
+            "redirects": [
+                {
+                    "path": "/about",
+                    "description": "The README of this project",
+                    "where": "At the bottom of the layout"
                 }
             ]
         }

@@ -1,0 +1,100 @@
+{
+    "name": "profile",
+    "views": [
+        {
+            "path": "/profile/",
+            "description": "The profile of the current user",
+            "APIs": [
+                {
+                    "path": "/post/posts/<str:username>",
+                    "trigger": "On first load and when the user scrolls to the bottom of the page",
+                    "purpose": "Obtain some recent posts of the current user and display on the page"
+                },
+                {
+                    "path": "/post/post/<str:post_id>",
+                    "trigger": "When the user presses edit button on a post and confirms post editing",
+                    "purpose": "To load information of the post and display at the respective fields of the edit UI and after editing is successful"
+                },
+                {
+                    "path": "/post/post/img/<str:pic_id>",
+                    "trigger": "When the user presses edit button on a post",
+                    "purpose": "To retrieve the image and (if the user confirms edit) resubmit the image to the backend"
+                },
+                {
+                    "path": "/post/post/edit/",
+                    "trigger": "When the user presses confirm edit button on a post",
+                    "purpose": "To request to backend to change the content of the post editing"
+                },
+                {
+                    "path": "/post/delete",
+                    "trigger": "When the user presses delete post and confirm",
+                    "purpose": "To request to backend to delete a post"
+                }
+            ],
+            "redirects": [
+                {
+                    "path": "/user/friends",
+                    "description": "View friends of the current user",
+                    "where": "On the side navigation of the page"
+                },
+                {
+                    "path": "/user/friend_requests",
+                    "description": "View friend requests to the current user",
+                    "where": "On the side navigation of the page"
+                },
+                {
+                    "path": "profile/setup",
+                    "description": "Edit profile of the current user",
+                    "where": "Beside the profile picture at the top of the page"
+                }
+            ]
+        },
+        {
+            "path": "/user/friends",
+            "description": "View friends of the current user",
+            "APIs": [],
+            "redirects": [
+                {
+                    "path": "/user/friend_requests",
+                    "description": "View incoming friend requests to the current user",
+                    "where": "On the side navigation of the page"
+                },
+                {
+                    "path": "/user/profile/<str:username>",
+                    "description": "View profile of a user",
+                    "where": "At each listing of a friend in the page"
+                }
+            ]
+        },
+        {
+            "path": "/user/friend_requests",
+            "description": "View friend requests to the current user",
+            "APIs": [
+                {
+                    "path": "/user/add_friend",
+                    "trigger": "When the user responds to an incoming friend request",
+                    "purpose": "To inform backend of the current user's decision on the incoming friend request"
+                }
+            ],
+            "redirects": [
+                {
+                    "path": "/user/friends",
+                    "description": "View friends of the current user",
+                    "where": "On the side navigation of the page"
+                }
+            ]
+        },
+        {
+            "path": "/user/profile/<str:username>",
+            "description": "The profile of another user",
+            "APIs": [
+                {
+                    "path": "/post/posts/<str:username>",
+                    "trigger": "On first load and when the user scrolls to the bottom of the page",
+                    "purpose": "Obtain some recent posts of the user of the page and display on the page"
+                }
+            ],
+            "redirects": []
+        }
+    ]
+}
