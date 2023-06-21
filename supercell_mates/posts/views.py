@@ -541,7 +541,8 @@ def get_home_feed(request):
 
     The request contains the following query fields:
         - sort (str): the sorting method applied by user
-        - filter (list(str)): the filter method(s) applied by user
+        - friend_filter (1/0): whether user filters home feed to friends only
+        - tag_filter(1/0): whether user filters home feed to their tags only
         - start_id (str): the id of the post to start displaying from (excluding)
             When entering home feed for the first time, start_id should be ""
             When trying to load more posts, use the previously returned stop_id as the new start_id
@@ -563,12 +564,11 @@ def get_home_feed(request):
     else:
         return HttpResponseBadRequest("sort method malformed")
 
-    filter_method = get_list_from_request_body(request, "filter")
-    if "friends" in filter_method:
+    if request["friend_filter"] == 1:
         friend_list = list(request.user.user_log.friend_list.all())
         friend_list.append(request.user.user_log)
         posts = posts.filter(creator__in=friend_list)
-    if "my_tags" in filter_method:
+    if request["tag_filter"] == 1:
         tag_list = list(request.user.user_profile.tagList.all())
         if tag_list is None:
             posts = posts.filter(False)
