@@ -46,7 +46,8 @@ class OthersProfilePageState extends State<OthersProfilePage> {
     // tags
     tagListCount = widget.data["tags"].length;
     dataLoaded = List<bool>.filled(tagListCount, false, growable: true);
-    tagIcons = List<Image?>.filled(tagListCount, null, growable: true);
+    tagIcons = List<Uint8List>.filled(tagListCount, Uint8List.fromList([]),
+        growable: true);
     for (int i = 0; i < tagListCount; i++) {
       loadTagIcons(i);
     }
@@ -55,14 +56,14 @@ class OthersProfilePageState extends State<OthersProfilePage> {
     dynamic profilePostsResponse = jsonDecode(await getRequest(
         EndPoints.getProfilePosts.endpoint +
             widget.data["user_profile"]["username"],
-        {"start": "2023-06-17-00-00-00", "end": "2023-06-21-00-00-00"}));
+        {"start": "2023-06-17-00-00-00", "end": "2023-06-25-00-00-00"}));
     assert(!profilePostsResponse["myProfile"]);
     profilePosts = profilePostsResponse["posts"];
     setState(() => profilePostsLoaded = true);
   }
 
   void loadTagIcons(index) async {
-    tagIcons[index] = await getImage(widget.data["tags"][index]["icon"]);
+    tagIcons[index] = await getRawImageData(widget.data["tags"][index]["icon"]);
     setState(() {
       dataLoaded[index] = true;
     });
@@ -85,11 +86,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
   @override
   Widget build(BuildContext context) {
     var tagList = widget.data["tags"];
-    double myPostsHeight = MediaQuery.of(context).size.height;
-    myPostsHeight -= 80; // appbar height
-    myPostsHeight -= 60; // taglist height
-    myPostsHeight -= 10; // divider height
-    myPostsHeight -= 30; // buffer
+    double myPostsHeight = MediaQuery.of(context).size.height - 178;
 
     void sendFriendRequest() async {
       dynamic body = {"username": widget.data["user_profile"]["username"]};
@@ -255,7 +252,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
         children: [
           // Tags
           SizedBox(
-            height: 60,
+            height: 65,
             child: Flex(direction: Axis.horizontal, children: [
               Expanded(
                 child: ListView.builder(
@@ -276,7 +273,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                                       chooseTag(index);
                                     },
                                     icon: dataLoaded[index - 1]
-                                        ? tagIcons[index - 1]
+                                        ? Image.memory(tagIcons[index - 1], width: 45, height: 45, fit: BoxFit.cover)
                                         : const CircularProgressIndicator(),
                                     padding: const EdgeInsets.all(4),
                                   ),
@@ -296,8 +293,9 @@ class OthersProfilePageState extends State<OthersProfilePage> {
             ]),
           ),
           const Divider(
-            height: 10,
-            color: Colors.grey,
+            height: 1,
+            thickness: 0.3,
+            color: Colors.blueGrey,
             indent: 15,
             endIndent: 15,
           ),
