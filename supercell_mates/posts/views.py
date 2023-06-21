@@ -555,48 +555,53 @@ def get_home_feed(request):
         - posts (list(dict)): the list of posts, each represented by a dictionary
         - stop_id (str): the id of the last post in the list of posts
     """
+    try:
+        posts = Post.objects
 
-    posts = Post.objects
-
-    if request.GET["sort"] == "time":
-        posts = posts.order_by('time_posted')
-    # TODO: sort by matching index
-    else:
-        return HttpResponseBadRequest("sort method malformed")
-
-    if request["friend_filter"] == 1:
-        friend_list = list(request.user.user_log.friend_list.all())
-        friend_list.append(request.user.user_log)
-        posts = posts.filter(creator__in=friend_list)
-    if request["tag_filter"] == 1:
-        tag_list = list(request.user.user_profile.tagList.all())
-        if tag_list is None:
-            posts = posts.filter(False)
+        if request.GET["sort"] == "time":
+            posts = posts.order_by('time_posted')
+        # TODO: sort by matching index
         else:
-            posts = posts.filter(tag__in=tag_list)
+            return HttpResponseBadRequest("sort method query string malformed")
 
-    count = 0
-    result = []
-    skip = True
+        if request.GET["friend_filter"] == 1:
+            friend_list = list(request.user.user_log.friend_list.all())
+            friend_list.append(request.user.user_log)
+            posts = posts.filter(creator__in=friend_list)
+        if request.GET["tag_filter"] == 1:
+            tag_list = list(request.user.user_profile.tagList.all())
+            if tag_list is None:
+                posts = posts.filter(False)
+            else:
+                posts = posts.filter(tag__in=tag_list)
 
-    if request.GET["start_id"] == "":
-        skip = False
-    for post_object in posts:
-        if post_object.id == request.GET["start_id"]:
+        count = 0
+        result = []
+        skip = True
+
+        if request.GET["start_id"] == "":
             skip = False
-            continue
-        if not skip and has_access(request.user, post_object):
-            result.append(parse_post_object(post_object))
-            count += 1
-            if count >= int(request.GET["limit"]):
-                break
+        for post_object in posts:
+            if post_object.id == request.GET["start_id"]:
+                skip = False
+                continue
+            if not skip and has_access(request.user, post_object):
+                result.append(parse_post_object(post_object))
+                count += 1
+                if count >= int(request.GET["limit"]):
+                    break
 
-    ret = {
-        "posts": result,
-        "stop_id": "",
-    }
+        ret = {
+            "posts": result,
+            "stop_id": "",
+        }
 
-    if count > 0:
-        ret["stop_id"] = result[count-1]["id"]
+        if count > 0:
+            ret["stop_id"] = result[count-1]["id"]
 
-    return JsonResponse(ret)
+        return JsonResponse(ret)
+
+    except AttributeError:
+        return HttpResponseBadRequest("GET parameter(s) malformed")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("certain field(s) not found in GET parameter")
