@@ -7,6 +7,7 @@ import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
 import 'package:supercellmates/features/profile/search_tag_appbar.dart';
 import 'package:supercellmates/features/profile/tag_listview.dart';
+import 'package:supercellmates/router/router.gr.dart';
 
 @RoutePage()
 class AddTagPage extends StatefulWidget {
@@ -130,8 +131,10 @@ class AddTagPageState extends State<AddTagPage> {
               Container(
                 height: 30,
                 alignment: Alignment.bottomCenter,
-                child: Text("Tag count limit: $tagCount/$tagLimit",
-                style: const TextStyle(fontSize: 15),),
+                child: Text(
+                  "Tag count limit: $tagCount/$tagLimit",
+                  style: const TextStyle(fontSize: 15),
+                ),
               ),
               Container(
                 height: 30,
@@ -154,13 +157,42 @@ class AddTagPageState extends State<AddTagPage> {
           ),
           SizedBox(
               height: navigationBarIndex == 0
-                  ? MediaQuery.of(context).size.height - 160
-                  : MediaQuery.of(context).size.height - 190,
+                  ? MediaQuery.of(context).size.height - 170
+                  : MediaQuery.of(context).size.height - 220,
               child: dataLoaded
                   ? navigationBarIndex == 0
                       ? TagListView(tagList: myTagsList, isAddTag: false)
                       : searchTagsResult ?? Container()
-                  : const CircularProgressIndicator())
+                  : const CircularProgressIndicator()),
+          navigationBarIndex == 1
+              ? Container(
+                  alignment: Alignment.topCenter,
+                  height: 40,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Can't find the tag you want?",
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      TextButton(
+                        style: const ButtonStyle(
+                            padding: MaterialStatePropertyAll(
+                                EdgeInsets.only(left: 5))),
+                        onPressed: () {
+                          AutoRouter.of(context).push(const RequestTagRoute());
+                        },
+                        child: const Text(
+                          "Request here",
+                          style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              fontSize: 14),
+                        ),
+                      )
+                    ],
+                  ))
+              : Container()
         ]));
   }
 }

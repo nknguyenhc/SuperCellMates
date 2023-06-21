@@ -58,7 +58,7 @@ def create_post(request):
             return HttpResponseBadRequest("tag submitted does not belong to user")
 
         # visibility
-        visibility = get_list_from_post_body(request, "visibility")
+        visibility = get_list_from_request_body(request, "visibility")
         friend_visible = "friends" in visibility
         tag_visible = "tag" in visibility
         public_visible = "public" in visibility
@@ -79,18 +79,21 @@ def create_post(request):
         # images
         if "imgs" in request.POST:
             # do not change the method of getting the list of imgs
-            imgs = request.POST["imgs"].strip('[[]]').split('], [')
-            for (i, img_raw) in enumerate(imgs):
-                img_bytearray = img_raw.split(", ")
-                img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
-                img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
-                try:
-                    pil_img = Image.open(img)
-                    pil_img.verify()
-                except (IOError, SyntaxError):
-                    return HttpResponseBadRequest("not image")
-                img_obj = PostImage(order=i, image=img, post=post)
-                img_obj.save()
+            if request.POST["imgs"] == '[]':
+                imgs = []
+            else:
+                imgs = request.POST["imgs"].strip('[[]]').split('], [')
+                for (i, img_raw) in enumerate(imgs):
+                    img_bytearray = img_raw.split(", ")
+                    img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
+                    img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
+                    try:
+                        pil_img = Image.open(img)
+                        pil_img.verify()
+                    except (IOError, SyntaxError):
+                        return HttpResponseBadRequest("not image")
+                    img_obj = PostImage(order=i, image=img, post=post)
+                    img_obj.save()
         else:
             imgs = request.FILES.getlist("imgs")
             for (i, img) in enumerate(imgs):
@@ -112,10 +115,16 @@ def create_post(request):
     except TypeError:
         return HttpResponseBadRequest("imgs key submitted is not of type array")
 
-def get_list_from_post_body(request, key):
-    """Used when the post body contains a value of list type.
+def get_list_from_request_body(request, key):
+    """Used when the request body contains a value of list type.
     For web version, the value is passed as FormData, and can be retrieved directly using getlist.
     For mobile version, the value is encoded as FormURL. It becomes a String after decoding.
+
+    Representation of the value in frontend:
+        - POST request from mobile: the original list representation (e.g. tagList = ["tag1", "tag2"])
+        - POST request from web: the original list representation
+        - GET request from mobile: a string separated by comma (e.g. tagList = "tag1,tag2")
+        - GET request from web: duplicate keys in query dict (e.g. url?tagList=tag1&tagList=tag2)
 
     Args:
         request (HttpRequest): the request made to this view
@@ -126,12 +135,23 @@ def get_list_from_post_body(request, key):
         HttpBadRequest, when the keys for both versions are absent
 
     """
-    if key in request.POST:
-        return request.POST.getlist(key)
-    elif f'{key}_async' in request.POST:
-        return request.POST[f'{key}_async'].strip('[]').split(", ")
+    if request.method == 'POST':
+        if key in request.POST:
+            return request.POST.getlist(key)
+        elif f'{key}_async' in request.POST:
+            return request.POST[f'{key}_async'].strip('[]').split(", ")
+        else:
+            return HttpResponseBadRequest("request body is missing an important key")
+    elif request.method == 'GET':
+        if key in request.GET:
+            return request.GET.getlist(key)
+        elif f'{key}_async' in request.GET:
+            return request.GET[f'{key}_async'].split(",")
+        else:
+            return HttpResponseBadRequest("request body is missing an important key")
     else:
-        return HttpResponseBadRequest("request body is missing an important key")
+        return HttpResponseBadRequest("request is malformed")
+
 
 @login_required
 @require_http_methods(["POST"])
@@ -166,7 +186,7 @@ def edit_post(request, post_id):
         return HttpResponseBadRequest("title or content is empty")
 
     # visibility
-    visibility = get_list_from_post_body(request, "visibility")
+    visibility = get_list_from_request_body(request, "visibility")
     friend_visible = "friends" in visibility
     tag_visible = "tag" in visibility
     public_visible = "public" in visibility
@@ -183,17 +203,20 @@ def edit_post(request, post_id):
     for img in post.images.all():
         img.delete()
     if "imgs" in request.POST:
-        imgs = request.POST["imgs"].strip('[[]]').split('], [')
-        for (i, img_raw) in enumerate(imgs):
-            img_bytearray = img_raw.split(", ")
-            img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
-            img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
-            try:
-                pil_img = Image.open(img)
-                pil_img.verify()
-            except (IOError, SyntaxError):
-                return HttpResponseBadRequest("not image")
-            img_obj = PostImage(order=i, image=img, post=post)
+        if request.POST["imgs"] == '[]':
+            imgs = []
+        else:
+            imgs = request.POST["imgs"].strip('[[]]').split('], [')
+            for (i, img_raw) in enumerate(imgs):
+                img_bytearray = img_raw.split(", ")
+                img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
+                img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
+                try:
+                    pil_img = Image.open(img)
+                    pil_img.verify()
+                except (IOError, SyntaxError):
+                    return HttpResponseBadRequest("not image")
+                img_obj = PostImage(order=i, image=img, post=post)
             img_obj.save()
     else:
         imgs = request.FILES.getlist("imgs")
@@ -508,3 +531,72 @@ def get_profile_posts(request, username):
         return HttpResponseNotFound("user with the username not found")
     except ValueError:
         return HttpResponseBadRequest("time fields containing characters other than numbers / invalid time")
+
+@login_required
+def get_home_feed(request):
+    """Return the posts accessible in a user's home feed
+
+    Args:
+        request (HttpRequest): the request made to this view
+
+    The request contains the following query fields:
+        - sort (str): the sorting method applied by user
+        - filter (list(str)): the filter method(s) applied by user
+        - start_id (str): the id of the post to start displaying from (excluding)
+            When entering home feed for the first time, start_id should be ""
+            When trying to load more posts, use the previously returned stop_id as the new start_id
+        - limit (str): the maximum number of posts to return
+
+    Returns:
+        JsonResponse containing post data, or HttpResponseBadRequest
+
+    The jsonResponse contains the following fields:
+        - posts (list(dict)): the list of posts, each represented by a dictionary
+        - stop_id (str): the id of the last post in the list of posts
+    """
+
+    posts = Post.objects
+
+    if request.GET["sort"] == "time":
+        posts = posts.order_by('time_posted')
+    # TODO: sort by matching index
+    else:
+        return HttpResponseBadRequest("sort method malformed")
+
+    filter_method = get_list_from_request_body(request, "filter")
+    if "friends" in filter_method:
+        friend_list = list(request.user.user_log.friend_list.all())
+        friend_list.append(request.user.user_log)
+        posts = posts.filter(creator__in=friend_list)
+    if "my_tags" in filter_method:
+        tag_list = list(request.user.user_profile.tagList.all())
+        if tag_list is None:
+            posts = posts.filter(False)
+        else:
+            posts = posts.filter(tag__in=tag_list)
+
+    count = 0
+    result = []
+    skip = True
+
+    if request.GET["start_id"] == "":
+        skip = False
+    for post_object in posts:
+        if post_object.id == request.GET["start_id"]:
+            skip = False
+            continue
+        if not skip and has_access(request.user, post_object):
+            result.append(parse_post_object(post_object))
+            count += 1
+            if count >= int(request.GET["limit"]):
+                break
+
+    ret = {
+        "posts": result,
+        "stop_id": "",
+    }
+
+    if count > 0:
+        ret["stop_id"] = result[count-1]["id"]
+
+    return JsonResponse(ret)

@@ -85,7 +85,7 @@ class TagListViewState extends State<TagListView> {
 
     showConfirmationDialog(
       context,
-      "Are you sure to add $tagListString?",
+      "Are you sure to add $tagListString?\nTags cannot be dropped once claimed.",
       () => _addTags(namesToAdd),
     );
   }
