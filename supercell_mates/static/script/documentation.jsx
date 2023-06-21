@@ -35,7 +35,7 @@ function Documentation() {
     const chapters = [backendDocViews, databaseDocViews, webFrontendDocViews];
     const chapterSetters = [setBackendDocViews, setDatabaseDocViews, setWebFrontendDocViews];
     const chapterRenderers = [backend, database, webFrontend];
-    const defaultDetails = <div className="text-body-tertiary">Select a chapter to start viewing documentation ...</div>;
+    const defaultDetails = <div className="text-body-tertiary p-3">Select a chapter to start viewing documentation ...</div>;
 
     React.useEffect(() => {
         setDetails(defaultDetails);
