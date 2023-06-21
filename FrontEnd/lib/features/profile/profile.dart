@@ -217,6 +217,8 @@ class ProfilePageState extends State<ProfilePage> {
                           isInProfile: true,
                           isMyPost: true,
                           updateCallBack: loadData,
+                          scrollAtTopEvent: () {},
+                          scrollAtBottomEvent: () {},
                         )
                       : const CircularProgressIndicator()),
             ],

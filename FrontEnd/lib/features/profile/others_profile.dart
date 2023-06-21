@@ -273,7 +273,10 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                                       chooseTag(index);
                                     },
                                     icon: dataLoaded[index - 1]
-                                        ? Image.memory(tagIcons[index - 1], width: 45, height: 45, fit: BoxFit.cover)
+                                        ? Image.memory(tagIcons[index - 1],
+                                            width: 45,
+                                            height: 45,
+                                            fit: BoxFit.cover)
                                         : const CircularProgressIndicator(),
                                     padding: const EdgeInsets.all(4),
                                   ),
@@ -311,6 +314,8 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                       isInProfile: true,
                       isMyPost: false,
                       updateCallBack: loadData,
+                      scrollAtTopEvent: () {},
+                      scrollAtBottomEvent: () {},
                     )
                   : const CircularProgressIndicator()),
         ],

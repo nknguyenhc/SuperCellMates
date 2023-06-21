@@ -25,6 +25,8 @@ enum EndPoints {
   editPost,
   deletePost,
 
+  getHomeFeed,
+
 }
 
 extension ExtendedEndPoints on EndPoints {
@@ -51,6 +53,8 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.getProfilePosts: "/post/posts/",
     EndPoints.editPost: "/post/post/edit/",
     EndPoints.deletePost: "/post/delete",
+    EndPoints.getHomeFeed: "/post/",
+    
 
   };
 
