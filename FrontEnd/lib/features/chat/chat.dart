@@ -12,7 +12,12 @@ class ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
-      child: const Text("Chat page is under construction!"),
+      child: const Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+        Text("Mobile version chat page is under construction!"),
+        Text("\nYou can try it out in our web version!")
+      ]),
     );
   }
 }

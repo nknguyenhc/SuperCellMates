@@ -75,8 +75,8 @@ class ProfilePageState extends State<ProfilePage> {
     // app bar: 80, taglist: 65, divider: 10, selected tag info: 70,
     // bottom navigation bar: 82, buffer: 25
     double myPostsHeight = selectedTagIndex == -1
-        ? MediaQuery.of(context).size.height - 257
-        : MediaQuery.of(context).size.height - 317;
+        ? MediaQuery.of(context).size.height - 252
+        : MediaQuery.of(context).size.height - 312;
 
     return data != null
         ? Column(
@@ -84,7 +84,7 @@ class ProfilePageState extends State<ProfilePage> {
             children: [
               // Tags
               SizedBox(
-                height: 65,
+                height: 60,
                 child: Flex(direction: Axis.horizontal, children: [
                   Expanded(
                     child: ListView.builder(
@@ -112,10 +112,10 @@ class ProfilePageState extends State<ProfilePage> {
                                                         tagIcons[index - 1],
                                                         width: 45,
                                                         height: 45,
-                                                        fit: BoxFit.cover)
+                                                        fit: BoxFit.contain)
                                                     : const CircularProgressIndicator(),
                                                 padding:
-                                                    const EdgeInsets.all(4),
+                                                    const EdgeInsets.all(3),
                                               ),
                                               selectedTagIndex == index
                                                   ? const Divider(

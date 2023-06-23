@@ -12,12 +12,11 @@ Future<Widget> searchUser(BuildContext context, input) async {
 
   Widget list = UserListView(
     userList: userList,
-    updateCallBack: () {
-      // TODO: refresh home feed
-    },
+    updateCallBack: () {},
   );
 
   return Column(
+    key: UniqueKey(),
     children: [
       SizedBox(
           width: MediaQuery.of(context).size.width, height: 400, child: list),
@@ -39,6 +38,7 @@ Future<Widget> searchTag(
   );
 
   return Column(
+    key: UniqueKey(),
     children: [
       SizedBox(
           width: MediaQuery.of(context).size.width, height: 400, child: list),

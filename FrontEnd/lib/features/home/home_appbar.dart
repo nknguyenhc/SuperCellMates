@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
-import 'package:flutter/services.dart';
 import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/features/home/home.dart';
 import 'package:supercellmates/features/home/search.dart';
@@ -55,6 +53,7 @@ class HomeAppBarState extends State<HomeAppBar> {
     bool isFilterAtIndexChanged = prev != isFilterSelected[index];
     if (isFilterAtIndexChanged) {
       widget.updateCallBack(HomePage(
+        key: UniqueKey(),
         sort: isFilterSelected[0]
             ? "time"
             : isFilterSelected[1]

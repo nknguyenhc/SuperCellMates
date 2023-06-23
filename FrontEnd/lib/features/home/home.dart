@@ -18,8 +18,7 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  int blockLimit = 2;
-  //int blockCount = 0;
+  int blockLimit = 5;
   List<dynamic> homeFeed = [];
   bool homeFeedLoaded = false;
   bool mayHaveMore = true;

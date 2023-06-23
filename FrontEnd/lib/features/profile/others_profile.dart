@@ -86,7 +86,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
   @override
   Widget build(BuildContext context) {
     var tagList = widget.data["tags"];
-    double myPostsHeight = MediaQuery.of(context).size.height - 178;
+    double myPostsHeight = MediaQuery.of(context).size.height - 173;
 
     void sendFriendRequest() async {
       dynamic body = {"username": widget.data["user_profile"]["username"]};
@@ -252,7 +252,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
         children: [
           // Tags
           SizedBox(
-            height: 65,
+            height: 60,
             child: Flex(direction: Axis.horizontal, children: [
               Expanded(
                 child: ListView.builder(
@@ -276,7 +276,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                                         ? Image.memory(tagIcons[index - 1],
                                             width: 45,
                                             height: 45,
-                                            fit: BoxFit.cover)
+                                            fit: BoxFit.contain)
                                         : const CircularProgressIndicator(),
                                     padding: const EdgeInsets.all(4),
                                   ),

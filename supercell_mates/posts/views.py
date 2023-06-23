@@ -559,7 +559,7 @@ def get_home_feed(request):
         posts = Post.objects
 
         if request.GET["sort"] == "time":
-            posts = posts.order_by('time_posted')
+            posts = posts.order_by('-time_posted')
         # TODO: sort by matching index
         else:
             return HttpResponseBadRequest("sort method query string malformed")
