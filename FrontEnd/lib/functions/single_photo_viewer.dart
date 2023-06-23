@@ -26,6 +26,8 @@ class SinglePhotoViewerState extends State<SinglePhotoViewer> {
           actions: widget.actions,
         ),
         body: SizedBox(
-            child: PhotoView(imageProvider: MemoryImage(widget.photoBytes))));
+            child: PhotoView(
+              backgroundDecoration: const BoxDecoration(color: Colors.transparent),
+              imageProvider: MemoryImage(widget.photoBytes))));
   }
 }

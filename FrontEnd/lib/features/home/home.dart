@@ -6,7 +6,12 @@ import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({Key? key, this.sort, this.friendFilter, this.tagFilter})
+      : super(key: key);
+
+  final String? sort;
+  final String? friendFilter;
+  final String? tagFilter;
 
   @override
   State<HomePage> createState() => HomePageState();
@@ -20,9 +25,22 @@ class HomePageState extends State<HomePage> {
   bool mayHaveMore = true;
   String nextStartID = "";
 
+  String sort = "time";
+  String friendFilter = "0";
+  String tagFilter = "0";
+
   @override
   void initState() {
     super.initState();
+    if (widget.sort != null) {
+      sort = widget.sort!;
+    }
+    if (widget.friendFilter != null) {
+      friendFilter = widget.friendFilter!;
+    }
+    if (widget.tagFilter != null) {
+      tagFilter = widget.tagFilter!;
+    }
     getHomeFeed();
   }
 
@@ -31,24 +49,25 @@ class HomePageState extends State<HomePage> {
       return;
     }
     dynamic query = {
-      "sort": "time",
-      "friend_filter": 0,
-      "tag_filter": 0,
+      "sort": sort,
+      "friend_filter": friendFilter,
+      "tag_filter": tagFilter,
       "start_id": nextStartID,
       "limit": blockLimit,
     };
     dynamic homeFeedResponse =
         jsonDecode(await getRequest(EndPoints.getHomeFeed.endpoint, query));
     nextStartID = homeFeedResponse["stop_id"];
-    if (homeFeedResponse["posts"].length == 0) {
-      mayHaveMore = false;
-      return;
-    }
 
     setState(() {
       homeFeed.addAll(homeFeedResponse["posts"]);
       homeFeedLoaded = true;
     });
+
+    if (homeFeedResponse["posts"].length == 0) {
+      mayHaveMore = false;
+      return;
+    }
   }
 
   @override

@@ -534,7 +534,7 @@ def get_profile_posts(request, username):
 
 @login_required
 def get_home_feed(request):
-    """Return the posts accessible in a user's home feed
+    """Return the posts accessible in a user's home feed, excluding their own posts
 
     Args:
         request (HttpRequest): the request made to this view
@@ -564,10 +564,13 @@ def get_home_feed(request):
         else:
             return HttpResponseBadRequest("sort method query string malformed")
 
+        posts = posts.exclude(creator=request.user.user_log)
         if request.GET["friend_filter"] == '1':
             friend_list = list(request.user.user_log.friend_list.all())
-            friend_list.append(request.user.user_log)
-            posts = posts.filter(creator__in=friend_list)
+            if friend_list is None:
+                posts = posts.filter(False)
+            else:
+                posts = posts.filter(creator__in=friend_list)
         if request.GET["tag_filter"] == '1':
             tag_list = list(request.user.user_profile.tagList.all())
             if tag_list is None:
