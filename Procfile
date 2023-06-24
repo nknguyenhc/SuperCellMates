@@ -1,0 +1,1 @@
+web: python supercell_mates/manage.py migrate && python supercell_mates/manage.py collectstatic --noinput && python supercell_mates/setup.py && python supercell_mates/run.py

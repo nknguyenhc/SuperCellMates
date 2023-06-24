@@ -15,14 +15,26 @@ from random import random
 from user_auth.models import UserAuth, Tag
 from user_profile.models import UserProfile
 from user_log.models import UserLog
-
-
-def flush():
-    subprocess.run('python manage.py flush --no-input')
+from message.models import PrivateChat
+from datetime import datetime
 
 
 def create_superusers():
-    UserAuth.objects.create_superuser(username="nguyen", password="Nguyen123###")
+    nguyen = UserAuth.objects.create_superuser(username='nguyen', password='Nguyen123###')
+    nguyen_profile = UserProfile(name='Nguyen Khoi Nguyen', user_auth=nguyen)
+    nguyen_profile.save()
+    nguyen_log = UserLog(user_auth=nguyen, user_profile=nguyen_profile)
+    nguyen_log.save()
+    jiale = UserAuth.objects.create_superuser(username='jiale', password='Jiale123###')
+    jiale_profile = UserProfile(name='Luo Jiale', user_auth=jiale)
+    jiale_profile.save()
+    jiale_log = UserLog(user_auth=jiale, user_profile=jiale_profile)
+    jiale_log.save()
+    jiale_log.friend_list.add(nguyen_log)
+    chat = PrivateChat(timestamp=datetime.now())
+    chat.save()
+    chat.users.add(nguyen)
+    chat.users.add(jiale)
 
 
 def create_users():
@@ -68,12 +80,6 @@ def create_tags():
 
 
 if __name__ == '__main__':
-    print("flushing database ...")
-    flush()
     print("creating superusers ...")
     create_superusers()
-    print("creating users ...")
-    create_users()
-    print("creating tags ...")
-    create_tags()
-    print("finished")
+    print("finished setup")

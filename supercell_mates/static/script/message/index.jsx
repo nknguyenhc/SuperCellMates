@@ -86,7 +86,7 @@ function ChatPage() {
                 }
 
                 const chatSocket = new WebSocket(
-                    'ws://'
+                    'wss://'
                     + window.location.host
                     + '/ws/message/'
                     + chatid
