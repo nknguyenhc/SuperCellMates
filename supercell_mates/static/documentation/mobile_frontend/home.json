@@ -18,7 +18,7 @@
             "description": "Search users based on username.",
             "APIs": [
                 {
-                    "path": "/user_log/search",
+                    "path": "/user/search",
                     "trigger": "User provides search string and stops input",
                     "purpose": "To allow users to find people they are interested in, view their profile pages, and connect with them"
                 }

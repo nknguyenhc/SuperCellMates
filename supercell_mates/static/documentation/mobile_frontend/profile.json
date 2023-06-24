@@ -2,19 +2,176 @@
     "name": "profile",
     "views": [
         {
-            "route": "Others' profile page",
-            "path": "/user_log/profile_async/<str:username>",
-            "description": "Display another user's profile page",
+            "route": "Profile page",
+            "description": "Display the user's profile page.",
             "APIs": [
                 {
-                    "path": "/user_log/add_friend",
-                    "trigger": "User presses add-friend button in non-friend user's profile page",
-                    "purpose": "Sends a friend request"
+                    "path": "/profile/async",
+                    "trigger": "User navigates to profile page in the bottom navigation bar",
+                    "purpose": "To allow users to view their own tags and posts, and access other related functions"
                 },
                 {
-                    "path": "/user_log/delete_friend",
+                    "path": "/profile/img/<str:username>",
+                    "trigger": "User loads the profile page",
+                    "purpose": "To retrieve the user's profile image and display in their profile page"
+                },
+                {
+                    "path": "/profile/tag/<str:tag_name>",
+                    "trigger": "User loads the profile page",
+                    "purpose": "To retrieve the icons of the user's tags and display in their profile page"
+                },
+                {
+                    "path": "/post/posts/<str:username>",
+                    "trigger": "User loads the profile page",
+                    "purpose": "To retrieve the user's posts and display in their profile page, and allow them to edit and delete their posts"
+                },
+                {
+                    "path": "/post/post/img/<str:pic_id>",
+                    "trigger": "User loads the profile page",
+                    "purpose": "To retrieve the images under each of the user's posts and display in their profile page"
+                },
+                {
+                    "path": "/post/delete",
+                    "trigger": "User presses the delete button under one of their posts",
+                    "purpose": "To allow users to delete unwanted posts"
+                }
+            ],
+            "navigations": ["Edit profile page", "Friend page", "Friend request page", "Achievement page", "My tags page", 
+                            "Add tags page", "Create post page", "Edit post page"]
+        },
+
+        {
+            "route": "Edit profile page",
+            "description": "Settings related to the user's profile page.",
+            "APIs": [
+                {
+                    "path": "/profile/set_profile_image",
+                    "trigger": "User presses their profile image to enter edit profile page, and then presses \"change profile image\" button",
+                    "purpose": "To allow users to upload and crop an image of their choice, and set as their profile image"
+                }
+            ],
+            "navigations": []
+        },
+
+        {
+            "route": "Friend page",
+            "description": "Display the user's friends and their profiles",
+            "APIs": [
+                {
+                    "path": "/user/friends_async",
+                    "trigger": "User presses \"my friends\" button in profile page, or \"friends\" button in friend page",
+                    "purpose": "To retrieve user's friend list and display in frontend, for users to view their friends' profiles easily"
+                }
+            ],
+            "navigations": ["Friend request page", "Others' profile page"]
+        },
+
+        {
+            "route": "Friend request page",
+            "description": "Display the user's incoming friend requests.",
+            "APIs": [
+                {
+                    "path": "/user/friend_requests_async",
+                    "trigger": "User presses \"Requests\" button in friend page",
+                    "purpose": "To retrieve and display user's unresolved friend requests, in the form of user profiles, for users to view and manage the requests"
+                },
+                {
+                    "path": "/user/add_friend",
+                    "trigger": "User presses \"Approve\" or \"Decline\" button next to a friend request",
+                    "purpose": "To process user's decision on the friend request, and connect users when they approve of the request"
+                }
+            ],
+            "navigations": ["Friend page", "Others' profile page"]
+        },
+
+        {
+            "route": "My tags page",
+            "description": "Display tags claimed by the user, and the user's tag count limit.",
+            "APIs": [
+                {
+                    "path": "/profile/obtain_tags",
+                    "trigger": "User presses the add button next to the tags in profile page, or \"My tags\" button in My tags page",
+                    "purpose": "To show clearly the list of tags claimed by the user, and allow users to inspect tag icons and (in a future implementation) descriptions"
+                }
+            ],
+            "navigations": ["Add tags page"]
+        },
+
+        {
+            "route": "Add tags page",
+            "description": "Search for other tags and add new tags",
+            "APIs": [
+                {
+                    "path": "/profile/search_tags",
+                    "trigger": "User provides search string and stops input in search bar",
+                    "purpose": "To allow users to search for tags that they have not claimed, and add them if they want"
+                },
+                {
+                    "path": "/profile/add_tags",
+                    "trigger": "User presses \"Add\" button next to a tag in the search result",
+                    "purpose": "To allow users to add new tags that describe their interest, provided their tag count limit has not been reached"
+                }
+            ],
+            "navigations": ["My tags page", "Request tags page"]
+        },
+
+        {
+            "route": "Request tags page",
+            "description": "Request for a new tag to be created in the platform.",
+            "APIs": [
+                {
+                    "path": "/add_tag_request",
+                    "trigger": "User presses \"request here\" button in Add tags page, completes the request tag form and presses submit button",
+                    "purpose": "To allow users to suggest new tags to be created, which will be managed by the admins"
+                }
+            ],
+            "navigations": []
+        },
+
+        {
+            "route": "Create post page",
+            "description": "Add posts to the user's profile.",
+            "APIs": [
+                {
+                    "path": "/post/create_post",
+                    "trigger": "After the user selects one of their tags, presses \"New post\" button, completes create post form and presses submit button",
+                    "purpose": "To allow users to post about a tag, add images and choose visibility settings"
+                }
+            ],
+            "navigations": []
+        },
+
+        {
+            "route": "Edit post page",
+            "description": "Edit one of the user's existing posts.",
+            "APIs": [
+                {
+                    "path": "/post/post/edit/<str:post_id>",
+                    "trigger": "User presses edit button under one of their posts in their profile page",
+                    "purpose": "To allow users to change post title, content and images of their existing posts"
+                }
+            ],
+            "navigations": []
+        },
+
+        {
+            "route": "Others' profile page",
+            "description": "Display another user's profile page.",
+            "APIs": [
+                {
+                    "path": "/user/profile_async/<str:username>",
+                    "trigger": "User presses other users' profile, in home feed, search page, friend page or friend request page",
+                    "purpose": "To show another user's tags and posts to the user, and provide functions for users to connect"
+                },
+                {
+                    "path": "/user/add_friend_request",
+                    "trigger": "User presses add-friend button in non-friend user's profile page",
+                    "purpose": "To allow users to send friend requests and connect"
+                },
+                {
+                    "path": "/user/delete_friend",
                     "trigger": "User presses unfriend button in friend's profile page",
-                    "purpose": "Removes two users' friend relation"
+                    "purpose": "To remove two users' friend relation when one of them would like to"
                 }
             ],
             "navigations": ["Achievement page"]
