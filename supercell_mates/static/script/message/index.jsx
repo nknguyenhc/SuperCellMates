@@ -74,7 +74,7 @@ function ChatPage() {
         fetch('/messages/get_private_messages/' + chatid)
             .then(response => response.json())
             .then(response => {
-                console.log(response);
+                // console.log(response);
                 const currTexts = response.messages;
                 setTexts(response.messages);
                 setTimeout(() => {

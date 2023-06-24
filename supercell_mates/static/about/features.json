@@ -1,0 +1,258 @@
+{
+    "features": [
+        {
+            "name": "User authentication",
+            "rows": [
+                {
+                    "details": "Registration, login & logout functionalities",
+                    "progress": "Done"
+                },
+                {
+                    "details": "Change username and change password",
+                    "progress": "Done on web"
+                },
+                {
+                    "details": "Privacy agreement upon registration",
+                    "progress": "Done using a placeholder agreement, to be replaced with the actual agreement"
+                },
+                {
+                    "details": "Register with email/phone for password recovery",
+                    "progress": "Add-on feature, to-do"
+                }
+            ]
+        },
+        {
+            "name": "User profile",
+            "rows": [
+                {
+                    "details": "View user’s own profile page with profile image, name, username, friend list, achievements, tag list, post history",
+                    "progress": "Done"
+                },
+                {
+                    "details": "Privacy settings",
+                    "progress": "Add-on"
+                },
+                {
+                    "details": "Edit profile image",
+                    "progress": "Done"
+                },
+                {
+                    "details": "Change name",
+                    "progress": "Done"
+                },
+                {
+                    "details": "View others’ profile page, showing relevant visible fields",
+                    "progress": "Done"
+                }
+            ]
+        },
+        {
+            "name": "Managing friend list",
+            "rows": [
+                {
+                    "details": "Send friend request on others’ profile page",
+                    "progress": "Done"
+                },
+                {
+                    "details": "Accept or decline friend requests",
+                    "progress": "Done"
+                },
+                {
+                    "details": "Delete friend on friends' profile page",
+                    "progress": "Done"
+                }
+            ]
+        },
+        {
+            "name": "User tag list",
+            "rows": [
+                {
+                    "details": "Claim tags among available tags",
+                    "progress": "Done"
+                },
+                {
+                    "details": "Search tags among available list of tags",
+                    "progress": "Done"
+                },
+                {
+                    "details": "Request for other tags, which will be decided by the admins",
+                    "progress": "Done"
+                },
+                {
+                    "details": "Change tag, with cooldown time",
+                    "progress": "To do"
+                },
+                {
+                    "details": "User tag number limit according to achievement level",
+                    "progress": "Done"
+                }
+            ]
+        },
+        {
+            "name": "User achievement",
+            "rows": [
+                {
+                    "details": "Show achievement level in users’ profile page",
+                    "progress": "Add-on"
+                },
+                {
+                    "details": "Achievement tasks",
+                    "progress": "Add-on"
+                },
+                {
+                    "details": "Upon level-up, notify user and update tag number limit",
+                    "progress": "Add-on"
+                }
+            ]
+        },
+        {
+            "name": "Post creation",
+            "rows": [
+                {
+                    "details": "Choose the most relevant tag to post under",
+                    "progress": "Done"
+                },
+                {
+                    "details": "Create post that contains texts and images",
+                    "progress": "Done"
+                },
+                {
+                    "details": "Choose post’s visibility setting",
+                    "progress": "Done"
+                },
+                {
+                    "details": "Edit post content after creation",
+                    "progress": "Done"
+                },
+                {
+                    "details": "Delete post after creation",
+                    "progress": "Done"
+                }
+            ]
+        },
+        {
+            "name": "Home feed",
+            "rows": [
+                {
+                    "details": "Displaying posts visible to user, sorted by time and matching index",
+                    "progress": "Partially done on mobile, matching index to-do"
+                },
+                {
+                    "details": "Search users by name / username",
+                    "progress": "Done on mobile, searching by username done on web"
+                },
+                {
+                    "details": "Search posts by content",
+                    "progress": "To do"
+                }
+            ]
+        },
+        {
+            "name": "Home page filtering",
+            "rows": [
+                {
+                    "details": "Filter home feed by tag",
+                    "progress": "Done on mobile"
+                },
+                {
+                    "details": "Filter home feed by matching index",
+                    "progress": "To do"
+                },
+                {
+                    "details": "Filter home feed by friends only",
+                    "progress": "Done on mobile"
+                }
+            ]
+        },
+        {
+            "name": "Matching index",
+            "rows": [
+                {
+                    "details": "Algorithm to calculate two users’ matching index",
+                    "progress": "To do"
+                },
+                {
+                    "details": "Update matching indexes regularly",
+                    "progress": "To do"
+                },
+                {
+                    "details": "Display matching index on others’ posts and profile page",
+                    "progress": "To do"
+                }
+            ]
+        },
+        {
+            "name": "Instant messaging",
+            "rows": [
+                {
+                    "details": "Direct message",
+                    "progress": "Partially done on web"
+                },
+                {
+                    "details": "Group chat creation and settings",
+                    "progress": "To do"
+                }
+            ]
+        },
+        {
+            "name": "Social deduction game bot moderators",
+            "rows": [
+                {
+                    "details": "Start game sessions in group chat",
+                    "progress": "To do"
+                },
+                {
+                    "details": "Werewolf moderator",
+                    "progress": "To do"
+                },
+                {
+                    "details": "Secret Hitler moderator",
+                    "progress": "Add-on"
+                }
+            ]
+        },
+        {
+            "name": "App notifications",
+            "rows": [
+                {
+                    "details": "In-app notification bubbles upon receiving messages and updates",
+                    "progress": "To do"
+                },
+                {
+                    "details": "Device notification",
+                    "progress": "Add-on"
+                }
+            ]
+        },
+        {
+            "name": "App settings",
+            "rows": [
+                {
+                    "details": "Display customisation",
+                    "progress": "Add-on"
+                },
+                {
+                    "details": "General privacy settings",
+                    "progress": "Add on"
+                }
+            ]
+        },
+        {
+            "name": "Community admins",
+            "rows": [
+                {
+                    "details": "Users with high achievement level and engagement level in a community, can apply to be the community’s admin",
+                    "progress": "Add on"
+                },
+                {
+                    "details": "Regular users can report inappropriate or irrelevant posts",
+                    "progress": "Add on"
+                },
+                {
+                    "details": "Community admins can decide to remove posts and ban accounts",
+                    "progress": "Add on"
+                }
+            ]
+        }
+    ]
+}

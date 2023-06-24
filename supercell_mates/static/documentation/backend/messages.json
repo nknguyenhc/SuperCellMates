@@ -1,5 +1,5 @@
 {
-    "name": "message_http",
+    "name": "message",
     "views": [
         {
             "path": "/messages/get_group_chats",

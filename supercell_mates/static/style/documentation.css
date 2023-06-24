@@ -56,6 +56,12 @@
     gap: 100px;
 }
 
+.documentation-subchapter {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
 .documentation-block {
     width: 100%;
     display: flex;
