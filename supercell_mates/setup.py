@@ -98,7 +98,7 @@ def setup_tags():
         "Dog.png",
     ]
     for tag in tags:
-        image = open(os.getcwd() + '\\tag-icons\\' + tag, 'rb')
+        image = open(os.getcwd() + '/tag-icons/' + tag, 'rb')
         tag_obj = Tag(name=tag.split('.')[0])
         tag_obj.save()
         tag_obj.image.save(tag, File(image))
