@@ -41,6 +41,8 @@ class MultiplePhotosViewerState extends State<MultiplePhotosViewer> {
         ),
         body: Stack(alignment: Alignment.bottomCenter, children: [
           PhotoViewGallery.builder(
+              backgroundDecoration:
+                  const BoxDecoration(color: Colors.transparent),
               scrollPhysics: const BouncingScrollPhysics(),
               builder: (BuildContext context, int index) {
                 return PhotoViewGalleryPageOptions(

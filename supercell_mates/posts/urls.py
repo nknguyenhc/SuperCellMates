@@ -12,4 +12,6 @@ urlpatterns = [
     path('post/photo/add', views.add_photo, name="add_photo"),
     path('post/photo/delete', views.delete_photo, name="delete_photo"),
     path('delete', views.delete_post, name="delete_post"),
+    path('', views.get_home_feed, name="get_home_feed"),
+
 ]

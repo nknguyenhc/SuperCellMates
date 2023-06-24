@@ -15,7 +15,9 @@ class PostListView extends StatefulWidget {
     required this.postList,
     required this.isInProfile,
     required this.isMyPost,
-    this.updateCallBack,
+    required this.updateCallBack,
+    required this.scrollAtTopEvent,
+    required this.scrollAtBottomEvent,
   }) : super(key: key);
 
   final dynamic postList;
@@ -26,6 +28,8 @@ class PostListView extends StatefulWidget {
   // the user should be able to edit the post
   final bool isMyPost;
   final dynamic updateCallBack;
+  final dynamic scrollAtTopEvent;
+  final dynamic scrollAtBottomEvent;
 
   @override
   State<PostListView> createState() => PostListViewState();
@@ -33,9 +37,12 @@ class PostListView extends StatefulWidget {
 
 class PostListViewState extends State<PostListView> {
   int count = 0;
+  dynamic postList;
   List<bool> dataLoaded = [];
   List<Uint8List> profileImages = [];
   List<List<Uint8List>?> postImagesRaw = [];
+
+  final _controller = ScrollController();
 
   @override
   void initState() {
@@ -45,6 +52,33 @@ class PostListViewState extends State<PostListView> {
     profileImages = List.filled(count, Uint8List.fromList([]), growable: true);
     postImagesRaw = List.filled(count, null, growable: true);
     for (int i = 0; i < count; i++) {
+      loadImages(i);
+    }
+    _controller.addListener(() {
+      if (_controller.position.atEdge) {
+        bool isTop = _controller.position.pixels == 0;
+        if (isTop) {
+          widget.scrollAtTopEvent();
+        } else {
+          widget.scrollAtBottomEvent();
+        }
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant PostListView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    loadMore();
+  }
+
+  void loadMore() {
+    int currCount = dataLoaded.length;
+    count = widget.postList.length;
+    for (int i = currCount; i < count; i++) {
+      dataLoaded.add(false);
+      profileImages.add(Uint8List.fromList([]));
+      postImagesRaw.add(null);
       loadImages(i);
     }
   }
@@ -68,6 +102,7 @@ class PostListViewState extends State<PostListView> {
   @override
   Widget build(BuildContext context) {
     ListView list = ListView.builder(
+        controller: _controller,
         itemCount: count,
         itemBuilder: (context, index) {
           Uint8List profileImageRawData = profileImages[index];
@@ -357,9 +392,10 @@ class PostListViewState extends State<PostListView> {
 
             const Divider(
               height: 1,
-              color: Colors.grey,
-              indent: 20,
-              endIndent: 20,
+              thickness: 0.3,
+              color: Colors.blueGrey,
+              indent: 15,
+              endIndent: 15,
             )
           ]);
         });

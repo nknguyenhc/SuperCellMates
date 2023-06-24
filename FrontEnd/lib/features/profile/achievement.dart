@@ -28,7 +28,7 @@ class AchievementPageState extends State<AchievementPage> {
         body: Container(
           alignment: Alignment.center,
           child: const Text(
-            "Achievement page body",
+            "Achievement page is under construction!",
           ),
         ));
   }

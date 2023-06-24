@@ -20,6 +20,7 @@ class SettingsPageState extends State<SettingsPage> {
           title: const Text("App settings")),
         body: const Column(
           children: [
+            Padding(padding: EdgeInsets.all(5)),
             LogOutButton(),
           ],
         ));
