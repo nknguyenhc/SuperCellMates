@@ -4,9 +4,9 @@ class ProdConfig extends Config {
   @override
   bool get production => true;
 
-  /// Your local server
+  /// deploy server
   @override
-  String get restBaseURL => "http://matchminer.pythonanywhere.com";
+  String get restBaseURL => "https://matchminer-d5ebcada4488.herokuapp.com";
 
   // int get connectTimeout => 10000; // 10s
   // int get receiveTimeout => 6000; // 6s
