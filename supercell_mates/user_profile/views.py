@@ -140,9 +140,7 @@ def add_tags(request):
         if count + len(list(user_profile_obj.tagList.all())) > user_profile_obj.tag_count_limit:
             return HttpResponseBadRequest("tag limit exceeded")
         requested_tags = request.POST.getlist("tags")
-        print(requested_tags)
         for i in range(count):
-            print(requested_tags[i])
             user_profile_obj.tagList.add(Tag.objects.get(name=requested_tags[i]))
         return HttpResponse("success")
     except AttributeError:

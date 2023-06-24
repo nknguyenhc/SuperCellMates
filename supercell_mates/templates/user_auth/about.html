@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="/static/style/user_auth/about.css">
 {% endblock %} 
 
+{% block script %} 
+    <script type="text/babel" src="/static/script/user_auth/about.jsx"></script>
+{% endblock %} 
+
 {% block body %} 
     <div class="introduction py-4">
         <div class="introduction-content">
@@ -15,27 +19,33 @@
             <img height='200' width='200' src="/static/media/logo.png">
             <h1>About</h1>
             <div class="introduction-read-me">
+                <h3>Team Name</h3>
+                <div class="about-section mb-4">SuperCellMates</div>
+                <h3>Level of Achievement</h3>
+                <div class="about-section mb-4">Apollo 11</div>
                 <h3>Motivation</h3>
-                <p>Have you ever wanted a glorious social media profile, but too shy to share your hobbies online? As mainstream social media users ourselves, we totally get the anxiety about the number of likes and comments. Therefore, we aim to develop a platform to facilitate free and unpressured interest-sharing.</p>
-                <p>Instead of “like” and “share” functionalities that produce little more than superficial interaction, our vision is to allow users to curate their own cellars of niche hobbies, and connect with like-minded individuals on the platform. We hope to create high-quality communities where sharing and socialising are exclusive to those truly passionate about a common hobby.</p>
-                <p>Beyond that, our app would also foster interactions among friends and newly-formed social circles. As avid board gamers, we have always wanted a platform to find other players, while existing platforms are usually buggy with poorly implemented moderator bots. Hence, we aim to design chat rooms with various social deduction game bot moderators.</p>
+                <div class="about-section" id="about-motivation"></div>
                 <h3>User Stories</h3>
-                <p>As an introvert, I want a platform to share my moments of joy without worrying about how others may think about my interests</p>
-                <p>As an extrovert, I feel that interactions on social media are sometimes superficial, and wish to develop meaningful relationships with people who share my passion</p>
-                <p>As a person passionate about his interest, I want to be able to connect with others who have the same interest</p>
-                <p>As someone with very niche interests, I wish to find communities where others can understand my posts and interact meaningfully with me</p>
-                <p>As a group of students from the same club, we wish to bond within our group through interest sharing and social deduction games</p>
-                <p>As a person interested in social deduction games, I want to have a profile section showing my achievements in the games I played on the platform</p>
-                <p>As an administrator of a community, I want to improve the quality of discussion in the community and filter out irrelevant posts</p>
-                <p>As an administrator, I want to be able to identify abusers of the platform and take appropriate actions</p>
+                <div class="about-section" id="about-user-stories"></div>
                 <h3>Project Scope</h3>
-                <p>This project aims to develop an interest-sharing platform called “MatchMiner”, which supports web, Android and IOS versions.</p>
-                <p>One key feature of the platform is the “tag” system. Users can claim tags that represent their interests. To ensure the quality of community discussions, the number of tags that each user can claim is limited. In this way, users are encouraged to join communities that they are truly passionate about.</p>
-                <p>Users can post texts, images and videos on the platform. When publishing a post, they are required to tag it with the most relevant tag from their tag list. They will be allowed to choose among various visibility settings, including “only users with the same tag can see”, “friends only”, “post anonymously”, etc. In the home page, users can view posts that are visible to them. They can choose to apply filters to their home feed, based on criteria such as tags, friends and recommendation.</p>
-                <p>As we aim to help like-minded people connect with each other, users can see their matching index with other users. The matching index is an indicator with levels ranging from 0 to 5, calculated based on the similarity of users&#39; tag lists, and how active they are in each community they have joined. This index is shown when users view others&#39; posts and profile pages. It helps users decide whether they want to send a friend request to other users they are interested in.</p>
-                <p>After adding friends, users can directly chat with each other, or form group chats in the chat page. The group chats can be customised with different themes, including various social deduction game bot moderators. This allows users to engage in fun activities among their new social circles, to know each group member better.</p>
-                <p>In each user&#39;s profile page, they can find their tags, friend list, post history, as well as an achievement section which showcases their level of engagement on the platform. Users can earn experience points by completing achievements, including daily login, publishing relevant posts, befriending users with high matching index, and winning social deduction games in groups. As users level up, they are rewarded with a larger number of tags that they are able to claim.</p>
+                <div class="about-section" id="about-project-scope"></div>
+                <h3>Features</h3>
+                <div class="about-section" id="about-features"></div>
+                <h3>Proof of Concept</h3>
+                <div class="about-section">
+                    <div class="website-link">Web: You are already on our website!</div>
+                    <div class="website-link">Android: <a target="_blank" href="https://appdistribution.firebase.google.com/testerapps/1:820742877564:android:82561ce998f29fab9934f9/releases/5spmfi5pr2nu0?utm_source=firebase-console">here</a></div>
+                </div>
             </div>
+            <div class="orbital-links mt-4">
+                <h3>Orbital Links:</h3>
+                <ul class="list-group">
+                    <li class="list-group-item"><a target="_blank" href="/documentation">Documentation</a></li>
+                    <li class="list-group-item list-group-item-primary"><a target="_blank" href="https://docs.google.com/document/d/1_W4NNX0Z9F0ADE8VSvuwUE6p8NWdwpObIRnyxqhCuZo/edit?usp=sharing">Log</a></li>
+                    <li class="list-group-item"><a target="_blank" href="https://drive.google.com/drive/folders/1SnGGd0k15Ixu2ccinLwf0DTsmdj4cX96?usp=sharing">Video & Poster</a></li>
+                </ul>
+            </div>
+            <hr class="mt-5">
             <h2 class="introduction-section-header">This website is made by the two of us</h2>
             <div class="author-block">
                 <div class="author-content">
@@ -97,13 +107,6 @@
             </div>
             <div class="admin-application-section">
                 <h4 class="admin-application-invitation">Interested in helping us maintain this website? You are welcome to <a href="{% url 'user_auth:admin_application' %}">join us</a>!</h4>
-            </div>
-            <div class="orbital-links mt-4">
-                <h3>Orbital Links:</h3>
-                <ul class="list-group">
-                    <li class="list-group-item"><a href="/documentation">Documentation</a></li>
-                    <li class="list-group-item list-group-item-primary"><a href="javascript:void(0)">Log</a></li>
-                </ul>
             </div>
         </div>
     </div>

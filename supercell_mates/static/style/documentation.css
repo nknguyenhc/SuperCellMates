@@ -56,6 +56,12 @@
     gap: 100px;
 }
 
+.documentation-subchapter {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
 .documentation-block {
     width: 100%;
     display: flex;
@@ -142,5 +148,22 @@
 }
 
 .web-frontend-documentation-api-path, .web-frontend-documentation-redirect-path {
-    width: fit-content;
+    width: 50%;
+}
+
+.mobile-page-display {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.mobile-apis, .mobile-navs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mobile-api-path {
+    width: 50%;
 }

@@ -1,0 +1,32 @@
+{
+    "name": "admin",
+    "views": [
+        {
+            "path": "manage_page",
+            "description": "The single page to manage tags (and maybe other features in future)",
+            "APIs": [
+                {
+                    "path": "/obtain_tag_requests",
+                    "trigger": "First load",
+                    "purpose": "Get the current tag requests to be displayed"
+                },
+                {
+                    "path": "/add_tag_admin",
+                    "trigger": "When the admin clicks approve a tag request",
+                    "purpose": "To add the tag to the database and remove the tag request"
+                },
+                {
+                    "path": "/remove_tag_request",
+                    "trigger": "When the admin clicks reject a tag request",
+                    "purpose": "To remove a tag request from the database"
+                },
+                {
+                    "path": "/new_tag_admin",
+                    "trigger": "When the admin manually creates a tag",
+                    "purpose": "To add a tag bypassing the requirement of a tag request. Admins should refrain from creating tags using this method as it does not (yet) support image attachment to the new tag"
+                }
+            ],
+            "redirects": []
+        }
+    ]
+}

@@ -7,6 +7,7 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "supercell_mates.settings")
 import django
 django.setup()
+from django.core.files import File
 
 import subprocess
 import sys
@@ -79,7 +80,34 @@ def create_tags():
                     user.tagList.add(tag_obj)
 
 
+def setup_tags():
+    tags = [
+        "Computer Science.png",
+        "Mathematics.jpg",
+        "Physics.png",
+        "Chemistry.png",
+        "Biology.png",
+        "Cyber Security.png",
+        "Software Engineering.png",
+        "Artificial Intelligence.png",
+        "Chinese Chess.jpg",
+        "Game Development.png",
+        "Choir.png",
+        "International Chess.png",
+        "Cat.png",
+        "Dog.png",
+    ]
+    for tag in tags:
+        image = open(os.getcwd() + '\\tag-icons\\' + tag, 'rb')
+        tag_obj = Tag(name=tag.split('.')[0])
+        tag_obj.save()
+        tag_obj.image.save(tag, File(image))
+        image.close()
+
+
 if __name__ == '__main__':
     print("creating superusers ...")
     create_superusers()
-    print("finished setup")
+    print("creating tags ...")
+    setup_tags()
+    print("finished")
