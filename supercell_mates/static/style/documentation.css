@@ -144,3 +144,20 @@
 .web-frontend-documentation-api-path, .web-frontend-documentation-redirect-path {
     width: 50%;
 }
+
+.mobile-page-display {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.mobile-apis, .mobile-navs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mobile-api-path {
+    width: 50%;
+}
