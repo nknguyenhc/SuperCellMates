@@ -10,7 +10,6 @@ from django.utils.http import url_has_allowed_host_and_scheme as is_safe_url
 from django.views.decorators.http import require_http_methods
 import io
 from django.core.files.images import ImageFile
-import magic
 from PIL import Image
 
 from user_profile.views import verify_image
