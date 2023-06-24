@@ -1,0 +1,42 @@
+{
+    "name": "home",
+    "views": [
+        {
+            "route": "Home page",
+            "description": "Display the user's home feed.",
+            "APIs": [
+                {
+                    "path": "/post",
+                    "trigger": "User navigates to home page, scrolls up to load more, or applies a new home feed sort/filter method",
+                    "purpose": "To fetch, sort, and filter posts accessible to a user, for users to view others' posts in their home feed"
+                }
+            ],
+            "navigations": ["Search page", "Settings page", "Others' profile page"]
+        },
+        {
+            "route": "Search page",
+            "description": "Search users based on username.",
+            "APIs": [
+                {
+                    "path": "/user_log/search",
+                    "trigger": "User provides search string and stops input",
+                    "purpose": "To allow users to find people they are interested in, view their profile pages, and connect with them"
+                }
+            ],
+            "navigations": ["Others' profile page"]
+        },
+        {
+            "route": "Settings page",
+            "description": "App-related settings.",
+            "APIs": [
+                {
+                    "path": "/logout_async",
+                    "trigger": "User presses log-out button",
+                    "purpose": "To allow users to log out of their account, and return to the authentication page"
+                }
+            ],
+            "navigations": ["Log-in page", "Sign-up page"]
+        }
+        
+    ]
+}

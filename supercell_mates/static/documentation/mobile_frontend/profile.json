@@ -1,0 +1,23 @@
+{
+    "name": "profile",
+    "views": [
+        {
+            "route": "Others' profile page",
+            "path": "/user_log/profile_async/<str:username>",
+            "description": "Display another user's profile page",
+            "APIs": [
+                {
+                    "path": "/user_log/add_friend",
+                    "trigger": "User presses add-friend button in non-friend user's profile page",
+                    "purpose": "Sends a friend request"
+                },
+                {
+                    "path": "/user_log/delete_friend",
+                    "trigger": "User presses unfriend button in friend's profile page",
+                    "purpose": "Removes two users' friend relation"
+                }
+            ],
+            "navigations": ["Achievement page"]
+        }
+    ]
+}

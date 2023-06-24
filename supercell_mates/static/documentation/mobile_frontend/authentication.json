@@ -1,0 +1,34 @@
+{
+    "name": "authentication",
+    "views": [
+        {
+            "route": "Sign-up page",
+            "description": "Register a new user/account.",
+            "APIs": [
+                {
+                    "path": "/check_unique_username",
+                    "trigger": "After the user completes the first sign-up page and presses the sign-up button",
+                    "purpose": "To inform the user of whether the username has been taken, save user some time of resubmitting registration form"
+                },
+                {
+                    "path": "/register_async",
+                    "trigger": "After the user completes the second sign-up page (additional information) and presses the submit button",
+                    "purpose": "To register the user in the platform"
+                }
+            ],
+            "navigations": ["Home page"]
+        },
+        {
+            "route": "Log-in page",
+            "description": "Log in to an existing account.",
+            "APIs": [
+                {
+                    "path": "/login_async",
+                    "trigger": "After the user completes the log-in page and presses the log-in button",
+                    "purpose": "To verify the user's log-in credentials and log the user in"
+                }
+            ],
+            "navigations": ["Home page"]
+        }
+    ]
+}
