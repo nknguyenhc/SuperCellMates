@@ -47,7 +47,7 @@ def group_chat_info(group_chat_object):
     """Returns the info of the group chat in a dictionary, given the group chat object.
     It has the fields returned by the chat_info method, and the following fields specific to group chats:
     """
-    pass
+    return HttpResponse("not yet implemented")
 
 
 def private_chat_info(request_user_auth, private_chat_object):

@@ -1,0 +1,90 @@
+{
+    "name": "message_http",
+    "views": [
+        {
+            "path": "/messages/get_group_chats",
+            "description": "Obtain the information of all group chats that the current user belongs to",
+            "getParams": [],
+            "postParams": [],
+            "return": "<not yet implemented>"
+        },
+        {
+            "path": "/messages/get_private_chats",
+            "description": "Obtain the information of all private chats that the current user belongs to",
+            "getParams": [],
+            "postParams": [],
+            "return": {
+                "privates": [
+                    {
+                        "id": "<id of private chat 1>",
+                        "timestamp": "<epoch timestamp of private chat 1>",
+                        "user": {
+                            "name": "<name of the friend>",
+                            "username": "<username of the friend>",
+                            "profile_link": "<URL to the friend's profile page>",
+                            "profile_img_url": "<URL to the friend's profile image>"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "path": "/messages/get_private_messages/<str:chat_id>",
+            "description": "Get messages in the current chat. Currently it returns info on all messages, in a future release it will only return messages within a time period given",
+            "getParams": [],
+            "postParams": [],
+            "return": {
+                "messages": [
+                    {
+                        "id": "<id of message 1>",
+                        "timestamp": "<epoch timestamp of message 1>",
+                        "user": {
+                            "name": "<friend's name>",
+                            "username": "<friend's username>",
+                            "profile_link": "<URL to the friend's profile page>",
+                            "profile_img_url": "<URL to the friend's profile image>"
+                        },
+                        "type": "text/file",
+                        "message": "<text message, available only if type is text>",
+                        "filename": "<name of file, available only if type is file>",
+                        "is_image": "<whether the file is an image, available only if type is file>"
+                    }
+                ]
+            }
+        },
+        {
+            "path": "/messages/upload_file",
+            "description": "Upload a file as a message",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "chat_id",
+                    "description": "The id of the chat to post the message to"
+                },
+                {
+                    "name": "file",
+                    "description": "The file to save"
+                },
+                {
+                    "name": "file_name",
+                    "description": "The name of the file to save as"
+                }
+            ],
+            "return": "<id of the file message generated>"
+        },
+        {
+            "path": "/messages/image/<str:message_id>",
+            "description": "Return the image contained in the message id, or the file contained. User are advised to trust the person sending the file message before clicking the link to open this API",
+            "getParams": [],
+            "postParams": [],
+            "return": "<the file/image associated with the message>"
+        },
+        {
+            "path": "/messages/get_private_chat_id/<str:username>",
+            "description": "Get id of the private chat between the current user and the target user",
+            "getParams": [],
+            "postParams": [],
+            "return": "<the id of the private chat>"
+        }
+    ]
+}

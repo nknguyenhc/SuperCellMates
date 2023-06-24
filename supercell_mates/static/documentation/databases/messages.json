@@ -1,0 +1,190 @@
+{
+    "name": "posts",
+    "views": [
+        {
+            "name": "Private Chat",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "CharField",
+                    "description": "The id of the chat"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "DateTimeField",
+                    "description": "The time that a message was last sent to the chat"
+                },
+                {
+                    "name": "users",
+                    "type": "ManyToManyField(UserAuth)",
+                    "description": "The two users that belong to this chat"
+                }
+            ]
+        },
+        {
+            "name": "Group Chat",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "CharField",
+                    "description": "The id of the chat"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "DateTimeField",
+                    "description": "The time that a message was last sent to the chat"
+                },
+                {
+                    "name": "users",
+                    "type": "ManyToManyField(UserAuth)",
+                    "description": "The group users that belong to this chat"
+                },
+                {
+                    "name": "rep_img",
+                    "type": "ImageField",
+                    "description": "The representative image of the chat"
+                }
+            ]
+        },
+        {
+            "name": "Private Text Message",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "CharField",
+                    "description": "The id of the message"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "DateTimeField",
+                    "description": "The time that the message was created"
+                },
+                {
+                    "name": "text",
+                    "type": "TextField",
+                    "description": "The text content of the message"
+                },
+                {
+                    "name": "chat",
+                    "type": "ForeignKey(PrivateChat)",
+                    "description": "The private chat that this message belongs to"
+                },
+                {
+                    "name": "user",
+                    "type": "ForeignKey(UserAuth)",
+                    "description": "The user that sent out this message"
+                }
+            ]
+        },
+        {
+            "name": "Group Text Message",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "CharField",
+                    "description": "The id of the message"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "DateTimeField",
+                    "description": "The time that the message was created"
+                },
+                {
+                    "name": "text",
+                    "type": "TextField",
+                    "description": "The text content of the message"
+                },
+                {
+                    "name": "chat",
+                    "type": "ForeignKey(GroupChat)",
+                    "description": "The group chat that this message belongs to"
+                },
+                {
+                    "name": "user",
+                    "type": "ForeignKey(UserAuth)",
+                    "description": "The user that sent out this message"
+                }
+            ]
+        },
+        {
+            "name": "Private File Message",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "CharField",
+                    "description": "The id of the message"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "DateTimeField",
+                    "description": "The time that the message was created"
+                },
+                {
+                    "name": "file_field",
+                    "type": "FileField",
+                    "description": "The file content of the message"
+                },
+                {
+                    "name": "file_name",
+                    "type": "CharField",
+                    "description": "The name of the file"
+                },
+                {
+                    "name": "is_image",
+                    "type": "BooleanField",
+                    "description": "The cached verification of whether the file is an image. Verification occurs when the image is first uploaded"
+                },
+                {
+                    "name": "chat",
+                    "type": "ForeignKey(PrivateChat)",
+                    "description": "The private chat that this message belongs to"
+                },
+                {
+                    "name": "user",
+                    "type": "ForeignKey(UserAuth)",
+                    "description": "The user that sent out this message"
+                }
+            ]
+        },
+        {
+            "name": "Private File Message",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "CharField",
+                    "description": "The id of the message"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "DateTimeField",
+                    "description": "The time that the message was created"
+                },
+                {
+                    "name": "file_field",
+                    "type": "FileField",
+                    "description": "The file content of the message"
+                },
+                {
+                    "name": "file_name",
+                    "type": "CharField",
+                    "description": "The name of the file"
+                },
+                {
+                    "name": "is_image",
+                    "type": "BooleanField",
+                    "description": "The cached verification of whether the file is an image. Verification occurs when the image is first uploaded"
+                },
+                {
+                    "name": "chat",
+                    "type": "ForeignKey(GroupChat)",
+                    "description": "The group chat that this message belongs to"
+                },
+                {
+                    "name": "user",
+                    "type": "ForeignKey(UserAuth)",
+                    "description": "The user that sent out this message"
+                }
+            ]
+        }
+    ]
+}

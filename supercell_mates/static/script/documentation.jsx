@@ -3,7 +3,8 @@ function Documentation() {
         "user_auth",
         "user_profile",
         "user_log",
-        "posts"
+        "posts",
+        "messages",
     ]
     const structures = [
         {
@@ -23,6 +24,8 @@ function Documentation() {
                 "logged_out",
                 "home",
                 "layout",
+                "profile",
+                "admin",
             ]
         }
     ];
