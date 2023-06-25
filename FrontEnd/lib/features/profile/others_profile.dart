@@ -56,7 +56,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
     dynamic profilePostsResponse = jsonDecode(await getRequest(
         EndPoints.getProfilePosts.endpoint +
             widget.data["user_profile"]["username"],
-        {"start": "2023-06-17-00-00-00", "end": "2023-06-25-00-00-00"}));
+        {"start": "2023-01-01-00-00-00", "end": "2099-01-01-00-00-00"}));
     assert(!profilePostsResponse["myProfile"]);
     profilePosts = profilePostsResponse["posts"];
     setState(() => profilePostsLoaded = true);
