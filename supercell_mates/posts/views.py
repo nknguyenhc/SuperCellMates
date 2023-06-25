@@ -217,7 +217,7 @@ def edit_post(request, post_id):
                 except (IOError, SyntaxError):
                     return HttpResponseBadRequest("not image")
                 img_obj = PostImage(order=i, image=img, post=post)
-            img_obj.save()
+                img_obj.save()
     else:
         imgs = request.FILES.getlist("imgs")
         for (i, img) in enumerate(imgs):
@@ -492,6 +492,7 @@ def get_profile_posts(request, username):
     The time limits are given in the GET parameters. The URL therefore must contain the following GET paramters:
         start (str): the string of the start date given in the format YYYY-MM-DD-HH-MM-SS
         end (str): the string of the end date given in the format YYYY-MM-DD-HH-MM-SS
+        [Optional] tag (str): the string of the tag filter applied to the profile posts
     
     The returned json response contains the following fields:
         posts (list(dict)): the list of posts, each represented by a dictionary
@@ -509,14 +510,20 @@ def get_profile_posts(request, username):
         # only meant to be in SG. If post is made at another point of the world, have to fix this time display
         user_log_obj = UserAuth.objects.get(username=username).user_log
 
+        posts_queryset = user_log_obj.posts.filter(time_posted__range=(start_time, end_time)).order_by('-time_posted')
+
+        if "tag" in request.GET:
+            tag = Tag.objects.get(name=request.GET["tag"])
+            posts_queryset = posts_queryset.filter(tag=tag)
+
         posts = list(map(
             lambda post: parse_post_object(post),
             filter(
                 lambda post: has_access(request.user, post),
-                list(user_log_obj.posts.filter(time_posted__range=(start_time, end_time)).all())
+                list(posts_queryset.all())
             )
         ))
-        posts.reverse()
+
         return JsonResponse({
             "posts": posts,
             "hasOlderPosts": user_log_obj.posts.filter(time_posted__lt=start_time).exists(),
