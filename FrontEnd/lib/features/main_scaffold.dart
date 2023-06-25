@@ -32,7 +32,7 @@ class MainScaffoldState extends State<MainScaffold> {
   int selectedIndex = 0;
 
   final pages = <Widget>[
-    const HomePage(),
+    HomePage(key:UniqueKey()),
     const ChatPage(),
     Container(),
   ];
@@ -60,7 +60,7 @@ class MainScaffoldState extends State<MainScaffold> {
 
   void updateHomePageBody(Widget? body) {
     setState(() {
-      pages[0] = body ?? const HomePage();
+      pages[0] = body ?? HomePage(key: UniqueKey(),);
     });
   }
 

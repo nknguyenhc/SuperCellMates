@@ -47,9 +47,17 @@ class ProfilePageState extends State<ProfilePage> {
     }
     setState(() => data = data);
     profilePostsLoaded = false;
+    dynamic requestBody = {
+      "start": "2023-01-01-00-00-00",
+      "end": "2099-01-01-00-00-00"
+    };
+    if (selectedTagIndex != -1) {
+      requestBody["tag"] = data["tags"][selectedTagIndex - 1]["name"];
+    }
+    
     dynamic profilePostsResponse = jsonDecode(await getRequest(
         EndPoints.getProfilePosts.endpoint + data["user_profile"]["username"],
-        {"start": "2023-01-01-00-00-00", "end": "2099-01-01-00-00-00"}));
+        requestBody));
     assert(profilePostsResponse["myProfile"]);
     profilePosts = profilePostsResponse["posts"];
 
@@ -67,6 +75,7 @@ class ProfilePageState extends State<ProfilePage> {
     setState(() {
       selectedTagIndex = selectedTagIndex == index ? -1 : index;
     });
+    loadData();
   }
 
   @override
