@@ -109,12 +109,12 @@ class HomeAppBarState extends State<HomeAppBar> {
         ],
       ),
       actions: [
-        isAdmin
-            ? IconButton(
-                onPressed: () => {},
-                icon: const Icon(Icons.add_card_outlined),
-              )
-            : Container(),
+        // isAdmin
+        //     ? IconButton(
+        //         onPressed: () => {},
+        //         icon: const Icon(Icons.add_card_outlined),
+        //       )
+        //     : Container(),
         // home feed filter
         PopupMenuButton(
           padding: const EdgeInsets.fromLTRB(4, 0, 8, 0),

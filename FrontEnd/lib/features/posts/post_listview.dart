@@ -189,10 +189,13 @@ class PostListViewState extends State<PostListView> {
                         Row(
                           children: [
                             const Padding(padding: EdgeInsets.only(left: 10)),
-                            Text(
-                              content,
-                              style: const TextStyle(fontSize: 14),
-                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width - 40,
+                              child: Text(
+                                content,
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            )
                           ],
                         ),
                         const Padding(padding: EdgeInsets.only(top: 10)),

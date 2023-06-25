@@ -67,7 +67,7 @@ class MultiplePhotosViewerState extends State<MultiplePhotosViewer> {
             padding: const EdgeInsets.all(30),
             child: Text(
               "${currentIndex + 1}/${widget.listOfPhotoBytes.length}",
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.black),
             ),
           ),
         ]));
