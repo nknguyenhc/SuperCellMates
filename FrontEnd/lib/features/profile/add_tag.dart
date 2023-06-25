@@ -25,7 +25,16 @@ class AddTagPageState extends State<AddTagPage> {
   var tagCount = 0;
   var tagLimit = 0;
   int navigationBarIndex = 0;
-  Widget? searchTagsResult = Container();
+  Widget? searchTagsResult = const Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Text(
+        "Use the search button above to search for tags!",
+        textAlign: TextAlign.center,
+      ),
+      Padding(padding: EdgeInsets.only(bottom: 80))
+    ],
+  );
 
   @override
   void initState() {
@@ -162,7 +171,7 @@ class AddTagPageState extends State<AddTagPage> {
               child: dataLoaded
                   ? navigationBarIndex == 0
                       ? TagListView(tagList: myTagsList, isAddTag: false)
-                      : searchTagsResult ?? Container()
+                      : searchTagsResult
                   : const CircularProgressIndicator()),
           navigationBarIndex == 1
               ? Container(

@@ -10,10 +10,19 @@ Future<Widget> searchUser(BuildContext context, input) async {
   dynamic userList =
       jsonDecode(await getRequest(EndPoints.search.endpoint, query))["users"];
 
-  Widget list = UserListView(
-    userList: userList,
-    updateCallBack: () {},
-  );
+  Widget list = userList.length > 0
+      ? UserListView(
+          userList: userList,
+          updateCallBack: () {},
+        )
+      : const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "No results for this search.",
+            ),
+          ],
+        );
 
   return Column(
     key: UniqueKey(),
