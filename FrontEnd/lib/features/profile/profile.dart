@@ -53,7 +53,7 @@ class ProfilePageState extends State<ProfilePage> {
     if (selectedTagIndex != -1) {
       requestBody["tag"] = data["tags"][selectedTagIndex - 1]["name"];
     }
-    
+
     dynamic profilePostsResponse = jsonDecode(await getRequest(
         EndPoints.getProfilePosts.endpoint + data["user_profile"]["username"],
         requestBody));
@@ -216,19 +216,31 @@ class ProfilePageState extends State<ProfilePage> {
               ),
 
               // posts
-              SizedBox(
-                  height: myPostsHeight,
-                  width: MediaQuery.of(context).size.width,
-                  child: profilePostsLoaded
-                      ? PostListView(
-                          postList: profilePosts,
-                          isInProfile: true,
-                          isMyPost: true,
-                          updateCallBack: loadData,
-                          scrollAtTopEvent: () {},
-                          scrollAtBottomEvent: () {},
-                        )
-                      : const CircularProgressIndicator()),
+              data["tags"].length == 0
+                  ? SizedBox(
+                      height: myPostsHeight,
+                      width: MediaQuery.of(context).size.width - 20,
+                      child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                        Text(
+                          "You have no tags yet.\n\nPress the add button above to claim tags\nand start creating posts!",
+                          textAlign: TextAlign.center,),
+                        Padding(padding: EdgeInsets.only(bottom: 80)),
+                      ],) )
+                  : SizedBox(
+                      height: myPostsHeight,
+                      width: MediaQuery.of(context).size.width,
+                      child: profilePostsLoaded
+                          ? PostListView(
+                              postList: profilePosts,
+                              isInProfile: true,
+                              isMyPost: true,
+                              updateCallBack: loadData,
+                              scrollAtTopEvent: () {},
+                              scrollAtBottomEvent: () {},
+                            )
+                          : const CircularProgressIndicator()),
             ],
           )
         : const CircularProgressIndicator();
