@@ -21,6 +21,9 @@
                     {% elif is_friend %} 
                         <div id="buttons"></div>
                         <script type="text/babel" src="/static/script/user_log/view_profile_buttons.jsx"></script>
+                    {% elif is_friend_request_sent %} 
+                        <div id="confirm-friend-request"></div>
+                        <script type="text/babel" src="/static/script/user_log/pending_friend_request.jsx"></script>
                     {% else %} 
                         <form id="add_friend_form">
                             <input type="hidden" id="add_friend_username" value="{{ user_profile.username }}">

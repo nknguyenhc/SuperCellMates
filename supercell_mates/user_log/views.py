@@ -44,7 +44,8 @@ def view_profile_context(user_auth_obj, request_user):
     result = {
         "tags": tags,
         "my_profile": False,
-        "is_friend": user_auth_obj.user_log in list(request_user.user_log.friend_list.all())
+        "is_friend": user_auth_obj.user_log in list(request_user.user_log.friend_list.all()),
+        "is_friend_request_sent": FriendRequest.objects.filter(to_user=request_user.user_log, from_user=user_auth_obj.user_log).exists()
     }
     result.update(layout_context(user_auth_obj))
     return result
