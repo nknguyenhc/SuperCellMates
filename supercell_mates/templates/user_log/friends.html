@@ -16,9 +16,12 @@
                 <div class="friend-profile-pic">
                     <img src="{{ friend.profile_pic_url }}">
                 </div>
-                <a href="{{ friend.profile_link }}">
-                    <div class="text-primary">{{ friend.username }}</div>
-                </a>
+                <div class="friend-credentials">
+                    <div>{{ friend.name }}</div>
+                    <a href="{{ friend.profile_link }}">
+                        <div class="text-primary">{{ friend.username }}</div>
+                    </a>
+                </div>
             </div>
         {% endfor %} 
     </div>

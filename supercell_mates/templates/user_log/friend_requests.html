@@ -22,9 +22,12 @@
                     <div class="friend-request-profile-pic">
                         <img src="{{ friend_request.profile_pic_url }}">
                     </div>
-                    <a href="{{ friend_request.profile_link }}">
-                        <div class="text-primary">{{ friend_request.username }}</div>
-                    </a>
+                    <div class="friend-request-credentials">
+                        <div>{{ friend_request.name }}</div>
+                        <a href="{{ friend_request.profile_link }}">
+                            <div class="text-primary">{{ friend_request.username }}</div>
+                        </a>
+                    </div>
                 </div>
                 <div class="friend-accepted-mark text-success" style="display: none">
                     <img src="/static/media/check-icon.png">
