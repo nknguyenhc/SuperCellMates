@@ -60,6 +60,10 @@ class UserListViewState extends State<UserListView> {
                   FocusManager.instance.primaryFocus?.unfocus();
                   dynamic data = await getRequest(
                       "${EndPoints.viewProfile.endpoint}/$username", null);
+                  if (data == "Connection error") {
+                    showErrorDialog(context, data);
+                    return;
+                  }
                   AutoRouter.of(context).push(OthersProfileRoute(
                       data: jsonDecode(data),
                       onDeleteFriendCallBack: () {
@@ -124,8 +128,9 @@ class UserListViewState extends State<UserListView> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                  "No friends yet.\n\nClick on other users' profile to send friend requests!",
-                  textAlign: TextAlign.center,),
+                "No friends yet.\n\nClick on other users' profile to send friend requests!",
+                textAlign: TextAlign.center,
+              ),
               Padding(padding: EdgeInsets.only(bottom: 80))
             ],
           );
@@ -204,6 +209,10 @@ class FriendRequestListState extends State<FriendRequestListView> {
                         dynamic data = await getRequest(
                             "${EndPoints.viewProfile.endpoint}/$username",
                             null);
+                        if (data == "Connection error") {
+                          showErrorDialog(context, data);
+                          return;
+                        }
                         AutoRouter.of(context)
                             .push(OthersProfileRoute(data: jsonDecode(data)));
                       },

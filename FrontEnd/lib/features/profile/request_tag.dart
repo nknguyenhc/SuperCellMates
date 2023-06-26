@@ -32,6 +32,7 @@ class RequestTagPageState extends State<RequestTagPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar:
             AppBar(titleSpacing: 0, title: const Text("Request for a new tag")),
         body: Container(
@@ -47,19 +48,20 @@ class RequestTagPageState extends State<RequestTagPage> {
                 const Text(
                   "Tag name:",
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                   ),
                 ),
                 const Padding(padding: EdgeInsets.all(11)),
                 SizedBox(
                   width: MediaQuery.of(context).size.width - 140,
                   child: TextField(
+                    maxLength: 25,
                     decoration: const InputDecoration(
                         border: OutlineInputBorder(),
-                        hintText: "An accurate name for the tag...",
+                        hintText: "An accurate name...",
                         hintStyle: TextStyle(color: Colors.grey, fontSize: 14)),
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                     ),
                     onChanged: (input) {
                       tagName = input;
@@ -77,7 +79,7 @@ class RequestTagPageState extends State<RequestTagPage> {
                 const Text(
                   "Tag icon:",
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                   ),
                 ),
                 const Padding(padding: EdgeInsets.all(10)),
@@ -114,19 +116,20 @@ class RequestTagPageState extends State<RequestTagPage> {
                 const Text(
                   "Description:",
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                   ),
                 ),
                 const Padding(padding: EdgeInsets.all(5)),
                 SizedBox(
                     width: MediaQuery.of(context).size.width - 140,
                     child: TextField(
+                      maxLength: 100,
                       decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           hintText: "Additional information about the tag...",
                           hintStyle:
                               TextStyle(color: Colors.grey, fontSize: 14)),
-                      style: const TextStyle(fontSize: 16),
+                      style: const TextStyle(fontSize: 14),
                       maxLines: 3,
                       onChanged: (input) {
                         tagDescription = input;

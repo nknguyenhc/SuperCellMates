@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/features/posts/post_listview.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
@@ -22,6 +23,7 @@ class HomePageState extends State<HomePage> {
   List<dynamic> homeFeed = [];
   bool homeFeedLoaded = false;
   bool mayHaveMore = true;
+  bool isLoadingMore = true;
   String nextStartID = "";
 
   String sort = "time";
@@ -47,6 +49,9 @@ class HomePageState extends State<HomePage> {
     if (!mayHaveMore) {
       return;
     }
+    setState(() {
+      isLoadingMore = true;
+    });
     dynamic query = {
       "sort": sort,
       "friend_filter": friendFilter,
@@ -54,12 +59,18 @@ class HomePageState extends State<HomePage> {
       "start_id": nextStartID,
       "limit": blockLimit,
     };
-    dynamic homeFeedResponse =
-        jsonDecode(await getRequest(EndPoints.getHomeFeed.endpoint, query));
+    dynamic homeFeedResponseJson =
+        await getRequest(EndPoints.getHomeFeed.endpoint, query);
+    if (homeFeedResponseJson == "Connection error") {
+      showErrorDialog(context, homeFeedResponseJson);
+      return;
+    }
+    dynamic homeFeedResponse = jsonDecode(homeFeedResponseJson);
     nextStartID = homeFeedResponse["stop_id"];
 
     setState(() {
       homeFeed.addAll(homeFeedResponse["posts"]);
+      isLoadingMore = false;
       homeFeedLoaded = true;
     });
 
@@ -77,13 +88,22 @@ class HomePageState extends State<HomePage> {
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height - 100,
           child: homeFeedLoaded
-              ? PostListView(
-                  postList: homeFeed,
-                  isInProfile: false,
-                  isMyPost: false,
-                  updateCallBack: () {},
-                  scrollAtTopEvent: () {},
-                  scrollAtBottomEvent: getHomeFeed,
+              ? Stack(
+                alignment: Alignment.center,
+                  children: [
+                    PostListView(
+                      postList: homeFeed,
+                      isInProfile: false,
+                      isMyPost: false,
+                      updateCallBack: () {},
+                      scrollAtTopEvent: () {},
+                      scrollAtBottomEvent: getHomeFeed,
+                    ),
+                    isLoadingMore
+                        ? const Positioned(
+                            bottom: 5, child: CircularProgressIndicator())
+                        : Container()
+                  ],
                 )
               : const CircularProgressIndicator()),
     );

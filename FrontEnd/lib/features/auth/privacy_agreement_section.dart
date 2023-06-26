@@ -20,6 +20,7 @@ class PrivacyAgreementSectionState extends State<PrivacyAgreementSection> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
         SizedBox(
           height: 25,
@@ -31,10 +32,11 @@ class PrivacyAgreementSectionState extends State<PrivacyAgreementSection> {
                 "I have read and agree to the ",
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 18,
+                  fontSize: 16,
                 ),
                 softWrap: true,
               ),
+              const Padding(padding: EdgeInsets.only(right: 7))
             ],
           ),
         ),
@@ -48,11 +50,11 @@ class PrivacyAgreementSectionState extends State<PrivacyAgreementSection> {
               child: const Text(
                 "data privacy agreement",
                 style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                     decoration: TextDecoration.underline,
-                    decorationColor: Color.fromARGB(255, 239, 161, 161),
-                    color: Color.fromARGB(255, 239, 161, 161)),
+                    decorationColor: Color.fromARGB(255, 255, 147, 147),
+                    color: Color.fromARGB(255, 255, 147, 147)),
               ),
             ),
           ]),

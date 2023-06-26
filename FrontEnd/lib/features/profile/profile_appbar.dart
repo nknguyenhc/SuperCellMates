@@ -49,21 +49,22 @@ class ProfileAppBarState extends State<ProfileAppBar> {
             .push(EditProfileRoute(callBack: initProfileImage)),
         iconSize: 50,
       ),
-      title: Column(children: [
+      title: Column(
+        children: [
         SizedBox(
-          height: 25,
+          height: 26,
           width: 300,
           child: Text(
             widget.profileMap["user_profile"]["name"],
             style: const TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 20,
+              fontSize: 18,
             ),
           ),
         ),
         Container(
           padding: const EdgeInsets.only(left: 1),
-          height: 20,
+          height: 23,
           width: 300,
           child: Text(
             widget.profileMap["user_profile"]["username"],
@@ -90,7 +91,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
               child: Text(
                 "Friends",
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 14,
                 ),
               ),
             ),
@@ -114,7 +115,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
               child: Text(
                 "Lv.1",
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 14,
                 ),
               ),
             ),

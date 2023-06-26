@@ -134,6 +134,10 @@ class PostListViewState extends State<PostListView> {
                       FocusManager.instance.primaryFocus?.unfocus();
                       dynamic data = await getRequest(
                           "${EndPoints.viewProfile.endpoint}/$username", null);
+                      if (data == "Connection error") {
+                        showErrorDialog(context, data);
+                        return;
+                      }
                       AutoRouter.of(context)
                           .push(OthersProfileRoute(data: jsonDecode(data)));
                     },
@@ -192,11 +196,14 @@ class PostListViewState extends State<PostListView> {
                         Row(
                           children: [
                             const Padding(padding: EdgeInsets.only(left: 10)),
-                            Text(
-                              title,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 17),
-                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width - 40,
+                              child: Text(
+                                title,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 17),
+                              ),
+                            )
                           ],
                         ),
                         const Padding(padding: EdgeInsets.only(top: 5)),
@@ -355,10 +362,10 @@ class PostListViewState extends State<PostListView> {
               ),
             ),
 
-            // tag
+            // tag, edit and delete
             SizedBox(
                 width: MediaQuery.of(context).size.width,
-                height: 20,
+                height: 25,
                 child: Stack(children: [
                   Container(
                     padding: const EdgeInsets.only(left: 30),
@@ -410,6 +417,8 @@ class PostListViewState extends State<PostListView> {
                                           widget.updateCallBack();
                                           showSuccessDialog(context,
                                               "Successfully deleted post");
+                                        } else {
+                                          showErrorDialog(context, r);
                                         }
                                       });
                                     },
@@ -426,10 +435,10 @@ class PostListViewState extends State<PostListView> {
                       : Container()
                 ])),
 
-            // post time, edit and delete
+            // post time
             SizedBox(
               width: MediaQuery.of(context).size.width,
-              height: 20,
+              height: 25,
               child: Row(
                 children: [
                   const Padding(padding: EdgeInsets.only(left: 30)),
@@ -441,7 +450,7 @@ class PostListViewState extends State<PostListView> {
               ),
             ),
 
-            const Padding(padding: EdgeInsets.only(top:5)),
+            const Padding(padding: EdgeInsets.only(top: 5)),
 
             const Divider(
               height: 1,

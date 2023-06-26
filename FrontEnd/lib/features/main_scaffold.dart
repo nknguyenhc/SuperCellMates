@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:supercellmates/features/dialogs.dart';
 import 'dart:convert';
 
 import 'package:supercellmates/features/home/home.dart';
@@ -32,7 +33,7 @@ class MainScaffoldState extends State<MainScaffold> {
   int selectedIndex = 0;
 
   final pages = <Widget>[
-    HomePage(key:UniqueKey()),
+    HomePage(key: UniqueKey()),
     const ChatPage(),
     Container(),
   ];
@@ -40,8 +41,13 @@ class MainScaffoldState extends State<MainScaffold> {
   late dynamic appbars;
 
   void getProfileMap() async {
-    profileMap =
-        jsonDecode(await getRequest(EndPoints.profileIndex.endpoint, null));
+    dynamic profileMapJson =
+        await getRequest(EndPoints.profileIndex.endpoint, null);
+    if (profileMapJson == "Connection error") {
+      showErrorDialog(context, profileMapJson);
+      return;
+    }
+    profileMap = jsonDecode(profileMapJson);
 
     appbars = <AppBar>[
       HomeAppBar(data: {
@@ -60,7 +66,10 @@ class MainScaffoldState extends State<MainScaffold> {
 
   void updateHomePageBody(Widget? body) {
     setState(() {
-      pages[0] = body ?? HomePage(key: UniqueKey(),);
+      pages[0] = body ??
+          HomePage(
+            key: UniqueKey(),
+          );
     });
   }
 
