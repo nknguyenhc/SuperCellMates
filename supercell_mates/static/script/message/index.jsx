@@ -92,13 +92,21 @@ function ChatPage() {
                     + chatid
                     + '/'
                 );
+
+                chatSocket.onerror = () => {
+                    alert("Chat connection fails, please reload the page.");
+                }
                 
-                chatSocket.onmessage = function(e) {
+                chatSocket.onmessage = (e) => {
                     const data = JSON.parse(e.data);
                     currTexts.push(data);
                     setTexts([...currTexts]);
                     testAndScrollToBottom();
                 };
+
+                chatSocket.onclose = () => {
+                    alert("Connection lost, please reload the page or try another time.")
+                }
 
                 setCurrSocket(chatSocket);
             })
