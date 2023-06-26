@@ -123,9 +123,15 @@ class LoginPageState extends State<LoginPage> {
           // TODO: ADD MORE VALIDATIONS
           return null;
         },
-        theme: LoginTheme(
-          primaryColor: Colors.lightBlue,
-          logoWidth: 1),
+        passwordValidator: (password) {
+          if (password == "" || password == null) {
+            return "Password cannot be empty!";
+          } else if (password.length < 6) {
+            return "Password is too short!";
+          }
+          return null;
+        },
+        theme: LoginTheme(primaryColor: Colors.lightBlue, logoWidth: 1),
         messages: LoginMessages(
             userHint: "Username",
             additionalSignUpFormDescription:
@@ -150,10 +156,10 @@ class LoginPageState extends State<LoginPage> {
         hideForgotPasswordButton: true,
         children: [
           Positioned(
-            bottom: 60,
+            bottom: 40,
             height: 100,
             left: 0,
-            width: 370,
+            width: MediaQuery.of(context).size.width,
             child: PrivacyAgreementSection(
                 togglePACheckedFunction: togglePAChecked),
           )

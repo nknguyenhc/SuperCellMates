@@ -36,7 +36,12 @@ class ProfilePageState extends State<ProfilePage> {
   }
 
   void loadData() async {
-    data = jsonDecode(await getRequest(EndPoints.profileIndex.endpoint, null));
+    dynamic dataJson = await getRequest(EndPoints.profileIndex.endpoint, null);
+    if (dataJson == "Connection error") {
+      showErrorDialog(context, dataJson);
+      return;
+    }
+    data = jsonDecode(dataJson);
     tagListCount = data["tags"].length;
     dataLoaded = List<bool>.filled(tagListCount, false, growable: true);
     tagIcons = List<Uint8List>.filled(tagListCount, Uint8List.fromList([]),
@@ -54,9 +59,14 @@ class ProfilePageState extends State<ProfilePage> {
       requestBody["tag"] = data["tags"][selectedTagIndex - 1]["name"];
     }
 
-    dynamic profilePostsResponse = jsonDecode(await getRequest(
+    dynamic profilePostsResponseJson = await getRequest(
         EndPoints.getProfilePosts.endpoint + data["user_profile"]["username"],
-        requestBody));
+        requestBody);
+    if (profilePostsResponseJson == "Connection error") {
+      showErrorDialog(context, profilePostsResponseJson);
+      return;
+    }
+    dynamic profilePostsResponse = jsonDecode(profilePostsResponseJson);
     assert(profilePostsResponse["myProfile"]);
     profilePosts = profilePostsResponse["posts"];
 
@@ -177,13 +187,13 @@ class ProfilePageState extends State<ProfilePage> {
                               Text(
                                 "\"${tagList[selectedTagIndex - 1]["name"]}\"",
                                 style: const TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 15,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black),
                               )
                             ],
                           ),
-                          const Padding(padding: EdgeInsets.only(left: 20)),
+                          const Padding(padding: EdgeInsets.only(left: 10)),
                           TextButton(
                             onPressed: () {
                               if (selectedTagIndex == -1) {
@@ -223,11 +233,13 @@ class ProfilePageState extends State<ProfilePage> {
                       child: const Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                        Text(
-                          "You have no tags yet.\n\nPress the add button above to claim tags\nand start creating posts!",
-                          textAlign: TextAlign.center,),
-                        Padding(padding: EdgeInsets.only(bottom: 80)),
-                      ],) )
+                          Text(
+                            "You have no tags yet.\n\nPress the add button above to claim tags\nand start creating posts!",
+                            textAlign: TextAlign.center,
+                          ),
+                          Padding(padding: EdgeInsets.only(bottom: 80)),
+                        ],
+                      ))
                   : SizedBox(
                       height: myPostsHeight,
                       width: MediaQuery.of(context).size.width,

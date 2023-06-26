@@ -22,6 +22,8 @@ class LogOutButton extends StatelessWidget {
                 Requests.clearStoredCookies(GetIt.I<Config>().restBaseURL);
                 AutoRouter.of(context).pushAndPopUntil(const LoginRoute(),
                     predicate: (_) => false);
+              } else {
+                showErrorDialog(context, message);
               }
             });
           });

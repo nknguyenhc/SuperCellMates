@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/features/friends/user_listview.dart';
 import 'dart:convert';
 
@@ -46,15 +47,25 @@ class FriendsPageState extends State<FriendsPage> {
 
   void getFriendList() async {
     dataLoaded = false;
-    friendList =
-        jsonDecode(await getRequest(EndPoints.viewFriends.endpoint, null));
+    dynamic friendListJson =
+        await getRequest(EndPoints.viewFriends.endpoint, null);
+    if (friendListJson == "Connection error") {
+      showErrorDialog(context, friendListJson);
+      return;
+    }
+    friendList = jsonDecode(friendListJson);
     updateFriendPageBody(friendList, false);
   }
 
   void getFriendRequestList() async {
     dataLoaded = false;
-    friendRequestList = jsonDecode(
-        await getRequest(EndPoints.viewFriendRequests.endpoint, null));
+    dynamic friendRequestListJson =
+        await getRequest(EndPoints.viewFriendRequests.endpoint, null);
+    if (friendRequestListJson == "Connection error") {
+      showErrorDialog(context, friendRequestListJson);
+      return;
+    }
+    friendRequestList = jsonDecode(friendRequestListJson);
     updateFriendPageBody(friendRequestList, true);
   }
 
@@ -73,7 +84,7 @@ class FriendsPageState extends State<FriendsPage> {
         appBar: AppBar(titleSpacing: 3, title: const Text("My friend page")),
         body: Column(children: [
           NavigationBar(
-            height: 50,
+            height: 55,
             destinations: [
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
