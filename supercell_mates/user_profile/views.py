@@ -280,9 +280,9 @@ def verify_image(img):
         return False
     if img.content_type not in settings.WHITELISTED_IMAGE_TYPES.values():
         return False
-    mime_type = magic.from_buffer(img.read(1024), mime=True)
-    if mime_type not in settings.WHITELISTED_IMAGE_TYPES.values() and mime_type != img.content_type:
-        return False
+    # mime_type = magic.from_buffer(img.read(1024), mime=True)
+    # if mime_type not in settings.WHITELISTED_IMAGE_TYPES.values() and mime_type != img.content_type:
+    #     return False
     try:
         pil_img = Image.open(img)
         pil_img.verify()

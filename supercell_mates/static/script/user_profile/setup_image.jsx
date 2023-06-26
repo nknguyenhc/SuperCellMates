@@ -1,4 +1,6 @@
 function SetupImage() {
+    const username = document.querySelector("#username-input").value;
+    const profileImgContainer = React.useRef(null);
     const [imagePreview, setImagePreview] = React.useState();
     const imageInput = React.useRef(null);
     const imgPreviewPage = React.useRef(null);
@@ -46,10 +48,13 @@ function SetupImage() {
         }))
             .then(response => {
                 if (response.status !== 200) {
+                    response.text().then(text => console.log(text));
                     triggerErrorMessage();
                 } else {
                     popSetupMessage("Profile image updated successfully!");
                     imgPreviewPage.current.style.display = 'none';
+                    const content = profileImgContainer.current.innerHTML;
+                    profileImgContainer.current.innerHTML = content;
                 }
             });
     }
@@ -128,11 +133,17 @@ function SetupImage() {
                 </div>
             </div>
             <div className="m-3">
-                <label htmlFor="setupImage" class="form-label">Add Profile Image</label>
-                <input ref={imageInput} class="form-control" type="file" id="setupImage" name="profile_pic" accept="image/*" onChange={() => {
+                <div>Add/Change Profile Image</div>
+                <button class="add-image-label" onClick={() => imageInput.current.click()}>
+                    <img src="/static/media/add-image-icon.png" />
+                </button>
+                <input ref={imageInput} class="form-control img-input" type="file" id="setupImage" name="profile_pic" accept="image/*" onChange={() => {
                     setImagePreview(image());
                     imgPreviewPage.current.style.display = '';
                 }}></input>
+            </div>
+            <div ref={profileImgContainer} className="profile-img-container m-3">
+                <img src={"/profile/img/" + username} alt="" />
             </div>
         </React.Fragment>
     );

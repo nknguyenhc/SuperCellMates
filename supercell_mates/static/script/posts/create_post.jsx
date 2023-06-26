@@ -131,10 +131,15 @@ function CreatePost() {
                 }
             </div>
             <div class="mt-3">
-                <label for="post-choose-images" class="form-label">Images</label>
-                <input ref={imagesInput} class="form-control" type="file" id="post-choose-images" multiple onChange={() => {
-                    setImgs(imgs.concat(Array.from(imagesInput.current.files)));
-                }} />
+                <div>Images</div>
+                <button className="post-choose-img-label add-image-label" onClick={() => imagesInput.current.click()}>
+                    <img src="/static/media/add-image-icon.png" />
+                </button>
+                <div>
+                    <input ref={imagesInput} class="form-control img-input" accept="image/*" type="file" multiple onChange={() => {
+                        setImgs(imgs.concat(Array.from(imagesInput.current.files)));
+                    }} />
+                </div>
             </div>
             <div className="mt-4" id="post-images-preview">
                 {

@@ -15,6 +15,7 @@
 {% endblock %} 
 
 {% block body %} 
+    <input type="hidden" id="username-input" value="{{ user.username }}">
     <div id="setup_image"></div>
     <div id="setup_tags"></div>
     <button id="setup-button" style="display: none" type="button" data-bs-toggle="modal" data-bs-target="#setup-message"></button>
