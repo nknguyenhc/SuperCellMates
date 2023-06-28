@@ -250,6 +250,8 @@ def upload_file(request):
         file_name = request.POST["file_name"]
         file_message = PrivateFileMessage(file_field=file_uploaded, file_name=file_name, chat=chat_obj, user=request.user, is_image=verify_image(file_uploaded))
         file_message.save()
+        chat_obj.timestamp = datetime.now()
+        chat_obj.save()
         return HttpResponse(file_message.id)
     
     except MultiValueDictKeyError:

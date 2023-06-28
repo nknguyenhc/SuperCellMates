@@ -125,7 +125,13 @@ function ChatPage() {
                 };
 
                 chatSocket.onerror = () => {
-                    alert("Connection lost, please reload the page or try another time.")
+                    alert("Connection fails, please reload the page or try another time.")
+                }
+
+                chatSocket.onclose = (e) => {
+                    if (e.code !== 1000) {
+                        alert("Connection is lost, please reload the page or try another time.");
+                    }
                 }
 
                 setCurrSocket(chatSocket);
