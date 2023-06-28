@@ -4,6 +4,7 @@ function ChatPage() {
     const [highlighting, setHighlighting] = React.useState(-1);
     const [texts, setTexts] = React.useState([]);
     const [currSocket, setCurrSocket] = React.useState(null);
+    const [currInterval, setCurrInterval] = React.useState(null);
     const [inputText, setInputText] = React.useState('');
     const [username, setUsername] = React.useState('');
     const [chatSelected, setChatSelected] = React.useState(false);
@@ -68,15 +69,6 @@ function ChatPage() {
         }
     }
 
-    async function loadMessages(chatid) {
-        return fetch('/messages/get_private_messages/' + chatid + `?start=${currTime - jump}&end=${currTime}`)
-            .then(response => response.json())
-            .then(response => {
-                setTexts(response.messages);
-                return response.messages;
-            })
-    }
-
     async function loadMessagesUntilFound(chatid, currTime, currMessages) {
         return fetch('/messages/get_private_messages/' + chatid + `?start=${currTime - jump}&end=${currTime}`)
             .then(response => response.json())
@@ -104,16 +96,18 @@ function ChatPage() {
 
     function openChat(chatid) {
         setChatSelected(true);
+        if (currSocket !== null) {
+            currSocket.close();
+        }
+        if (currInterval !== null) {
+            clearInterval(currInterval);
+        }
         
-        loadMessagesUntilFound(chatid, new Date().getTime() / 1000, [...texts])
+        loadMessagesUntilFound(chatid, new Date().getTime() / 1000, [])
             .then(result => {
                 setTimeout(() => {
                     messageLog.current.scrollTo(0, messageLog.current.scrollHeight);
                 }, 300);
-
-                if (currSocket !== null) {
-                    currSocket.close();
-                }
 
                 const chatSocket = new WebSocket(
                     'ws://'
@@ -130,7 +124,7 @@ function ChatPage() {
                     testAndScrollToBottom();
                 };
 
-                chatSocket.onclose = () => {
+                chatSocket.onerror = () => {
                     alert("Connection lost, please reload the page or try another time.")
                 }
 
@@ -139,23 +133,23 @@ function ChatPage() {
                 const scrollingState = {
                     loading: false
                 }
-                setInterval(() => {
-                    if (messageLog.current.scrollTop < 10 && !scrollingState.loading) {
+                setCurrInterval(setInterval(() => {
+                    console.log(chatSocket.readyState);
+                    if (chatSocket.readyState === 1 && messageLog.current.scrollTop < 10 && !scrollingState.loading && !result.fullChatLoaded) {
                         scrollingState.loading = true;
                         loadMessagesUntilFound(chatid, result.currTime, result.currTexts).then(newResult => {
                             result.currTexts = newResult.currTexts;
                             setTexts([...result.currTexts]);
                             result.currTime = newResult.currTime;
-                            if (!newResult.fullChatLoaded) {
-                                messageLog.current.scrollBy({
-                                    top: 100,
-                                    behaviour: 'instant'
-                                });
-                            }
+                            result.fullChatLoaded = newResult.fullChatLoaded;
+                            messageLog.current.scrollBy({
+                                top: 100,
+                                behaviour: 'instant'
+                            });
                             scrollingState.loading = false;
                         });
                     }
-                }, 1000);
+                }, 1000));
             })
     }
 

@@ -48,6 +48,8 @@ class PrivateMessageConsumer(AsyncWebsocketConsumer):
     def add_text_message(self, message):
         text_message = PrivateTextMessage(user=self.user, chat=self.chat_object, text=message)
         text_message.save()
+        self.chat_object.timestamp = datetime.now()
+        self.chat_object.save()
         return (text_message.id, text_message.timestamp.timestamp())
     
 

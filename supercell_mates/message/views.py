@@ -117,11 +117,13 @@ def get_private_chats(request):
     Returns:
         JsonResponse: the information of the private chats of the current user
     """
+    chats = list(map(
+        lambda chat: private_chat_info(request.user, chat),
+        list(request.user.private_chats.all())
+    ))
+    chats.sort(key=lambda chat: chat["timestamp"], reverse=True)
     return JsonResponse({
-        "privates": list(map(
-            lambda chat: private_chat_info(request.user, chat),
-            list(request.user.private_chats.all())
-        ))
+        "privates": chats
     })
 
 
