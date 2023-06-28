@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.datastructures import MultiValueDictKeyError
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.http import require_http_methods
+from datetime import datetime
 from user_profile.views import verify_image
 
 from user_auth.models import UserAuth
@@ -180,6 +181,9 @@ def merge_messages(all_text_messages, all_file_messages):
 def get_private_messages(request, chat_id):
     """Get all messages in a given chat id.
     This view checks for whether the person is in the chat before releasing the messages.
+    GET parameters:
+        start: the start time in epoch time
+        end: the end time in epoch time
     The returned response contains the following fields:
         messages: a list of dicts representing info of the messages, each is the result of the message_info function above
 
@@ -198,15 +202,25 @@ def get_private_messages(request, chat_id):
     if not chat_obj.users.filter(username=request.user.username).exists():
         return HttpResponseBadRequest("you do not have access to this chat")
     
-    all_text_messages = list(chat_obj.text_messages.all())
-    all_file_messages = list(chat_obj.file_messages.all())
+    try:
+        start = datetime.fromtimestamp(float(request.GET["start"]))
+        end = datetime.fromtimestamp(float(request.GET["end"]))
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("start and end GET parameters not provided")
+    except ValueError:
+        return HttpResponseBadRequest("GET parameter provided not a number")
+    except OSError:
+        return HttpResponseBadRequest("time provided is too large, not epoch time")
+    all_text_messages = list(chat_obj.text_messages.filter(timestamp__range=(start, end)).all())
+    all_file_messages = list(chat_obj.file_messages.filter(timestamp__range=(start, end)).all())
     all_messages = merge_messages(all_text_messages, all_file_messages)
 
     return JsonResponse({
         "messages": list(map(
             lambda message: message_info(message),
             all_messages
-        ))
+        )),
+        "has_older_messages": chat_obj.text_messages.filter(timestamp__lt=start).exists() or chat_obj.file_messages.filter(timestamp__lt=end).exists()
     })
 
 

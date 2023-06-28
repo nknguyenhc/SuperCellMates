@@ -13,10 +13,10 @@ function ChatPage() {
     const fileUpload = React.useRef(null);
     const [filePreview, setFilePreview] = React.useState('');
     const [showFilePreview, setShowFilePreview] = React.useState(false);
-    const [fileToBeSubmitted, setFileToBeSubmitted] = React.useState(null);
     const filePreviewWindow = React.useRef(null);
     const [currChatId, setCurrChatId] = React.useState('');
-    const imageExtensions = ['png', 'jpg', 'jpeg']
+    const imageExtensions = ['png', 'jpg', 'jpeg', 'bmp', 'webp', 'svg', 'heic'];
+    const jump = 60;
 
     React.useEffect(() => {
         fetch('/messages/get_private_chats')
@@ -68,15 +68,45 @@ function ChatPage() {
         }
     }
 
+    async function loadMessages(chatid) {
+        return fetch('/messages/get_private_messages/' + chatid + `?start=${currTime - jump}&end=${currTime}`)
+            .then(response => response.json())
+            .then(response => {
+                setTexts(response.messages);
+                return response.messages;
+            })
+    }
+
+    async function loadMessagesUntilFound(chatid, currTime, currMessages) {
+        return fetch('/messages/get_private_messages/' + chatid + `?start=${currTime - jump}&end=${currTime}`)
+            .then(response => response.json())
+            .then(async response => {
+                if (response.messages.length === 0) {
+                    if (response.has_older_messages) {
+                        return loadMessagesUntilFound(chatid, currTime - jump, currMessages);
+                    } else {
+                        return {
+                            currTexts: [...currMessages],
+                            currTime: currTime,
+                            fullChatLoaded: true
+                        }
+                    }
+                } else {
+                    setTexts(response.messages.concat(currMessages));
+                    return {
+                        currTexts: response.messages.concat(currMessages),
+                        currTime: currTime - jump,
+                        fullChatLoaded: false
+                    }
+                }
+            });
+    }
+
     function openChat(chatid) {
         setChatSelected(true);
         
-        fetch('/messages/get_private_messages/' + chatid)
-            .then(response => response.json())
-            .then(response => {
-                // console.log(response);
-                const currTexts = response.messages;
-                setTexts(response.messages);
+        loadMessagesUntilFound(chatid, new Date().getTime() / 1000, [...texts])
+            .then(result => {
                 setTimeout(() => {
                     messageLog.current.scrollTo(0, messageLog.current.scrollHeight);
                 }, 300);
@@ -92,15 +122,11 @@ function ChatPage() {
                     + chatid
                     + '/'
                 );
-
-                chatSocket.onerror = () => {
-                    alert("Chat connection fails, please reload the page.");
-                }
                 
                 chatSocket.onmessage = (e) => {
                     const data = JSON.parse(e.data);
-                    currTexts.push(data);
-                    setTexts([...currTexts]);
+                    result.currTexts.push(data);
+                    setTexts([...result.currTexts]);
                     testAndScrollToBottom();
                 };
 
@@ -109,6 +135,27 @@ function ChatPage() {
                 }
 
                 setCurrSocket(chatSocket);
+
+                const scrollingState = {
+                    loading: false
+                }
+                setInterval(() => {
+                    if (messageLog.current.scrollTop < 10 && !scrollingState.loading) {
+                        scrollingState.loading = true;
+                        loadMessagesUntilFound(chatid, result.currTime, result.currTexts).then(newResult => {
+                            result.currTexts = newResult.currTexts;
+                            setTexts([...result.currTexts]);
+                            result.currTime = newResult.currTime;
+                            if (!newResult.fullChatLoaded) {
+                                messageLog.current.scrollBy({
+                                    top: 100,
+                                    behaviour: 'instant'
+                                });
+                            }
+                            scrollingState.loading = false;
+                        });
+                    }
+                }, 1000);
             })
     }
 
@@ -154,7 +201,6 @@ function ChatPage() {
             </React.Fragment>
         }
         setShowFilePreview(true);
-        setFileToBeSubmitted(file);
         setFilePreview((
             <div className="file-preview-window" ref={filePreviewWindow}>
                 <div className="img-preview">
