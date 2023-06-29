@@ -172,7 +172,7 @@ class CreatePostPageState extends State<CreatePostPage> {
                     SizedBox(
                       width: MediaQuery.of(context).size.width - 150,
                       child: TextField(
-                        maxLength: 20,
+                        maxLength: 100,
                         onTap: collapseVisibilities,
                         onTapOutside: (e) =>
                             FocusManager.instance.primaryFocus?.unfocus(),
@@ -206,7 +206,7 @@ class CreatePostPageState extends State<CreatePostPage> {
                         width: MediaQuery.of(context).size.width - 40,
                         height: MediaQuery.of(context).size.height - 575,
                         child: TextField(
-                          maxLength: 300,
+                          maxLength: 2000,
                           onTap: collapseVisibilities,
                           onTapOutside: (e) =>
                               FocusManager.instance.primaryFocus?.unfocus(),

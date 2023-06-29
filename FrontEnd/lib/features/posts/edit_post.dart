@@ -208,7 +208,7 @@ class EditPostPageState extends State<EditPostPage> {
                     SizedBox(
                       width: MediaQuery.of(context).size.width - 150,
                       child: TextFormField(
-                        maxLength: 20,
+                        maxLength: 100,
                         initialValue: widget.oldPostData["title"],
                         onTap: collapseVisibilities,
                         onTapOutside: (e) =>
@@ -243,7 +243,7 @@ class EditPostPageState extends State<EditPostPage> {
                         width: MediaQuery.of(context).size.width - 40,
                         height: MediaQuery.of(context).size.height - 575,
                         child: TextFormField(
-                          maxLength: 300,
+                          maxLength: 2000,
                           initialValue: widget.oldPostData["content"],
                           onTap: collapseVisibilities,
                           onTapOutside: (e) =>
