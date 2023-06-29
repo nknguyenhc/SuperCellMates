@@ -213,16 +213,27 @@ def get_private_messages(request, chat_id):
         return HttpResponseBadRequest("GET parameter provided not a number")
     except OSError:
         return HttpResponseBadRequest("time provided is too large, not epoch time")
+    
     all_text_messages = list(chat_obj.text_messages.filter(timestamp__range=(start, end)).all())
     all_file_messages = list(chat_obj.file_messages.filter(timestamp__range=(start, end)).all())
     all_messages = merge_messages(all_text_messages, all_file_messages)
+    print(all_messages)
+    next_last_timestamp = 0
+    next_text_messages = chat_obj.text_messages.filter(timestamp__lt=start)
+    next_file_messages = chat_obj.file_messages.filter(timestamp__lt=start)
+    if next_text_messages.exists():
+        next_last_timestamp = next_text_messages.order_by("timestamp").last().timestamp.timestamp()
+        if next_file_messages.exists():
+            next_last_timestamp = max(next_last_timestamp, next_file_messages.order_by("timestamp").last().timestamp.timestamp())
+    elif next_file_messages.exists():
+        next_last_timestamp = next_file_messages.order_by("timestamp").last().timestamp.timestamp()
 
     return JsonResponse({
         "messages": list(map(
             lambda message: message_info(message),
             all_messages
         )),
-        "has_older_messages": chat_obj.text_messages.filter(timestamp__lt=start).exists() or chat_obj.file_messages.filter(timestamp__lt=end).exists()
+        "next_last_timestamp": next_last_timestamp
     })
 
 

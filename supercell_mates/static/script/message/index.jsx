@@ -74,8 +74,8 @@ function ChatPage() {
             .then(response => response.json())
             .then(async response => {
                 if (response.messages.length === 0) {
-                    if (response.has_older_messages) {
-                        return loadMessagesUntilFound(chatid, currTime - jump, currMessages);
+                    if (response.next_last_timestamp !== 0) {
+                        return loadMessagesUntilFound(chatid, response.next_last_timestamp, currMessages);
                     } else {
                         return {
                             currTexts: [...currMessages],
