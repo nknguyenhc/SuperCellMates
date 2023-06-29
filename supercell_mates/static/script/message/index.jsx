@@ -319,7 +319,7 @@ function ChatPage() {
                     <button className="btn btn-success" onClick={() => submitFile(file, isPrivate)}>Send</button>
                 </div>
             </div>
-        ))
+        ));
     }
 
     function submitFile(file, isPrivate) {
@@ -426,7 +426,11 @@ function ChatPage() {
                                 display: moreMenuDisplay ? "" : "none"
                             }}>
                                 <div className="chat-more-option">
-                                    <label htmlFor="chat-file-upload" onClick={() => fileUpload.current.click()}>
+                                    <label htmlFor="chat-file-upload" onClick={() => {
+                                        if (currSocket.readyState === 1) {
+                                            fileUpload.current.click();
+                                        }
+                                    }}>
                                         <img src="/static/media/docs-icon.png" />
                                     </label>
                                     <input type="file" ref={fileUpload} onChange={() => uploadFile(isPrivateChatsSelected)} />
