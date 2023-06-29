@@ -39,18 +39,28 @@ def create_group_chat(request):
     Returns:
         HttpResponse: the feedback of the process
     """
-    users = request.POST.getlist('users')
-    group_name = request.POST["group_name"]
-    groupchat = GroupChat(timestamp = datetime.now(), name=group_name)
-    groupchat.save()
-    for user in users:
-        if not UserAuth.objects.get(username=user).user_log.friend_list.filter(user_auth=request.user).exists():
-            return HttpResponseBadRequest("One of the users you indicated is not your friend!")
-    groupchat.users.add(request.user)
-    for user in users:
-        groupchat.users.add(UserAuth.objects.get(username=user))
-    groupchat.save()
-    return HttpResponse("Group chat created")
+    try:
+        users = request.POST.getlist('users')
+        group_name = request.POST["group_name"]
+        groupchat = GroupChat(timestamp = datetime.now(), name=group_name)
+        groupchat.save()
+        for user in users:
+            if not UserAuth.objects.get(username=user).user_log.friend_list.filter(user_auth=request.user).exists():
+                return HttpResponseBadRequest("One of the users you indicated is not your friend!")
+        groupchat.users.add(request.user)
+        for user in users:
+            groupchat.users.add(UserAuth.objects.get(username=user))
+        groupchat.save()
+        return JsonResponse({
+            "id": groupchat.id,
+            "timestamp": groupchat.timestamp.timestamp(),
+            "name": group_name,
+            "img": reverse("message:get_group_chat_rep_img", args=(groupchat.id,)),
+        })
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("Group name not provided")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("One of the users you indicated does not exist")
 
 
 def chat_info(chat_object):

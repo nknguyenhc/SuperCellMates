@@ -27,7 +27,6 @@ function ChatPage() {
         fetch('/messages/get_private_chats')
             .then(response => response.json())
             .then(async response => {
-                console.log(response);
                 const newPrivateChats = response.privates.map(chat => {
                     return {
                         id: chat.id,
@@ -66,15 +65,12 @@ function ChatPage() {
         fetch('/messages/get_group_chats')
             .then(response => response.json())
             .then(async response => {
-                console.log(response);
-                const newGroupChats = response.groups.map(chat => {
-                    return {
-                        id: chat.id,
-                        timestamp: chat.timestamp,
-                        chatName: chat.name,
-                        image: chat.img
-                    };
-                });
+                const newGroupChats = response.groups.map(chat => ({
+                    id: chat.id,
+                    timestamp: chat.timestamp,
+                    chatName: chat.name,
+                    image: chat.img
+                }));
                 await setGroupChats(newGroupChats);
                 return newGroupChats;
             })
@@ -107,6 +103,17 @@ function ChatPage() {
     React.useEffect(() => {
         setUsername(document.querySelector('input#username-hidden').value);
     }, []);
+
+    async function createGroupChatListing(chat) {
+        const newGroupChat = {
+            id: chat.id,
+            timestamp: chat.timestamp,
+            chatName: chat.name,
+            image: chat.img
+        }
+        await setGroupChats([newGroupChat, ...groupChats]);
+        clickOpenChat(chat.id, 0, true, false);
+    }
 
     function openPrivateChats() {
         setIsPrivateChatsSelected(true);
@@ -176,6 +183,7 @@ function ChatPage() {
         
         loadMessagesUntilFound(chatid, new Date().getTime() / 1000, [], isPrivate)
             .then(result => {
+                setTexts([...result.currTexts]);
                 setTimeout(() => {
                     messageLog.current.scrollTo(0, messageLog.current.scrollHeight);
                 }, 300);
@@ -229,13 +237,23 @@ function ChatPage() {
             })
     }
 
-    function bringChatToTop() {
+    function bringPrivateChatToTop() {
         const newPrivateChats = [...privateChats];
         for (let i = 1; i <= highlighting; i++) {
             newPrivateChats[i] = privateChats[i - 1];
         }
         newPrivateChats[0] = privateChats[highlighting];
         setPrivateChats(newPrivateChats);
+        setHighlighting(0);
+    }
+
+    function bringGroupChatToTop() {
+        const newGroupChats = [...groupChats];
+        for (let i = 0; i <= highlighting; i++) {
+            newGroupChats[i] = groupChats[i - 1];
+        }
+        newGroupChats[0] = groupChats[highlighting];
+        setGroupChats(newGroupChats);
         setHighlighting(0);
     }
 
@@ -258,7 +276,11 @@ function ChatPage() {
             setTimeout(() => {
                 adjustInputHeight(inputField.current);
             }, 50);
-            bringChatToTop();
+            if (isPrivateChatsSelected) {
+                bringPrivateChatToTop();
+            } else {
+                bringGroupChatToTop();
+            }
         }
     }
 
@@ -275,7 +297,7 @@ function ChatPage() {
         }, 500);
     }
 
-    function uploadFile() {
+    function uploadFile(isPrivate) {
         const file = fileUpload.current.files[0];
         let fileImgPreview;
         if (imageExtensions.includes(file.name.split('.').at(-1)) && imageExtensions.includes(file.type.split('/').at(-1))) {
@@ -294,13 +316,13 @@ function ChatPage() {
                 </div>
                 <div className="file-upload-buttons">
                     <button className="btn btn-danger" onClick={() => setShowFilePreview(false)}>Cancel</button>
-                    <button className="btn btn-success" onClick={() => submitFile(file)}>Send</button>
+                    <button className="btn btn-success" onClick={() => submitFile(file, isPrivate)}>Send</button>
                 </div>
             </div>
         ))
     }
 
-    function submitFile(file) {
+    function submitFile(file, isPrivate) {
         fetch('/messages/upload_file', postRequestContent({
             chat_id: currChatId,
             file: file,
@@ -317,7 +339,11 @@ function ChatPage() {
                     message_id: messageId,
                 }));
                 setShowFilePreview(false);
-                bringChatToTop();
+                if (isPrivate) {
+                    bringPrivateChatToTop();
+                } else {
+                    bringGroupChatToTop();
+                }
             })
     }
 
@@ -388,7 +414,7 @@ function ChatPage() {
                             : !displayGroupChatForm && <div className="text-secondary fst-italic">Select a chat ...</div>
                         }
                         {
-                            <NewGroupChatForm isDisplay={displayGroupChatForm} />
+                            <NewGroupChatForm isDisplay={displayGroupChatForm} createGroupChatListing={createGroupChatListing} />
                         }
                     </div>
                 </div>
@@ -403,7 +429,7 @@ function ChatPage() {
                                     <label htmlFor="chat-file-upload" onClick={() => fileUpload.current.click()}>
                                         <img src="/static/media/docs-icon.png" />
                                     </label>
-                                    <input type="file" ref={fileUpload} onChange={uploadFile} />
+                                    <input type="file" ref={fileUpload} onChange={() => uploadFile(isPrivateChatsSelected)} />
                                 </div>
                                 <div className="chat-more-option"></div>
                             </div>
@@ -473,7 +499,7 @@ function Message({ text, username }) {
     )
 }
 
-function NewGroupChatForm({ isDisplay }) {
+function NewGroupChatForm({ isDisplay, createGroupChatListing }) {
     const [groupName, setGroupName] = React.useState('')
     const [showResultBox, setShowResultBox] = React.useState(false);
     const inputDiv = React.useRef(inputDiv);
@@ -534,7 +560,7 @@ function NewGroupChatForm({ isDisplay }) {
                 if (response.status !== 200) {
                     triggerErrorMessage();
                 } else {
-                    response.text().then(text => console.log(text));
+                    response.json().then(chat => createGroupChatListing(chat));
                 }
             })
     }
@@ -543,7 +569,7 @@ function NewGroupChatForm({ isDisplay }) {
         <div style={{ display: isDisplay ? "" : "none" }}>
             <div className="m-3">
                 <label htmlFor="#group-chat-name" className="form-label">Group Chat Name</label>
-                <input type="text" className="form-control" id="group-chat-name" onChange={event => setGroupName(event.target.value)} />
+                <input autoComplete="off" type="text" className="form-control" id="group-chat-name" onChange={event => setGroupName(event.target.value)} />
             </div>
             <div className="m-3">
                 <label className="form-label">Friends to add</label>
