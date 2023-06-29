@@ -54,7 +54,7 @@ class MainScaffoldState extends State<MainScaffold> {
         "isAdmin": profileMap["is_admin"],
       }, updateCallBack: updateHomePageBody),
       AppBar(),
-      ProfileAppBar(profileMap: profileMap),
+      ProfileAppBar(profileMap: profileMap, updateProfileMapCallBack: getProfileMap,),
     ];
 
     pages[2] = ProfilePage(

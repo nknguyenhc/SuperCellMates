@@ -11,6 +11,8 @@ enum EndPoints {
   obtainTags,
   searchTags,
   setProfileImage,
+  changeUsername, 
+  changePassword,
 
   viewFriends,
   viewFriendRequests,
@@ -42,6 +44,8 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.obtainTags: "/profile/obtain_tags",
     EndPoints.searchTags: "/profile/search_tags",
     EndPoints.setProfileImage: "/profile/set_profile_image",
+    EndPoints.changeUsername: "/change_username",
+    EndPoints.changePassword: "/change_password",
     EndPoints.viewFriends: "/user/friends_async",
     EndPoints.viewFriendRequests: "/user/friend_requests_async",
     EndPoints.addFriendRequest: "/user/add_friend_request",
