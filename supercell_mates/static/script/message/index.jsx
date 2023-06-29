@@ -6,6 +6,7 @@ function ChatPage() {
     const [currSocket, setCurrSocket] = React.useState(null);
     const [currInterval, setCurrInterval] = React.useState(null);
     const [inputText, setInputText] = React.useState('');
+    const inputField = React.useRef(null);
     const [isHoldingShift, setIsHoldingShift] = React.useState(false);
     const [username, setUsername] = React.useState('');
     const [chatSelected, setChatSelected] = React.useState(false);
@@ -141,7 +142,6 @@ function ChatPage() {
                     loading: false
                 }
                 setCurrInterval(setInterval(() => {
-                    console.log(chatSocket.readyState);
                     if (chatSocket.readyState === 1 && messageLog.current.scrollTop < 10 && !scrollingState.loading && !result.fullChatLoaded) {
                         scrollingState.loading = true;
                         loadMessagesUntilFound(chatid, result.currTime, result.currTexts).then(newResult => {
@@ -160,6 +160,16 @@ function ChatPage() {
             })
     }
 
+    function bringChatToTop() {
+        const newPrivateChats = [...privateChats];
+        for (let i = 1; i <= highlighting; i++) {
+            newPrivateChats[i] = privateChats[i - 1];
+        }
+        newPrivateChats[0] = privateChats[highlighting];
+        setPrivateChats(newPrivateChats);
+        setHighlighting(0);
+    }
+
     function testAndScrollToBottom() {
         if (messageLog.current.scrollTop >= messageLog.current.scrollHeight - messageLog.current.parentElement.clientHeight - 500) {
             setTimeout(() => {
@@ -176,6 +186,10 @@ function ChatPage() {
             }));
             setInputText('');
             testAndScrollToBottom();
+            setTimeout(() => {
+                adjustInputHeight(inputField.current);
+            }, 50);
+            bringChatToTop();
         }
     }
 
@@ -259,7 +273,8 @@ function ChatPage() {
                     <div id="chat-list-private">
                         {
                             privateChats.map((privateChat, i) => (
-                                <div className="chat-listing" onClick={() => clickOpenChat(privateChat.id, i, true)} style={{
+                                <div className="chat-listing" 
+                                onClick={() => clickOpenChat(privateChat.id, i, true)} style={{
                                     backgroundColor: highlighting === i ? "#CDCBCB" : '',
                                 }}>
                                     <div className="chat-listing-image">
@@ -309,9 +324,6 @@ function ChatPage() {
                         onKeyUp={event => {
                             if (!isHoldingShift && event.key === "Enter") {
                                 sendMessage();
-                                setTimeout(() => {
-                                    adjustInputHeight(event.target);
-                                }, 50);
                             } else if (event.key === "Shift") {
                                 setIsHoldingShift(false);
                             }
@@ -320,7 +332,8 @@ function ChatPage() {
                             if (event.key === "Shift") {
                                 setIsHoldingShift(true);
                             }
-                        }} />
+                        }}
+                        ref={inputField} />
                         <button className="btn btn-outline-primary chat-input-send-button" onClick={() => sendMessage()}>Send</button>
                     </div>
                     : ''
