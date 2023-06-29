@@ -133,6 +133,12 @@
 #chat-text-input {
     min-width: 0px;
     flex-shrink: 1;
+    resize: none;
+    overflow: hidden;
+}
+
+.chat-input-send-button {
+    height: fit-content;
 }
 
 .text-line {
@@ -158,9 +164,10 @@
 }
 
 .text-line-content {
-    max-width: calc(100% - min(250px, 20%));
+    max-width: calc(100% - min(250px, 30%));
     border-radius: 10px;
     word-wrap: break-word;
+    white-space: pre-line;
 }
 
 .file-preview {

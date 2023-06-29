@@ -217,12 +217,13 @@ def get_private_messages(request, chat_id):
     all_text_messages = list(chat_obj.text_messages.filter(timestamp__range=(start, end)).all())
     all_file_messages = list(chat_obj.file_messages.filter(timestamp__range=(start, end)).all())
     all_messages = merge_messages(all_text_messages, all_file_messages)
-    print(all_messages)
+    
     next_last_timestamp = 0
     next_text_messages = chat_obj.text_messages.filter(timestamp__lt=start)
     next_file_messages = chat_obj.file_messages.filter(timestamp__lt=start)
     if next_text_messages.exists():
         next_last_timestamp = next_text_messages.order_by("timestamp").last().timestamp.timestamp()
+        print(next_last_timestamp)
         if next_file_messages.exists():
             next_last_timestamp = max(next_last_timestamp, next_file_messages.order_by("timestamp").last().timestamp.timestamp())
     elif next_file_messages.exists():

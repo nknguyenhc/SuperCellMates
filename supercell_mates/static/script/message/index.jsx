@@ -6,6 +6,7 @@ function ChatPage() {
     const [currSocket, setCurrSocket] = React.useState(null);
     const [currInterval, setCurrInterval] = React.useState(null);
     const [inputText, setInputText] = React.useState('');
+    const [isHoldingShift, setIsHoldingShift] = React.useState(false);
     const [username, setUsername] = React.useState('');
     const [chatSelected, setChatSelected] = React.useState(false);
     const messageLog = React.useRef(null);
@@ -242,6 +243,11 @@ function ChatPage() {
         }
     }
 
+    function adjustInputHeight(inputField) {
+        inputField.style.height = '5px';
+        inputField.style.height = inputField.scrollHeight.toString() + 'px';
+    }
+
     return (
         <div id="chat-window">
             <div id="chat-selector">
@@ -292,13 +298,30 @@ function ChatPage() {
                             </div>
                             <img src="/static/media/plus-icon.png" />
                         </div>
-                        <input id="chat-text-input" type="text" className="form-control" value={inputText} onChange={event => setInputText(event.target.value)}
+                        <textarea id="chat-text-input" rows={1} className="form-control" value={inputText}
+                        onChange={event => {
+                            const newValue = event.target.value;
+                            setInputText(newValue);
+                            if (newValue.slice(newValue.length - 1, newValue.length) !== '\n' || isHoldingShift) {
+                                adjustInputHeight(event.target);
+                            }
+                        }}
                         onKeyUp={event => {
-                            if (event.key === "Enter") {
+                            if (!isHoldingShift && event.key === "Enter") {
                                 sendMessage();
+                                setTimeout(() => {
+                                    adjustInputHeight(event.target);
+                                }, 50);
+                            } else if (event.key === "Shift") {
+                                setIsHoldingShift(false);
+                            }
+                        }}
+                        onKeyDown={event => {
+                            if (event.key === "Shift") {
+                                setIsHoldingShift(true);
                             }
                         }} />
-                        <button className="btn btn-outline-primary" onClick={() => sendMessage()}>Send</button>
+                        <button className="btn btn-outline-primary chat-input-send-button" onClick={() => sendMessage()}>Send</button>
                     </div>
                     : ''
                 }
