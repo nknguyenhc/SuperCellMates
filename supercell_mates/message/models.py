@@ -15,6 +15,7 @@ class PrivateChat(AbstractChat):
 
 
 class GroupChat(AbstractChat):
+    name = models.CharField(max_length=15)
     users = models.ManyToManyField('user_auth.UserAuth', related_name='group_chats')
     rep_img = models.ImageField(null=True)
 

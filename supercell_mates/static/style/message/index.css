@@ -20,7 +20,7 @@
     width: 24vw;
     display: flex;
     flex-direction: column;
-    flex-shrink: none;
+    flex-shrink: 0;
 }
 
 #chat-categories {
@@ -76,6 +76,7 @@
 }
 
 .create-new-group-icon {
+    flex-shrink: 0;
     height: 30px;
     width: 30px;
 }

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest, FileResponse, HttpResponseNotFound
 from django.contrib.auth.decorators import login_required
@@ -9,7 +9,7 @@ from datetime import datetime
 from user_profile.views import verify_image
 
 from user_auth.models import UserAuth
-from .models import TextMessage, PrivateChat, FileMessage, PrivateFileMessage, GroupChat
+from .models import TextMessage, PrivateChat, FileMessage, PrivateFileMessage, GroupChat, GroupFileMessage
 
 
 @login_required
@@ -41,11 +41,12 @@ def create_group_chat(request):
     """
     users = request.POST.getlist('users')
     group_name = request.POST["group_name"]
-    groupchat = GroupChat(timestamp = datetime.now())
+    groupchat = GroupChat(timestamp = datetime.now(), name=group_name)
     groupchat.save()
     for user in users:
         if not UserAuth.objects.get(username=user).user_log.friend_list.filter(user_auth=request.user).exists():
             return HttpResponseBadRequest("One of the users you indicated is not your friend!")
+    groupchat.users.add(request.user)
     for user in users:
         groupchat.users.add(UserAuth.objects.get(username=user))
     groupchat.save()
@@ -71,11 +72,49 @@ def chat_info(chat_object):
     }
 
 
+def get_group_chat_rep_img(request, chat_id):
+    """Return the representative image of a group chat.
+    This view checks whether the user is in the group chat first before allowing the user to access the photo.
+
+    Args:
+        request (HttpRequest): request made to this view
+        chat_id (str): the id of the group chat to view rep image
+    
+    Returns:
+        FileResponse: the representative image of the group chat
+    """
+    try:
+        groupchat = GroupChat.objects.get(id=chat_id)
+        if request.user in groupchat.users.all():
+            rep_img = groupchat.rep_img
+            if rep_img:
+                return FileResponse(rep_img)
+            else:
+                return redirect('/static/media/default_profile_pic.jpg')
+        else:
+            return HttpResponseBadRequest("You are not in this chat")
+    except ObjectDoesNotExist:
+        return HttpResponseNotFound()
+
+
 def group_chat_info(group_chat_object):
     """Returns the info of the group chat in a dictionary, given the group chat object.
     It has the fields returned by the chat_info method, and the following fields specific to group chats:
+        img: the representative image of the group chat
+        name: the name of the group chat
+    
+    Args:
+        group_chat_object (GroupChat): the instance of GroupChat
+    
+    Returns:
+        dict: the dictionary containing the info of the chat
     """
-    return HttpResponse("not yet implemented")
+    this_chat_info = chat_info(group_chat_object)
+    this_chat_info.update({
+        "img": reverse("message:get_group_chat_rep_img", args=(group_chat_object.id,)),
+        "name": group_chat_object.name
+    })
+    return this_chat_info
 
 
 def private_chat_info(request_user_auth, private_chat_object):
@@ -208,9 +247,90 @@ def merge_messages(all_text_messages, all_file_messages):
     return all_messages
 
 
+def start_and_end(request):
+    """Return the start and end values in the parameter, if there is an error, return a string.
+
+    Args:
+        request (HttpRequest): the request to extract GET parameters from
+    
+    Returns:
+        tuple/str: start and end from the request GET parameters, or a string if there is an error
+    """
+    try:
+        start = datetime.fromtimestamp(float(request.GET["start"]))
+        end = datetime.fromtimestamp(float(request.GET["end"]))
+        return (start, end)
+    except MultiValueDictKeyError:
+        return "start and end GET parameters not provided"
+    except ValueError:
+        return "GET parameter provided not a number"
+    except OSError:
+        return "time provided is too large, not epoch time"
+
+
+def get_texts(chat_obj, start, end):
+    all_text_messages = list(chat_obj.text_messages.filter(timestamp__range=(start, end)).all())
+    all_file_messages = list(chat_obj.file_messages.filter(timestamp__range=(start, end)).all())
+    all_messages = merge_messages(all_text_messages, all_file_messages)
+    
+    next_last_timestamp = 0
+    next_text_messages = chat_obj.text_messages.filter(timestamp__lt=start)
+    next_file_messages = chat_obj.file_messages.filter(timestamp__lt=start)
+    if next_text_messages.exists():
+        next_last_timestamp = next_text_messages.order_by("timestamp").last().timestamp.timestamp()
+        print(next_last_timestamp)
+        if next_file_messages.exists():
+            next_last_timestamp = max(next_last_timestamp, next_file_messages.order_by("timestamp").last().timestamp.timestamp())
+    elif next_file_messages.exists():
+        next_last_timestamp = next_file_messages.order_by("timestamp").last().timestamp.timestamp()
+    
+    return all_messages, next_last_timestamp
+
+
+@login_required
+def get_group_messages(request, chat_id):
+    """Get messages in a given chat id within the given time frame.
+    This view checks for whether the person is in the chat before releasing the messages.
+    GET parameters:
+        start: the start time in epoch time
+        end: the end time in epoch time
+    The returned response contains the following fields:
+        messages: a list of dicts representing the info of the messages, each is the result of the message_info function above
+    
+    Args:
+        request (HttpRequest): the request made to this view
+        chat_id (str): the chat id to search for messages
+    
+    Returns:
+        JsonResponse: the json containing the info of all messages in the chat
+    """
+    try:
+        chat_obj = GroupChat.objects.get(id=chat_id)
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("chat does not exist")
+    
+    if not chat_obj.users.filter(username=request.user.username).exists():
+        return HttpResponseBadRequest("you do not have access to this chat")
+    
+    get_params = start_and_end(request)
+    if type(get_params) == str:
+        return HttpResponseBadRequest(get_params)
+    start, end = get_params
+    
+    all_messages, next_last_timestamp = get_texts(chat_obj, start, end)
+
+    return JsonResponse({
+        "messages": list(map(
+            lambda message: message_info(message),
+            all_messages
+        )),
+        "next_last_timestamp": next_last_timestamp
+    })
+
+
 @login_required
 def get_private_messages(request, chat_id):
-    """Get all messages in a given chat id.
+    """Get messages in a given chat id within the given time frame.
     This view checks for whether the person is in the chat before releasing the messages.
     GET parameters:
         start: the start time in epoch time
@@ -233,30 +353,12 @@ def get_private_messages(request, chat_id):
     if not chat_obj.users.filter(username=request.user.username).exists():
         return HttpResponseBadRequest("you do not have access to this chat")
     
-    try:
-        start = datetime.fromtimestamp(float(request.GET["start"]))
-        end = datetime.fromtimestamp(float(request.GET["end"]))
-    except MultiValueDictKeyError:
-        return HttpResponseBadRequest("start and end GET parameters not provided")
-    except ValueError:
-        return HttpResponseBadRequest("GET parameter provided not a number")
-    except OSError:
-        return HttpResponseBadRequest("time provided is too large, not epoch time")
+    get_params = start_and_end(request)
+    if type(get_params) == str:
+        return HttpResponseBadRequest(get_params)
+    start, end = get_params
     
-    all_text_messages = list(chat_obj.text_messages.filter(timestamp__range=(start, end)).all())
-    all_file_messages = list(chat_obj.file_messages.filter(timestamp__range=(start, end)).all())
-    all_messages = merge_messages(all_text_messages, all_file_messages)
-    
-    next_last_timestamp = 0
-    next_text_messages = chat_obj.text_messages.filter(timestamp__lt=start)
-    next_file_messages = chat_obj.file_messages.filter(timestamp__lt=start)
-    if next_text_messages.exists():
-        next_last_timestamp = next_text_messages.order_by("timestamp").last().timestamp.timestamp()
-        print(next_last_timestamp)
-        if next_file_messages.exists():
-            next_last_timestamp = max(next_last_timestamp, next_file_messages.order_by("timestamp").last().timestamp.timestamp())
-    elif next_file_messages.exists():
-        next_last_timestamp = next_file_messages.order_by("timestamp").last().timestamp.timestamp()
+    all_messages, next_last_timestamp = get_texts(chat_obj, start, end)
 
     return JsonResponse({
         "messages": list(map(
@@ -281,6 +383,8 @@ def upload_file(request):
         chat_id = request.POST["chat_id"]
         if PrivateChat.objects.filter(id=chat_id).exists():
             chat_obj = PrivateChat.objects.get(id=chat_id)
+        elif GroupChat.objects.filter(id=chat_id).exists():
+            chat_obj = GroupChat.objects.get(id=chat_id)
         else:
             return HttpResponseBadRequest("no chat room found")
         
@@ -289,7 +393,10 @@ def upload_file(request):
         
         file_uploaded = request.FILES["file"]
         file_name = request.POST["file_name"]
-        file_message = PrivateFileMessage(file_field=file_uploaded, file_name=file_name, chat=chat_obj, user=request.user, is_image=verify_image(file_uploaded))
+        if isinstance(chat_obj, PrivateChat):
+            file_message = PrivateFileMessage(file_field=file_uploaded, file_name=file_name, chat=chat_obj, user=request.user, is_image=verify_image(file_uploaded))
+        else:
+            file_message = GroupFileMessage(file_field=file_uploaded, file_name=file_name, chat=chat_obj, user=request.user, is_image=verify_image(file_uploaded))
         file_message.save()
         chat_obj.timestamp = datetime.now()
         chat_obj.save()
@@ -307,12 +414,16 @@ def get_image(request, message_id):
     Checking whether the returned file is an image must be done in elsewhere.
     """
     try:
-        message = PrivateFileMessage.objects.get(id=message_id)
+        if PrivateFileMessage.objects.filter(id=message_id).exists():
+            message = PrivateFileMessage.objects.get(id=message_id)
+        else:
+            message = GroupFileMessage.objects.get(id=message_id)
         if not message.chat.users.filter(username=request.user.username).exists():
             return HttpResponseBadRequest("you do not have access to this chat message")
 
         file_field = message.file_field
         return FileResponse(file_field)
+    
     except ObjectDoesNotExist:
         return HttpResponseNotFound("message not found")
 

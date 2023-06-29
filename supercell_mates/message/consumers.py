@@ -6,7 +6,7 @@ from datetime import datetime
 from channels.generic.websocket import AsyncWebsocketConsumer
 from abc import ABC, abstractmethod
 
-from .models import PrivateChat, GroupChat, PrivateTextMessage, PrivateFileMessage
+from .models import PrivateChat, GroupChat, PrivateTextMessage, GroupTextMessage, PrivateFileMessage, GroupFileMessage
 
 
 class AbstractMessageConsumer(ABC, AsyncWebsocketConsumer):
@@ -166,4 +166,26 @@ class PrivateMessageConsumer(AbstractMessageConsumer):
 
 
 class GroupMessageConsumer(AbstractMessageConsumer):
-    pass
+    @database_sync_to_async
+    def verify_room(self):
+        if not self.user.is_authenticated:
+            return False
+        
+        try:
+            self.chat_object = GroupChat.objects.get(id=self.chat_name)
+        except ObjectDoesNotExist:
+            return False
+        
+        return self.chat_object.users.filter(username=self.user.username).exists()
+    
+
+    @database_sync_to_async
+    def add_text_message(self, message):
+        text_message = GroupTextMessage(user=self.user, chat=self.chat_object, text=message)
+        return self.parse_text_message(text_message)
+    
+
+    @database_sync_to_async
+    def get_file_message(self, message_id):
+        file_message = GroupFileMessage.objects.get(id=message_id)
+        return self.parse_file_message(file_message)

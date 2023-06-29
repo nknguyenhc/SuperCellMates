@@ -27,6 +27,7 @@ function ChatPage() {
         fetch('/messages/get_private_chats')
             .then(response => response.json())
             .then(async response => {
+                console.log(response);
                 const newPrivateChats = response.privates.map(chat => {
                     return {
                         id: chat.id,
@@ -57,7 +58,46 @@ function ChatPage() {
                             index++;
                         }
                         if (index < newPrivateChats.length) {
-                            clickOpenChat(id, index, false);
+                            clickOpenChat(id, index, false, true);
+                        }
+                    }
+                }
+            });
+        fetch('/messages/get_group_chats')
+            .then(response => response.json())
+            .then(async response => {
+                console.log(response);
+                const newGroupChats = response.groups.map(chat => {
+                    return {
+                        id: chat.id,
+                        timestamp: chat.timestamp,
+                        chatName: chat.name,
+                        image: chat.img
+                    };
+                });
+                await setGroupChats(newGroupChats);
+                return newGroupChats;
+            })
+            .then(newGroupChats => {
+                const idQueries = window.location.search
+                    .slice(1)
+                    .split("&")
+                    .map(eqn => eqn.split("="))
+                    .filter(pair => pair[0] === "chatid");
+                if (idQueries.length > 0) {
+                    let index = 0;
+                    const id = idQueries[0][1];
+                    if (id === 'newgroupchatform') {
+                        openNewGroupChatForm(false);
+                    } else {
+                        while (index < newGroupChats.length) {
+                            if (newGroupChats[index].id === id) {
+                                break;
+                            }
+                            index++;
+                        }
+                        if (index < newGroupChats.length) {
+                            clickOpenChat(id, index, false, false);
                         }
                     }
                 }
@@ -68,14 +108,25 @@ function ChatPage() {
         setUsername(document.querySelector('input#username-hidden').value);
     }, []);
 
-    function clickOpenChat(privateChatId, i, pushState) {
-        openChat(privateChatId);
+    function openPrivateChats() {
+        setIsPrivateChatsSelected(true);
+        setChatSelected(false);
+    }
+
+    function openGroupChats() {
+        setIsPrivateChatsSelected(false);
+        setChatSelected(false);
+    }
+
+    function clickOpenChat(chatId, i, pushState, isPrivate) {
+        setIsPrivateChatsSelected(isPrivate);
+        openChat(chatId, isPrivate);
         setDisplayGroupChatForm(false);
         setChatSelected(true);
-        setCurrChatId(privateChatId);
+        setCurrChatId(chatId);
         setHighlighting(i);
         if (pushState) {
-            history.pushState('', '', `?chatid=${privateChatId}`);
+            history.pushState('', '', `?chatid=${chatId}`);
         }
     }
 
@@ -90,13 +141,13 @@ function ChatPage() {
         }
     }
 
-    async function loadMessagesUntilFound(chatid, currTime, currMessages) {
-        return fetch('/messages/get_private_messages/' + chatid + `?start=${currTime - jump}&end=${currTime}`)
+    async function loadMessagesUntilFound(chatid, currTime, currMessages, isPrivate) {
+        return fetch('/messages/get_' + (isPrivate ? 'private' : 'group') + '_messages/' + chatid + `?start=${currTime - jump}&end=${currTime}`)
             .then(response => response.json())
             .then(async response => {
                 if (response.messages.length === 0) {
                     if (response.next_last_timestamp !== 0) {
-                        return loadMessagesUntilFound(chatid, response.next_last_timestamp, currMessages);
+                        return loadMessagesUntilFound(chatid, response.next_last_timestamp, currMessages, isPrivate);
                     } else {
                         return {
                             currTexts: [...currMessages],
@@ -115,7 +166,7 @@ function ChatPage() {
             });
     }
 
-    function openChat(chatid) {
+    function openChat(chatid, isPrivate) {
         if (currSocket !== null) {
             currSocket.close();
         }
@@ -123,7 +174,7 @@ function ChatPage() {
             clearInterval(currInterval);
         }
         
-        loadMessagesUntilFound(chatid, new Date().getTime() / 1000, [])
+        loadMessagesUntilFound(chatid, new Date().getTime() / 1000, [], isPrivate)
             .then(result => {
                 setTimeout(() => {
                     messageLog.current.scrollTo(0, messageLog.current.scrollHeight);
@@ -132,7 +183,7 @@ function ChatPage() {
                 const chatSocket = new WebSocket(
                     'ws://'
                     + window.location.host
-                    + '/ws/message/'
+                    + '/ws/'+ (isPrivate ? 'message/' : 'group/')
                     + chatid
                     + '/'
                 );
@@ -162,7 +213,7 @@ function ChatPage() {
                 setCurrInterval(setInterval(() => {
                     if (chatSocket.readyState === 1 && messageLog.current.scrollTop < 10 && !scrollingState.loading && !result.fullChatLoaded) {
                         scrollingState.loading = true;
-                        loadMessagesUntilFound(chatid, result.currTime, result.currTexts).then(newResult => {
+                        loadMessagesUntilFound(chatid, result.currTime, result.currTexts, isPrivate).then(newResult => {
                             result.currTexts = newResult.currTexts;
                             setTexts([...result.currTexts]);
                             result.currTime = newResult.currTime;
@@ -284,50 +335,47 @@ function ChatPage() {
         <div id="chat-window">
             <div id="chat-selector">
                 <div id="chat-categories">
-                    <div id="chat-category-private" className={"chat-category" + (isPrivateChatsSelected ? " border" : "")} onClick={() => setIsPrivateChatsSelected(true)}><div>Private</div></div>
-                    <div id="chat-category-group" className={"chat-category" + (isPrivateChatsSelected ? "" : " border")} onClick={() => setIsPrivateChatsSelected(false)}><div>Groups</div></div>
+                    <div id="chat-category-private" className={"chat-category" + (isPrivateChatsSelected ? " border" : "")} onClick={openPrivateChats}><div>Private</div></div>
+                    <div id="chat-category-group" className={"chat-category" + (isPrivateChatsSelected ? "" : " border")} onClick={openGroupChats}><div>Groups</div></div>
                 </div>
                 <div id="chat-list" className="border">
-                    <div id="chat-list-private">
-                        {
-                            isPrivateChatsSelected
-                            ? privateChats.map((privateChat, i) => (
-                                <div className="chat-listing" 
-                                onClick={() => clickOpenChat(privateChat.id, i, true)} style={{
-                                    backgroundColor: highlighting === i && isPrivateChatsSelected ? "#CDCBCB" : '',
-                                }}>
-                                    <div className="chat-listing-image">
-                                        <img src={privateChat.image} />
-                                    </div>
-                                    <div className="chat-listing-name">{privateChat.chatName}</div>
+                    {
+                        isPrivateChatsSelected
+                        ? privateChats.map((privateChat, i) => (
+                            <div className="chat-listing" 
+                            onClick={() => clickOpenChat(privateChat.id, i, true, true)} style={{
+                                backgroundColor: highlighting === i && chatSelected ? "#CDCBCB" : '',
+                            }}>
+                                <div className="chat-listing-image">
+                                    <img src={privateChat.image} />
                                 </div>
-                            ))
-                            : <React.Fragment>
-                                <div className="create-new-group" onClick={() => openNewGroupChatForm(true)} style={{
-                                    backgroundColor: highlighting === -2 ? "#CDCBCB" : '',
-                                }}>
-                                    <div className="create-new-group-icon">
-                                        <img src="/static/media/plus-icon.png" />
-                                    </div>
-                                    <div className="create-new-group-text">Create a new group chat</div>
+                                <div className="chat-listing-name">{privateChat.chatName}</div>
+                            </div>
+                        ))
+                        : <React.Fragment>
+                            <div className="create-new-group" onClick={() => openNewGroupChatForm(true)} style={{
+                                backgroundColor: highlighting === -2 ? "#CDCBCB" : '',
+                            }}>
+                                <div className="create-new-group-icon">
+                                    <img src="/static/media/plus-icon.png" />
                                 </div>
-                                {
-                                    groupChats.map((groupChat, i) => (
-                                        <div className="chat-listing"
-                                        onClick={() => {}} style={{
-                                            backgroundColor: highlighting === i && !isPrivateChatsSelected ? "#CDCBCB" : '',
-                                        }}>
-                                            <div className="chat-listing-image">
-                                                <img src={groupChat.image} />
-                                            </div>
-                                            <div className="chat-listing-name">{groupChat.chatName}</div>
+                                <div className="create-new-group-text">Create a new group chat</div>
+                            </div>
+                            {
+                                groupChats.map((groupChat, i) => (
+                                    <div className="chat-listing"
+                                    onClick={() => clickOpenChat(groupChat.id, i, true, false)} style={{
+                                        backgroundColor: highlighting === i && chatSelected ? "#CDCBCB" : '',
+                                    }}>
+                                        <div className="chat-listing-image">
+                                            <img src={groupChat.image} />
                                         </div>
-                                    ))
-                                }
-                            </React.Fragment>
-                        }
-                    </div>
-                    <div id="chat-list-groups"></div>
+                                        <div className="chat-listing-name">{groupChat.chatName}</div>
+                                    </div>
+                                ))
+                            }
+                        </React.Fragment>
+                    }
                 </div>
             </div>
             <div id="chat-log" className="border p-1">
@@ -467,6 +515,9 @@ function NewGroupChatForm({ isDisplay }) {
     function submitForm() {
         if (groupName === '') {
             setError('Group name cannot be empty!');
+            return;
+        } else if (groupName.length > 15) {
+            setError('Group name must be 15 characters or less!');
             return;
         } else if (addedFriends.length === 0) {
             setError('You must add at least one friend!');
