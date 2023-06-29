@@ -62,8 +62,27 @@
 }
 
 .chat-listing-image img {
+    height: 100%;
+    width: 100%;
+}
+
+.create-new-group {
     height: 50px;
-    width: 50px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+    padding-left: 25px;
+}
+
+.create-new-group-icon {
+    height: 30px;
+    width: 30px;
+}
+
+.create-new-group-icon img {
+    height: 100%;
+    width: 100%;
 }
 
 #chat-log {
@@ -86,6 +105,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    padding: 3px;
 }
 
 #chat-input {
@@ -207,4 +227,91 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+
+.find-friend-input {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.find-friend-result {
+    position: relative;
+}
+
+.find-friend-result-box {
+    position: absolute;
+    top: 0px;
+    left: 10px;
+    z-index: 1;
+    width: 30vw;
+    min-height: 70px;
+    border: solid;
+    border-width: 1px;
+    border-color: black;
+    border-radius: 10px;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+}
+
+.search-friend-listing {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-friend-img {
+    height: 40px;
+    width: 40px;
+}
+
+.search-friend-img img {
+    height: 100%;
+    width: 100%;
+}
+
+.search-friend-info {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+}
+
+.friends-added {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.friend-added-listing {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.friend-added-img {
+    height: 50px;
+    width: 50px;
+}
+
+.friend-added-img img {
+    height: 100%;
+    width: 100%;
+}
+
+.friend-added-info {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+}
+
+.group-chat-submit {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
 }

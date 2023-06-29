@@ -9,7 +9,7 @@ from datetime import datetime
 from user_profile.views import verify_image
 
 from user_auth.models import UserAuth
-from .models import TextMessage, PrivateChat, FileMessage, PrivateFileMessage
+from .models import TextMessage, PrivateChat, FileMessage, PrivateFileMessage, GroupChat
 
 
 @login_required
@@ -23,6 +23,33 @@ def index(request):
         HttpResponse: the template for web frontend for viewing chats
     """
     return render(request, 'message/index.html')
+
+
+@login_required
+@require_http_methods(["POST"])
+def create_group_chat(request):
+    """Creates a group chat and return the response of the process.
+    The request must use POST method, and the body form data must contain the following fields:
+        group_name: the name of the group chat
+        users: the list of usernames to add to the group. Note that the users being added must be friends with the request user.
+    
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        HttpResponse: the feedback of the process
+    """
+    users = request.POST.getlist('users')
+    group_name = request.POST["group_name"]
+    groupchat = GroupChat(timestamp = datetime.now())
+    groupchat.save()
+    for user in users:
+        if not UserAuth.objects.get(username=user).user_log.friend_list.filter(user_auth=request.user).exists():
+            return HttpResponseBadRequest("One of the users you indicated is not your friend!")
+    for user in users:
+        groupchat.users.add(UserAuth.objects.get(username=user))
+    groupchat.save()
+    return HttpResponse("Group chat created")
 
 
 def chat_info(chat_object):
@@ -96,11 +123,13 @@ def get_group_chats(request):
     Returns:
         JsonResponse: the information of the group chats of the current user
     """
+    chats = list(map(
+        lambda group: group_chat_info(group),
+        list(request.user.group_chats.all())
+    ))
+    chats.sort(key=lambda chat: chat["timestamp"], reverse=True)
     return JsonResponse({
-        "groups": list(map(
-            lambda group: group_chat_info(group),
-            list(request.user.group_chats.all())
-        ))
+        "groups": chats
     })
 
 

@@ -1,6 +1,8 @@
 function ChatPage() {
+    const [isPrivateChatsSelected, setIsPrivateChatsSelected] = React.useState(true);
     const [privateChats, setPrivateChats] = React.useState([]);
     const [groupChats, setGroupChats] = React.useState([]);
+    const [displayGroupChatForm, setDisplayGroupChatForm] = React.useState(false);
     const [highlighting, setHighlighting] = React.useState(-1);
     const [texts, setTexts] = React.useState([]);
     const [currSocket, setCurrSocket] = React.useState(null);
@@ -45,14 +47,18 @@ function ChatPage() {
                 if (idQueries.length > 0) {
                     let index = 0;
                     const id = idQueries[0][1];
-                    while (index < newPrivateChats.length) {
-                        if (newPrivateChats[index].id === id) {
-                            break;
+                    if (id === 'newgroupchatform') {
+                        openNewGroupChatForm(false);
+                    } else {
+                        while (index < newPrivateChats.length) {
+                            if (newPrivateChats[index].id === id) {
+                                break;
+                            }
+                            index++;
                         }
-                        index++;
-                    }
-                    if (index < newPrivateChats.length) {
-                        clickOpenChat(id, index, false);
+                        if (index < newPrivateChats.length) {
+                            clickOpenChat(id, index, false);
+                        }
                     }
                 }
             });
@@ -64,10 +70,23 @@ function ChatPage() {
 
     function clickOpenChat(privateChatId, i, pushState) {
         openChat(privateChatId);
+        setDisplayGroupChatForm(false);
+        setChatSelected(true);
         setCurrChatId(privateChatId);
         setHighlighting(i);
         if (pushState) {
             history.pushState('', '', `?chatid=${privateChatId}`);
+        }
+    }
+
+    function openNewGroupChatForm(pushState) {
+        setDisplayGroupChatForm(true);
+        setChatSelected(false);
+        setHighlighting(-2);
+        if (pushState) {
+            history.pushState('', '', '?chatid=newgroupchatform');
+        } else {
+            setIsPrivateChatsSelected(false);
         }
     }
 
@@ -97,7 +116,6 @@ function ChatPage() {
     }
 
     function openChat(chatid) {
-        setChatSelected(true);
         if (currSocket !== null) {
             currSocket.close();
         }
@@ -266,16 +284,17 @@ function ChatPage() {
         <div id="chat-window">
             <div id="chat-selector">
                 <div id="chat-categories">
-                    <div id="chat-category-private" className="chat-category"><div>Private</div></div>
-                    <div id="chat-category-group" className="chat-category"><div>Groups</div></div>
+                    <div id="chat-category-private" className={"chat-category" + (isPrivateChatsSelected ? " border" : "")} onClick={() => setIsPrivateChatsSelected(true)}><div>Private</div></div>
+                    <div id="chat-category-group" className={"chat-category" + (isPrivateChatsSelected ? "" : " border")} onClick={() => setIsPrivateChatsSelected(false)}><div>Groups</div></div>
                 </div>
                 <div id="chat-list" className="border">
                     <div id="chat-list-private">
                         {
-                            privateChats.map((privateChat, i) => (
+                            isPrivateChatsSelected
+                            ? privateChats.map((privateChat, i) => (
                                 <div className="chat-listing" 
                                 onClick={() => clickOpenChat(privateChat.id, i, true)} style={{
-                                    backgroundColor: highlighting === i ? "#CDCBCB" : '',
+                                    backgroundColor: highlighting === i && isPrivateChatsSelected ? "#CDCBCB" : '',
                                 }}>
                                     <div className="chat-listing-image">
                                         <img src={privateChat.image} />
@@ -283,6 +302,29 @@ function ChatPage() {
                                     <div className="chat-listing-name">{privateChat.chatName}</div>
                                 </div>
                             ))
+                            : <React.Fragment>
+                                <div className="create-new-group" onClick={() => openNewGroupChatForm(true)} style={{
+                                    backgroundColor: highlighting === -2 ? "#CDCBCB" : '',
+                                }}>
+                                    <div className="create-new-group-icon">
+                                        <img src="/static/media/plus-icon.png" />
+                                    </div>
+                                    <div className="create-new-group-text">Create a new group chat</div>
+                                </div>
+                                {
+                                    groupChats.map((groupChat, i) => (
+                                        <div className="chat-listing"
+                                        onClick={() => {}} style={{
+                                            backgroundColor: highlighting === i && !isPrivateChatsSelected ? "#CDCBCB" : '',
+                                        }}>
+                                            <div className="chat-listing-image">
+                                                <img src={groupChat.image} />
+                                            </div>
+                                            <div className="chat-listing-name">{groupChat.chatName}</div>
+                                        </div>
+                                    ))
+                                }
+                            </React.Fragment>
                         }
                     </div>
                     <div id="chat-list-groups"></div>
@@ -292,7 +334,12 @@ function ChatPage() {
                 <div id="chat-messages" ref={messageLog}>
                     <div id="chat-messages-container">
                         {
-                            texts.map(text => <Message text={text} username={username} />)
+                            chatSelected
+                            ? texts.map(text => <Message text={text} username={username} />)
+                            : !displayGroupChatForm && <div className="text-secondary fst-italic">Select a chat ...</div>
+                        }
+                        {
+                            <NewGroupChatForm isDisplay={displayGroupChatForm} />
                         }
                     </div>
                 </div>
@@ -373,6 +420,131 @@ function Message({ text, username }) {
             <div className="text-timestamp text-secondary" style={{
                 display: isHovering ? '' : 'none'
             }}>{timestampToTime(text.timestamp)}</div>
+        </div>
+    )
+}
+
+function NewGroupChatForm({ isDisplay }) {
+    const [groupName, setGroupName] = React.useState('')
+    const [showResultBox, setShowResultBox] = React.useState(false);
+    const inputDiv = React.useRef(inputDiv);
+    const [searchParam, setSearchParam] = React.useState('');
+    const [searchFriends, setSearchFriends] = React.useState([]);
+    const [addedFriends, dispatchAddedFriends] = React.useReducer(addFriendReducer, []);
+    const [error, setError] = React.useState('');
+
+    React.useEffect(() => {
+        document.addEventListener('click', event => {
+            if (!inputDiv.current.contains(event.target)) {
+                setShowResultBox(false);
+            }
+        })
+    }, []);
+
+    function addFriendReducer(state, action) {
+        return [...state, action.friend];
+    }
+
+    function addFriend(friend) {
+        dispatchAddedFriends({
+            friend: friend
+        });
+        setSearchFriends([]);
+    }
+
+    function isAlreadyAdded(friend) {
+        return addedFriends.reduce((prevValue, currValue) => prevValue || currValue.username === friend.username, false);
+    }
+
+    function searchFriend() {
+        fetch('/user/search_friend?username=' + searchParam)
+            .then(response => response.json())
+            .then(response => {
+                setSearchFriends(response.users.filter(friend => !isAlreadyAdded(friend)));
+            });
+    }
+
+    function submitForm() {
+        if (groupName === '') {
+            setError('Group name cannot be empty!');
+            return;
+        } else if (addedFriends.length === 0) {
+            setError('You must add at least one friend!');
+            return;
+        } else {
+            setError('');
+        }
+        fetch('/messages/create_group_chat', postRequestContent({
+            group_name: groupName,
+            users: addedFriends.map(friend => friend.username)
+        }))
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    response.text().then(text => console.log(text));
+                }
+            })
+    }
+
+    return (
+        <div style={{ display: isDisplay ? "" : "none" }}>
+            <div className="m-3">
+                <label htmlFor="#group-chat-name" className="form-label">Group Chat Name</label>
+                <input type="text" className="form-control" id="group-chat-name" onChange={event => setGroupName(event.target.value)} />
+            </div>
+            <div className="m-3">
+                <label className="form-label">Friends to add</label>
+                <div className="friends-added mb-2">
+                    {
+                        addedFriends.map(addedFriend => (
+                            <a target="_blank" href={addedFriend.profile_link} className="friend-added-listing btn btn-outline-info p-1">
+                                <div className="friend-added-img">
+                                    <img src={addedFriend.profile_pic_url} />
+                                </div>
+                                <div className="friend-added-info">
+                                    <div className="friend-added-name">{addedFriend.name}</div>
+                                    <div className="friend-added-username">{addedFriend.username}</div>
+                                </div>
+                            </a>
+                        ))
+                    }
+                </div>
+                <div className="find-friend-input" ref={inputDiv}>
+                    <input type="search" className="form-control" placeholder="Find by username" onFocus={() => setShowResultBox(true)} onChange={event => setSearchParam(event.target.value)}
+                    onKeyUp={event => {
+                        if (event.key === "Enter") {
+                            searchFriend();
+                        }
+                    }} />
+                    <button className="btn btn-outline-primary" onClick={() => searchFriend()}>Search</button>
+                </div>
+                <div className="find-friend-result">
+                    <div className="find-friend-result-box p-1" style={{ display: showResultBox ? "" : "none" }}>
+                        {
+                            searchFriends.length === 0
+                            ? <div className="text-secondary text-center">No search done/No result to show</div>
+                            : searchFriends.map(friend => (
+                                <div className="search-friend-listing" onClick={() => addFriend(friend)}>
+                                    <div className="search-friend-img">
+                                        <img src={friend.profile_pic_url} />
+                                    </div>
+                                    <div className="search-friend-info">
+                                        <div className="search-friend-name">{friend.name}</div>
+                                        <div className="search-friend-username">@{friend.username}</div>
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+                <div className="group-chat-submit mt-4 mx-2">
+                    <button className="btn btn-success" onClick={submitForm}>Create</button>
+                </div>
+                {
+                    error !== '' && <div className="alert alert-danger mt-3">{error}</div>
+                }
+            </div>
         </div>
     )
 }

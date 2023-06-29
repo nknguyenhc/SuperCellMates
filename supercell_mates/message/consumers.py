@@ -4,11 +4,12 @@ from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime
 from channels.generic.websocket import AsyncWebsocketConsumer
+from abc import ABC, abstractmethod
 
 from .models import PrivateChat, GroupChat, PrivateTextMessage, PrivateFileMessage
 
 
-class PrivateMessageConsumer(AsyncWebsocketConsumer):
+class AbstractMessageConsumer(ABC, AsyncWebsocketConsumer):
     """Available instance fields:
     user: the UserAuth instance of the current user
     user_info: dictionary containing info of the current user with the following fields:
@@ -21,17 +22,9 @@ class PrivateMessageConsumer(AsyncWebsocketConsumer):
     channel_layer, channel_name: inherit from AsyncWebsocketConsumer
     """
 
-    @database_sync_to_async
+    @abstractmethod
     def verify_room(self):
-        if not self.user.is_authenticated:
-            return False
-        
-        try:
-            self.chat_object = PrivateChat.objects.get(id=self.chat_name)
-        except ObjectDoesNotExist:
-            return False
-        
-        return self.chat_object.users.filter(username=self.user.username).exists()
+        pass
     
 
     @database_sync_to_async
@@ -44,18 +37,24 @@ class PrivateMessageConsumer(AsyncWebsocketConsumer):
         }
     
 
-    @database_sync_to_async
+    @abstractmethod
     def add_text_message(self, message):
-        text_message = PrivateTextMessage(user=self.user, chat=self.chat_object, text=message)
+        pass
+    
+
+    def parse_text_message(self, text_message):
         text_message.save()
         self.chat_object.timestamp = datetime.now()
         self.chat_object.save()
         return (text_message.id, text_message.timestamp.timestamp())
+
+
+    @abstractmethod
+    def get_file_message(self, message_id):
+        pass
     
 
-    @database_sync_to_async
-    def get_file_message(self, message_id):
-        file_message = PrivateFileMessage.objects.get(id=message_id)
+    def parse_file_message(self, file_message):
         return {
             "file_name": file_message.file_name,
             "timestamp": file_message.timestamp.timestamp(),
@@ -89,7 +88,7 @@ class PrivateMessageConsumer(AsyncWebsocketConsumer):
         try:
             text_data_json = loads(text_data)
         except JSONDecodeError:
-            pass
+            return
 
         if text_data_json["type"] == "text":
             if "message" in text_data_json.keys():
@@ -138,3 +137,33 @@ class PrivateMessageConsumer(AsyncWebsocketConsumer):
             "timestamp": event["timestamp"],
             "is_image": event["is_image"]
         }))
+
+
+class PrivateMessageConsumer(AbstractMessageConsumer):
+    @database_sync_to_async
+    def verify_room(self):
+        if not self.user.is_authenticated:
+            return False
+        
+        try:
+            self.chat_object = PrivateChat.objects.get(id=self.chat_name)
+        except ObjectDoesNotExist:
+            return False
+        
+        return self.chat_object.users.filter(username=self.user.username).exists()
+    
+
+    @database_sync_to_async
+    def add_text_message(self, message):
+        text_message = PrivateTextMessage(user=self.user, chat=self.chat_object, text=message)
+        return self.parse_text_message(text_message)
+    
+
+    @database_sync_to_async
+    def get_file_message(self, message_id):
+        file_message = PrivateFileMessage.objects.get(id=message_id)
+        return self.parse_file_message(file_message)
+
+
+class GroupMessageConsumer(AbstractMessageConsumer):
+    pass
