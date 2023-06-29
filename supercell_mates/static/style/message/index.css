@@ -144,6 +144,7 @@
 .text-line-user-img {
     height: 40px;
     width: 40px;
+    flex-shrink: 0;
 }
 
 .text-line-user-img img {

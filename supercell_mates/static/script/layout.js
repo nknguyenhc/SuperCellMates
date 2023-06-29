@@ -36,7 +36,11 @@ function triggerErrorMessage() {
 
 function formatNumber(num, numOfDigits) {
     const str = num.toString();
-    return '0'.repeat(numOfDigits - str.length) + str;
+    if (numOfDigits >= str.length) {
+        return '0'.repeat(numOfDigits - str.length) + str;
+    } else {
+        return str.slice(str.length - numOfDigits, str.length);
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {

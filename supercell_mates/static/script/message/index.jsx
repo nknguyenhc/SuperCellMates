@@ -149,7 +149,7 @@ function ChatPage() {
                             result.currTime = newResult.currTime;
                             result.fullChatLoaded = newResult.fullChatLoaded;
                             messageLog.current.scrollBy({
-                                top: 100,
+                                top: 150,
                                 behaviour: 'instant'
                             });
                             scrollingState.loading = false;
@@ -168,12 +168,14 @@ function ChatPage() {
     }
 
     function sendMessage() {
-        currSocket.send(JSON.stringify({
-            type: "text",
-            message: inputText
-        }));
-        setInputText('');
-        testAndScrollToBottom();
+        if (inputText !== '') {
+            currSocket.send(JSON.stringify({
+                type: "text",
+                message: inputText
+            }));
+            setInputText('');
+            testAndScrollToBottom();
+        }
     }
 
     function hoverMenu() {
@@ -269,24 +271,7 @@ function ChatPage() {
                 <div id="chat-messages" ref={messageLog}>
                     <div id="chat-messages-container">
                         {
-                            texts.map(text => (
-                                <div className="text-line" style={{
-                                    flexDirection: text.user.username === username ? "row-reverse" : "row",
-                                }}>
-                                    <a className="text-line-user-img" href={text.user.profile_link}>
-                                        <img src={text.user.profile_img_url} />
-                                    </a>
-                                    <div className="text-line-content p-1 border border-primary">{
-                                        text.type === "text" 
-                                        ? text.message 
-                                        : text.is_image 
-                                        ? <img className="text-line-img" src={"/messages/image/" + text.id} />
-                                        : <a href={"/messages/image/" + text.id} target='_blank'>
-                                            {text.file_name}
-                                        </a>
-                                    }</div>
-                                </div>
-                            ))
+                            texts.map(text => <Message text={text} username={username} />)
                         }
                     </div>
                 </div>
@@ -321,6 +306,37 @@ function ChatPage() {
                     display: showFilePreview ? '' : 'none',
                 }} onClick={clickExitPreview}>{filePreview}</div>
             </div>
+        </div>
+    )
+}
+
+function Message({ text, username }) {
+    const [isHovering, setIsHovering] = React.useState(false);
+
+    function timestampToTime(timestamp) {
+        const time = new Date(timestamp * 1000);
+        return `${formatNumber(time.getHours(), 2)}:${formatNumber(time.getMinutes(), 2)} ${formatNumber(time.getDate(), 2)}/${formatNumber(time.getMonth(), 2)}/${formatNumber(time.getFullYear(), 2)}`;
+    }
+
+    return (
+        <div className="text-line" style={{
+            flexDirection: text.user.username === username ? "row-reverse" : "row",
+        }} onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
+            <a className="text-line-user-img" href={text.user.profile_link}>
+                <img src={text.user.profile_img_url} />
+            </a>
+            <div className="text-line-content p-1 border border-primary">{
+                text.type === "text" 
+                ? text.message 
+                : text.is_image 
+                ? <img className="text-line-img" src={"/messages/image/" + text.id} />
+                : <a href={"/messages/image/" + text.id} target='_blank'>
+                    {text.file_name}
+                </a>
+            }</div>
+            <div className="text-timestamp text-secondary" style={{
+                display: isHovering ? '' : 'none'
+            }}>{timestampToTime(text.timestamp)}</div>
         </div>
     )
 }
