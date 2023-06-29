@@ -317,6 +317,7 @@ function ChatPage() {
                     message_id: messageId,
                 }));
                 setShowFilePreview(false);
+                bringChatToTop();
             })
     }
 
