@@ -90,30 +90,33 @@ class AbstractMessageConsumer(ABC, AsyncWebsocketConsumer):
         except JSONDecodeError:
             return
 
-        if text_data_json["type"] == "text":
-            if "message" in text_data_json.keys():
-                message = text_data_json["message"]
-                text_id, timestamp = await self.add_text_message(message)
-                await self.channel_layer.group_send(
-                    self.chat_name, {
-                        "type": "chat_message", 
-                        "message": message,
-                        "user": self.user_info,
-                        "id": text_id,
-                        "timestamp": timestamp,
-                    }
-                )
-        
-        elif text_data_json["type"] == "file":
-            if "message_id" in text_data_json.keys():
-                message_id = text_data_json["message_id"]
-                message = await self.get_file_message(message_id)
-                message.update({
-                    "id": message_id,
-                    "type": "file_message",
-                    "user": self.user_info
-                })
-                await self.channel_layer.group_send(self.chat_name, message)
+        if "type" in text_data_json.keys():
+
+            if text_data_json["type"] == "text":
+                if "message" in text_data_json.keys():
+                    message = text_data_json["message"]
+                    if len(message) <= 700: # text length limit
+                        text_id, timestamp = await self.add_text_message(message)
+                        await self.channel_layer.group_send(
+                            self.chat_name, {
+                                "type": "chat_message", 
+                                "message": message,
+                                "user": self.user_info,
+                                "id": text_id,
+                                "timestamp": timestamp,
+                            }
+                        )
+            
+            elif text_data_json["type"] == "file":
+                if "message_id" in text_data_json.keys():
+                    message_id = text_data_json["message_id"]
+                    message = await self.get_file_message(message_id)
+                    message.update({
+                        "id": message_id,
+                        "type": "file_message",
+                        "user": self.user_info
+                    })
+                    await self.channel_layer.group_send(self.chat_name, message)
 
 
     async def chat_message(self, event):

@@ -8,6 +8,7 @@ function ChatPage() {
     const [currSocket, setCurrSocket] = React.useState(null);
     const [currInterval, setCurrInterval] = React.useState(null);
     const [inputText, setInputText] = React.useState('');
+    const inputTextCharLimit = 700;
     const inputField = React.useRef(null);
     const [isHoldingShift, setIsHoldingShift] = React.useState(false);
     const [username, setUsername] = React.useState('');
@@ -362,6 +363,14 @@ function ChatPage() {
         inputField.style.height = inputField.scrollHeight.toString() + 'px';
     }
 
+    function changeInputText(event) {
+        const newValue = event.target.value.slice(0, inputTextCharLimit);
+        setInputText(newValue);
+        if (newValue.slice(newValue.length - 1, newValue.length) !== '\n' || isHoldingShift) {
+            adjustInputHeight(event.target);
+        }
+    }
+
     return (
         <div id="chat-window">
             <div id="chat-selector">
@@ -444,14 +453,9 @@ function ChatPage() {
                             <img src="/static/media/plus-icon.png" />
                         </div>
                         <textarea id="chat-text-input" rows={1} className="form-control" value={inputText}
-                        onChange={event => {
-                            const newValue = event.target.value;
-                            setInputText(newValue);
-                            if (newValue.slice(newValue.length - 1, newValue.length) !== '\n' || isHoldingShift) {
-                                adjustInputHeight(event.target);
-                            }
-                        }}
+                        onInput={changeInputText}
                         onKeyUp={event => {
+                            changeInputText(event);
                             if (!isHoldingShift && event.key === "Enter") {
                                 sendMessage();
                             } else if (event.key === "Shift") {
@@ -493,7 +497,7 @@ function Message({ text, username }) {
             </a>
             <div className="text-line-content p-1 border border-primary">{
                 text.type === "text" 
-                ? text.message 
+                ? <Text text={text.message} /> 
                 : text.is_image 
                 ? <img className="text-line-img" src={"/messages/image/" + text.id} />
                 : <a href={"/messages/image/" + text.id} target='_blank'>
@@ -504,6 +508,26 @@ function Message({ text, username }) {
                 display: isHovering ? '' : 'none'
             }}>{timestampToTime(text.timestamp)}</div>
         </div>
+    )
+}
+
+function Text({ text }) {
+    const charLimit = 200;
+    const [displayFullText, setDisplayFullText] = React.useState(false);
+
+    return (
+        <React.Fragment>
+            {
+                displayFullText || text.length <= charLimit ? text : text.slice(0, charLimit) + ' ... '
+            }
+            {
+                text.length > charLimit && (
+                    displayFullText 
+                    ? <a href="javascript:void(0)" onClick={() => setDisplayFullText(false)}>{'\nSee Less'}</a> 
+                    : <a href="javascript:void(0)" onClick={() => setDisplayFullText(true)}>See More</a>
+                )
+            }
+        </React.Fragment>
     )
 }
 

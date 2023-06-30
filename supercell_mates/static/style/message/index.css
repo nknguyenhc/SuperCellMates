@@ -188,7 +188,7 @@
     max-width: calc(100% - min(250px, 30%));
     border-radius: 10px;
     word-wrap: break-word;
-    white-space: pre-line;
+    white-space: pre-wrap;
 }
 
 .file-preview {
