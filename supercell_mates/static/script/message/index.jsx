@@ -323,28 +323,32 @@ function ChatPage() {
     }
 
     function submitFile(file, isPrivate) {
-        fetch('/messages/upload_file', postRequestContent({
-            chat_id: currChatId,
-            file: file,
-            file_name: file.name
-        }))
-            .then(async response => {
-                if (response.status !== 200) {
-                    triggerErrorMessage();
-                    return;
-                }
-                const messageId = await response.text();
-                currSocket.send(JSON.stringify({
-                    type: "file",
-                    message_id: messageId,
-                }));
-                setShowFilePreview(false);
-                if (isPrivate) {
-                    bringPrivateChatToTop();
-                } else {
-                    bringGroupChatToTop();
-                }
-            })
+        if (currSocket.readyState === 1) {
+            fetch('/messages/upload_file', postRequestContent({
+                chat_id: currChatId,
+                file: file,
+                file_name: file.name
+            }))
+                .then(async response => {
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                        return;
+                    }
+                    const messageId = await response.text();
+                    currSocket.send(JSON.stringify({
+                        type: "file",
+                        message_id: messageId,
+                    }));
+                    setShowFilePreview(false);
+                    if (isPrivate) {
+                        bringPrivateChatToTop();
+                    } else {
+                        bringGroupChatToTop();
+                    }
+                })
+        } else {
+            setShowFilePreview(false);
+        }
     }
 
     function clickExitPreview(event) {
