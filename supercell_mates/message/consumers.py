@@ -27,6 +27,11 @@ class AbstractMessageConsumer(ABC, AsyncWebsocketConsumer):
         pass
     
 
+    @abstractmethod
+    def can_connect(self):
+        pass
+    
+
     @database_sync_to_async
     def get_user_info(self, user_auth_obj):
         return {
@@ -72,8 +77,8 @@ class AbstractMessageConsumer(ABC, AsyncWebsocketConsumer):
             self.user_info = await self.get_user_info(self.user)
             await self.channel_layer.group_add(self.chat_name, self.channel_name)
             await self.accept()
-        else:
-            await self.close()
+            if not await self.can_connect():
+                await self.close(code=4003)
 
 
     async def disconnect(self, close_code):
@@ -157,6 +162,12 @@ class PrivateMessageConsumer(AbstractMessageConsumer):
     
 
     @database_sync_to_async
+    def can_connect(self):
+        the_other_user = self.chat_object.users.exclude(username=self.user.username).first()
+        return the_other_user.user_log.friend_list.filter(user_auth=self.user).exists()
+    
+
+    @database_sync_to_async
     def add_text_message(self, message):
         text_message = PrivateTextMessage(user=self.user, chat=self.chat_object, text=message)
         return self.parse_text_message(text_message)
@@ -181,6 +192,11 @@ class GroupMessageConsumer(AbstractMessageConsumer):
         
         return self.chat_object.users.filter(username=self.user.username).exists()
     
+
+    @database_sync_to_async
+    def can_connect(self):
+        return True
+
 
     @database_sync_to_async
     def add_text_message(self, message):

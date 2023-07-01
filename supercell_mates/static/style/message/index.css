@@ -109,6 +109,10 @@
     padding: 3px;
 }
 
+.message-disabled {
+    text-align: center;
+}
+
 #chat-input {
     display: flex;
     flex-direction: row;

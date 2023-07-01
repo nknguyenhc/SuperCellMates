@@ -6,6 +6,7 @@ function ChatPage() {
     const [highlighting, setHighlighting] = React.useState(-1);
     const [texts, setTexts] = React.useState([]);
     const [currSocket, setCurrSocket] = React.useState(null);
+    const [isChatDisabled, setIsChatDisabled] = React.useState(false);
     const [currInterval, setCurrInterval] = React.useState(null);
     const [inputText, setInputText] = React.useState('');
     const inputTextCharLimit = 700;
@@ -128,6 +129,7 @@ function ChatPage() {
 
     function clickOpenChat(chatId, i, pushState, isPrivate) {
         setIsPrivateChatsSelected(isPrivate);
+        setIsChatDisabled(false);
         openChat(chatId, isPrivate);
         setDisplayGroupChatForm(false);
         setChatSelected(true);
@@ -204,12 +206,11 @@ function ChatPage() {
                     testAndScrollToBottom();
                 };
 
-                chatSocket.onerror = () => {
-                    alert("Connection fails, please reload the page or try another time.")
-                }
-
                 chatSocket.onclose = (e) => {
-                    if (e.code !== 1000) {
+                    if (e.code === 4003) {
+                        setIsChatDisabled(true);
+                        scrollingState.canLoadMessage = true;
+                    } else {
                         alert("Connection is lost, please reload the page or try another time.");
                     }
                 }
@@ -217,10 +218,11 @@ function ChatPage() {
                 setCurrSocket(chatSocket);
 
                 const scrollingState = {
-                    loading: false
+                    loading: false,
+                    canLoadMessage: false,
                 }
                 setCurrInterval(setInterval(() => {
-                    if (chatSocket.readyState === 1 && messageLog.current.scrollTop < 10 && !scrollingState.loading && !result.fullChatLoaded) {
+                    if ((chatSocket.readyState === 1 || scrollingState.canLoadMessage) && messageLog.current.scrollTop < 10 && !scrollingState.loading && !result.fullChatLoaded) {
                         scrollingState.loading = true;
                         loadMessagesUntilFound(chatid, result.currTime, result.currTexts, isPrivate).then(newResult => {
                             result.currTexts = newResult.currTexts;
@@ -432,7 +434,7 @@ function ChatPage() {
                     </div>
                 </div>
                 {
-                    chatSelected
+                    chatSelected && !isChatDisabled
                     ? <div id="chat-input" className="p-2">
                         <div id="chat-more-input" onMouseEnter={() => hoverMenu()} onMouseLeave={() => blurMenu()}>
                             <div id="chat-more-menu" style={{
@@ -470,6 +472,8 @@ function ChatPage() {
                         ref={inputField} />
                         <button className="btn btn-outline-primary chat-input-send-button" onClick={() => sendMessage()}>Send</button>
                     </div>
+                    : isChatDisabled
+                    ? <div className="message-disabled text-secondary fst-italic">You can no longer send message in this chat</div>
                     : ''
                 }
                 <div className="file-preview" style={{
