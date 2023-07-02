@@ -3,28 +3,48 @@ document.addEventListener("DOMContentLoaded", () => {
     messageDiv.style.display = "none";
     let usernameUnique = true;
 
-    document.querySelector("#register-form").addEventListener("submit", event => {
-        if (!usernameUnique) {
+    const form = document.querySelector("#register-form");
+    const nameInput = document.querySelector("#name");
+    const usernameInput = document.querySelector("#username");
+    const passwordInput = document.querySelector("#password");
+    const confirmPassword = document.querySelector("#confirm-password");
+    const agreement = document.querySelector("#privacy-agreement-checkbox");
+
+    form.addEventListener("submit", event => {
+        if (!agreement.checked) {
             event.preventDefault();
-        } else if (document.querySelector("#name").value === '') {
+            addErrMessage("You must agree to our privacy agreement to proceed", messageDiv, agreement);
+        } else {
+            approve(agreement);
+        }
+        if (passwordInput.value !== confirmPassword.value) {
             event.preventDefault();
-            addErrMessage("Name cannot be empty", messageDiv);
-        } else if (document.querySelector("#username").value === '') {
+            addErrMessage("Password and confirm password are different", messageDiv, confirmPassword);
+        } else {
+            approve(confirmPassword);
+        }
+        if (passwordInput.value === '') {
             event.preventDefault();
-            addErrMessage("Username cannot be empty", messageDiv);
-        } else if (document.querySelector("#password").value === '') {
+            addErrMessage("Password cannot be empty", messageDiv, passwordInput);
+        } else {
+            approve(passwordInput);
+        }
+        if (usernameInput.value === '') {
             event.preventDefault();
-            addErrMessage("Password cannot be empty", messageDiv);
-        } else if (document.querySelector("#password").value !== document.querySelector("#confirm-password").value) {
+            addErrMessage("Username cannot be empty", messageDiv, usernameInput);
+        } else if (!usernameUnique) {
             event.preventDefault();
-            addErrMessage("Password and confirm password are different", messageDiv);
-        } else if (!document.querySelector("#privacy-agreement-checkbox").checked) {
+        } else {
+            approve(usernameInput);
+        }
+        if (nameInput.value === '') {
             event.preventDefault();
-            addErrMessage("You must agree to our privacy agreement to proceed", messageDiv);
+            addErrMessage("Name cannot be empty", messageDiv, nameInput);
+        } else {
+            approve(nameInput);
         }
     });
 
-    const usernameInput = document.querySelector("#username");
     usernameInput.addEventListener('blur', () => {
         fetch(`/check_unique_username_async?username=${usernameInput.value}`)
             .then(response => response.text())
