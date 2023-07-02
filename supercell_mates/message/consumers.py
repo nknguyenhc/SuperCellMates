@@ -6,7 +6,7 @@ from datetime import datetime
 from channels.generic.websocket import AsyncWebsocketConsumer
 from abc import ABC, abstractmethod
 
-from .models import PrivateChat, GroupChat, PrivateTextMessage, PrivateFileMessage
+from .models import PrivateChat, GroupChat, PrivateTextMessage, GroupTextMessage, PrivateFileMessage, GroupFileMessage
 
 
 class AbstractMessageConsumer(ABC, AsyncWebsocketConsumer):
@@ -24,6 +24,11 @@ class AbstractMessageConsumer(ABC, AsyncWebsocketConsumer):
 
     @abstractmethod
     def verify_room(self):
+        pass
+    
+
+    @abstractmethod
+    def can_connect(self):
         pass
     
 
@@ -72,8 +77,8 @@ class AbstractMessageConsumer(ABC, AsyncWebsocketConsumer):
             self.user_info = await self.get_user_info(self.user)
             await self.channel_layer.group_add(self.chat_name, self.channel_name)
             await self.accept()
-        else:
-            await self.close()
+            if not await self.can_connect():
+                await self.close(code=4003)
 
 
     async def disconnect(self, close_code):
@@ -90,30 +95,33 @@ class AbstractMessageConsumer(ABC, AsyncWebsocketConsumer):
         except JSONDecodeError:
             return
 
-        if text_data_json["type"] == "text":
-            if "message" in text_data_json.keys():
-                message = text_data_json["message"]
-                text_id, timestamp = await self.add_text_message(message)
-                await self.channel_layer.group_send(
-                    self.chat_name, {
-                        "type": "chat_message", 
-                        "message": message,
-                        "user": self.user_info,
-                        "id": text_id,
-                        "timestamp": timestamp,
-                    }
-                )
-        
-        elif text_data_json["type"] == "file":
-            if "message_id" in text_data_json.keys():
-                message_id = text_data_json["message_id"]
-                message = await self.get_file_message(message_id)
-                message.update({
-                    "id": message_id,
-                    "type": "file_message",
-                    "user": self.user_info
-                })
-                await self.channel_layer.group_send(self.chat_name, message)
+        if "type" in text_data_json.keys():
+
+            if text_data_json["type"] == "text":
+                if "message" in text_data_json.keys():
+                    message = text_data_json["message"]
+                    if len(message) <= 700: # text length limit
+                        text_id, timestamp = await self.add_text_message(message)
+                        await self.channel_layer.group_send(
+                            self.chat_name, {
+                                "type": "chat_message", 
+                                "message": message,
+                                "user": self.user_info,
+                                "id": text_id,
+                                "timestamp": timestamp,
+                            }
+                        )
+            
+            elif text_data_json["type"] == "file":
+                if "message_id" in text_data_json.keys():
+                    message_id = text_data_json["message_id"]
+                    message = await self.get_file_message(message_id)
+                    message.update({
+                        "id": message_id,
+                        "type": "file_message",
+                        "user": self.user_info
+                    })
+                    await self.channel_layer.group_send(self.chat_name, message)
 
 
     async def chat_message(self, event):
@@ -154,6 +162,12 @@ class PrivateMessageConsumer(AbstractMessageConsumer):
     
 
     @database_sync_to_async
+    def can_connect(self):
+        the_other_user = self.chat_object.users.exclude(username=self.user.username).first()
+        return the_other_user.user_log.friend_list.filter(user_auth=self.user).exists()
+    
+
+    @database_sync_to_async
     def add_text_message(self, message):
         text_message = PrivateTextMessage(user=self.user, chat=self.chat_object, text=message)
         return self.parse_text_message(text_message)
@@ -166,4 +180,31 @@ class PrivateMessageConsumer(AbstractMessageConsumer):
 
 
 class GroupMessageConsumer(AbstractMessageConsumer):
-    pass
+    @database_sync_to_async
+    def verify_room(self):
+        if not self.user.is_authenticated:
+            return False
+        
+        try:
+            self.chat_object = GroupChat.objects.get(id=self.chat_name)
+        except ObjectDoesNotExist:
+            return False
+        
+        return self.chat_object.users.filter(username=self.user.username).exists()
+    
+
+    @database_sync_to_async
+    def can_connect(self):
+        return True
+
+
+    @database_sync_to_async
+    def add_text_message(self, message):
+        text_message = GroupTextMessage(user=self.user, chat=self.chat_object, text=message)
+        return self.parse_text_message(text_message)
+    
+
+    @database_sync_to_async
+    def get_file_message(self, message_id):
+        file_message = GroupFileMessage.objects.get(id=message_id)
+        return self.parse_file_message(file_message)
