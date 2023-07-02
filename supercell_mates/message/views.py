@@ -42,12 +42,13 @@ def create_group_chat(request):
     try:
         users = request.POST.getlist('users')
         group_name = request.POST["group_name"]
-        groupchat = GroupChat(timestamp = datetime.now(), name=group_name)
+        groupchat = GroupChat(timestamp = datetime.now(), name=group_name, creator=request.user)
         groupchat.save()
         for user in users:
             if not UserAuth.objects.get(username=user).user_log.friend_list.filter(user_auth=request.user).exists():
                 return HttpResponseBadRequest("One of the users you indicated is not your friend!")
         groupchat.users.add(request.user)
+        groupchat.admins.add(request.user)
         for user in users:
             groupchat.users.add(UserAuth.objects.get(username=user))
         groupchat.save()
@@ -61,6 +62,93 @@ def create_group_chat(request):
         return HttpResponseBadRequest("Group name not provided")
     except ObjectDoesNotExist:
         return HttpResponseBadRequest("One of the users you indicated does not exist")
+
+
+@login_required
+def get_members(request):
+    """Get the members in the chatid provided in the GET request
+    The current user must be a member of the group chat to view the members.
+    The request URL must contain the following GET parameter:
+        chatid: the id of the chat to get the members.
+    
+    The returned JSON response contains the following fields:
+        members: the list of members of the current chat, with the following fields:
+            name: the name of the member
+            username: the username of the member
+            profile_link: the link to the profile of the member
+            profile_pic_url: the URL to the profile picture of the member
+    """
+    chat_id = request.GET["chatid"]
+
+    chat = GroupChat.objects.get(id=chat_id)
+    if not chat.users.filter(username=request.user.username).exists():
+        return HttpResponseBadRequest("you do not have access to this chat")
+    
+    users = list(map(
+        lambda user: {
+            "name": user.user_profile.name,
+            "username": user.username,
+            "profile_link": reverse("user_log:view_profile", args=(user.username,)),
+            "profile_pic_url": reverse("user_profile:get_profile_pic", args=(user.username,)),
+        },
+        list(chat.users.all())
+    ))
+    users.sort(key=lambda user: user["username"].lower())
+    
+    return JsonResponse({
+        "users": users
+    })
+
+
+@login_required
+@require_http_methods(["POST"])
+def add_member(request):
+    """Attempt to add a member into a chat.
+    This view checks for whether the request user is in the chat before adding the new member.
+    This view also checks if the new user and the current user are friends.
+    The body of the request must contain the following fields:
+        username: the username of the user to add into the group
+        chat_id: the id of the group chat to add the user into
+    
+    Args: 
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        HttpResponse: the feedback of the process
+    """
+    username = request.POST["username"]
+    chat_id = request.POST["chat_id"]
+
+    chat = GroupChat.objects.get(id=chat_id)
+    if not chat.users.filter(username=request.user.username).exists():
+        return HttpResponseBadRequest("you are not in this group chat")
+    
+    new_user = UserAuth.objects.get(username=username)
+    if not new_user.user_log.friend_list.filter(user_auth=request.user).exists():
+        return HttpResponseBadRequest("you are not friend with this user")
+    
+    chat.users.add(new_user)
+    return HttpResponse('ok')
+
+
+@login_required
+def is_admin(request):
+    """Determine if the current user is admin of a given chat, id given in GET parameters.
+    GET parameters:
+        chatid: the chat id to check
+    """
+    chat_id = request.GET["chatid"]
+    return HttpResponse("yes" if GroupChat.objects.get(id=chat_id).admins.filter(username=request.user.username).exists() else "no")
+
+
+@login_required
+def is_creator(request):
+    """Determine if the current user is the creator of a given chat, id given in GET parameters.
+    GET parameters:
+        chatid: the chat id to check
+    """
+    chat_id = request.GET["chatid"]
+    return HttpResponse("yes" if GroupChat.objects.get(id=chat_id).creator == request.user else "no")
 
 
 def chat_info(chat_object):

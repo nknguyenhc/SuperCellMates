@@ -24,6 +24,7 @@ function ChatPage() {
     const [currChatId, setCurrChatId] = React.useState('');
     const imageExtensions = ['png', 'jpg', 'jpeg', 'bmp', 'webp', 'svg', 'heic'];
     const jump = 60;
+    const [showAddPeopleForm, setShowAddPeopleForm] = React.useState(false);
 
     React.useEffect(() => {
         fetch('/messages/get_private_chats')
@@ -130,6 +131,7 @@ function ChatPage() {
     function clickOpenChat(chatId, i, pushState, isPrivate) {
         setIsPrivateChatsSelected(isPrivate);
         setIsChatDisabled(false);
+        setShowAddPeopleForm(false);
         openChat(chatId, isPrivate);
         setDisplayGroupChatForm(false);
         setChatSelected(true);
@@ -143,12 +145,18 @@ function ChatPage() {
     function openNewGroupChatForm(pushState) {
         setDisplayGroupChatForm(true);
         setChatSelected(false);
+        setShowAddPeopleForm(false);
         setHighlighting(-2);
         if (pushState) {
             history.pushState('', '', '?chatid=newgroupchatform');
         } else {
             setIsPrivateChatsSelected(false);
         }
+    }
+
+    function openAddPeopleForm() {
+        setShowAddPeopleForm(true);
+        blurMenu();
     }
 
     async function loadMessagesUntilFound(chatid, currTime, currMessages, isPrivate) {
@@ -210,7 +218,7 @@ function ChatPage() {
                     if (e.code === 4003) {
                         setIsChatDisabled(true);
                         scrollingState.canLoadMessage = true;
-                    } else {
+                    } else if (e.code !== 1000) {
                         alert("Connection is lost, please reload the page or try another time.");
                     }
                 }
@@ -421,7 +429,9 @@ function ChatPage() {
                 </div>
             </div>
             <div id="chat-log" className="border p-1">
-                <div id="chat-messages" ref={messageLog}>
+                <div id="chat-messages" ref={messageLog} style={{
+                    display: showAddPeopleForm ? "none" : "block"
+                }}>
                     <div id="chat-messages-container">
                         {
                             chatSelected
@@ -434,13 +444,21 @@ function ChatPage() {
                     </div>
                 </div>
                 {
-                    chatSelected && !isChatDisabled
+                    showAddPeopleForm && <AddPeopleForm chatId={currChatId} />
+                }
+                {
+                    chatSelected && !isChatDisabled && !showAddPeopleForm
                     ? <div id="chat-input" className="p-2">
                         <div id="chat-more-input" onMouseEnter={() => hoverMenu()} onMouseLeave={() => blurMenu()}>
                             <div id="chat-more-menu" style={{
                                 display: moreMenuDisplay ? "" : "none"
                             }}>
                                 <div className="chat-more-option">
+                                    {
+                                        isPrivateChatsSelected || <label onClick={openAddPeopleForm}>
+                                            <img src="/static/media/add-person-icon.png" />
+                                        </label>
+                                    }
                                     <label htmlFor="chat-file-upload" onClick={() => {
                                         if (currSocket.readyState === 1) {
                                             fileUpload.current.click();
@@ -515,6 +533,7 @@ function Message({ text, username }) {
     )
 }
 
+
 function Text({ text }) {
     const charLimit = 200;
     const [displayFullText, setDisplayFullText] = React.useState(false);
@@ -534,6 +553,7 @@ function Text({ text }) {
         </React.Fragment>
     )
 }
+
 
 function NewGroupChatForm({ isDisplay, createGroupChatListing }) {
     const [groupName, setGroupName] = React.useState('')
@@ -662,5 +682,124 @@ function NewGroupChatForm({ isDisplay, createGroupChatListing }) {
         </div>
     )
 }
+
+
+function AddPeopleForm({ chatId }) {
+    const [searchParam, setSearchParam] = React.useState('');
+    const [showResultBox, setShowResultBox] = React.useState(false);
+    const [searchFriends, setSearchFriends] = React.useState([]);
+    const [currentMembers, setCurrentMembers] = React.useState([]);
+    const inputDiv = React.useRef(null);
+    const [showAddMessage, setShowAddMessage] = React.useState(false);
+    const [currFriend, setCurrFriend] = React.useState('');
+    const [addedFriends, dispatchAddedFriends] = React.useReducer(addFriendReducer, []);
+
+    function addFriendReducer(state, friend) {
+        return [...state, friend];
+    }
+
+    React.useEffect(() => {
+        document.addEventListener('click', event => {
+            if (inputDiv.current && !inputDiv.current.contains(event.target)) {
+                setShowResultBox(false);
+            }
+        })
+    }, []);
+
+    React.useEffect(() => {
+        getCurrentMembers();
+    }, []);
+
+    function getCurrentMembers() {
+        fetch('/messages/get_members?chatid=' + chatId)
+            .then(response => response.json())
+            .then(response => {
+                setCurrentMembers(response.users.map(user => user.username));
+            })
+    }
+
+    function searchFriend() {
+        fetch('/user/search_friend?username=' + searchParam)
+            .then(response => response.json())
+            .then(response => {
+                setSearchFriends(response.users);
+            });
+    }
+
+    function popAddMessage(friend) {
+        setCurrFriend(friend);
+        setShowAddMessage(true);
+    }
+
+    function addFriend(friend) {
+        fetch('/messages/add_member', postRequestContent({
+            username: currFriend.username,
+            chat_id: chatId,
+        }))
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    dispatchAddedFriends(friend);
+                    setShowAddMessage(false);
+                    getCurrentMembers();
+                }
+            })
+    }
+
+    return (
+        <div className="add-people-form p-3">
+            <div className="add-people-label">Add people to this group chat</div>
+            <div className="find-friend-input mt-3" ref={inputDiv}>
+                <input type="search" className="form-control" placeholder="Find by username" onFocus={() => setShowResultBox(true)} onChange={event => setSearchParam(event.target.value)}
+                onKeyUp={event => {
+                    if (event.key === "Enter") {
+                        searchFriend();
+                    }
+                }} />
+                <button className="btn btn-outline-primary" onClick={() => searchFriend()}>Search</button>
+            </div>
+            <div className="find-friend-result">
+                <div className="find-friend-result-box p-1" style={{ display: showResultBox ? "" : "none" }}>
+                    {
+                        searchFriends.filter(user => !currentMembers.includes(user.username)).length === 0
+                        ? <div className="text-secondary text-center">No search done/No result to show</div>
+                        : searchFriends.filter(user => !currentMembers.includes(user.username)).map(friend => (
+                            <div className="search-friend-listing" onClick={() => popAddMessage(friend)}>
+                                <div className="search-friend-img">
+                                    <img src={friend.profile_pic_url} />
+                                </div>
+                                <div className="search-friend-info">
+                                    <div className="search-friend-name">{friend.name}</div>
+                                    <div className="search-friend-username">@{friend.username}</div>
+                                </div>
+                            </div>
+                        ))
+                    }
+                </div>
+            </div>
+            {
+                showAddMessage && <div className="add-friend-message mt-3">
+                    Are you sure to add <a href={currFriend.profile_link}>@{currFriend.username}</a> to this group chat?
+                    <div className="add-friend-actions mt-3">
+                        <button className="btn btn-success" onClick={() => addFriend(currFriend)}>Yes</button>
+                        <button className="btn btn-danger" onClick={() => setShowAddMessage(false)}>No</button>
+                    </div>
+                </div>
+            }
+            <div className="friends-added mt-3">
+                {
+                    addedFriends.map(friend => (
+                        <div className="friend-added text-success">
+                            <img src="/static/media/check-icon.png" className="add-friend-success-icon" />
+                            User <a href={friend.profile_link}>@{friend.username}</a> has been added to this group chat.
+                        </div>
+                    ))
+                }
+            </div>
+        </div>
+    )
+}
+
 
 ReactDOM.render(<ChatPage />, document.querySelector("#chat-page"));

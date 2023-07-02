@@ -143,6 +143,9 @@
 
 .chat-more-option {
     min-height: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .chat-more-option img {
@@ -319,4 +322,20 @@
     display: flex;
     flex-direction: row;
     justify-content: end;
+}
+
+.add-people-form {
+    overflow: auto;
+    height: 100%;
+}
+
+.add-friend-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+}
+
+.add-friend-success-icon {
+    max-height: 25px;
+    max-width: 25px;
 }
