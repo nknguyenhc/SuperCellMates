@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const form = document.querySelector("#register-form");
     const nameInput = document.querySelector("#name");
     const usernameInput = document.querySelector("#username");
+    const usernameFeedback = usernameInput.parentElement.querySelector(".invalid-feedback");
     const passwordInput = document.querySelector("#password");
     const confirmPassword = document.querySelector("#confirm-password");
     const agreement = document.querySelector("#privacy-agreement-checkbox");
@@ -31,9 +32,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         if (usernameInput.value === '') {
             event.preventDefault();
+            usernameFeedback.innerText = 'Please enter a username';
             addErrMessage("Username cannot be empty", messageDiv, usernameInput);
         } else if (!usernameUnique) {
             event.preventDefault();
+            usernameFeedback.innerText = 'Username taken, please enter a different username';
+            addErrMessage("Username cannot be empty", messageDiv, usernameInput);
         } else {
             approve(usernameInput);
         }
