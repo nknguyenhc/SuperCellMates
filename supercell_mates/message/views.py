@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest, FileResponse, HttpResponseNotFound
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate
 from django.utils.datastructures import MultiValueDictKeyError
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.http import require_http_methods
@@ -152,6 +153,7 @@ def is_creator(request):
 
 
 @login_required
+@require_http_methods(["POST"])
 def remove_user(request):
     """Remove a user from a group chat.
     POST parameters:
@@ -213,6 +215,7 @@ def get_admins(request):
 
 
 @login_required
+@require_http_methods(["POST"])
 def add_admin(request):
     """Add a user as an admin of the chat. The target user must already be in the chat.
     The person that makes this request must be an admin of the chat.
@@ -237,6 +240,7 @@ def add_admin(request):
 
 
 @login_required
+@require_http_methods(["POST"])
 def remove_admin(request):
     """Remove a user as admin. The request user must be creator of the chat.
     The body must contain the following POST parameters:
@@ -251,7 +255,39 @@ def remove_admin(request):
         return HttpResponseBadRequest("you are not the creator of this chat")
     
     username = request.POST["username"]
-    chat.admins.remove(UserAuth.objects.get(username=username))
+    user = UserAuth.objects.get(username=username)
+    chat.admins.remove(user)
+    return HttpResponse("ok")
+
+
+@login_required
+@require_http_methods(["POST"])
+def assign_leader(request):
+    """Assign another user as creator. The request user must be creator of the chat.
+    The target user must be admin first before he/she can be assigned creator
+    The body must contain the following POST parameters:
+        chatid: the id of the chat to assign the new creator
+        username: the username of the new creator
+        password: the password of the request user (i.e. current creator), for confirmation
+    """
+    chat_id = request.POST["chatid"]
+
+    chat = GroupChat.objects.get(id=chat_id)
+    if chat.creator != request.user:
+        return HttpResponseBadRequest("you are not the creator of this chat")
+    
+    password = request.POST["password"]
+    curr_creator = authenticate(username=request.user.username, password=password)
+    if curr_creator != request.user:
+        return HttpResponse("authentication fails")
+    
+    username = request.POST["username"]
+    user = UserAuth.objects.get(username=username)
+    if not chat.admins.filter(username=username).exists():
+        return HttpResponseBadRequest("user with provided username not admin of this chat")
+    
+    chat.creator = user 
+    chat.save()
     return HttpResponse("ok")
 
 

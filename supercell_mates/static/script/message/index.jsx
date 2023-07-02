@@ -785,7 +785,7 @@ function AddPeopleForm({ chatId, myUsername }) {
                     setShowAddMessage(false);
                     getCurrentMembers();
                 }
-            })
+            });
     }
 
     function removeUser(username) {
@@ -831,6 +831,27 @@ function AddPeopleForm({ chatId, myUsername }) {
             });
     }
 
+    function assignLeader(username, currPassword, setAuthErr) {
+        fetch('/messages/assign_leader', postRequestContent({
+            chatid: chatId,
+            username: username,
+            password: currPassword
+        }))
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    response.text().then(text => {
+                        if (text === 'ok') {
+                            setIsCreator(false);
+                        } else {
+                            setAuthErr("Authentication failed");
+                        }
+                    });
+                }
+            })
+    }
+
     function UserTable({ users, privilegedUsers, removeAction, addAction, removeBtnText, addBtnText, removeCaption, addCaption }) {
         return (
             <div className="user-display mt-3 p-2">
@@ -865,6 +886,8 @@ function AddPeopleForm({ chatId, myUsername }) {
     function TableRow({ username, isPrivileged, removeAction, addAction, removeBtnText, addBtnText, removeCaption, addCaption }) {
         const [showMessage, setShowMessage] = React.useState(false);
         const [showAddMessage, setShowAddMessage] = React.useState(false);
+        const [password, setPassword] = React.useState('');
+        const [authErr, setAuthErr] = React.useState('')
 
         return (
             <tr>
@@ -897,10 +920,21 @@ function AddPeopleForm({ chatId, myUsername }) {
                             {
                                 showAddMessage && <div className="user-action-message">
                                     <div className="user-action-message-text">{addCaption}</div>
+                                    {
+                                        addAction === assignLeader &&
+                                        <div className="user-action-confirmation">
+                                            <div className="user-action-confirmation-label">Type your password to confirm:</div>
+                                            <input type="password" className="form-control" onChange={event => setPassword(event.target.value)} />
+                                        </div>
+                                    }
                                     <div className="user-action-buttons">
-                                        <button className="btn btn-primary" onClick={() => addAction(username)}>Confirm</button>
+                                        <button className="btn btn-primary" onClick={() => addAction === assignLeader ? addAction(username, password, setAuthErr) : addAction(username)}>Confirm</button>
                                         <button className="btn btn-secondary" onClick={() => setShowAddMessage(false)}>Cancel</button>
                                     </div>
+                                    {
+                                        authErr !== '' &&
+                                        <div className="alert alert-danger mt-3">{authErr}</div>
+                                    }
                                 </div>
                             }
                         </React.Fragment>
@@ -983,7 +1017,7 @@ function AddPeopleForm({ chatId, myUsername }) {
                         users={currentAdmins}
                         privilegedUsers={[]}
                         removeAction={removeAdmin}
-                        addAction={() => console.log("LOL")}
+                        addAction={assignLeader}
                         removeBtnText={"Remove admin"}
                         addBtnText={"Assign as leader"}
                         removeCaption={"Remove this user from admin list?"}

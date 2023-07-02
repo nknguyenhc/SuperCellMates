@@ -14,6 +14,7 @@ urlpatterns = [
     path('get_admins', views.get_admins, name='get_admins'),
     path('add_admin', views.add_admin, name='add_admin'),
     path('remove_admin', views.remove_admin, name='remove_admin'),
+    path('assign_leader', views.assign_leader, name='assign_leader'),
     path('get_group_chat_rep_img/<str:chat_id>', views.get_group_chat_rep_img, name='get_group_chat_rep_img'),
     path('get_group_chats', views.get_group_chats, name='get_group_chats'),
     path('get_private_chats', views.get_private_chats, name='get_private_chats'),
