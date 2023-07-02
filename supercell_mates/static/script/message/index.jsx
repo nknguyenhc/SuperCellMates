@@ -444,7 +444,7 @@ function ChatPage() {
                     </div>
                 </div>
                 {
-                    showAddPeopleForm && <AddPeopleForm chatId={currChatId} />
+                    showAddPeopleForm && <AddPeopleForm chatId={currChatId} myUsername={username} />
                 }
                 {
                     chatSelected && !isChatDisabled && !showAddPeopleForm
@@ -684,7 +684,7 @@ function NewGroupChatForm({ isDisplay, createGroupChatListing }) {
 }
 
 
-function AddPeopleForm({ chatId }) {
+function AddPeopleForm({ chatId, myUsername }) {
     const [searchParam, setSearchParam] = React.useState('');
     const [showResultBox, setShowResultBox] = React.useState(false);
     const [searchFriends, setSearchFriends] = React.useState([]);
@@ -693,6 +693,8 @@ function AddPeopleForm({ chatId }) {
     const [showAddMessage, setShowAddMessage] = React.useState(false);
     const [currFriend, setCurrFriend] = React.useState('');
     const [addedFriends, dispatchAddedFriends] = React.useReducer(addFriendReducer, []);
+    const [isAdmin, setIsAdmin] = React.useState(false);
+    const [isCreator, setIsCreator] = React.useState(false);
 
     function addFriendReducer(state, friend) {
         return [...state, friend];
@@ -703,18 +705,46 @@ function AddPeopleForm({ chatId }) {
             if (inputDiv.current && !inputDiv.current.contains(event.target)) {
                 setShowResultBox(false);
             }
-        })
+        });
     }, []);
 
     React.useEffect(() => {
         getCurrentMembers();
     }, []);
 
+    React.useEffect(() => {
+        fetch('/messages/is_admin?chatid=' + chatId)
+            .then(response => response.text())
+            .then(response => {
+                console.log(response);
+                if (response === 'yes') {
+                    setIsAdmin(true);
+                }
+            })
+            .catch(err => {
+                triggerErrorMessage();
+            });
+        fetch('/messages/is_creator?chatid=' + chatId)
+            .then(response => response.text())
+            .then(response => {
+                console.log(response);
+                if (response === 'yes') {
+                    setIsCreator(true);
+                }
+            })
+            .catch(err => {
+                triggerErrorMessage();
+            });
+    }, []);
+
     function getCurrentMembers() {
         fetch('/messages/get_members?chatid=' + chatId)
             .then(response => response.json())
             .then(response => {
-                setCurrentMembers(response.users.map(user => user.username));
+                setCurrentMembers(response.users);
+            })
+            .catch(err => {
+                triggerErrorMessage();
             })
     }
 
@@ -747,6 +777,47 @@ function AddPeopleForm({ chatId }) {
             })
     }
 
+    function TableRow({ username }) {
+        const [showMessage, setShowMessage] = React.useState(false);
+
+        function removeUser() {
+            fetch('/messages/remove_user', postRequestContent({
+                chatid: chatId,
+                username: username
+            }))
+                .then(response => {
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else {
+                        getCurrentMembers();
+                    }
+                })
+        }
+
+        return (
+            <tr>
+                <td className="table-element">{username}</td>
+                <td className="table-element">
+                    {
+                        username !== myUsername && 
+                        <React.Fragment>
+                            <button className="btn btn-danger" onClick={() => setShowMessage(true)}>Remove</button>
+                            {
+                                showMessage && <div className="remove-user-message">
+                                    <div className="remove-user-message-text">Remove this user?</div>
+                                    <div className="remove-user-buttons">
+                                        <button className="btn btn-primary" onClick={removeUser}>Confirm</button>
+                                        <button className="btn btn-secondary" onClick={() => setShowMessage(false)}>Cancel</button>
+                                    </div>
+                                </div>
+                            }
+                        </React.Fragment>
+                    }
+                </td>
+            </tr>
+        )
+    }
+
     return (
         <div className="add-people-form p-3">
             <div className="add-people-label">Add people to this group chat</div>
@@ -762,9 +833,9 @@ function AddPeopleForm({ chatId }) {
             <div className="find-friend-result">
                 <div className="find-friend-result-box p-1" style={{ display: showResultBox ? "" : "none" }}>
                     {
-                        searchFriends.filter(user => !currentMembers.includes(user.username)).length === 0
+                        searchFriends.filter(user => !currentMembers.map(user => user.username).includes(user.username)).length === 0
                         ? <div className="text-secondary text-center">No search done/No result to show</div>
-                        : searchFriends.filter(user => !currentMembers.includes(user.username)).map(friend => (
+                        : searchFriends.filter(user => !currentMembers.map(user => user.username).includes(user.username)).map(friend => (
                             <div className="search-friend-listing" onClick={() => popAddMessage(friend)}>
                                 <div className="search-friend-img">
                                     <img src={friend.profile_pic_url} />
@@ -797,6 +868,34 @@ function AddPeopleForm({ chatId }) {
                     ))
                 }
             </div>
+            {
+                isAdmin && <React.Fragment>
+                    <div className="remove-user-label mt-3">Remove member</div>
+                    <div className="user-display mt-3 p-2">
+                        <table className="table border-primary">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style={{ width: "50%" }}>Username</th>
+                                    <th scope="col" style={{ width: "50%" }}>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {
+                                    currentMembers.map(member => (
+                                        <TableRow username={member.username} />
+                                    ))
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </React.Fragment>
+            }
+            {
+                isCreator && <React.Fragment>
+                    <div className="remove-user-label mt-3">Remove admin</div>
+                    <div className="user-display mt-3"></div>
+                </React.Fragment>
+            }
         </div>
     )
 }

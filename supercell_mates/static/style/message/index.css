@@ -339,3 +339,27 @@
     max-height: 25px;
     max-width: 25px;
 }
+
+.user-display {
+    height: 30vh;
+    overflow: auto;
+    border: solid;
+    border-width: 1px;
+    border-radius: 7px;
+}
+
+.table-element {
+    padding-left: 6px;
+}
+
+.remove-user-message {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.remove-user-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}

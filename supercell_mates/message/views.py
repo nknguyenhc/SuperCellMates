@@ -151,6 +151,30 @@ def is_creator(request):
     return HttpResponse("yes" if GroupChat.objects.get(id=chat_id).creator == request.user else "no")
 
 
+@login_required
+def remove_user(request):
+    """Remove a user from a group chat.
+    POST parameters:
+        chatid: the chat to remove the user from
+        username: the username of the user to remove from the chat
+    """
+
+    chat_id = request.POST["chatid"]
+
+    chat = GroupChat.objects.get(id=chat_id)
+    if not chat.admins.filter(username=request.user.username).exists():
+        return HttpResponseBadRequest("you are not admin of this chat")
+    
+    username = request.POST["username"]
+    user = UserAuth.objects.get(username=username)
+    if user == request.user:
+        return HttpResponseBadRequest("removing yourself, wrong API used")
+    if chat.admins.filter(username=username).exists() and chat.creator != request.user:
+        return HttpResponseBadRequest("you cannot remove another admin")
+    chat.users.remove(user)
+    return HttpResponse("ok")
+
+
 def chat_info(chat_object):
     """Return the info of the chat in a dictionary, given the chat object.
     This method is not to be used directly, but only in group_chat_info and private_chat_info
