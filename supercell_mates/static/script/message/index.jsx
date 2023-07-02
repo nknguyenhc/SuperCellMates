@@ -997,7 +997,7 @@ function AddPeopleForm({ chatId, myUsername }) {
             {
                 isAdmin && 
                 <React.Fragment>
-                    <div className="remove-user-label mt-3">Remove member</div>
+                    <div className="remove-user-label mt-3">Members</div>
                     <UserTable 
                         users={currentMembers}
                         privilegedUsers={currentAdmins}
@@ -1012,7 +1012,7 @@ function AddPeopleForm({ chatId, myUsername }) {
             }
             {
                 isCreator && <React.Fragment>
-                    <div className="remove-user-label mt-3">Remove admin</div>
+                    <div className="remove-user-label mt-3">Admins</div>
                     <UserTable 
                         users={currentAdmins}
                         privilegedUsers={[]}
