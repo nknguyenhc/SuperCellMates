@@ -172,6 +172,86 @@ def remove_user(request):
     if chat.admins.filter(username=username).exists() and chat.creator != request.user:
         return HttpResponseBadRequest("you cannot remove another admin")
     chat.users.remove(user)
+    chat.admins.remove(user) # in case the person doing this request is the creator
+    return HttpResponse("ok")
+
+
+@login_required
+def get_admins(request):
+    """Get the members in the chatid provided in the GET request
+    The current user must be a member of the group chat to view the members.
+    The request URL must contain the following GET parameter:
+        chatid: the id of the chat to get the members.
+    
+    The returned JSON response contains the following fields:
+        members: the list of members of the current chat, with the following fields:
+            name: the name of the member
+            username: the username of the member
+            profile_link: the link to the profile of the member
+            profile_pic_url: the URL to the profile picture of the member
+    """
+    chat_id = request.GET["chatid"]
+
+    chat = GroupChat.objects.get(id=chat_id)
+    if not chat.admins.filter(username=request.user.username).exists():
+        return HttpResponseBadRequest("you are not an admin of this chat")
+    
+    users = list(map(
+        lambda user: {
+            "name": user.user_profile.name,
+            "username": user.username,
+            "profile_link": reverse("user_log:view_profile", args=(user.username,)),
+            "profile_pic_url": reverse("user_profile:get_profile_pic", args=(user.username,)),
+        },
+        list(chat.admins.all())
+    ))
+    users.sort(key=lambda user: user["username"].lower())
+    
+    return JsonResponse({
+        "users": users
+    })
+
+
+@login_required
+def add_admin(request):
+    """Add a user as an admin of the chat. The target user must already be in the chat.
+    The person that makes this request must be an admin of the chat.
+    The body must contain the following POST parameters:
+        chatid: the id of the chat to add admin
+        username: the username of the user to add as admin
+    """
+
+    chat_id = request.POST["chatid"]
+
+    chat = GroupChat.objects.get(id=chat_id)
+    if not chat.admins.filter(username=request.user.username).exists():
+        return HttpResponseBadRequest("you are not admin of this chat")
+    
+    username = request.POST["username"]
+    user = UserAuth.objects.get(username=username)
+    if not chat.users.filter(username=username).exists():
+        return HttpResponseBadRequest("target user not in this group chat")
+
+    chat.admins.add(user)
+    return HttpResponse("ok")
+
+
+@login_required
+def remove_admin(request):
+    """Remove a user as admin. The request user must be creator of the chat.
+    The body must contain the following POST parameters:
+        chatid: the id of the chat to add admin
+        username: the username of the user to remove admin
+    """
+
+    chat_id = request.POST["chatid"]
+
+    chat = GroupChat.objects.get(id=chat_id)
+    if chat.creator != request.user:
+        return HttpResponseBadRequest("you are not the creator of this chat")
+    
+    username = request.POST["username"]
+    chat.admins.remove(UserAuth.objects.get(username=username))
     return HttpResponse("ok")
 
 

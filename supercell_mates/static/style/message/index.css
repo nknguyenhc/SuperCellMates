@@ -352,13 +352,27 @@
     padding-left: 6px;
 }
 
-.remove-user-message {
+.action-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.action-buttons button {
+    height: fit-content;
+}
+
+.user-action-message {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.remove-user-buttons {
+.user-action-message-text {
+    white-space: pre-line;
+}
+
+.user-action-buttons {
     display: flex;
     flex-direction: row;
     gap: 10px;

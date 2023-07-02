@@ -695,6 +695,7 @@ function AddPeopleForm({ chatId, myUsername }) {
     const [addedFriends, dispatchAddedFriends] = React.useReducer(addFriendReducer, []);
     const [isAdmin, setIsAdmin] = React.useState(false);
     const [isCreator, setIsCreator] = React.useState(false);
+    const [currentAdmins, setCurrentAdmins] = React.useState([]);
 
     function addFriendReducer(state, friend) {
         return [...state, friend];
@@ -716,9 +717,9 @@ function AddPeopleForm({ chatId, myUsername }) {
         fetch('/messages/is_admin?chatid=' + chatId)
             .then(response => response.text())
             .then(response => {
-                console.log(response);
                 if (response === 'yes') {
                     setIsAdmin(true);
+                    getCurrentAdmins();
                 }
             })
             .catch(err => {
@@ -727,7 +728,6 @@ function AddPeopleForm({ chatId, myUsername }) {
         fetch('/messages/is_creator?chatid=' + chatId)
             .then(response => response.text())
             .then(response => {
-                console.log(response);
                 if (response === 'yes') {
                     setIsCreator(true);
                 }
@@ -746,6 +746,17 @@ function AddPeopleForm({ chatId, myUsername }) {
             .catch(err => {
                 triggerErrorMessage();
             })
+    }
+
+    function getCurrentAdmins() {
+        fetch('/messages/get_admins?chatid=' + chatId)
+            .then(response => response.json())
+            .then(response => {
+                setCurrentAdmins(response.users);
+            })
+            .catch(err => {
+                triggerErrorMessage();
+            });
     }
 
     function searchFriend() {
@@ -777,22 +788,83 @@ function AddPeopleForm({ chatId, myUsername }) {
             })
     }
 
-    function TableRow({ username }) {
-        const [showMessage, setShowMessage] = React.useState(false);
+    function removeUser(username) {
+        fetch('/messages/remove_user', postRequestContent({
+            chatid: chatId,
+            username: username
+        }))
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    getCurrentMembers();
+                    getCurrentAdmins();
+                }
+            });
+    }
 
-        function removeUser() {
-            fetch('/messages/remove_user', postRequestContent({
-                chatid: chatId,
-                username: username
-            }))
-                .then(response => {
-                    if (response.status !== 200) {
-                        triggerErrorMessage();
-                    } else {
-                        getCurrentMembers();
-                    }
-                })
-        }
+    function addAdmin(username) {
+        fetch('/messages/add_admin', postRequestContent({
+            chatid: chatId,
+            username: username
+        }))
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    getCurrentAdmins();
+                }
+            });
+    }
+
+    function removeAdmin(username) {
+        fetch('/messages/remove_admin', postRequestContent({
+            chatid: chatId,
+            username: username
+        }))
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    getCurrentAdmins();
+                }
+            });
+    }
+
+    function UserTable({ users, privilegedUsers, removeAction, addAction, removeBtnText, addBtnText, removeCaption, addCaption }) {
+        return (
+            <div className="user-display mt-3 p-2">
+                <table className="table border-primary">
+                    <thead>
+                        <tr>
+                            <th scope="col" style={{ width: "50%" }}>Username</th>
+                            <th scope="col" style={{ width: "50%" }}>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            users.map(member => (
+                                <TableRow 
+                                    username={member.username} 
+                                    isPrivileged={privilegedUsers.map(admin => admin.username).includes(member.username)} 
+                                    removeAction={removeAction}
+                                    addAction={addAction}
+                                    removeBtnText={removeBtnText}
+                                    addBtnText={addBtnText}
+                                    removeCaption={removeCaption}
+                                    addCaption={addCaption}
+                                />
+                            ))
+                        }
+                    </tbody>
+                </table>
+            </div>
+        )
+    }
+
+    function TableRow({ username, isPrivileged, removeAction, addAction, removeBtnText, addBtnText, removeCaption, addCaption }) {
+        const [showMessage, setShowMessage] = React.useState(false);
+        const [showAddMessage, setShowAddMessage] = React.useState(false);
 
         return (
             <tr>
@@ -801,13 +873,33 @@ function AddPeopleForm({ chatId, myUsername }) {
                     {
                         username !== myUsername && 
                         <React.Fragment>
-                            <button className="btn btn-danger" onClick={() => setShowMessage(true)}>Remove</button>
+                            <div className="action-buttons">
+                                <button className="btn btn-danger" onClick={() => {
+                                    setShowMessage(true);
+                                    setShowAddMessage(false);
+                                }}>{removeBtnText}</button>
+                                {
+                                    isPrivileged || <button className="btn btn-primary" onClick={() => {
+                                        setShowAddMessage(true);
+                                        setShowMessage(false);
+                                    }}>{addBtnText}</button>
+                                }
+                            </div>
                             {
-                                showMessage && <div className="remove-user-message">
-                                    <div className="remove-user-message-text">Remove this user?</div>
-                                    <div className="remove-user-buttons">
-                                        <button className="btn btn-primary" onClick={removeUser}>Confirm</button>
+                                showMessage && <div className="user-action-message">
+                                    <div className="user-action-message-text">{removeCaption}</div>
+                                    <div className="user-action-buttons">
+                                        <button className="btn btn-primary" onClick={() => removeAction(username)}>Confirm</button>
                                         <button className="btn btn-secondary" onClick={() => setShowMessage(false)}>Cancel</button>
+                                    </div>
+                                </div>
+                            }
+                            {
+                                showAddMessage && <div className="user-action-message">
+                                    <div className="user-action-message-text">{addCaption}</div>
+                                    <div className="user-action-buttons">
+                                        <button className="btn btn-primary" onClick={() => addAction(username)}>Confirm</button>
+                                        <button className="btn btn-secondary" onClick={() => setShowAddMessage(false)}>Cancel</button>
                                     </div>
                                 </div>
                             }
@@ -869,31 +961,34 @@ function AddPeopleForm({ chatId, myUsername }) {
                 }
             </div>
             {
-                isAdmin && <React.Fragment>
+                isAdmin && 
+                <React.Fragment>
                     <div className="remove-user-label mt-3">Remove member</div>
-                    <div className="user-display mt-3 p-2">
-                        <table className="table border-primary">
-                            <thead>
-                                <tr>
-                                    <th scope="col" style={{ width: "50%" }}>Username</th>
-                                    <th scope="col" style={{ width: "50%" }}>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {
-                                    currentMembers.map(member => (
-                                        <TableRow username={member.username} />
-                                    ))
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                    <UserTable 
+                        users={currentMembers}
+                        privilegedUsers={currentAdmins}
+                        removeAction={removeUser}
+                        addAction={addAdmin}
+                        removeBtnText={"Remove"}
+                        addBtnText={"Assign as admin"}
+                        removeCaption={"Remove this user from this chat?"}
+                        addCaption={"Assign this user as admin?"}
+                    />
                 </React.Fragment>
             }
             {
                 isCreator && <React.Fragment>
                     <div className="remove-user-label mt-3">Remove admin</div>
-                    <div className="user-display mt-3"></div>
+                    <UserTable 
+                        users={currentAdmins}
+                        privilegedUsers={[]}
+                        removeAction={removeAdmin}
+                        addAction={() => console.log("LOL")}
+                        removeBtnText={"Remove admin"}
+                        addBtnText={"Assign as leader"}
+                        removeCaption={"Remove this user from admin list?"}
+                        addCaption={"Assign this user as leader?\nNote: you will lose privileges as leader"}
+                    />
                 </React.Fragment>
             }
         </div>
