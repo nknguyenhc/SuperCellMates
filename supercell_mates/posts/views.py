@@ -546,31 +546,43 @@ def get_home_feed(request):
     Args:
         request (HttpRequest): the request made to this view
 
-    The request contains the following query fields:
+    The request must contain the following query fields:
         - sort (str): the sorting method applied by user
-        - friend_filter (1/0): whether user filters home feed to friends only
-        - tag_filter(1/0): whether user filters home feed to their tags only
+        - friend_filter ('1'/'0'): whether user filters home feed to friends only
+        - tag_filter('1'/'0'): whether user filters home feed to their tags only
+        - limit (str): the maximum number of posts to return
         - start_id (str): the id of the post to start displaying from (excluding)
             When entering home feed for the first time, start_id should be ""
             When trying to load more posts, use the previously returned stop_id as the new start_id
-        - limit (str): the maximum number of posts to return
+
+    If sort is "time", the request must contain:
+        - start_datetime(str): the datetime("YYYY-MM-DD-HH-MM-SS") of the post to start displaying from (excluding)
+            The string should not have 0 as padding (e.g. 2023-7-3-23-12-10 should be used instead of 07 03)
+            When entering home feed for the first time, start_timestamp should be ""
+            When trying to load more posts, use the previously returned stop_datetime as the new start_datetime
+
+    If sort is "matching_index", the request must contain:
+        - start_matching_index (str): the exact matching index of the post to start displaying from
+            When entering home feed for the first time, start_matching_index should be "5"
+            When trying to load more posts, use the previous stop_matching_index as the new start_matching_index
 
     Returns:
         JsonResponse containing post data, or HttpResponseBadRequest
 
-    The jsonResponse contains the following fields:
+    The jsonResponse contains:
         - posts (list(dict)): the list of posts, each represented by a dictionary
         - stop_id (str): the id of the last post in the list of posts
+
+    If sort is "time", the response also contains:
+        - stop_datetime (str): the formatted datetime string of the last post in the list of posts
+
+    If sort is "matching_index", the response also contains:
+        - stop_matching_index (str): the matching index between user and the creator of the last post
     """
     try:
         posts = Post.objects
 
-        if request.GET["sort"] == "time":
-            posts = posts.order_by('-time_posted')
-        # TODO: sort by matching index
-        else:
-            return HttpResponseBadRequest("sort method query string malformed")
-
+        # Exclude user's own posts, and apply filters
         posts = posts.exclude(creator=request.user.user_log)
         if request.GET["friend_filter"] == '1':
             friend_list = list(request.user.user_log.friend_list.all())
@@ -588,26 +600,38 @@ def get_home_feed(request):
         count = 0
         result = []
         skip = True
-
         if request.GET["start_id"] == "":
             skip = False
-        for post_object in posts:
-            if post_object.id == request.GET["start_id"]:
-                skip = False
-                continue
-            if not skip and has_access(request.user, post_object):
-                result.append(parse_post_object(post_object))
-                count += 1
-                if count >= int(request.GET["limit"]):
-                    break
 
-        ret = {
-            "posts": result,
-            "stop_id": "",
-        }
-
-        if count > 0:
-            ret["stop_id"] = result[count-1]["id"]
+        # Sort, then take accessible posts until limit is reached
+        if request.GET["sort"] == "time":
+            if request.GET["start_datetime"] != "":
+                format = "%Y-%m-%d-%H-%M-%S"
+                # start datetime object rounded up by 1 second, so that the post with start_id can be found
+                start_datetime = datetime.strptime(request.GET["start_datetime"], format) + timedelta(seconds=1)
+                posts = posts.filter(time_posted__lte=start_datetime)
+            posts = posts.order_by('-time_posted')
+            for post_object in posts:
+                if skip and post_object.id == request.GET["start_id"]:
+                    skip = False
+                    continue
+                if not skip and has_access(request.user, post_object):
+                    result.append(parse_post_object(post_object))
+                    count += 1
+                    if count >= int(request.GET["limit"]):
+                        break
+            ret = {
+                "posts": result,
+                "stop_datetime": "",
+                "stop_id": "",
+            }
+            if count > 0:
+                t = result[count-1]["time_posted"]
+                ret["stop_datetime"] = f"{t['year']}-{t['month']}-{t['day']}-{t['hour']}-{t['minute']}-{t['second']}"
+                ret["stop_id"] = result[count-1]["id"]
+        # TODO: sort by matching index
+        else:
+            return HttpResponseBadRequest("sort method query string malformed")
 
         return JsonResponse(ret)
 

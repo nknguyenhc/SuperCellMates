@@ -24,7 +24,9 @@ class HomePageState extends State<HomePage> {
   bool homeFeedLoaded = false;
   bool mayHaveMore = true;
   bool isLoadingMore = true;
+  String nextStartTime = "";
   String nextStartID = "";
+  String nextStartMatchingIndex = "5";
 
   String sort = "time";
   String friendFilter = "0";
@@ -52,13 +54,31 @@ class HomePageState extends State<HomePage> {
     setState(() {
       isLoadingMore = true;
     });
+
     dynamic query = {
       "sort": sort,
       "friend_filter": friendFilter,
       "tag_filter": tagFilter,
-      "start_id": nextStartID,
       "limit": blockLimit,
+      "start_id": nextStartID,
     };
+
+    if (sort == "time") {
+      if (nextStartTime == "") {
+        // changed from another sorting method
+        nextStartID = "";
+      }
+      nextStartMatchingIndex = "5";
+      query["start_datetime"] = nextStartTime;
+    } else {
+      if (nextStartMatchingIndex == "") {
+        // changed from another sorting method
+        nextStartID = "";
+      }
+      nextStartTime = "";
+      query["start_matching_index"] = nextStartMatchingIndex;
+    }
+
     dynamic homeFeedResponseJson =
         await getRequest(EndPoints.getHomeFeed.endpoint, query);
     if (homeFeedResponseJson == "Connection error") {
@@ -67,6 +87,11 @@ class HomePageState extends State<HomePage> {
     }
     dynamic homeFeedResponse = jsonDecode(homeFeedResponseJson);
     nextStartID = homeFeedResponse["stop_id"];
+    if (sort == "time") {
+      nextStartTime = homeFeedResponse["stop_datetime"];
+    } else {
+      nextStartMatchingIndex = homeFeedResponse["stop_matching_index"];
+    }
 
     setState(() {
       homeFeed.addAll(homeFeedResponse["posts"]);
@@ -89,7 +114,7 @@ class HomePageState extends State<HomePage> {
           height: MediaQuery.of(context).size.height - 100,
           child: homeFeedLoaded
               ? Stack(
-                alignment: Alignment.center,
+                  alignment: Alignment.center,
                   children: [
                     PostListView(
                       postList: homeFeed,
