@@ -21,11 +21,15 @@ from user_log.models import UserLog
 
 
 def documentation(request):
-    return render(request, 'user_auth/documentation.html')
+    return render(request, 'documentation/documentation.html')
+
+
+def testing(request):
+    return render(request, 'documentation/testing.html')
 
 
 def about(request):
-    return render(request, "user_auth/about.html")
+    return render(request, "documentation/about.html")
 
 
 @login_required
