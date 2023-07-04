@@ -7,14 +7,23 @@ function Testing() {
                 "user_auth",
                 "user_profile"
             ]
+        },
+        {
+            display: "Web Frontend",
+            path: "web_frontend/",
+            apps: [
+                "logged_out",
+                "profile"
+            ]
         }
     ];
     const [displayIndex, setDisplayIndex] = React.useState(-1);
     const [appDisplay, setAppDisplay] = React.useState(-1);
     const [backendViews, setBackendViews] = React.useState([]);
-    const views = [backendViews];
-    const viewSetters = [setBackendViews];
-    const Renderers = [BackendView];
+    const [webFrontendViews, setWebFrontendViews] = React.useState([]);
+    const views = [backendViews, webFrontendViews];
+    const viewSetters = [setBackendViews, setWebFrontendViews];
+    const Renderers = [BackendView, WebFrontendView];
     const Renderer = displayIndex >= 0 && displayIndex < structures.length && appDisplay >= 0 && appDisplay < structures[displayIndex].apps.length
         && Renderers[displayIndex];
 
@@ -98,6 +107,32 @@ function BackendView({ tests }) {
                             <td>
                                 <textarea value={test.javascript} className='form-control testing-textarea'></textarea>
                             </td>
+                            <td>{test.expected}</td>
+                            <td>{test.datePassed}</td>
+                        </tr>
+                    ))
+                }
+            </tbody>
+        </table>
+    )
+}
+
+
+function WebFrontendView({ tests }) {
+    return (
+        <table className="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col" style={{ width: '45%' }}>Instruction</th>
+                    <th scope="col" style={{ width: '45%' }}>Expected Result</th>
+                    <th scope="col" style={{ width: '10%' }}>Date Passed</th>
+                </tr>
+            </thead>
+            <tbody>
+                {
+                    tests.map(test => (
+                        <tr>
+                            <td>{test.instruction}</td>
                             <td>{test.expected}</td>
                             <td>{test.datePassed}</td>
                         </tr>

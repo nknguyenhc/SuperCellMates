@@ -1,13 +1,13 @@
 {
     "tests": [
         {
-            "setup": "",
+            "setup": "NIL",
             "javascript": "fetch('/profile/obtain_tags').then(response => response.json()).then(response => console.log(response))",
             "expected": "A list of tags that you currently have, and the tag limit on you.",
             "datePassed": "03/07/2023"
         },
         {
-            "setup": "",
+            "setup": "NIL",
             "javascript": "fetch('/profile/async').then(response => response.json()).then(response => console.log(response))",
             "expected": "Relevant information to render your profile page, including name, username, URL to profile image, list of tags, etc.",
             "datePassed": "03/07/2023"

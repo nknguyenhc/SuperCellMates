@@ -1,0 +1,44 @@
+{
+    "tests": [
+        {
+            "instruction": "When logged out, navigate to the login page by pressing the 'Login' button on the navigation bar. Omit at least one field and press log in.",
+            "expected": "Error message should appear at the blank fields, and an alert also appears at the bottom. The page should not reload (i.e. the icon in the tab should not blink).",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "When logged out, navigate to the login page by pressing the 'Login' button on the navigation bar. Fill in a wrong username and password.",
+            "expected": "The page reloads, and an alert appears at the bottom indicating wrong username and password were keyed in.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "When logged out, navigate to the login page by pressing the 'Login' button on the navigation bar. Fill in a pair of correct username and password.",
+            "expected": "The page redirects to the home page.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "When logged out, try navigating to a page that requires logging in, for e.g. '/profile'. The page you wants to go to must be within our website.",
+            "expected": "The log in page pops up. Upon filling the correct username and password, the page redirects to the page you initially wanted to go to. If you modify the GET parameter in the URL to be an external website, our server will not redirect you to that page.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "When logged out, navigate to the register page by pressing 'Register' button on the navigation bar. Omit at least one field and press register.",
+            "expected": "Error message should appear at the blank fields (except confirm password where it only notifies error when it does not match with password). An alert appears at the bottom highlighting one of the errors.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "When logged out, navigate to the register page by pressing 'Register' button on the navigation bar. Type in a username that is already in existence. Move the text cursor away from the username field.",
+            "expected": "An alert appears at the bottom notifying that the username is already taken.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "When logged out, navigate to the register page by pressing 'Register' button on the navigation bar. Type in a username that is already in existence. Fill in the rest of the input fields and attempt to register.",
+            "expected": "The page does not reload, and notify that the username is already taken.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "When logged out, navigate to the register page by pressing 'Register' button on the navigation bar. Fill in details, accept the terms of services, and ensure that the username is not yet in existence.",
+            "expected": "The page redirects to the setup page and the user is logged in as the new user.",
+            "datePassed": "04/07/2023"
+        }
+    ]
+}
