@@ -24,6 +24,26 @@
             "instruction": "Navigate to your profile page by pressing 'Your Profile' button in the navigation bar. Click edit button on any of the posts, scroll down in the window and click delete post. Press confirm delete post.",
             "expected": "The post disappears from the page. Upon reloading, the post is no longer there.",
             "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to setup page by either pressing 'Edit Profile' button in profile page or 'Edit Profile' button in setup page. Choose a new profile image, crop the image to a square (using our cropping functionality) and confirm new profile image.",
+            "expected": "Profile image is updated. Upon redirecting to profile page, there appears the new profile picture on top right corner.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to setup page by either pressing 'Edit Profile' button in profile page or 'Edit Profile' button in setup page. Choose a new profile image, but cancel the image updating by clicking on cancel button.",
+            "expected": "Profile image is not updated. Upon redirecting to profile page, the old profile picture remains.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to setup page by either pressing 'Edit Profile' button in profile page or 'Edit Profile' button in setup page. Enter a search phrase in the search tag input (e.g. 'computer'). Press enter key or press search button",
+            "expected": "All tags with search phrase as substring should appear in lexicographical order.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to setup page by either pressing 'Edit Profile' button in profile page or 'Edit Profile' button in setup page. Enter a search phrase that shows at least one tag in the tag input (e.g. 'computer'). Press on one of the tags and press 'Update Tags'.",
+            "expected": "The new tags are transferred to the current tags. Upon redirecting to the profile page, the list of your tags is updated.",
+            "datePassed": "04/07/2023"
         }
     ]
 }
