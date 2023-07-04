@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:supercellmates/features/chat/chat_appbar.dart';
 import 'package:supercellmates/features/dialogs.dart';
 import 'dart:convert';
 
@@ -53,7 +54,7 @@ class MainScaffoldState extends State<MainScaffold> {
       HomeAppBar(data: {
         "isAdmin": profileMap["is_admin"],
       }, updateCallBack: updateHomePageBody),
-      AppBar(),
+      ChatAppBar(),
       ProfileAppBar(profileMap: profileMap, updateProfileMapCallBack: getProfileMap,),
     ];
 

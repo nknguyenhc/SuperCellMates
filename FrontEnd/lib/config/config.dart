@@ -5,6 +5,8 @@ abstract class Config {
   /// all RESTful API base URL, i.e., those via GET/POST/PUT/DELETE
   String get restBaseURL;
 
+  String get wsBaseURL;
+
   // /// Time limit (ms) for making connections (uploading)
   // int get connectTimeout;
 
@@ -22,7 +24,6 @@ abstract class Config {
 
   // /// Time limit for connection (a round, uploading query + receiving data)
   // Duration get roundTimeout => Duration(milliseconds: totalTimeout);
-
 }
 
 // abstract class DBConfig {
