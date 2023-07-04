@@ -87,7 +87,7 @@ function CreatePost() {
         <React.Fragment>
             <div className="mb-3">
                 <label htmlFor="post-title" className="form-label">Title</label>
-                <input type="text" id="post-title" className="form-control" ref={titleInput} onChange={event => {
+                <input type="text" id="post-title" className="form-control" ref={titleInput} autoComplete="off" onChange={event => {
                     setTitle(event.target.value);
                 }} />
             </div>

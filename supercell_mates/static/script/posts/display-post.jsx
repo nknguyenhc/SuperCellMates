@@ -138,6 +138,7 @@ function editPostCard(postId) {
 
 
 function deletePostCard(postId) {
+    const editPage = document.querySelector("#edit-post");
     document.getElementById("post-card-" + postId).remove();
     Array.from(editPage.children).forEach(child => editPage.removeChild(child));
     editPage.style.display = "none";
