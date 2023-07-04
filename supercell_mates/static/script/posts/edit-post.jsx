@@ -131,7 +131,6 @@ function EditPost(props) {
                 if (response.status !== 200) {
                     triggerErrorMessage();
                 } else {
-                    document.querySelector("#edit-post").style.display = 'none';
                     document.querySelector("#post-delete-message-button").click();
                     deletePostCard(postId);
                 }
