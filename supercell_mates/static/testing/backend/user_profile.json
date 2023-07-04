@@ -1,0 +1,34 @@
+{
+    "tests": [
+        {
+            "setup": "NIL",
+            "javascript": "fetch('/profile/obtain_tags').then(response => response.json()).then(response => console.log(response))",
+            "expected": "A list of tags that you currently have, and the tag limit on you.",
+            "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "NIL",
+            "javascript": "fetch('/profile/async').then(response => response.json()).then(response => console.log(response))",
+            "expected": "Relevant information to render your profile page, including name, username, URL to profile image, list of tags, etc.",
+            "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "Prepare the names of tags in existence. You can do so by searching for tags in the profile setup page.",
+            "javascript": "fetch('profile/add_tags', postRequestContent({ count: 1, tags: ['Artificial Intelligence'] })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Success (in console). Redirecting to your profile to see your 'Artificial Intelligence' tag added to your profile.",
+            "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "Execute the first line of code into the console. Upon pop up, choose a picture (if you choose a file that is not a picture, server will respond with 400). After that, execute the second line of code in the console.",
+            "javascript": "const input = document.createElement('input'); input.type = 'file'; input.click();\n\nfetch('/profile/set_profile_image', postRequestContent({ img: input.files[0] })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Success (in console). Redirecting to your profile to see your new profile picture.",
+            "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "You may also paste '<host>/profile/img/<username>' into the URL bar to view the profile image of the user with the specified username.",
+            "javascript": "fetch('/profile/img/<username>').then(response => response.blob()).then(response => console.log(response))",
+            "expected": "A blob file, the profile image of the user with the given username",
+            "datePassed": "03/07/2023"
+        }
+    ]
+}

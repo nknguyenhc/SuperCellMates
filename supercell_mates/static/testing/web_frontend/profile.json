@@ -1,0 +1,29 @@
+{
+    "tests": [
+        {
+            "instruction": "Navigate to your profile page by pressing 'Your Profile' button in the navigation bar.",
+            "expected": "The page should redirect to your profile page, with your profile picture, name, username, and side navigation for friends page and friend requests page. Your posts should be loaded, sorted in reverse chronological order. If you have posts older than 1 day, scrolling down will load your older posts. Each post should have a button to edit the post.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to your profile page by pressing 'Your Profile' button in the navigation bar. Click edit button on any of the posts.",
+            "expected": "A window to edit post should pop up, with content prefilled. The fields are exactly the same as the home page post creation form, except for the tags section, only one should appear, which is the tag that post is attached to. This field cannot be changed.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to your profile page by pressing 'Your Profile' button in the navigation bar. Click edit button on any of the posts and fill with the new contents. Click confirm edit post.",
+            "expected": "Notification that post has been edited appears, and the content of the same post on the page changes. Upon reloading, the new contents of the new post remains.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to your profile page by pressing 'Your Profile' button in the navigation bar. Click edit button on any of the posts. Fill with new contents, but cancel the edit by clicking outside.",
+            "expected": "The post content remains the same, and upon reloading, the post content still remains the same.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to your profile page by pressing 'Your Profile' button in the navigation bar. Click edit button on any of the posts, scroll down in the window and click delete post. Press confirm delete post.",
+            "expected": "The post disappears from the page. Upon reloading, the post is no longer there.",
+            "datePassed": "04/07/2023"
+        }
+    ]
+}
