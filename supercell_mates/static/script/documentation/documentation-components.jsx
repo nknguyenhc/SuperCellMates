@@ -24,6 +24,7 @@ const structures = [
             "home",
             "layout",
             "profile",
+            "settings",
             "admin",
         ]
     },

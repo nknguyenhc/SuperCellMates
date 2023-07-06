@@ -1,0 +1,70 @@
+{
+    "tests": [
+        {
+            "setup": "Replace the username with a username that is not in existence. You can check its existence by searching for it in the search bar.",
+            "javascript": "fetch('/user/profile_async/<username not in existence>').then(response => response.json()).then(response => console.log(response))",
+            "expected": "Response 404 error.",
+            "datePassed": "06/07/2023"
+        },
+        {
+            "setup": "Replace the username with a username already in existence. You can check its existence by searching for it in the search bar.",
+            "javascript": "fetch('/user/profile_async/<username in existence>').then(response => response.json()).then(response => console.log(response))",
+            "expected": "The information on the user sufficient for display, including list of tags, whether you and the target are friends, etc.",
+            "datePassed": "06/07/2023"
+        },
+        {
+            "setup": "Use the following javascript code to add friend with another user.",
+            "javascript": "fetch('/user/add_friend_request', postRequestContent({ username: '<the username>' })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "The feedback of the process. If the user exists, response status is 200, and the response text is either 'ok', or already in friend list/friend request list",
+            "datePassed": "06/07/2023"
+        },
+        {
+            "setup": "NIL",
+            "javascript": "fetch('/user/friends_async').then(response => response.json()).then(response => console.log(response))",
+            "expected": "The list of friends and their information, including name, username, profile link and profile picture URL.",
+            "datePassed": "06/07/2023"
+        },
+        {
+            "setup": "NIL",
+            "javascript": "fetch('/user/friend_requests_async').then(response => response.json()).then(response => console.log(response))",
+            "expected": "The list of users that sent friend requests to you with their information, including name, username, profile link and profile picture URL.",
+            "datePassed": "06/07/2023"
+        },
+        {
+            "setup": "Input a username of a user that has not sent a friend request to you. This user must exist.",
+            "javascript": "fetch('/user/add_friend', postRequestContent({ username: 'nguyen02', accepted: 'true' })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Response 400, and console notification that the user with provided username did not send a friend request to you.",
+            "datePassed": "06/07/2023"
+        },
+        {
+            "setup": "Get another person to send a friend request to you. Replace the username in the following javascript code with your friend's username.",
+            "javascript": "fetch('/user/add_friend', postRequestContent({ username: 'nguyen02', accepted: 'false' })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Response 200, and friend request rejected. Navigate to the friend requests page and friends page to verify.",
+            "datePassed": "06/07/2023"
+        },
+        {
+            "setup": "Get another person to send a friend request to you. Replace the username in the following javascript code with your friend's username.",
+            "javascript": "fetch('/user/add_friend', postRequestContent({ username: 'nguyen02', accepted: 'true' })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Friend request is accepted, and the person is now in your friend list. Navigate to the friend requests page and friends page to verify.",
+            "datePassed": "06/07/2023"
+        },
+        {
+            "setup": "Replace the query parameter with an actual query string",
+            "javascript": "fetch('/user/search?username=<query parameter>').then(response => response.json()).then(response => console.log(response))",
+            "expected": "The list of users with username that has the query parameter as substring.",
+            "datePassed": "06/07/2023"
+        },
+        {
+            "setup": "Replace the query parameter with an actual query string",
+            "javascript": "fetch('/user/search_friend?username=<query parameter>').then(response => response.json()).then(response => console.log(response))",
+            "expected": "The list of friends with username that has the query parameter as substring.",
+            "datePassed": "06/07/2023"
+        },
+        {
+            "setup": "Replace the username with the username of a friend. The following API call deletes the friend from your friend list.",
+            "javascript": "fetch('/user/delete_friend', postRequestContent({ username: 'nguyen03' })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Friend is deleted. Navigate to the friends page to verify.",
+            "datePassed": "06/07/2023"
+        }
+    ]
+}

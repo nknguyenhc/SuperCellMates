@@ -1,0 +1,33 @@
+{
+    "name": "settings",
+    "views": [
+        {
+            "path": "/settings",
+            "description": "The settings page for account settings",
+            "APIs": [
+                {
+                    "path": "/change_username",
+                    "trigger": "When the user clicks confirm to change username",
+                    "purpose": "To change the username of the user"
+                },
+                {
+                    "path": "/change_password",
+                    "trigger": "When the user clicks confirm to change password",
+                    "purpose": "To change the password of the user"
+                }
+            ],
+            "redirects": [
+                {
+                    "path": "/logout",
+                    "description": "To log out of the current account",
+                    "where": "At the logout button"
+                },
+                {
+                    "path": "/profile/setup",
+                    "description": "Navigate to the profile setup page",
+                    "where": "At the edit profile button"
+                }
+            ]
+        }
+    ]
+}

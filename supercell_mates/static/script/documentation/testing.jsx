@@ -5,7 +5,8 @@ function Testing() {
             path: "backend/",
             apps: [
                 "user_auth",
-                "user_profile"
+                "user_profile",
+                "user_log"
             ]
         },
         {
@@ -13,7 +14,8 @@ function Testing() {
             path: "web_frontend/",
             apps: [
                 "logged_out",
-                "profile"
+                "profile",
+                "settings"
             ]
         }
     ];
@@ -21,8 +23,13 @@ function Testing() {
     const [appDisplay, setAppDisplay] = React.useState(-1);
     const [backendViews, setBackendViews] = React.useState([]);
     const [webFrontendViews, setWebFrontendViews] = React.useState([]);
+    const [backendNotes, setBackendNotes] = React.useState('');
+    const [webFrontendNotes, setWebFrontendNotes] = React.useState('');
     const views = [backendViews, webFrontendViews];
     const viewSetters = [setBackendViews, setWebFrontendViews];
+    const notes = [backendNotes, webFrontendNotes];
+    const noteSetters = [setBackendNotes, setWebFrontendNotes];
+    const viewNotes = displayIndex >= 0 ? notes[displayIndex] : '';
     const Renderers = [BackendView, WebFrontendView];
     const Renderer = displayIndex >= 0 && displayIndex < structures.length && appDisplay >= 0 && appDisplay < structures[displayIndex].apps.length
         && Renderers[displayIndex];
@@ -35,7 +42,10 @@ function Testing() {
             }))
                 .then(response => {
                     viewSetters[i](response);
-                })
+                });
+            fetch('/static/testing/' + structure.path + 'notes')
+                .then(response => response.text())
+                .then(text => noteSetters[i](text));
         })
     }, []);
 
@@ -57,6 +67,7 @@ function Testing() {
                     ))
                 }
             </div>
+            <Notes notes={viewNotes} />
             <div id="testing-apps" className="pt-3">
                 {
                     displayIndex >= 0 && displayIndex < structures.length && 
@@ -65,7 +76,7 @@ function Testing() {
                     ))
                 }
             </div>
-            <div id="testing-content" className="pt-3">
+            <div id="testing-content" className="pt-3 pb-5">
                 {
                     displayIndex >= 0 && displayIndex < structures.length && appDisplay >= 0 && appDisplay < structures[displayIndex].apps.length
                     && <Renderer tests={views[displayIndex][appDisplay].tests} />
@@ -105,7 +116,9 @@ function BackendView({ tests }) {
                         <tr>
                             <td>{test.setup}</td>
                             <td>
-                                <textarea value={test.javascript} className='form-control testing-textarea'></textarea>
+                                {
+                                    test.javascript === 'NIL' ? <div>NIL</div> : <textarea value={test.javascript} className='form-control testing-textarea'></textarea>
+                                }
                             </td>
                             <td>{test.expected}</td>
                             <td>{test.datePassed}</td>
@@ -140,6 +153,29 @@ function WebFrontendView({ tests }) {
                 }
             </tbody>
         </table>
+    )
+}
+
+
+function Notes({ notes }) {
+    return (
+        notes === '' 
+        ? <React.Fragment /> 
+        : <div className="alert alert-info mt-3" role="alert">
+            <h6>Notes</h6>
+            <div>
+                {
+                    notes.split('\n').map(line => (
+                        <p dangerouslySetInnerHTML={{ 
+                            __html: line
+                                .split('`')
+                                .map((substring, i) => i % 2 === 0 ? substring : `<a href=${substring}>here</a>`)
+                                .join('') 
+                        }} />
+                    ))
+                }
+            </div>
+        </div>
     )
 }
 
