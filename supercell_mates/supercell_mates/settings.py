@@ -93,6 +93,7 @@ DATABASES = {
 }
 
 DATABASES['default']['CONN_MAX_AGE'] = 60
+# DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
 print("database data quack quack")
 print(DATABASES)
 
