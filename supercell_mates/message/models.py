@@ -1,10 +1,11 @@
 from django.db import models
 from posts.models import random_str
+from supercell_mates.models import DateTimeFieldNTZ
 
 """Chats"""
 class AbstractChat(models.Model):
     id = models.CharField(unique=True, primary_key=True, default=random_str, max_length=50)
-    timestamp = models.DateTimeField()
+    timestamp = DateTimeFieldNTZ()
 
     class Meta:
         abstract = True
@@ -21,7 +22,7 @@ class GroupChat(AbstractChat):
 """Chat Messages"""
 class AbstractMessage(models.Model):
     id = models.CharField(unique=True, primary_key=True, default=random_str, max_length=50)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = DateTimeFieldNTZ(auto_now_add=True)
 
     class Meta:
         abstract = True
