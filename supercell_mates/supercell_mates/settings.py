@@ -89,12 +89,12 @@ WSGI_APPLICATION = 'supercell_mates.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.parse(os.environ.get('HEROKU_POSTGRESQL_GRAY_URL'))
+    'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
 }
 
 DATABASES['default']['CONN_MAX_AGE'] = 60
 print("database data quack quack")
-print(dj_database_url.parse(os.environ.get('HEROKU_POSTGRESQL_GRAY_URL')))
+print(DATABASES)
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
