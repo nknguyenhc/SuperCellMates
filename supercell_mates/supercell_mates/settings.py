@@ -92,6 +92,9 @@ DATABASES = {
     'default': dj_database_url.parse(os.environ.get('HEROKU_POSTGRESQL_GRAY_URL'))
 }
 
+print("database data quack quack")
+print(dj_database_url.parse(os.environ.get('HEROKU_POSTGRESQL_GRAY_URL')))
+
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
