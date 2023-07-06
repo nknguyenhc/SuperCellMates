@@ -93,9 +93,6 @@ DATABASES = {
 }
 
 DATABASES['default']['CONN_MAX_AGE'] = 60
-# DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
-print("database data quack quack")
-print(DATABASES)
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
