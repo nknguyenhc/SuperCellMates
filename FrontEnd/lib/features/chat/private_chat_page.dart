@@ -1,10 +1,15 @@
+import 'dart:convert';
+import 'dart:js_interop';
+
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:requests/requests.dart';
 
 import 'package:supercellmates/config/config.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/status.dart' as status;
 
 @RoutePage()
@@ -24,10 +29,7 @@ class PrivateChatPageState extends State<PrivateChatPage> {
   @override
   void initState() {
     super.initState();
-    wsUrl =
-        "${GetIt.I<Config>().wsBaseURL}/message/${widget.chatInfo["id"]}/";
-    print(wsUrl);
-    wsChannel = WebSocketChannel.connect(Uri.parse(wsUrl));
+    connect();
   }
 
   @override
@@ -36,6 +38,22 @@ class PrivateChatPageState extends State<PrivateChatPage> {
     if (wsChannel != null) {
       wsChannel!.sink.close();
     }
+  }
+
+  void connect() async {
+    wsUrl = "${GetIt.I<Config>().wsBaseURL}/message/${widget.chatInfo["id"]}/";
+    Requests.getStoredCookies(GetIt.I<Config>().restBaseURL)
+        .then(
+      (cookieJar) => cookieJar.delegate,
+    )
+        .then((cookieMap) {
+      setState(() {
+        wsChannel = IOWebSocketChannel.connect(Uri.parse(wsUrl), headers: {
+          "origin": "ws://10.0.2.2:8000",
+          "cookie": "sessionid=${cookieMap["sessionid"]!.value}"
+        });
+      });
+    });
   }
 
   @override
@@ -52,13 +70,21 @@ class PrivateChatPageState extends State<PrivateChatPage> {
           shape: const Border(
               bottom: BorderSide(color: Colors.blueGrey, width: 0.7)),
         ),
-        body: Container(
-            alignment: Alignment.center,
-            child: TextButton(
-              onPressed: () {
-                wsChannel!.sink.add("Hello");
-              },
-              child: const Text("test send"),
-            )));
+        body: wsChannel == null
+            ? CircularProgressIndicator()
+            : StreamBuilder(
+                stream: wsChannel!.stream,
+                builder: (context, snapshot) => Column(
+                      children: [
+                        Text(snapshot.hasData ? '${snapshot.data}' : ''),
+                        TextButton(
+                          onPressed: () {
+                            wsChannel!.sink.add(jsonEncode(
+                                {"type": "text", "message": "Hello"}));
+                          },
+                          child: const Text("test send"),
+                        )
+                      ],
+                    )));
   }
 }
