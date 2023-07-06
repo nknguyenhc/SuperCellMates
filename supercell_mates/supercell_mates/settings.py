@@ -92,6 +92,7 @@ DATABASES = {
     'default': dj_database_url.parse(os.environ.get('HEROKU_POSTGRESQL_GRAY_URL'))
 }
 
+DATABASES['default']['CONN_MAX_AGE'] = 60
 print("database data quack quack")
 print(dj_database_url.parse(os.environ.get('HEROKU_POSTGRESQL_GRAY_URL')))
 
