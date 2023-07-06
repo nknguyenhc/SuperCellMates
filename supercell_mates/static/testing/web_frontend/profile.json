@@ -72,7 +72,7 @@
         },
         {
             "instruction": "Navigate to another user's profile page by searching for the user's username on the top navigation bar, and click on the user.",
-            "expected": "The user's profile page is loaded, with their posts sorted in reverse chronological order. Older posts are loaded when you scroll down to the bottom. If the user is not your friend, it shows add friend button, otherwise it shows message & unfriend button.",
+            "expected": "The user's profile page is loaded, with their posts sorted in reverse chronological order. Only posts with visibility settings such that you can see will be rendered. Older posts are loaded when you scroll down to the bottom. If the user is not your friend, it shows add friend button, otherwise it shows message & unfriend button.",
             "datePassed": "04/07/2023"
         },
         {
