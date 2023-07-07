@@ -83,6 +83,8 @@ def create_post(request):
                 imgs = []
             else:
                 imgs = request.POST["imgs"].strip('[[]]').split('], [')
+                if len(imgs) > 9:
+                    return HttpResponseBadRequest("too many images")
                 for (i, img_raw) in enumerate(imgs):
                     img_bytearray = img_raw.split(", ")
                     img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
@@ -96,6 +98,8 @@ def create_post(request):
                     img_obj.save()
         else:
             imgs = request.FILES.getlist("imgs")
+            if len(imgs) > 9:
+                return HttpResponseBadRequest("too many images")
             for (i, img) in enumerate(imgs):
                 if not verify_image(img):
                     return HttpResponseBadRequest("not image")
