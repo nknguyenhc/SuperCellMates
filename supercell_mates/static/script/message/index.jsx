@@ -28,77 +28,89 @@ function ChatPage() {
 
     React.useEffect(() => {
         fetch('/messages/get_private_chats')
-            .then(response => response.json())
-            .then(async response => {
-                const newPrivateChats = response.privates.map(chat => {
-                    return {
-                        id: chat.id,
-                        timestamp: chat.timestamp,
-                        chatName: chat.user.username,
-                        image: chat.user.profile_img_url
-                    };
-                });
-                await setPrivateChats(newPrivateChats);
-                return newPrivateChats;
-            })
-            .then(newPrivateChats => {
-                const idQueries = window.location.search
-                    .slice(1)
-                    .split("&")
-                    .map(eqn => eqn.split("="))
-                    .filter(pair => pair[0] === "chatid");
-                if (idQueries.length > 0) {
-                    let index = 0;
-                    const id = idQueries[0][1];
-                    if (id === 'newgroupchatform') {
-                        openNewGroupChatForm(false);
-                    } else {
-                        while (index < newPrivateChats.length) {
-                            if (newPrivateChats[index].id === id) {
-                                break;
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    response.json()
+                        .then(async response => {
+                            const newPrivateChats = response.privates.map(chat => {
+                                return {
+                                    id: chat.id,
+                                    timestamp: chat.timestamp,
+                                    chatName: chat.user.username,
+                                    image: chat.user.profile_img_url
+                                };
+                            });
+                            await setPrivateChats(newPrivateChats);
+                            return newPrivateChats;
+                        })
+                        .then(newPrivateChats => {
+                            const idQueries = window.location.search
+                                .slice(1)
+                                .split("&")
+                                .map(eqn => eqn.split("="))
+                                .filter(pair => pair[0] === "chatid");
+                            if (idQueries.length > 0) {
+                                let index = 0;
+                                const id = idQueries[0][1];
+                                if (id === 'newgroupchatform') {
+                                    openNewGroupChatForm(false);
+                                } else {
+                                    while (index < newPrivateChats.length) {
+                                        if (newPrivateChats[index].id === id) {
+                                            break;
+                                        }
+                                        index++;
+                                    }
+                                    if (index < newPrivateChats.length) {
+                                        clickOpenChat(id, index, false, true);
+                                    }
+                                }
                             }
-                            index++;
-                        }
-                        if (index < newPrivateChats.length) {
-                            clickOpenChat(id, index, false, true);
-                        }
-                    }
+                        });
                 }
             });
         fetch('/messages/get_group_chats')
-            .then(response => response.json())
-            .then(async response => {
-                const newGroupChats = response.groups.map(chat => ({
-                    id: chat.id,
-                    timestamp: chat.timestamp,
-                    chatName: chat.name,
-                    image: chat.img
-                }));
-                await setGroupChats(newGroupChats);
-                return newGroupChats;
-            })
-            .then(newGroupChats => {
-                const idQueries = window.location.search
-                    .slice(1)
-                    .split("&")
-                    .map(eqn => eqn.split("="))
-                    .filter(pair => pair[0] === "chatid");
-                if (idQueries.length > 0) {
-                    let index = 0;
-                    const id = idQueries[0][1];
-                    if (id === 'newgroupchatform') {
-                        openNewGroupChatForm(false);
-                    } else {
-                        while (index < newGroupChats.length) {
-                            if (newGroupChats[index].id === id) {
-                                break;
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    response.json()
+                        .then(async response => {
+                            const newGroupChats = response.groups.map(chat => ({
+                                id: chat.id,
+                                timestamp: chat.timestamp,
+                                chatName: chat.name,
+                                image: chat.img
+                            }));
+                            await setGroupChats(newGroupChats);
+                            return newGroupChats;
+                        })
+                        .then(newGroupChats => {
+                            const idQueries = window.location.search
+                                .slice(1)
+                                .split("&")
+                                .map(eqn => eqn.split("="))
+                                .filter(pair => pair[0] === "chatid");
+                            if (idQueries.length > 0) {
+                                let index = 0;
+                                const id = idQueries[0][1];
+                                if (id === 'newgroupchatform') {
+                                    openNewGroupChatForm(false);
+                                } else {
+                                    while (index < newGroupChats.length) {
+                                        if (newGroupChats[index].id === id) {
+                                            break;
+                                        }
+                                        index++;
+                                    }
+                                    if (index < newGroupChats.length) {
+                                        clickOpenChat(id, index, false, false);
+                                    }
+                                }
                             }
-                            index++;
-                        }
-                        if (index < newGroupChats.length) {
-                            clickOpenChat(id, index, false, false);
-                        }
-                    }
+                        });
                 }
             });
     }, []);
@@ -161,25 +173,31 @@ function ChatPage() {
 
     async function loadMessagesUntilFound(chatid, currTime, currMessages, isPrivate) {
         return fetch('/messages/get_' + (isPrivate ? 'private' : 'group') + '_messages/' + chatid + `?start=${currTime - jump}&end=${currTime}`)
-            .then(response => response.json())
-            .then(async response => {
-                if (response.messages.length === 0) {
-                    if (response.next_last_timestamp !== 0) {
-                        return loadMessagesUntilFound(chatid, response.next_last_timestamp, currMessages, isPrivate);
-                    } else {
-                        return {
-                            currTexts: [...currMessages],
-                            currTime: currTime,
-                            fullChatLoaded: true
-                        }
-                    }
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
                 } else {
-                    setTexts(response.messages.concat(currMessages));
-                    return {
-                        currTexts: response.messages.concat(currMessages),
-                        currTime: currTime - jump,
-                        fullChatLoaded: false
-                    }
+                    response.json()
+                        .then(async response => {
+                            if (response.messages.length === 0) {
+                                if (response.next_last_timestamp !== 0) {
+                                    return loadMessagesUntilFound(chatid, response.next_last_timestamp, currMessages, isPrivate);
+                                } else {
+                                    return {
+                                        currTexts: [...currMessages],
+                                        currTime: currTime,
+                                        fullChatLoaded: true
+                                    }
+                                }
+                            } else {
+                                setTexts(response.messages.concat(currMessages));
+                                return {
+                                    currTexts: response.messages.concat(currMessages),
+                                    currTime: currTime - jump,
+                                    fullChatLoaded: false
+                                }
+                            }
+                        });
                 }
             });
     }

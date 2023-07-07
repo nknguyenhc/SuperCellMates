@@ -8,12 +8,17 @@ function SetupTags() {
 
     React.useEffect(() => {
         fetch('/profile/obtain_tags')
-            .then(response => response.json())
             .then(response => {
-                setTags(response.tags);
-                setTagCountLimit(response.tag_count_limit);
-            })
-            .catch(() => triggerErrorMessage());
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    response.json()
+                        .then(response => {
+                            setTags(response.tags);
+                            setTagCountLimit(response.tag_count_limit);
+                        });
+                }
+            });
     }, []);
 
     function submitTags(event) {
@@ -36,9 +41,14 @@ function SetupTags() {
     function searchTag(event) {
         event.preventDefault();
         fetch("/profile/search_tags?tag=" + searchParam)
-            .then(response => response.json())
             .then(response => {
-                setSearchResults(response.tags.filter(tag => toBeSubmitted.find(addedTag => addedTag.name === tag.name) === undefined));
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    response.json().then(response => {
+                        setSearchResults(response.tags.filter(tag => toBeSubmitted.find(addedTag => addedTag.name === tag.name) === undefined));
+                    })
+                }
             })
     }
 

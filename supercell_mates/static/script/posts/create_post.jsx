@@ -14,8 +14,13 @@ function CreatePost() {
 
     React.useEffect(() => {
         fetch('/profile/user_tags/' + username)
-            .then(response => response.json())
-            .then(response => setUserTags(response.tags));
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    response.json().then(response => setUserTags(response.tags));
+                }
+            })
     }, []);
 
     function removeImage(index) {
@@ -81,6 +86,7 @@ function CreatePost() {
             document.getElementById("post-tag-" + userTags[i].name).checked = false;
         }
         setImgs([]);
+        imagesInput.current.files = [];
     }
 
     return (
@@ -131,10 +137,22 @@ function CreatePost() {
                 }
             </div>
             <div class="mt-3">
-                <label for="post-choose-images" class="form-label">Images</label>
-                <input ref={imagesInput} class="form-control" type="file" id="post-choose-images" multiple onChange={() => {
-                    setImgs(imgs.concat(Array.from(imagesInput.current.files)));
-                }} />
+                <div>Images &#40;max file size: 5MB, limit: 9&#41;</div>
+                <button className="post-choose-img-label add-image-label" onClick={() => imagesInput.current.click()}>
+                    <img src="/static/media/add-image-icon.png" />
+                </button>
+                <div>
+                    <input ref={imagesInput} class="form-control img-input" accept="image/*" type="file" multiple onChange={() => {
+                        const files = Array.from(imagesInput.current.files);
+                        if (imgs.length + files.length > 9) {
+                            alert("9 images only please!");
+                        } else if (files.map(file => file.size / 1024 / 1024).reduce((prev, curr) => prev && curr < 5, true)) {
+                            setImgs(imgs.concat(files));
+                        } else {
+                            alert("One of your images exceeds 5MB, please ensure all images are below 5MB.");
+                        }
+                    }} />
+                </div>
             </div>
             <div className="mt-4" id="post-images-preview">
                 {

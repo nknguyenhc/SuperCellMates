@@ -93,7 +93,7 @@ function AddTag() {
                     <label className="form-label">Tag</label>
                     <button type="button" class="btn-close" aria-label="Close" onClick={() => document.querySelector('#add_tag').style.display = 'none'}></button>
                 </div>
-                <form autocomplete="off" onSubmit={submitForm}>
+                <form autocomplete="off">
                     <div>
                         <input className="form-control" type="text" name="tag" placeholder="Name" onChange={event => {
                             setTag(event.target.value);
@@ -104,7 +104,13 @@ function AddTag() {
                         {imagePreview}
                     </div>
                     <div className="mt-3">
-                        <input ref={imageInput} type="file" className="form-control" accept="image/*" onChange={() => setImagePreview(image())} />
+                        <button className="add-image-label" onClick={(e) => {
+                            e.preventDefault();
+                            imageInput.current.click();
+                        }}>
+                            <img src="/static/media/add-image-icon.png" />
+                        </button>
+                        <input ref={imageInput} type="file" className="form-control img-input" accept="image/*" onChange={() => setImagePreview(image())} />
                     </div>
                     <div className="mt-3">
                         <label for="tag-request-description" className="form-label">Description</label>
@@ -113,7 +119,7 @@ function AddTag() {
                         }} />
                     </div>
                     <div className="mt-3">
-                        <input type="submit" value="Request" className="btn btn-primary"></input>
+                        <input type="submit" value="Request" className="btn btn-primary" onClick={submitForm}></input>
                     </div>
                 </form>
                 <div class="alert alert-danger" role='alert' style={{
