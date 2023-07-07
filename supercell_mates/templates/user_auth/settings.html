@@ -30,6 +30,10 @@
         <div class="settings-section">
             <div class="settings-label">Profile</div>
             <a href="{% url 'user_profile:setup' %}"><button class="btn btn-primary">Edit Profile</button></a>
+            <div id="settings-change-name">
+                <button id="change-name-button" class="btn btn-success">Change Name</button>
+                <div id="change-name-page" class="edit-page" style="display: none"></div>
+            </div>
         </div>
     </div>
     <button id="change-authentication-button" style="display: none" type="button" data-bs-toggle="modal" data-bs-target="#change-authentication-message"></button>

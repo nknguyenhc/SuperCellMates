@@ -13,5 +13,6 @@ urlpatterns = [
     path('img/<str:username>', views.get_profile_pic, name="get_profile_pic"),
     path('search_tags', views.search_tags, name="search_tags"),
     path('tag/<str:tag_name>', views.get_tag_icon, name="get_tag_icon"),
-    path('user_tags/<str:username>', views.get_user_tags, name="get_user_tags")
+    path('user_tags/<str:username>', views.get_user_tags, name="get_user_tags"),
+    path('change_name', views.change_name, name="change_name"),
 ]

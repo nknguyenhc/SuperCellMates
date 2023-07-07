@@ -128,6 +128,11 @@ def register_user(request):
     name = request.POST["name"]
     if username == '' or password == '' or name == '':
         return "username/password or name is empty"
+    
+    if len(username) > 15:
+        return "username too long"
+    if len(name) > 15:
+        return "name too long"
 
     try:
         user = UserAuth.objects.create_user(username=username, password=password)
@@ -146,7 +151,7 @@ def register_async(request):
     if not request.user.is_authenticated:
         try:
             register_feedback = register_user(request)
-            return HttpResponse(register_feedback)
+            return (HttpResponse if register_feedback == "account created" else HttpResponseBadRequest)(register_feedback)
         except AttributeError:
             return HttpResponseBadRequest("request does not contain form data")
         except MultiValueDictKeyError:
@@ -165,9 +170,7 @@ def register(request):
                 if register_feedback == "account created":
                     return redirect(reverse("user_profile:setup"))
                 else:
-                    return render(request, "user_auth/register.html", {
-                        "error_message": "username already taken"
-                    })
+                    return HttpResponseBadRequest(register_feedback)
             except AttributeError:
                 return HttpResponseBadRequest("request does not contain form data")
             except MultiValueDictKeyError:
@@ -222,6 +225,10 @@ def change_username(request):
     try:
         new_username = request.POST["new_username"]
         password = request.POST["password"]
+
+        if len(new_username) > 15:
+            return HttpResponseBadRequest("name too long")
+
         if new_username == '' or password == '':
             return HttpResponseBadRequest("empty username/password")
         if UserAuth.objects.filter(username=new_username).exists():

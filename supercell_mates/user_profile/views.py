@@ -5,6 +5,7 @@ from django.http.response import FileResponse
 from django.utils.datastructures import MultiValueDictKeyError
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate
 from .models import UserProfile
 from user_auth.models import UserAuth, Tag
 import io
@@ -375,3 +376,30 @@ def get_tag_icon(request, tag_name):
             return redirect('/static/media/default-tag-icon.png')
         else:
             return FileResponse(icon)
+
+
+@login_required
+def change_name(request):
+    """Allow a user to change to a new name. Password authentication is required.
+    The request body must contain the following fields:
+        name: the new name to be adopted
+        password: the current password for authentication
+    """
+
+    try:
+        name = request.POST["name"]
+        password = request.POST["password"]
+
+        if len(name) > 15:
+            return HttpResponseBadRequest("name too long")
+
+        user = authenticate(username=request.user.username, password=password)
+        if request.user != user:
+            return HttpResponse("Authentication fails")
+
+        request.user.user_profile.name = name
+        request.user.user_profile.save()
+        return HttpResponse("Name changed")
+    
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body is missing an important key")

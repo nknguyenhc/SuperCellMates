@@ -11,37 +11,37 @@
 
 {% block body %} 
     <div class="authentication-form-container">
-        <form autocomplete="off" action="{% url 'user_auth:register' %}" method="POST" id="register-form" class="authentication-form">
+        <form autocomplete="off" action="{% url 'user_auth:register' %}" method="POST" id="register-form" class="authentication-form needs-validation" novalidate>
             {% csrf_token %} 
             <div class="m-2">
-                <label for="name" class="form-label">Full Name</label>
+                <label for="name" class="form-label">Name</label>
                 <input type="text" name="name" id="name" class="form-control" autofocus>
+                <div class="invalid-feedback"></div>
             </div>
             <div class="m-2">
                 <label for="username" class="form-label">Username</label>
                 <input type="text" name="username" id="username" class="form-control">
+                <div class="invalid-feedback"></div>
             </div>
             <div class="m-2">
                 <label for="password" class="form-label">Password</label>
                 <input type="password" name="password" id="password" class="form-control">
+                <div class="invalid-feedback"></div>
             </div>
             <div class="m-2">
                 <label for="confirm-password" class="form-label">Confirm password</label>
-                <input type="password" id="confirm-password" class="form-control">
+                <input type="password" id="confirm-password" class="form-control" aria-describedby="not-matching-passwords">
+                <div class="invalid-feedback" id="not-matching-passwords"></div>
             </div>
             <div class="form-check m-2">
                 <input type="checkbox" class="form-check-input" id="privacy-agreement-checkbox">
                 <label for="privacy-agreement-checkbox" class="form-check-label">I agree to Match Miner's <a href="/static/files/privacy_agreement.pdf" target="_blank">privacy agreement</a>.</label>
+                <div class="invalid-feedback"></div>
             </div>
             <div class="m-2">
                 <input type="submit" value="Create Account" class="btn btn-primary">
             </div>
-            <div class="authentication-error">
-                <div class="alert alert-danger m-2" id="register-message"></div>
-                {% if error_message %} 
-                    <div class="alert alert-danger m-2" id="backend-message">{{ error_message }}</div>
-                {% endif %}
-            </div>
+            <div class="alert alert-danger m-2" id="register-message"></div>
         </form>
     </div>
 {% endblock %} 
