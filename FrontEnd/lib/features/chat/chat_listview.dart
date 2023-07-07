@@ -8,10 +8,12 @@ import 'package:supercellmates/router/router.gr.dart';
 class ChatListView extends StatefulWidget {
   const ChatListView({
     Key? key,
+    required this.username,
     required this.chatList,
     required this.isPrivate,
   }) : super(key: key);
 
+  final String username;
   final dynamic chatList;
   final bool isPrivate;
 
@@ -58,7 +60,9 @@ class ChatListViewState extends State<ChatListView> {
                 onPressed: () async {
                   // FocusManager.instance.primaryFocus?.unfocus();
                   widget.isPrivate
-                      ? context.router.push(PrivateChatRoute(chatInfo: widget.chatList[index]))
+                      ? context.router.push(PrivateChatRoute(
+                          username: widget.username,
+                          chatInfo: widget.chatList[index]))
                       : context.router.push(GroupChatRoute());
                 },
                 child: Row(children: [

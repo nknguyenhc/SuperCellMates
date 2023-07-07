@@ -50,6 +50,12 @@ dependencies:
 
   web_socket_channel: ^2.4.0
 
+  flutter_chat_ui: ^1.6.8
+
+  flutter_chat_types: ^3.6.1
+
+  intl: ^0.18.1
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

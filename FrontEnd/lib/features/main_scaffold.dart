@@ -33,12 +33,7 @@ class MainScaffoldState extends State<MainScaffold> {
 
   int selectedIndex = 0;
 
-  final pages = <Widget>[
-    HomePage(key: UniqueKey()),
-    const ChatPage(),
-    Container(),
-  ];
-
+  late dynamic pages;
   late dynamic appbars;
 
   void getProfileMap() async {
@@ -55,12 +50,19 @@ class MainScaffoldState extends State<MainScaffold> {
         "isAdmin": profileMap["is_admin"],
       }, updateCallBack: updateHomePageBody),
       ChatAppBar(),
-      ProfileAppBar(profileMap: profileMap, updateProfileMapCallBack: getProfileMap,),
+      ProfileAppBar(
+        profileMap: profileMap,
+        updateProfileMapCallBack: getProfileMap,
+      ),
     ];
 
-    pages[2] = ProfilePage(
-      updateCallBack: getProfileMap,
-    );
+    pages = [
+      HomePage(key: UniqueKey()),
+      ChatPage(username: profileMap["user_profile"]["username"]),
+      ProfilePage(
+        updateCallBack: getProfileMap,
+      )
+    ];
 
     setState(() => dataLoaded = true);
   }

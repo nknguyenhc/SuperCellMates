@@ -7,7 +7,9 @@ import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({Key? key}) : super(key: key);
+  ChatPage({Key? key, required this.username}) : super(key: key);
+
+  final String username;
 
   @override
   State<ChatPage> createState() => ChatPageState();
@@ -105,7 +107,11 @@ class ChatPageState extends State<ChatPage> {
           : SizedBox(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height - 220,
-              child: ChatListView(chatList: chatList, isPrivate: navigationBarIndex == 0,)),
+              child: ChatListView(
+                username: widget.username,
+                chatList: chatList,
+                isPrivate: navigationBarIndex == 0,
+              )),
     ]);
   }
 }
