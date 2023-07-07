@@ -221,6 +221,10 @@ def change_username(request):
     try:
         new_username = request.POST["new_username"]
         password = request.POST["password"]
+
+        if len(new_username) > 15:
+            return HttpResponseBadRequest("name too long")
+
         if new_username == '' or password == '':
             return HttpResponseBadRequest("empty username/password")
         if UserAuth.objects.filter(username=new_username).exists():
