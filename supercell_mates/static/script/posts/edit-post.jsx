@@ -142,6 +142,7 @@ function EditPost(props) {
                 if (response.status !== 200) {
                     triggerErrorMessage();
                 } else {
+                    document.querySelector("#post-delete-message-button").click();
                     deletePostCard(postId);
                 }
             })
@@ -151,7 +152,7 @@ function EditPost(props) {
         <React.Fragment>
             <div className="mb-3">
                 <label htmlFor="post-title" className="form-label">Title</label>
-                <input type="text" id="post-title" className="form-control" value={title} onChange={event => {
+                <input type="text" id="post-title" className="form-control" value={title} autoComplete="off" onChange={event => {
                     setTitle(event.target.value);
                 }} />
             </div>
