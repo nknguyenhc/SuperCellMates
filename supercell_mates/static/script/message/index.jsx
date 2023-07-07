@@ -177,7 +177,7 @@ function ChatPage() {
                 if (response.status !== 200) {
                     triggerErrorMessage();
                 } else {
-                    response.json()
+                    return response.json()
                         .then(async response => {
                             if (response.messages.length === 0) {
                                 if (response.next_last_timestamp !== 0) {
