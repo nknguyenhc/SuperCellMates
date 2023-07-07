@@ -20,37 +20,43 @@ function ChatPage() {
 
     React.useEffect(() => {
         fetch('/messages/get_private_chats')
-            .then(response => response.json())
-            .then(async response => {
-                const newPrivateChats = response.privates.map(chat => {
-                    return {
-                        id: chat.id,
-                        timestamp: chat.timestamp,
-                        chatName: chat.user.username,
-                        image: chat.user.profile_img_url
-                    };
-                });
-                await setPrivateChats(newPrivateChats);
-                return newPrivateChats;
-            })
-            .then(newPrivateChats => {
-                const idQueries = window.location.search
-                    .slice(1)
-                    .split("&")
-                    .map(eqn => eqn.split("="))
-                    .filter(pair => pair[0] === "chatid");
-                if (idQueries.length > 0) {
-                    let index = 0;
-                    const id = idQueries[0][1];
-                    while (index < newPrivateChats.length) {
-                        if (newPrivateChats[index].id === id) {
-                            break;
-                        }
-                        index++;
-                    }
-                    if (index < newPrivateChats.length) {
-                        clickOpenChat(id, index, false);
-                    }
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    response.json()
+                        .then(async response => {
+                            const newPrivateChats = response.privates.map(chat => {
+                                return {
+                                    id: chat.id,
+                                    timestamp: chat.timestamp,
+                                    chatName: chat.user.username,
+                                    image: chat.user.profile_img_url
+                                };
+                            });
+                            await setPrivateChats(newPrivateChats);
+                            return newPrivateChats;
+                        })
+                        .then(newPrivateChats => {
+                            const idQueries = window.location.search
+                                .slice(1)
+                                .split("&")
+                                .map(eqn => eqn.split("="))
+                                .filter(pair => pair[0] === "chatid");
+                            if (idQueries.length > 0) {
+                                let index = 0;
+                                const id = idQueries[0][1];
+                                while (index < newPrivateChats.length) {
+                                    if (newPrivateChats[index].id === id) {
+                                        break;
+                                    }
+                                    index++;
+                                }
+                                if (index < newPrivateChats.length) {
+                                    clickOpenChat(id, index, false);
+                                }
+                            }
+                        });
                 }
             });
     }, []);
@@ -72,36 +78,42 @@ function ChatPage() {
         setChatSelected(true);
         
         fetch('/messages/get_private_messages/' + chatid)
-            .then(response => response.json())
             .then(response => {
-                // console.log(response);
-                const currTexts = response.messages;
-                setTexts(response.messages);
-                setTimeout(() => {
-                    messageLog.current.scrollTo(0, messageLog.current.scrollHeight);
-                }, 300);
-
-                if (currSocket !== null) {
-                    currSocket.close();
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    response.json()
+                        .then(response => {
+                            // console.log(response);
+                            const currTexts = response.messages;
+                            setTexts(response.messages);
+                            setTimeout(() => {
+                                messageLog.current.scrollTo(0, messageLog.current.scrollHeight);
+                            }, 300);
+            
+                            if (currSocket !== null) {
+                                currSocket.close();
+                            }
+            
+                            const chatSocket = new WebSocket(
+                                'ws://'
+                                + window.location.host
+                                + '/ws/message/'
+                                + chatid
+                                + '/'
+                            );
+                            
+                            chatSocket.onmessage = function(e) {
+                                const data = JSON.parse(e.data);
+                                currTexts.push(data);
+                                setTexts([...currTexts]);
+                                testAndScrollToBottom();
+                            };
+            
+                            setCurrSocket(chatSocket);
+                        });
                 }
-
-                const chatSocket = new WebSocket(
-                    'ws://'
-                    + window.location.host
-                    + '/ws/message/'
-                    + chatid
-                    + '/'
-                );
-                
-                chatSocket.onmessage = function(e) {
-                    const data = JSON.parse(e.data);
-                    currTexts.push(data);
-                    setTexts([...currTexts]);
-                    testAndScrollToBottom();
-                };
-
-                setCurrSocket(chatSocket);
-            })
+            });
     }
 
     function testAndScrollToBottom() {

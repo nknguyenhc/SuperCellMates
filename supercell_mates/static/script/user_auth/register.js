@@ -27,14 +27,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const usernameInput = document.querySelector("#username");
     usernameInput.addEventListener('blur', () => {
         fetch(`/check_unique_username_async?username=${usernameInput.value}`)
-            .then(response => response.text())
             .then(response => {
-                if (response !== 'username is unique') {
-                    usernameUnique = false;
-                    addErrMessage("Username is already taken", messageDiv);
+                if (response.status !== 200) {
+                    triggerErrorMessage();
                 } else {
-                    usernameUnique = true;
-                    messageDiv.style.display = "none";
+                    response.text().then(response => {
+                        if (response !== 'username is unique') {
+                            usernameUnique = false;
+                            addErrMessage("Username is already taken", messageDiv);
+                        } else {
+                            usernameUnique = true;
+                            messageDiv.style.display = "none";
+                        }
+                    })
                 }
             })
     })

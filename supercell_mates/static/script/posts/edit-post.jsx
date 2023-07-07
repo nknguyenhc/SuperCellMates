@@ -14,45 +14,56 @@ function EditPost(props) {
 
     React.useEffect(() => {
         fetch('/post/post/' + postId)
-            .then(response => response.json())
             .then(response => {
-                setTitle(response.title);
-                setContent(response.content);
-                setTag(response.tag);
-                if (response.public_visible) {
-                    setVisibility("Public");
+                if (response.status !== 200) {
+                    triggerErrorMessage();
                 } else {
-                    if (response.friend_visible) {
-                        if (response.tag_visible) {
-                            setVisibility("Friends with same tag");
-                        } else {
-                            setVisibility("Friends");
-                        }
-                    } else {
-                        setVisibility("People with same tag");
-                    }
+                    response.json()
+                        .then(response => {
+                            setTitle(response.title);
+                            setContent(response.content);
+                            setTag(response.tag);
+                            if (response.public_visible) {
+                                setVisibility("Public");
+                            } else {
+                                if (response.friend_visible) {
+                                    if (response.tag_visible) {
+                                        setVisibility("Friends with same tag");
+                                    } else {
+                                        setVisibility("Friends");
+                                    }
+                                } else {
+                                    setVisibility("People with same tag");
+                                }
+                            }
+                            setImgLinks(response.images)
+                            setNumOfImgsToLoad(response.images.length);
+                            if (response.images.length === 0) {
+                                setAllImgsLoaded(true);
+                            }
+                        });
                 }
-                setImgLinks(response.images)
-                setNumOfImgsToLoad(response.images.length);
-                if (response.images.length === 0) {
-                    setAllImgsLoaded(true);
-                }
-            })
-            .catch(() => triggerErrorMessage());
+            });
     }, []);
 
     if (numOfImgsToLoad !== -1 && imgs.length !== numOfImgsToLoad && !allImgsLoaded) {
         fetch(imgLinks[imgs.length])
-            .then(response => response.blob())
-            .then(blob => {
-                const file = new File([blob], 'image.jpeg', {
-                    type: blob.type,
-                })
-                setImgs([...imgs, file]);
-                if (imgs.length === numOfImgsToLoad - 1) {
-                    setAllImgsLoaded(true);
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    response.blob()
+                        .then(blob => {
+                            const file = new File([blob], 'image.jpeg', {
+                                type: blob.type,
+                            })
+                            setImgs([...imgs, file]);
+                            if (imgs.length === numOfImgsToLoad - 1) {
+                                setAllImgsLoaded(true);
+                            }
+                        });
                 }
-            })
+            });
     }
 
     function removeImage(index) {

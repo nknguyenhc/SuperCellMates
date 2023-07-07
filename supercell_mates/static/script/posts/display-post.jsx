@@ -83,33 +83,43 @@ function Post(props) {
     let currDate = yest;
 
     fetch(`/post/posts/${username}?start=${formatTime(yest)}&end=${formatTime(now)}`)
-        .then(response => response.json())
         .then(response => {
-            response.posts.forEach(post => {
-                addNewPostCard(post, response.myProfile);
-            });
-            allPostsLoaded = !response.hasOlderPosts;
-            document.addEventListener("scroll", () => {
-                if (!allPostsLoaded && document.body.offsetHeight - window.innerHeight - window.scrollY < 100) {
-                    allPostsLoaded = true;
-                    loadMorePosts();
-                }
-            });
-        })
-        .catch(() => triggerErrorMessage());
+            if (response.status !== 200) {
+                triggerErrorMessage();
+            } else {
+                response.json()
+                    .then(response => {
+                        response.posts.forEach(post => {
+                            addNewPostCard(post, response.myProfile);
+                        });
+                        allPostsLoaded = !response.hasOlderPosts;
+                        document.addEventListener("scroll", () => {
+                            if (!allPostsLoaded && document.body.offsetHeight - window.innerHeight - window.scrollY < 100) {
+                                allPostsLoaded = true;
+                                loadMorePosts();
+                            }
+                        });
+                    });
+            }
+        });
     
     function loadMorePosts() {
         const prevDate = new Date(currDate - oneDayTime);
         fetch(`/post/posts/${username}?start=${formatTime(prevDate)}&end=${formatTime(currDate)}`)
-            .then(response => response.json())
             .then(response => {
-                currDate = prevDate;
-                response.posts.forEach(post => {
-                    addNewPostCard(post, response.myProfile);
-                });
-                allPostsLoaded = !response.hasOlderPosts;
-            })
-            .catch(() => triggerErrorMessage());
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    response.json()
+                        .then(response => {
+                            currDate = prevDate;
+                            response.posts.forEach(post => {
+                                addNewPostCard(post, response.myProfile);
+                            });
+                            allPostsLoaded = !response.hasOlderPosts;
+                        });
+                }
+            });
     }
 
     function formatTime(date) {
@@ -129,11 +139,16 @@ function Post(props) {
 function editPostCard(postId) {
     const oldCard = document.getElementById("post-card-" + postId);
     fetch('/post/post/' + postId)
-        .then(response => response.json())
-        .then(post => {
-            ReactDOM.render(<Post post={post} myProfile={true} />, oldCard);
-        })
-        .catch(() => triggerErrorMessage());
+        .then(response => {
+            if (response.status !== 200) {
+                triggerErrorMessage();
+            } else {
+                response.json()
+                    .then(post => {
+                        ReactDOM.render(<Post post={post} myProfile={true} />, oldCard);
+                    });
+            }
+        });
 }
 
 

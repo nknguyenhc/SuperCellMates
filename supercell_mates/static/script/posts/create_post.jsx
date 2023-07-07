@@ -14,8 +14,13 @@ function CreatePost() {
 
     React.useEffect(() => {
         fetch('/profile/user_tags/' + username)
-            .then(response => response.json())
-            .then(response => setUserTags(response.tags));
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    response.json().then(response => setUserTags(response.tags));
+                }
+            })
     }, []);
 
     function removeImage(index) {
