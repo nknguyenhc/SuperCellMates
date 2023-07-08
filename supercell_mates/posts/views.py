@@ -486,7 +486,7 @@ def get_profile_posts(request, username):
     
     The returned json response contains the following fields:
         posts (list(dict)): the list of posts, each represented by a dictionary
-        hasOlderPosts (bool): whether there are posts older than the requested start time, True if there is, false otherwise
+        next (int): the time stamp of the next older post, 0 if there is no older post
         myProfile (bool): whether the request user has the username
     """
 
@@ -509,9 +509,14 @@ def get_profile_posts(request, username):
             )
         ))
 
+        older_posts = user_log_obj.posts.filter(time_posted__lt=start_time)
+        next_last_timestamp = 0
+        if older_posts.exists():
+            next_last_timestamp = older_posts.first().time_posted.timestamp()
+
         return JsonResponse({
             "posts": posts,
-            "hasOlderPosts": user_log_obj.posts.filter(time_posted__lt=start_time).exists(),
+            "next": next_last_timestamp,
             "myProfile": request.user.username == username,
         })
     

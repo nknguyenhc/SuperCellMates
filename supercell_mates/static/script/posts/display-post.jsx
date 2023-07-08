@@ -92,7 +92,7 @@ function Post(props) {
                         response.posts.forEach(post => {
                             addNewPostCard(post, response.myProfile);
                         });
-                        allPostsLoaded = !response.hasOlderPosts;
+                        allPostsLoaded = response.next === 0;
                         document.addEventListener("scroll", () => {
                             if (!allPostsLoaded && document.body.offsetHeight - window.innerHeight - window.scrollY < 100) {
                                 allPostsLoaded = true;
@@ -104,7 +104,7 @@ function Post(props) {
         });
     
     function loadMorePosts() {
-        const prevDate = new Date(currDate - oneDayTime);
+        const prevDate = new Date(currDate.getTime() - oneDayTime);
         fetch(`/post/posts/${username}?start=${prevDate.getTime() / 1000}&end=${currDate.getTime() / 1000}`)
             .then(response => {
                 if (response.status !== 200) {
@@ -112,11 +112,11 @@ function Post(props) {
                 } else {
                     response.json()
                         .then(response => {
-                            currDate = prevDate;
+                            currDate = new Date(response.next * 1000);
                             response.posts.forEach(post => {
                                 addNewPostCard(post, response.myProfile);
                             });
-                            allPostsLoaded = !response.hasOlderPosts;
+                            allPostsLoaded = response.next === 0;
                         });
                 }
             });
