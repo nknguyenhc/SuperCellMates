@@ -42,10 +42,11 @@ function AddTag() {
                     } else {
                         const text = await response.text();
                         if (text === "tag already present/requested") {
-                            await setTagRequestMessage('Tag is already present/requested');
+                            document.querySelector("#tag-request-message-content").innerText = 'Tag is already present/requested';
                         } else {
-                            await setTagRequestMessage('Your request is sent, our admin will review your request.');
+                            document.querySelector("#tag-request-message-content").innerText = 'Your request is sent, our admin will review your request.';
                         }
+                        document.querySelector('#add_tag').style.display = 'none';
                         document.querySelector("#tag_request_message_button").click();
                     }
                 })
@@ -125,22 +126,6 @@ function AddTag() {
                 <div class="alert alert-danger" role='alert' style={{
                     display: errMessage === '' ? 'none' : 'block'
                 }}>{errMessage}</div>
-            </div>
-            <button style={{display: "none"}} id="tag_request_message_button" type="button" data-bs-toggle="modal" data-bs-target="#tagRequestMessage"></button>
-            <div className="modal fade" id="tagRequestMessage" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h1 className="modal-title fs-5" id="exampleModalLabel">Message</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body">{tagRequestMessage}
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
             </div>
         </React.Fragment>
     );
