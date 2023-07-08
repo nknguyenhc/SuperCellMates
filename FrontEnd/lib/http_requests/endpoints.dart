@@ -32,6 +32,7 @@ enum EndPoints {
   getPrivateChats,
   getPrivateMessages,
   getGroupMessages,
+  uploadFile,
 
 }
 
@@ -65,6 +66,7 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.getPrivateChats: "/messages/get_private_chats",
     EndPoints.getPrivateMessages: "/messages/get_private_messages/",
     EndPoints.getGroupMessages: "/messages/get_group_messages/",
+    EndPoints.uploadFile: "/messages/upload_file",
     
 
   };

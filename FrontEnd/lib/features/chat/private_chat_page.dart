@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:requests/requests.dart';
 
 import 'package:supercellmates/config/config.dart';
@@ -29,10 +31,10 @@ class PrivateChatPage extends StatefulWidget {
   final dynamic chatInfo;
 
   @override
-  State<PrivateChatPage> createState() => PrivateChatPageState();
+  State<PrivateChatPage> createState() => _PrivateChatPageState();
 }
 
-class PrivateChatPageState extends State<PrivateChatPage> {
+class _PrivateChatPageState extends State<PrivateChatPage> {
   String wsUrl = "";
   WebSocketChannel? wsChannel;
   final int jump = 60; // seconds within which a batch of messages are loaded
@@ -41,6 +43,9 @@ class PrivateChatPageState extends State<PrivateChatPage> {
 
   List<types.Message> messages = [];
   Map<String, dynamic> usernameToProfileImageUrl = {};
+
+  bool showAttachmentMenu = false;
+  final GlobalKey _menuKey = GlobalKey();
 
   @override
   void initState() {
@@ -145,8 +150,73 @@ class PrivateChatPageState extends State<PrivateChatPage> {
     });
   }
 
+  void _handleImageSelection() async {
+    final result = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (result != null) {
+      final bytes = await result.readAsBytes();
+
+      dynamic body = {
+        "chat_id": widget.chatInfo["id"],
+        "file": bytes,
+        "file_name": result.name,
+      };
+
+      String response = await postWithCSRF(EndPoints.uploadFile.endpoint, body);
+      if (response == "Connection error") {
+        showErrorDialog(context, response);
+        return;
+      }
+
+      dynamic messageMap = {
+        "type": "file",
+        "message_id": response,
+      };
+      wsChannel!.sink.add(messageMap);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // PopupMenuButton that shows file type selection
+    // onButtonPressed called when user presses on attachment button
+    final dummyButton = PopupMenuButton(
+        key: _menuKey,
+        iconSize: 0,
+        offset: Offset.fromDirection(pi * 1.5, 60),
+        itemBuilder: (context) => <PopupMenuEntry>[
+              PopupMenuItem(
+                  height: 40,
+                  onTap: () {
+                    print(1);
+                  },
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "send file",
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ],
+                  )),
+              PopupMenuItem(
+                  height: 40,
+                  onTap: () {
+                    _handleImageSelection();
+                  },
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "send image",
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ],
+                  ))
+            ]);
+
     return Scaffold(
         appBar: AppBar(
           title: Container(
@@ -202,56 +272,71 @@ class PrivateChatPageState extends State<PrivateChatPage> {
                         );
                     messages.insert(0, message);
                   }
-                  return SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: Chat(
-                      user: types.User(id: widget.username),
-                      messages: messages,
-                      onSendPressed: (s) {
-                        dynamic messageMap = {
-                          "type": "text",
-                          "message": s.text,
-                        };
-                        wsChannel!.sink.add(jsonEncode(messageMap));
-                      },
-                      theme: DefaultChatTheme(
-                          primaryColor: Colors.blue,
-                          secondaryColor: Colors.pinkAccent,
-                          inputBackgroundColor: Colors.white,
-                          inputMargin: const EdgeInsets.only(
-                              left: 20, right: 20, bottom: 20),
-                          inputPadding: const EdgeInsets.all(15),
-                          inputTextColor: Colors.black,
-                          messageInsetsHorizontal: 12,
-                          messageInsetsVertical: 12,
-                          inputContainerDecoration: BoxDecoration(
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(15)),
-                              border: Border.all())),
-                      dateFormat: DateFormat('dd/MM/yy'),
-                      dateHeaderThreshold: 5 * 60 * 1000, // 5 minutes
-                      showUserAvatars: true,
-                      showUserNames: false,
-                      avatarBuilder: (userId) {
-                        return usernameToProfileImageUrl[userId] != null
-                            ? Row(
-                                children: [
-                                  SizedBox(
-                                      width: 30,
-                                      height: 30,
-                                      child: usernameToProfileImageUrl[userId]),
-                                  const Padding(
-                                      padding: EdgeInsets.only(right: 10))
-                                ],
-                              )
-                            : const CircularProgressIndicator();
-                      },
-                      nameBuilder: (p0) => Text(p0.firstName ?? ""),
-                      onEndReached: () => Future(() => loadMessages(
-                          nextLastTimestamp - jump, nextLastTimestamp)),
-                      isLastPage: nextLastTimestamp == 0,
+                  return Stack(children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      child: Chat(
+                        user: types.User(id: widget.username),
+                        messages: messages,
+                        onSendPressed: (s) {
+                          dynamic messageMap = {
+                            "type": "text",
+                            "message": s.text,
+                          };
+                          wsChannel!.sink.add(jsonEncode(messageMap));
+                        },
+                        theme: DefaultChatTheme(
+                            primaryColor: Colors.blue,
+                            secondaryColor: Colors.pinkAccent,
+                            inputBackgroundColor: Colors.white,
+                            inputMargin: const EdgeInsets.only(
+                                left: 20, right: 20, bottom: 20),
+                            inputPadding: const EdgeInsets.all(15),
+                            inputTextColor: Colors.black,
+                            messageInsetsHorizontal: 12,
+                            messageInsetsVertical: 12,
+                            inputContainerDecoration: BoxDecoration(
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(15)),
+                                border: Border.all()),
+                            attachmentButtonMargin: EdgeInsets.zero),
+                        dateFormat: DateFormat('dd/MM/yy'),
+                        dateHeaderThreshold: 5 * 60 * 1000, // 5 minutes
+                        showUserAvatars: true,
+                        showUserNames: false,
+                        avatarBuilder: (userId) {
+                          return usernameToProfileImageUrl[userId] != null
+                              ? Row(
+                                  children: [
+                                    SizedBox(
+                                        width: 30,
+                                        height: 30,
+                                        child:
+                                            usernameToProfileImageUrl[userId]),
+                                    const Padding(
+                                        padding: EdgeInsets.only(right: 10))
+                                  ],
+                                )
+                              : const CircularProgressIndicator();
+                        },
+                        nameBuilder: (p0) => Text(p0.firstName ?? ""),
+                        onEndReached: () => Future(() => loadMessages(
+                            nextLastTimestamp - jump, nextLastTimestamp)),
+                        isLastPage: nextLastTimestamp == 0,
+                        onAttachmentPressed: () {
+                          setState(() {
+                            dynamic state = _menuKey.currentState;
+                            state.showButtonMenu();
+                          });
+                        },
+                      ),
                     ),
-                  );
+                    Positioned(
+                      child: dummyButton,
+                      bottom: 60,
+                      left: 20,
+                    ),
+                  ]);
                 }));
   }
 }
