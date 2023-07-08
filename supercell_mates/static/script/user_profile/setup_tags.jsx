@@ -47,6 +47,7 @@ function SetupTags() {
                     popSetupMessage("Tags updated successfully!");
                     setTags([...tags].concat(toBeSubmitted));
                     setToBeSubmitted([]);
+                    setShowAlert(false);
                 }
             });
     }

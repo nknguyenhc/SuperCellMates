@@ -42,6 +42,13 @@ function CreatePost() {
             }
         }
 
+        function clearInputValidations() {
+            titleInput.current.classList.remove('is-valid');
+            contentInput.current.classList.remove('is-valid');
+            visibilityInput.current.classList.remove('is-valid');
+            tagInput.current.classList.remove('is-valid');
+        }
+
         let hasError = false;
         if (visibility === "Visibility") {
             setErrorMessage("Please choose a visibility setting");
@@ -107,6 +114,7 @@ function CreatePost() {
                     postCreateButton.current.click();
                     setErrorMessage('');
                     clearInput();
+                    clearInputValidations();
                 }
             });
     }
@@ -119,7 +127,7 @@ function CreatePost() {
             document.getElementById("post-tag-" + userTags[i].name).checked = false;
         }
         setImgs([]);
-        imagesInput.current.files = [];
+        imagesInput.current.files = null;
     }
 
     return (
