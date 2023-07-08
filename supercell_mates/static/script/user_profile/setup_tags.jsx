@@ -5,6 +5,9 @@ function SetupTags() {
     const [toBeSubmitted, setToBeSubmitted] = React.useState([]);
     const [tagCountLimit, setTagCountLimit] = React.useState(0);
     const addTagMessageButton = React.useRef(null);
+    const searchTagForm = React.useRef(null);
+    const [showTagResult, setShowTagResult] = React.useState(false);
+    const [showAlert, setShowAlert] = React.useState(false);
 
     React.useEffect(() => {
         fetch('/profile/obtain_tags')
@@ -19,6 +22,16 @@ function SetupTags() {
                         });
                 }
             });
+    }, []);
+
+    React.useEffect(() => {
+        document.addEventListener('click', event => {
+            if (searchTagForm.current.contains(event.target)) {
+                setShowTagResult(true);
+            } else {
+                setShowTagResult(false);
+            }
+        })
     }, []);
 
     function submitTags(event) {
@@ -69,7 +82,7 @@ function SetupTags() {
         <React.Fragment>
             <div id="add-tag-page">
                 <div className="add-tag-section p-3">
-                    <div className="add-tag-section-title py-5">Your Current Tags</div>
+                    <div className="add-tag-section-title py-3">Your Current Tags</div>
                     <div className="add-tag-section-body ps-2">
                         {tags.map(tag => (
                             <div className="tag-button btn btn-outline-info">
@@ -80,7 +93,7 @@ function SetupTags() {
                     </div>
                 </div>
                 <div className="add-tag-section p-3">
-                    <div className="add-tag-section-title py-5">New Tags</div>
+                    <div className="add-tag-section-title py-3">New Tags</div>
                     <div className="add-tag-section-body">
                         {toBeSubmitted.map((tag, index) => (
                             <div className="new-tag-div">
@@ -92,31 +105,37 @@ function SetupTags() {
                             </div>
                         ))}
                     </div>
-                </div>
-                <div className="add-tag-section p-3">
-                    <div className="add-tag-section-title py-5">Search Tags</div>
-                    <div className="add-tag-section-body">
-                        <form id="search-tag-form" onSubmit={searchTag}>
+                    <div className="add-tag-section-body pt-3">
+                        <form id="search-tag-form" onSubmit={searchTag} ref={searchTagForm}>
                             <input type="text" class="form-control" placeholder="Search Tag ..." onChange={event => setSearchParam(event.target.value)} />
                             <input type="submit" class="btn btn-outline-primary" value="Search"></input>
                         </form>
                         <div id="search-tag-result">
-                            {
-                            searchResults.length === 0 
-                                ? <div class='text-body-tertiary'>No result/No search is done</div> 
-                                : searchResults.map((tag, index) => (
-                                    <div className="tag-button btn btn-outline-info" onClick={() => addNewTag(index)}>
-                                        <img src={tag.icon} />
-                                        <div>{tag.name}</div>
-                                    </div>
-                                ))
-                            }
+                            <div id="search-tag-result-window" className='p-2' style={{display: showTagResult ? '' : 'none'}}>
+                                {
+                                    searchResults.length === 0 
+                                    ? <div class='text-body-tertiary'>No result/No search is done</div> 
+                                    : searchResults.map((tag, index) => (
+                                        <div className="tag-button btn btn-outline-info" onClick={() => addNewTag(index)}>
+                                            <img src={tag.icon} />
+                                            <div>{tag.name}</div>
+                                        </div>
+                                    ))
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div className="ps-4 pt-3">
-                <button class="btn btn-success" type="submit" value="Add Tags" onClick={submitTags}>Update Tags</button>
+                <button class="btn btn-success" value="Add Tags" onClick={() => setShowAlert(true)}>Update Tags</button>
+            </div>
+            <div className="alert alert-info mt-3" role="alert" style={{display: showAlert ? '' : 'none'}}>
+                <div>Your account can only have 4 tags, and you will not be able to change tags for 1 week if you delete one of your tags. Are you sure to proceed?</div>
+                <div className="setup-tags-confirmation-buttons mt-3">
+                    <button className="btn btn-primary" onClick={submitTags}>Yes</button>
+                    <button className="btn btn-secondary" onClick={() => setShowAlert(false)}>No</button>
+                </div>
             </div>
             <button ref={addTagMessageButton} style={{display: 'none'}} id="add-tag-message-button" type="button" data-bs-toggle="modal" data-bs-target="#add-tag-message"></button>
             <div className="modal fade" id="add-tag-message" tabindex="-1" aria-labelledby="add-tag-label" aria-hidden="true">

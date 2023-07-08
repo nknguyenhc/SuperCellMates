@@ -16,8 +16,10 @@
 
 {% block body %} 
     <input type="hidden" id="username-input" value="{{ user.username }}">
-    <div id="setup_image"></div>
-    <div id="setup_tags"></div>
+    <div id="setup">
+        <div id="setup_image"></div>
+        <div id="setup_tags"></div>
+    </div>
     <button id="setup-button" style="display: none" type="button" data-bs-toggle="modal" data-bs-target="#setup-message"></button>
     <div class="modal fade" id="setup-message" tabindex="-1" aria-labelledby="setup-label" aria-hidden="true">
         <div class="modal-dialog">

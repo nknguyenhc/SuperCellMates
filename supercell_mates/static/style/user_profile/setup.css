@@ -1,3 +1,10 @@
+#setup {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    width: 90%;
+}
+
 #tags-present {
     display: flex;
     flex-direction: row;
@@ -6,7 +13,7 @@
 }
 
 #setup_tags {
-    margin-bottom: 100px;
+    flex-grow: 1;
 }
 
 #add-tag-page {
@@ -39,15 +46,32 @@
 }
 
 #search-tag-result {
+    position: relative;
+}
+
+#search-tag-result-window {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    overflow: auto;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    border: 1px solid;
+    border-radius: 10px;
+    height: 300px;
 }
 
 .new-tag-div {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+
+.setup-tags-confirmation-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
 }
 
 .profile-img-container {
