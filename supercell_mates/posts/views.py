@@ -50,6 +50,10 @@ def create_post(request):
         content = request.POST["content"]
         if title == '' or content == '':
             return HttpResponseBadRequest("title or content is empty")
+        if len(title) > 100:
+            return HttpResponseBadRequest("title too long")
+        if len(content) > 2000:
+            return HttpResponseBadRequest("content too long")
 
         # tag
         tag_name = request.POST["tag"]
@@ -188,6 +192,10 @@ def edit_post(request, post_id):
     content = request.POST["content"]
     if title == '' or content == '':
         return HttpResponseBadRequest("title or content is empty")
+    if len(title) > 100:
+        return HttpResponseBadRequest("title too long")
+    if len(content) > 100:
+        return HttpResponseBadRequest("content too long")
 
     # visibility
     visibility = get_list_from_request_body(request, "visibility")

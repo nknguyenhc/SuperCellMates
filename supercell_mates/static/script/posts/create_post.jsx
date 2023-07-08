@@ -134,15 +134,15 @@ function CreatePost() {
         <form onSubmit={event => event.preventDefault()} className="needs-validation" noValidate>
             <div className="mb-3">
                 <label htmlFor="post-title" className="form-label">Title</label>
-                <input type="text" id="post-title" className="form-control" ref={titleInput} autoComplete="off" onChange={event => {
-                    setTitle(event.target.value);
+                <input type="text" id="post-title" className="form-control" ref={titleInput} value={title} autoComplete="off" onChange={event => {
+                    setTitle(event.target.value.slice(0, 100));
                 }} />
                 <div className="invalid-feedback">Please enter a title</div>
             </div>
             <div className="mb-3">
                 <label htmlFor="post-content" className="form-label">Content</label>
-                <textarea id="post-content" rows="8" className="form-control" ref={contentInput} onChange={event => {
-                    setContent(event.target.value);
+                <textarea id="post-content" rows="8" className="form-control" ref={contentInput} value={content} onChange={event => {
+                    setContent(event.target.value.slice(0, 2000));
                 }}></textarea>
                 <div className="invalid-feedback">Please enter some content</div>
             </div>
