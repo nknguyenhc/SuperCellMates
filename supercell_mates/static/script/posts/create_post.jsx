@@ -5,7 +5,9 @@ function CreatePost() {
     const contentInput = React.useRef(null);
     const [tag, setTag] = React.useState(undefined);
     const [visibility, setVisibility] = React.useState('Visibility');
+    const visibilityInput = React.useRef(null);
     const [userTags, setUserTags] = React.useState([]);
+    const tagInput = React.useRef(null);
     const postCreateButton = React.useRef(null);
     const [errorMessage, setErrorMessage] = React.useState('');
     const imagesInput = React.useRef(null);
@@ -30,19 +32,50 @@ function CreatePost() {
     function submitPost(event) {
         event.preventDefault();
 
+        function displayInputError(inputField, isError) {
+            if (isError) {
+                inputField.current.classList.add('is-invalid');
+                inputField.current.classList.remove('is-valid');
+            } else {
+                inputField.current.classList.add('is-valid');
+                inputField.current.classList.remove('is-invalid');
+            }
+        }
+
+        let hasError = false;
+        if (visibility === "Visibility") {
+            setErrorMessage("Please choose a visibility setting");
+            displayInputError(visibilityInput, true);
+            hasError = true;
+        } else {
+            displayInputError(visibilityInput, false);
+        }
+        if (tag === undefined) {
+            setErrorMessage("You must choose a tag to associate with this post");
+            displayInputError(tagInput, true);
+            hasError = true;
+        } else {
+            displayInputError(tagInput, false);
+        }
+        if (content === '') {
+            setErrorMessage("Content cannot be empty");
+            displayInputError(contentInput, true);
+            hasError = true;
+        } else {
+            displayInputError(contentInput, false);
+        }
         if (title === '') {
             setErrorMessage("Title cannot be empty");
-            return;
-        } else if (content === '') {
-            setErrorMessage("Content cannot be empty");
-            return;
-        } else if (tag === undefined) {
-            setErrorMessage("You must choose a tag to associate with this post");
-            return;
-        } else if (visibility === "Visibility") {
-            setErrorMessage("Please choose a visibility setting");
+            displayInputError(titleInput, true);
+            hasError = true;
+        } else {
+            displayInputError(titleInput, false);
+        }
+        
+        if (hasError) {
             return;
         }
+        setErrorMessage('');
 
         let visList;
         switch (visibility) {
@@ -90,24 +123,26 @@ function CreatePost() {
     }
 
     return (
-        <React.Fragment>
+        <form onSubmit={event => event.preventDefault()} className="needs-validation" noValidate>
             <div className="mb-3">
                 <label htmlFor="post-title" className="form-label">Title</label>
                 <input type="text" id="post-title" className="form-control" ref={titleInput} autoComplete="off" onChange={event => {
                     setTitle(event.target.value);
                 }} />
+                <div className="invalid-feedback">Please enter a title</div>
             </div>
             <div className="mb-3">
                 <label htmlFor="post-content" className="form-label">Content</label>
                 <textarea id="post-content" rows="8" className="form-control" ref={contentInput} onChange={event => {
                     setContent(event.target.value);
                 }}></textarea>
+                <div className="invalid-feedback">Please enter some content</div>
             </div>
             <div className="mb-3 visibility-section">
                 <div className="visibility-indicator">
                     <img src="/static/media/eye-icon.png" />
                 </div>
-                <div class="btn-group">
+                <div class="btn-group" ref={visibilityInput}>
                     <button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                         {visibility}
                     </button>
@@ -118,23 +153,27 @@ function CreatePost() {
                         <li><a class="dropdown-item" href="javascript:void(0)" onClick={() => setVisibility("Friends with same tag")}>Friends with same tag</a></li>
                     </ul>
                 </div>
+                <div className="invalid-feedback">Please select visibility</div>
             </div>
-            <div className="mt-3" id="post-choose-tag">
-                {
-                    userTags.length === 0
-                    ? <div className="text-danger">Your profile needs at least one tag to post!</div>
-                    : userTags.map(tag => (
-                        <React.Fragment>
-                            <input type="radio" class="btn-check" name="options" id={"post-tag-" + tag.name} autocomplete="off" />
-                            <label class="tag-button btn btn-outline-info" for={"post-tag-" + tag.name} onClick={() => {
-                                setTag(tag);
-                            }}>
-                                <img src={tag.icon} />
-                                <div>{tag.name}</div>
-                            </label>
-                        </React.Fragment>
-                    ))
-                }
+            <div className="mt-3">
+                <div ref={tagInput} id="post-choose-tag">
+                    {
+                        userTags.length === 0
+                        ? <div className="text-danger">Your profile needs at least one tag to post! Setup your tags <a href="/profile/setup">here</a></div>
+                        : userTags.map(tag => (
+                            <React.Fragment>
+                                <input type="radio" class="btn-check" name="options" id={"post-tag-" + tag.name} autocomplete="off" />
+                                <label class="tag-button btn btn-outline-info" for={"post-tag-" + tag.name} onClick={() => {
+                                    setTag(tag);
+                                }}>
+                                    <img src={tag.icon} />
+                                    <div>{tag.name}</div>
+                                </label>
+                            </React.Fragment>
+                        ))
+                    }
+                </div>
+                <div className="invalid-feedback">Please choose a tag to post</div>
             </div>
             <div class="mt-3">
                 <div>Images &#40;max file size: 5MB, limit: 9&#41;</div>
@@ -196,7 +235,7 @@ function CreatePost() {
                     </div>
                 </div>
             </div>
-        </React.Fragment>
+        </form>
     );
 }
 
