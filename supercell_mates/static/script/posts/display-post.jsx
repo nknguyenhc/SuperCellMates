@@ -53,7 +53,7 @@ function Post(props) {
                         : ''
                     }
                 </div>
-                <div className="post-date">{`${formatNumber(post.time_posted.day, 2)}/${formatNumber(post.time_posted.month, 2)}/${formatNumber(post.time_posted.year, 4)} ${formatNumber(post.time_posted.hour, 2)}:${formatNumber(post.time_posted.minute, 2)}`}</div>
+                <div className="post-date">{`${formatNumber(new Date(post.time_posted).getDate(), 2)}/${formatNumber(new Date(post.time_posted).getMonth(), 2)}/${formatNumber(new Date(post.time_posted).getFullYear(), 4)} ${formatNumber(new Date(post.time_posted).getHours(), 2)}:${formatNumber(new Date(post.time_posted).getMinutes(), 2)}`}</div>
             </div>
             <h4 className='mb-2'>{post.title}</h4>
             <div className="post-tag mb-2">
@@ -82,7 +82,7 @@ function Post(props) {
     const yest = new Date(new Date().getTime() - oneDayTime);
     let currDate = yest;
 
-    fetch(`/post/posts/${username}?start=${formatTime(yest)}&end=${formatTime(now)}`)
+    fetch(`/post/posts/${username}?start=${yest.getTime() / 1000}&end=${now.getTime() / 1000}`)
         .then(response => {
             if (response.status !== 200) {
                 triggerErrorMessage();
@@ -105,7 +105,7 @@ function Post(props) {
     
     function loadMorePosts() {
         const prevDate = new Date(currDate - oneDayTime);
-        fetch(`/post/posts/${username}?start=${formatTime(prevDate)}&end=${formatTime(currDate)}`)
+        fetch(`/post/posts/${username}?start=${prevDate.getTime() / 1000}&end=${currDate.getTime() / 1000}`)
             .then(response => {
                 if (response.status !== 200) {
                     triggerErrorMessage();
@@ -122,14 +122,11 @@ function Post(props) {
             });
     }
 
-    function formatTime(date) {
-        return `${formatNumber(date.getFullYear(), 4)}-${formatNumber(date.getMonth() + 1, 2)}-${formatNumber(date.getDate(), 2)}-${formatNumber(date.getHours(), 2)}-${formatNumber(date.getMinutes(), 2)}-${formatNumber(date.getSeconds(), 2)}`
-    }
-
     function addNewPostCard(post, myProfile) {
         const newPostCard = document.createElement("div");
         newPostCard.className = "post-card";
         newPostCard.id = "post-card-" + post.id;
+        post.time_posted *= 1000;
         ReactDOM.render(<Post post={post} myProfile={myProfile} />, newPostCard);
         document.querySelector('#profile-posts').appendChild(newPostCard);
     }

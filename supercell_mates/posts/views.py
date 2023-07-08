@@ -370,13 +370,7 @@ def parse_post_object(post):
                 username: the username of the creator
                 profile_pic_url: the URL to the profile pic of the creator
                 profile_link: the link to the profile of the creator
-            time_posted: the time posted given in a dictionary with the following fields:
-                year (int)
-                month (int)
-                day (int)
-                hour (int)
-                minute (int)
-                second (int)
+            time_posted: the time posted given in epoch time (in seconds)
             images: the list of URL to the images of the post
     """
     images = list(PostImage.objects.filter(post=post))
@@ -385,7 +379,6 @@ def parse_post_object(post):
         lambda image: reverse("posts:get_post_pic", args=(image.id,)),
         images
     ))
-    post_timing = post.time_posted + timedelta(hours=8) # SG time
 
     return {
         "id": post.id,
@@ -404,14 +397,7 @@ def parse_post_object(post):
             "profile_pic_url": reverse("user_profile:get_profile_pic", args=(post.creator.user_auth.username,)),
             "profile_link": reverse("user_log:view_profile", args=(post.creator.user_auth.username,)),
         },
-        "time_posted": {
-            "year": post_timing.year,
-            "month": post_timing.month,
-            "day": post_timing.day,
-            "hour": post_timing.hour,
-            "minute": post_timing.minute,
-            "second": post_timing.second,
-        },
+        "time_posted": post.time_posted.timestamp(),
         "images": images
     }
 
@@ -494,8 +480,8 @@ def get_post_pic(request, pic_id):
 def get_profile_posts(request, username):
     """Return the posts of the user with the given username within a time frame.
     The time limits are given in the GET parameters. The URL therefore must contain the following GET paramters:
-        start (str): the string of the start date given in the format YYYY-MM-DD-HH-MM-SS
-        end (str): the string of the end date given in the format YYYY-MM-DD-HH-MM-SS
+        start (str): epoch time of start time in seconds
+        end (str): epoch time of end time in seconds
         [Optional] tag (str): the string of the tag filter applied to the profile posts
     
     The returned json response contains the following fields:
@@ -505,13 +491,8 @@ def get_profile_posts(request, username):
     """
 
     try:
-        start_arr = request.GET["start"].split("-")
-        end_arr = request.GET["end"].split("-")
-        if len(start_arr) != 6 or len(end_arr) != 6:
-            return HttpResponseBadRequest("start or end date malformed")
-        start_time = datetime(year=int(start_arr[0]), month=int(start_arr[1]), day=int(start_arr[2]), hour=int(start_arr[3]), minute=int(start_arr[4]), second=int(start_arr[5]))
-        end_time = datetime(year=int(end_arr[0]), month=int(end_arr[1]), day=int(end_arr[2]), hour=int(end_arr[3]), minute=int(end_arr[4]), second=int(end_arr[5]))
-        # only meant to be in SG. If post is made at another point of the world, have to fix this time display
+        start_time = datetime.fromtimestamp(float(request.GET["start"]))
+        end_time = datetime.fromtimestamp(float(request.GET["end"]))
         user_log_obj = UserAuth.objects.get(username=username).user_log
 
         posts_queryset = user_log_obj.posts.filter(time_posted__range=(start_time, end_time)).order_by('-time_posted')
@@ -534,14 +515,14 @@ def get_profile_posts(request, username):
             "myProfile": request.user.username == username,
         })
     
-    except AttributeError:
-        return HttpResponseBadRequest("GET parameter(s) malformed")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("start or end date not found in GET parameter")
     except ObjectDoesNotExist:
-        return HttpResponseNotFound("user with the username not found")
+        return HttpResponseNotFound("user with the username not found / tag with requested tag not found")
     except ValueError:
         return HttpResponseBadRequest("time fields containing characters other than numbers / invalid time")
+    except OSError:
+        return HttpResponseBadRequest("time requested is invalid epoch time")
 
 @login_required
 def get_home_feed(request):
