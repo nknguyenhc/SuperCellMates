@@ -6,6 +6,7 @@ class TagRequest(models.Model):
     name = models.CharField(max_length=25)
     image = models.ImageField(upload_to='tag/', blank=True)
     description = models.TextField(default='')
+    requester = models.ForeignKey('user_profile.UserProfile', on_delete=models.SET_NULL, null=True, related_name='tag_requests')
 
 
 class Tag(models.Model):

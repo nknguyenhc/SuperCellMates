@@ -315,14 +315,20 @@ def add_tag_admin(request):
                 tag_request_id = request.POST["tag_request_id"]
                 tag_request_obj = TagRequest.objects.get(id=tag_request_id)
                 icon = tag_request_obj.image
-                tag_request_obj.delete()
                 tag_name = request.POST["tag"]
                 if not icon:
                     tag = Tag(name=tag_name)
                 else:
                     tag = Tag(name=tag_name, image=icon)
                 tag.save()
+
+                if tag_request_obj.requester:
+                    if len(tag_request_obj.requester.tagList.all()) < tag_request_obj.requester.tag_count_limit:
+                        tag_request_obj.requester.tagList.add(tag)
+
+                tag_request_obj.delete()
                 return HttpResponse("successfully added tag")
+
             except AttributeError:
                 return HttpResponseBadRequest("request does not contain form data")
             except MultiValueDictKeyError:
@@ -400,7 +406,10 @@ def add_tag_request(request):
             return HttpResponseBadRequest("description too long")
         if duplicate_tag_exists(tag_name):
             return HttpResponse("tag already present/requested")
+        
+        has_img = False
         if "img" in request.POST:
+            has_img = True
             img_bytearray = request.POST["img"].strip("[]").split(", ")
             img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
             img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
@@ -409,16 +418,26 @@ def add_tag_request(request):
                 pil_img.verify()
             except (IOError, SyntaxError):
                 return HttpResponseBadRequest("not image")
-            tag_request = TagRequest(name=tag_name, image=img, description=description)
         elif "img" in request.FILES:
+            has_img = True
             img = request.FILES["img"]
             if not verify_image(img):
                 return HttpResponseBadRequest("not image")
-            tag_request = TagRequest(name=tag_name, image=img, description=description)
+    
+        if request.POST["attach"] == "true":
+            if has_img:
+                tag_request = TagRequest(name=tag_name, image=img, description=description, requester=request.user.user_profile)
+            else:
+                tag_request = TagRequest(name=tag_name, description=description, requester=request.user.user_profile)
         else:
-            tag_request = TagRequest(name=tag_name, description=description)
+            if has_img:
+                tag_request = TagRequest(name=tag_name, image=img, description=description)
+            else:
+                tag_request = TagRequest(name=tag_name, description=description)
+
         tag_request.save()
         return HttpResponse("Successfully added tag request")
+    
     except AttributeError:
         return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:

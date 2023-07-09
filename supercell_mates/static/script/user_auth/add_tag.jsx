@@ -16,6 +16,7 @@ function AddTag() {
     const [imagePreview, setImagePreview] = React.useState(undefined);
     const imageInput = React.useRef(null);
     const [description, setDescription] = React.useState('');
+    const [attach, setAttach] = React.useState(false);
 
     function image() {
         return (
@@ -34,7 +35,8 @@ function AddTag() {
         }
         const requestBody = {
             tag: tag,
-            description: description
+            description: description,
+            attach: attach
         }
         if (imagePreview !== undefined) {
             requestBody.img = imageInput.current.files[0]
@@ -122,6 +124,10 @@ function AddTag() {
                         <textarea id="tag-request-description" class="form-control" rows="3" placeholder="Description" value={description} onChange={event => {
                             setDescription(event.target.value.slice(0, 200));
                         }} />
+                    </div>
+                    <div className="form-check mt-3">
+                        <input className="form-check-input" type="checkbox" value="" id="attach-tag-option" onChange={event => setAttach(event.target.checked)} />
+                        <label className="form-check-label" for="attach-tag-option">Attach this tag to me once approved</label>
                     </div>
                     <div className="mt-3">
                         <input type="submit" value="Request" className="btn btn-primary" onClick={submitForm}></input>
