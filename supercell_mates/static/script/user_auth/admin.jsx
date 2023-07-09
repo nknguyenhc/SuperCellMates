@@ -114,7 +114,7 @@ function AddTags() {
             <form onSubmit={addTag}>
                 <div className="m-3">
                     <label htmlFor="tag-input" className="form-label">Tag</label>
-                    <input type="text" className="form-control" id="tag-input-admin" autoComplete="off" value={tagName} onChange={event => setTagName(event.target.value)} />
+                    <input type="text" className="form-control" id="tag-input-admin" autoComplete="off" value={tagName} onChange={event => setTagName(event.target.value.slice(0, 25))} />
                 </div>
                 <div className="m-3" id="new-tag-admin-icon">
                     <div>Icon:</div>

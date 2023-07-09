@@ -346,6 +346,8 @@ def new_tag_admin(request):
         if request.method == "POST":
             try:
                 tag_name = request.POST["tag"]
+                if len(tag_name) > 25:
+                    return HttpResponseBadRequest("tag name too long")
                 if TagRequest.objects.filter(name=tag_name).exists() or Tag.objects.filter(name=tag_name).exists():
                     return HttpResponse("Tag already exists/Tag request already exists")
 
