@@ -394,6 +394,10 @@ def add_tag_request(request):
     try:
         tag_name = request.POST["tag"]
         description = request.POST["description"]
+        if len(tag_name) > 25:
+            return HttpResponseBadRequest("tag name too long")
+        if len(description) > 200:
+            return HttpResponseBadRequest("description too long")
         if duplicate_tag_exists(tag_name):
             return HttpResponse("tag already present/requested")
         if "img" in request.POST:

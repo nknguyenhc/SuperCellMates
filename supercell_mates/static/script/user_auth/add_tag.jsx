@@ -1,5 +1,6 @@
 function AddTag() {
     const [tag, setTag] = React.useState('');
+    const tagInput = React.useRef(null);
     const [errMessage, setErrMessage] = React.useState('');
     const [holding, setHolding] = React.useState(false);
     const [initialPosition, setInitialPosition] = React.useState();
@@ -14,7 +15,6 @@ function AddTag() {
     });
     const [imagePreview, setImagePreview] = React.useState(undefined);
     const imageInput = React.useRef(null);
-    const [tagRequestMessage, setTagRequestMessage] = React.useState('');
     const [description, setDescription] = React.useState('');
 
     function image() {
@@ -27,32 +27,35 @@ function AddTag() {
         event.preventDefault();
         if (tag === '') {
             setErrMessage("Tag cannot be empty");
+            tagInput.current.classList.add('is-invalid');
+            return;
         } else {
-            const requestBody = {
-                tag: tag,
-                description: description
-            }
-            if (imagePreview !== undefined) {
-                requestBody.img = imageInput.current.files[0]
-            }
-            fetch('/add_tag_request', postRequestContent(requestBody))
-                .then(async response => {
-                    if (response.status !== 200) {
-                        triggerErrorMessage();
-                    } else {
-                        const text = await response.text();
-                        if (text === "tag already present/requested") {
-                            document.querySelector("#tag-request-message-content").innerText = 'Tag is already present/requested';
-                        } else {
-                            document.querySelector("#tag-request-message-content").innerText = 'Your request is sent, our admin will review your request.';
-                        }
-                        document.querySelector('#add_tag').style.display = 'none';
-                        document.querySelector("#tag_request_message_button").click();
-                    }
-                })
-                .catch(() => triggerErrorMessage());
-            setErrMessage("");
+            tagInput.current.classList.remove('is-invalid');
         }
+        const requestBody = {
+            tag: tag,
+            description: description
+        }
+        if (imagePreview !== undefined) {
+            requestBody.img = imageInput.current.files[0]
+        }
+        fetch('/add_tag_request', postRequestContent(requestBody))
+            .then(async response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    const text = await response.text();
+                    if (text === "tag already present/requested") {
+                        document.querySelector("#tag-request-message-content").innerText = 'Tag is already present/requested';
+                    } else {
+                        document.querySelector("#tag-request-message-content").innerText = 'Your request is sent, our admin will review your request.';
+                    }
+                    document.querySelector('#add_tag').style.display = 'none';
+                    document.querySelector("#tag_request_message_button").click();
+                }
+            })
+            .catch(() => triggerErrorMessage());
+        setErrMessage("");
     }
 
     function pixelToNumber(pixelStr) {
@@ -94,11 +97,12 @@ function AddTag() {
                     <label className="form-label">Tag</label>
                     <button type="button" class="btn-close" aria-label="Close" onClick={() => document.querySelector('#add_tag').style.display = 'none'}></button>
                 </div>
-                <form autocomplete="off">
+                <form autocomplete="off" className='needs-validation'>
                     <div>
-                        <input className="form-control" type="text" name="tag" placeholder="Name" onChange={event => {
-                            setTag(event.target.value);
-                        }}></input>
+                        <input className="form-control" type="text" name="tag" placeholder="Name" value={tag} ref={tagInput} onChange={event => {
+                            setTag(event.target.value.slice(0, 25));
+                        }} />
+                        <div className="invalid-feedback">Please enter a tag name</div>
                     </div>
                     <div id="tag-request-icon-preview" className="mt-3">
                         <div>Icon:</div>
@@ -115,8 +119,8 @@ function AddTag() {
                     </div>
                     <div className="mt-3">
                         <label for="tag-request-description" className="form-label">Description</label>
-                        <textarea id="tag-request-description" class="form-control" rows="3" placeholder="Description" onChange={event => {
-                            setDescription(event.target.value);
+                        <textarea id="tag-request-description" class="form-control" rows="3" placeholder="Description" value={description} onChange={event => {
+                            setDescription(event.target.value.slice(0, 200));
                         }} />
                     </div>
                     <div className="mt-3">

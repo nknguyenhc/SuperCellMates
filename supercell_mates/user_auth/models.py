@@ -3,13 +3,13 @@ from django.contrib.auth.models import AbstractUser
 
 
 class TagRequest(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=25)
     image = models.ImageField(upload_to='tag/', blank=True)
     description = models.TextField(default='')
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=25)
     image = models.ImageField(upload_to='tag/', blank=True)
 
 
