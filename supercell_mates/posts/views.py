@@ -554,10 +554,10 @@ def get_home_feed(request):
             When trying to load more posts, use the previously returned stop_id as the new start_id
 
     If sort is "time", the request must contain:
-        - start_datetime(str): the datetime("YYYY-MM-DD-HH-MM-SS") of the post to start displaying from (excluding)
+        - start_timestamp (int): epoch time in seconds of the post to start displaying from (excluding), or empty string if fetching post from current time
             The string should not have 0 as padding (e.g. 2023-7-3-23-12-10 should be used instead of 07 03)
             When entering home feed for the first time, start_timestamp should be ""
-            When trying to load more posts, use the previously returned stop_datetime as the new start_datetime
+            When trying to load more posts, use the previously returned stop_timestamp as the new start_timestamp
 
     If sort is "matching_index", the request must contain:
         - start_matching_index (str): the exact matching index of the post to start displaying from
@@ -572,7 +572,7 @@ def get_home_feed(request):
         - stop_id (str): the id of the last post in the list of posts
 
     If sort is "time", the response also contains:
-        - stop_datetime (str): the formatted datetime string of the last post in the list of posts
+        - stop_timestamp (str): the epoch time of the last post in the list of posts, if none is found, this field is 0
 
     If sort is "matching_index", the response also contains:
         - stop_matching_index (str): the matching index between user and the creator of the last post
@@ -597,36 +597,25 @@ def get_home_feed(request):
 
         count = 0
         result = []
-        skip = True
-        if request.GET["start_id"] == "":
-            skip = False
 
         # Sort, then take accessible posts until limit is reached
         if request.GET["sort"] == "time":
-            if request.GET["start_datetime"] != "":
-                format = "%Y-%m-%d-%H-%M-%S"
-                # start datetime object rounded up by 1 second, so that the post with start_id can be found
-                start_datetime = datetime.strptime(request.GET["start_datetime"], format) + timedelta(seconds=1)
-                posts = posts.filter(time_posted__lte=start_datetime)
+            if request.GET["start_timestamp"] != "":
+                start_timestamp = datetime.fromtimestamp(float(request.GET["start_timestamp"]))
+                posts = posts.filter(time_posted__lt=start_timestamp)
             posts = posts.order_by('-time_posted')
             for post_object in posts:
-                if skip and post_object.id == request.GET["start_id"]:
-                    skip = False
-                    continue
-                if not skip and has_access(request.user, post_object):
+                if has_access(request.user, post_object):
                     result.append(parse_post_object(post_object))
                     count += 1
                     if count >= int(request.GET["limit"]):
                         break
             ret = {
                 "posts": result,
-                "stop_datetime": "",
-                "stop_id": "",
+                "stop_timestamp": 0
             }
             if count > 0:
-                t = result[count-1]["time_posted"]
-                ret["stop_datetime"] = f"{t['year']}-{t['month']}-{t['day']}-{t['hour']}-{t['minute']}-{t['second']}"
-                ret["stop_id"] = result[count-1]["id"]
+                ret["stop_timestamp"] = result[count-1]["time_posted"]
         # TODO: sort by matching index
         else:
             return HttpResponseBadRequest("sort method query string malformed")
@@ -637,3 +626,7 @@ def get_home_feed(request):
         return HttpResponseBadRequest("GET parameter(s) malformed")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("certain field(s) not found in GET parameter")
+    except ValueError:
+        return HttpResponseBadRequest("start_time provided is not a number / limit provided is not an integer")
+    except OSError:
+        return HttpResponseBadRequest("start_time provided is not epoch time in seconds")

@@ -4,3 +4,9 @@
     gap: 20px;
     align-items: center;
 }
+
+#home-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}
