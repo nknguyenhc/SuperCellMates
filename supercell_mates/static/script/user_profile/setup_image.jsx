@@ -23,6 +23,7 @@ function SetupImage() {
     const [resizing, setResizing] = React.useState(false);
     const frameResizer = React.useRef(null);
     const [imgToBeSubmitted, setImgToBeSubmitted] = React.useState(null);
+    const [fileName, setFileName] = React.useState('');
 
     function image() {
         return (
@@ -68,7 +69,7 @@ function SetupImage() {
                     y: boxPosition.y
                 });
                 setInitialFrameSize(frameSize);
-                cropImage(blob => setImgToBeSubmitted(new File([blob], 'image.jpeg', {
+                cropImage(blob => setImgToBeSubmitted(new File([blob], fileName, {
                     type: blob.type,
                 })));
             }} onMouseMove={event => {
@@ -138,6 +139,7 @@ function SetupImage() {
                 <input ref={imageInput} class="form-control img-input" type="file" id="setupImage" name="profile_pic" accept="image/*" onChange={() => {
                     setImagePreview(image());
                     imgPreviewPage.current.style.display = '';
+                    setFileName(imageInput.current.files[0].name);
                 }}></input>
             </div>
             <div ref={profileImgContainer} className="profile-img-container m-3">

@@ -35,7 +35,8 @@
             allPostsLoaded = false;
         });
     });
-    document.querySelector("#nav-clear-filter").addEventListener('click', () => {
+    const filterClearer = document.querySelector("#nav-clear-filter")
+    filterClearer && filterClearer.addEventListener('click', () => {
         tagFilters.forEach(tagListing => {
             tagListing.querySelector('input').checked = false;
             allPostsLoaded = false;
