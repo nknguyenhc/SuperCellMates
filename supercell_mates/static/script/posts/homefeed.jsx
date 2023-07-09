@@ -70,11 +70,11 @@ function HomeFeed() {
                     <label class="form-check-label" for="friend-filter">My friends only</label>
                 </div>
                 <div className="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="friend-filter" onChange={event => {
+                    <input class="form-check-input" type="checkbox" role="switch" id="tag-filter" onChange={event => {
                         setIsTagFilter(event.target.checked);
                         setIsAllPostsLoaded(false);
                     }} />
-                    <label class="form-check-label" for="friend-filter">My tags only</label>
+                    <label class="form-check-label" for="tag-filter">My tags only</label>
                 </div>
             </div>
         </React.Fragment>
