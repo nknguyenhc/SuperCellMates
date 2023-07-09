@@ -583,17 +583,11 @@ def get_home_feed(request):
         # Exclude user's own posts, and apply filters
         posts = posts.exclude(creator=request.user.user_log)
         if request.GET["friend_filter"] == '1':
-            friend_list = list(request.user.user_log.friend_list.all())
-            if friend_list is None:
-                posts = posts.filter(False)
-            else:
-                posts = posts.filter(creator__in=friend_list)
+            friend_list = request.user.user_log.friend_list.all()
+            posts = posts.filter(creator__in=friend_list)
         if request.GET["tag_filter"] == '1':
-            tag_list = list(request.user.user_profile.tagList.all())
-            if tag_list is None:
-                posts = posts.filter(False)
-            else:
-                posts = posts.filter(tag__in=tag_list)
+            tag_list = request.user.user_profile.tagList.all()
+            posts = posts.filter(tag__in=tag_list)
 
         count = 0
         result = []

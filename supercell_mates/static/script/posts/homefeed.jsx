@@ -1,41 +1,58 @@
 function HomeFeed() {
-    const [sortMethod, setSortMethod] = React.useState("time");
-    const [isFriendFilter, setIsFriendFilter] = React.useState(false);
-    const [isTagFilter, setIsTagFilter] = React.useState(false);
-    const [posts, dispatchPosts] = React.useReducer(addPosts, []);
+    const sortMethod = React.useRef("time");
+    const isFriendFilter = React.useRef(false);
+    const isTagFilter = React.useRef(false);
+    const isAllPostsLoaded = React.useRef(false);
+    const startTimestamp = React.useRef('');
     const postsPerLoad = 10;
+    const homeFeedContent = React.useRef(null);
 
-    function addPosts(currPosts, newPosts) {
-        return [...currPosts, ...newPosts];
-    }
+    const setSortMethod = (newSortMethod) => sortMethod.current = newSortMethod;
+    const setIsFriendFilter = (newValue) => isFriendFilter.current = newValue;
+    const setIsTagFilter = (newValue) => isTagFilter.current = newValue;
+    const setIsAllPostsLoaded = (newValue) => isAllPostsLoaded.current = newValue;
+    const setStartTimestamp = (newStarTimestamp) => startTimestamp.current = newStarTimestamp;
 
     React.useEffect(() => {
         let isLoading = true;
-        let startTimestamp = '';
-        loadMorePosts(startTimestamp).then(newTimestamp => {
-            startTimestamp = newTimestamp;
+        loadMorePosts().then(newTimestamp => {
+            if (newTimestamp !== 0) {
+                setStartTimestamp(newTimestamp);
+            } else {
+                setIsAllPostsLoaded(true);
+            }
             isLoading = false;
         });
-        window.addEventListener('scroll', () => {
-            if (!isLoading && startTimestamp !== '0' && document.body.offsetHeight - window.innerHeight - window.scrollY < 100) {
+        const scrollCallBack = () => {
+            if (!isLoading && !isAllPostsLoaded.current && document.body.offsetHeight - window.innerHeight - window.scrollY < 100) {
                 isLoading = true;
-                loadMorePosts(startTimestamp).then(newTimestamp => {
-                    startTimestamp = newTimestamp;
+                loadMorePosts().then(newTimestamp => {
+                    if (newTimestamp !== 0) {
+                        setStartTimestamp(newTimestamp);
+                    } else {
+                        setIsAllPostsLoaded(true);
+                    }
                     isLoading = false;
                 });
             }
-        });
+        };
+        window.addEventListener('scroll', scrollCallBack);
     }, []);
 
-    function loadMorePosts(startTimestamp) {
-        return fetch(`/post?friend_filter=${isFriendFilter ? 1 : 0}&tag_filter=${isTagFilter ? 1 : 0}&sort=${sortMethod}&start_timestamp=${startTimestamp}&limit=${postsPerLoad}`)
+    function loadMorePosts() {
+        return fetch(`/post/?friend_filter=${isFriendFilter.current ? 1 : 0}&tag_filter=${isTagFilter.current ? 1 : 0}&sort=${sortMethod.current}&start_timestamp=${startTimestamp.current}&limit=${postsPerLoad}`)
             .then(response => {
                 if (response.status !== 200) {
                     triggerErrorMessage();
                     return;
                 }
                 return response.json().then(response => {
-                    dispatchPosts(response.posts);
+                    response.posts.forEach(post => {
+                        const postCard = document.createElement('div');
+                        postCard.className = 'post-card';
+                        ReactDOM.render(<Post post={post} myProfile={false} />, postCard);
+                        homeFeedContent.current.appendChild(postCard);
+                    });
                     return response.stop_timestamp;
                 });
             });
@@ -43,13 +60,23 @@ function HomeFeed() {
 
     return (
         <React.Fragment>
-            {
-                posts.map(post => (
-                    <div className="post-card">
-                        <Post post={post} myProfile={false} />
-                    </div>
-                ))
-            }
+            <div id="home-feed-content" ref={homeFeedContent}></div>
+            <div id="home-feed-filters">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="friend-filter" onChange={event => {
+                        setIsFriendFilter(event.target.checked);
+                        setIsAllPostsLoaded(false);
+                    }} />
+                    <label class="form-check-label" for="friend-filter">My friends only</label>
+                </div>
+                <div className="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="friend-filter" onChange={event => {
+                        setIsTagFilter(event.target.checked);
+                        setIsAllPostsLoaded(false);
+                    }} />
+                    <label class="form-check-label" for="friend-filter">My tags only</label>
+                </div>
+            </div>
         </React.Fragment>
     )
 }

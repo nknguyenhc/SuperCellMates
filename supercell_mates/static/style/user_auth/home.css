@@ -5,8 +5,15 @@
     align-items: center;
 }
 
-#home-feed {
+#home-feed-content {
     display: flex;
     flex-direction: column;
     gap: 50px;
+}
+
+#home-feed-filters {
+    position: fixed;
+    top: 100px;
+    left: 20px;
+    width: 20vw;
 }
