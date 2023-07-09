@@ -51,6 +51,12 @@
     gap: 10px;
 }
 
+#profile-filter-header {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+}
+
 #profile-content {
     display: flex;
     flex-direction: row;

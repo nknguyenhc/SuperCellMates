@@ -28,11 +28,20 @@
         });
     
     let tag = '';
-    Array.from(document.querySelectorAll("#nav-tag-list .tag-listing")).forEach(tagListing => {
+    const tagFilters = Array.from(document.querySelectorAll("#nav-tag-list .tag-listing"));
+    tagFilters.forEach(tagListing => {
         tagListing.addEventListener('click', () => {
             tag = tagListing.querySelector('.tag-name').innerText;
+            allPostsLoaded = false;
         });
     });
+    document.querySelector("#nav-clear-filter").addEventListener('click', () => {
+        tagFilters.forEach(tagListing => {
+            tagListing.querySelector('input').checked = false;
+            allPostsLoaded = false;
+        })
+        tag = '';
+    })
     
     function loadMorePosts() {
         const prevDate = new Date(currDate.getTime() - oneDayTime);
@@ -43,7 +52,9 @@
                 } else {
                     response.json()
                         .then(response => {
-                            currDate = new Date(response.next * 1000);
+                            if (response.next !== 0) {
+                                currDate = new Date(response.next * 1000);
+                            }
                             response.posts.forEach(post => {
                                 addNewPostCard(post, response.myProfile);
                             });

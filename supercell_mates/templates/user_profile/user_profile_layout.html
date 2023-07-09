@@ -72,7 +72,10 @@
                     {% endif %} 
                     {% if not my_profile %} 
                         <li class="nav-item" id="nav-tag-list">
-                            <div>Filters:</div>
+                            <div id="profile-filter-header">
+                                <div>Filters:</div>
+                                <div class="btn btn-secondary" id="nav-clear-filter">Clear Filters</div>
+                            </div>
                             {% for tag in tags %} 
                                 <div class="tag-listing">
                                     <input type="radio" class="btn-check" name="options" id="nav-tag-{{ tag.name }}" autocomplete="off">
