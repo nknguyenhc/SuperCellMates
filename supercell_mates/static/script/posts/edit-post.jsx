@@ -49,22 +49,24 @@ function EditPost(props) {
     }, []);
 
     if (numOfImgsToLoad !== -1 && imgs.length !== numOfImgsToLoad && !allImgsLoaded) {
-        fetch(imgLinks[imgs.length])
+        const imgLink = imgLinks[imgs.length];
+        fetch(imgLink)
             .then(response => {
                 if (response.status !== 200) {
                     triggerErrorMessage();
-                } else {
-                    response.blob()
-                        .then(blob => {
-                            const file = new File([blob], 'image.jpeg', {
-                                type: blob.type,
-                            })
-                            setImgs([...imgs, file]);
-                            if (imgs.length === numOfImgsToLoad - 1) {
-                                setAllImgsLoaded(true);
-                            }
-                        });
+                    return;
                 }
+                response.blob()
+                    .then(blob => {
+                        const arr = imgLink.split('/');
+                        const file = new File([blob], `${arr[arr.length - 1]}.${blob.type.split('/')[1]}`, {
+                            type: blob.type,
+                        })
+                        setImgs([...imgs, file]);
+                        if (imgs.length === numOfImgsToLoad - 1) {
+                            setAllImgsLoaded(true);
+                        }
+                    });
             });
     }
 
