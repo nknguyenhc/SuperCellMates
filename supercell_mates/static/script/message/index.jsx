@@ -298,7 +298,7 @@ function ChatPage() {
         if (inputText !== '') {
             currSocket.send(JSON.stringify({
                 type: "text",
-                message: inputText
+                message: inputText[inputText.length - 1] !== '\n' ? inputText : inputText.slice(0, inputText.length - 1)
             }));
             setInputText('');
             testAndScrollToBottom();
