@@ -45,6 +45,12 @@
     align-self: start;
 }
 
+#nav-tag-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 #profile-content {
     display: flex;
     flex-direction: row;

@@ -27,9 +27,16 @@
             }
         });
     
+    let tag = '';
+    Array.from(document.querySelectorAll("#nav-tag-list .tag-listing")).forEach(tagListing => {
+        tagListing.addEventListener('click', () => {
+            tag = tagListing.querySelector('.tag-name').innerText;
+        });
+    });
+    
     function loadMorePosts() {
         const prevDate = new Date(currDate.getTime() - oneDayTime);
-        fetch(`/post/posts/${username}?start=${prevDate.getTime() / 1000}&end=${currDate.getTime() / 1000}`)
+        fetch(`/post/posts/${username}?start=${prevDate.getTime() / 1000}&end=${currDate.getTime() / 1000}${tag === '' ? '' : `&tag=${tag}`}`)
             .then(response => {
                 if (response.status !== 200) {
                     triggerErrorMessage();

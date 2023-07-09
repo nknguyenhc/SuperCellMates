@@ -42,13 +42,11 @@ function SetupImage() {
     }
 
     function submitPhoto() {
-        console.log(imgToBeSubmitted.type);
         fetch('/profile/set_profile_image', postRequestContent({
             img: imgToBeSubmitted
         }))
             .then(response => {
                 if (response.status !== 200) {
-                    response.text().then(text => console.log(text));
                     triggerErrorMessage();
                 } else {
                     popSetupMessage("Profile image updated successfully!");

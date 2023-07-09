@@ -94,7 +94,6 @@ function ChangePassword() {
             .then(response => {
                 if (response.status !== 200) {
                     triggerErrorMessage();
-                    response.text().then(text => console.log(text));
                 } else {
                     response.text().then(text => {
                         if (text !== "Password changed") {
