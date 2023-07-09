@@ -347,10 +347,22 @@ def new_tag_admin(request):
             try:
                 tag_name = request.POST["tag"]
                 if TagRequest.objects.filter(name=tag_name).exists() or Tag.objects.filter(name=tag_name).exists():
-                    return HttpResponseBadRequest("tag already exists/tag request already exists")
-                tag = Tag(name=tag_name)
+                    return HttpResponse("Tag already exists/Tag request already exists")
+
+                has_img = False
+                if "img" in request.FILES:
+                    has_img = True
+                    img = request.FILES["img"]
+                    if not verify_image(img):
+                        return HttpResponseBadRequest("Tag icon is not image")
+
+                if has_img:
+                    tag = Tag(name=tag_name, image=img)
+                else:
+                    tag = Tag(name=tag_name)
                 tag.save()
-                return HttpResponse("tag added")
+                return HttpResponse("Tag added")
+            
             except AttributeError:
                 return HttpResponseBadRequest("request does not contain form data")
             except MultiValueDictKeyError:

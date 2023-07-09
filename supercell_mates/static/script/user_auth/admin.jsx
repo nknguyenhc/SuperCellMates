@@ -66,29 +66,48 @@ function ManageTags() {
 }
 
 function AddTags() {
+    const addTagAdminButton = React.useRef(null);
+    const [tagName, setTagName] = React.useState('');
+    const [emptyErrorMessageTriggered, setEmptyErrorMessageTriggered] = React.useState(false);
+    const [adminMessage, setAdminMessage] = React.useState('');
+    const [imagePreview, setImagePreview] = React.useState('');
+    const [imgFile, setImgFile] = React.useState(null);
+    const fileInput = React.useRef(null);
+    
     function addTag(event) {
         event.preventDefault();
         if (tagName === '') {
             setEmptyErrorMessageTriggered(true);
-        } else {
-            fetch('/new_tag_admin', postRequestContent({
-                tag: tagName
-            }))
-                .then(response => {
-                    if (response.status === 200) {
-                        addTagAdminButton.current.click();
-                        setTagName('');
-                        setEmptyErrorMessageTriggered(false);
-                    } else {
-                        triggerErrorMessage();
-                    }
-                });
+            return;
         }
+
+        const requestBody = {
+            tag: tagName
+        }
+        if (imgFile !== null) {
+            requestBody.img = imgFile;
+        }
+        fetch('/new_tag_admin', postRequestContent(requestBody))
+            .then(response => {
+                if (response.status === 200) {
+                    response.text().then(text => setAdminMessage(text));
+                    addTagAdminButton.current.click();
+                    setTagName('');
+                    setImgFile(null);
+                    fileInput.current.files = null;
+                    setEmptyErrorMessageTriggered(false);
+                } else {
+                    triggerErrorMessage();
+                }
+            });
     }
 
-    const addTagAdminButton = React.useRef(null);
-    const [tagName, setTagName] = React.useState('');
-    const [emptyErrorMessageTriggered, setEmptyErrorMessageTriggered] = React.useState(false);
+    function iconUpload(event) {
+        setImagePreview((
+            <img src={URL.createObjectURL(event.target.files[0])} style={{height: '25px'}} />
+        ));
+        setImgFile(event.target.files[0]);
+    }
 
     return (
         <React.Fragment>
@@ -97,6 +116,11 @@ function AddTags() {
                     <label htmlFor="tag-input" className="form-label">Tag</label>
                     <input type="text" className="form-control" id="tag-input-admin" autoComplete="off" value={tagName} onChange={event => setTagName(event.target.value)} />
                 </div>
+                <div className="m-3" id="new-tag-admin-icon">
+                    <div>Icon:</div>
+                    <div>{imagePreview}</div>
+                </div>
+                <input ref={fileInput} type="file" accept="image/*" className="form-control m-3" onChange={iconUpload} />
                 <div className="m-3">
                     <input type="submit" class="btn btn-primary" value="Add Tag" />
                 </div>
@@ -110,7 +134,7 @@ function AddTags() {
                             <h1 class="modal-title fs-5" id="add-tag-admin-label">Message</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">Tag added successfully.
+                        <div class="modal-body">{adminMessage}
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
