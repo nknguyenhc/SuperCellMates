@@ -1,6 +1,6 @@
 function PlaceHolder() {
     return (
-        <div id="search-box-placeholder" class='text-body-tertiary'>Type something and search ...</div>
+        <div id="search-box-placeholder" class='text-body-tertiary'>Type and search for user ...</div>
     )
 }
 
@@ -22,7 +22,7 @@ function renderSearchBoxPlaceholder() {
 
 function NoResult() {
     return (
-        <div id="search-box-no-result" class="text-body-tertiary">No result to show</div>
+        <div id="search-box-no-result" class="text-body-tertiary">No user match your search</div>
     )
 }
 
