@@ -16,6 +16,7 @@ from django.conf import settings
 from PIL import Image
 
 from user_auth.models import Tag, UserAuth
+from user_log.models import FriendRequest
 
 
 def layout_context(user_auth_obj):
@@ -77,7 +78,7 @@ def index_context(user_auth_obj):
     result = {
         "tags": get_tag_list(user_auth_obj),
         "my_profile": True,
-        "is_admin": user_auth_obj.is_superuser
+        "is_admin": user_auth_obj.is_staff
     }
     result.update(layout_context(user_auth_obj))
     return result
@@ -403,3 +404,20 @@ def change_name(request):
     
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body is missing an important key")
+    
+
+@login_required
+def achievements(request, username):
+    """Render achievement page.
+    # TODO
+    """
+    if not UserAuth.objects.filter(username=username).exists():
+        return HttpResponseNotFound()
+    user_auth_obj = UserAuth.objects.get(username=username)
+    context = layout_context(user_auth_obj)
+    context.update({
+        "my_profile": request.user.username == username,
+        "is_friend": user_auth_obj.user_log in request.user.user_log.friend_list.all(),
+        "is_friend_request_sent": FriendRequest.objects.filter(to_user=request.user.user_log, from_user=user_auth_obj.user_log).exists()
+    })
+    return render(request, 'user_profile/achievements.html', context)
