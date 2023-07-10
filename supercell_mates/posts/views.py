@@ -549,13 +549,9 @@ def get_home_feed(request):
         - friend_filter ('1'/'0'): whether user filters home feed to friends only
         - tag_filter('1'/'0'): whether user filters home feed to their tags only
         - limit (str): the maximum number of posts to return
-        - start_id (str): the id of the post to start displaying from (excluding)
-            When entering home feed for the first time, start_id should be ""
-            When trying to load more posts, use the previously returned stop_id as the new start_id
 
     If sort is "time", the request must contain:
         - start_timestamp (int): epoch time in seconds of the post to start displaying from (excluding), or empty string if fetching post from current time
-            The string should not have 0 as padding (e.g. 2023-7-3-23-12-10 should be used instead of 07 03)
             When entering home feed for the first time, start_timestamp should be ""
             When trying to load more posts, use the previously returned stop_timestamp as the new start_timestamp
 
@@ -569,7 +565,6 @@ def get_home_feed(request):
 
     The jsonResponse contains:
         - posts (list(dict)): the list of posts, each represented by a dictionary
-        - stop_id (str): the id of the last post in the list of posts
 
     If sort is "time", the response also contains:
         - stop_timestamp (str): the epoch time of the last post in the list of posts, if none is found, this field is 0

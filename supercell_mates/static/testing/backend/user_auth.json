@@ -59,6 +59,30 @@
             "javascript": "fetch('/logout_async').then(response => response.text()).then(response => console.log(response))",
             "expected": "Response 200, console notification that you are logged out. The cookie sessionid should disappear.",
             "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "Replace the username with a username already in existence.",
+            "javascript": "fetch('/check_unique_username_async?username=<username already in existence>').then(response => response.text()).then(response => console.log(response))",
+            "expected": "Console notification that username is already taken.",
+            "datePassed": "10/07/2023"
+        },
+        {
+            "setup": "Replace the username with a username not in existence.",
+            "javascript": "fetch('/check_unique_username_async?username=<username not yet in existence>').then(response => response.text()).then(response => console.log(response))",
+            "expected": "Console notification that username is unique.",
+            "datePassed": "10/07/2023"
+        },
+        {
+            "setup": "The following API call will change your username.",
+            "javascript": "fetch('/change_username', postRequestContent({ new_username: '<your new username>', password: '<your current password>' })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Console notification that username has been changed. Navigate to profile page or log out and log in again to verify.",
+            "datePassed": "10/07/2023"
+        },
+        {
+            "setup": "The following API call will change your password.",
+            "javascript": "fetch('/change_password', postRequestContent({ old_password: '<your old password>', new_password: '<your new password>' })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Console notification that password has been changed. Log out and log in again to verify.",
+            "datePassed": "10/07/2023"
         }
     ]
 }

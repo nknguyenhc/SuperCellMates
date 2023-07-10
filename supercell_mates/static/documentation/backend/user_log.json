@@ -2,7 +2,7 @@
     "name": "user_log",
     "views": [
         {
-            "path": "user/profile_async/<str:username>",
+            "path": "/user/profile_async/<str:username>",
             "description": "Returns the information on the target user to be viewed on mobile.",
             "getParams": [],
             "postParams": [],
@@ -26,7 +26,7 @@
             }
         },
         {
-            "path": "user/add_friend_request",
+            "path": "/user/add_friend_request",
             "description": "Add a friend request from the current user to the target user.",
             "getParams": [],
             "postParams": [
@@ -38,7 +38,7 @@
             "return": "<success status 200, or status 4xx if the request is invalid>"
         },
         {
-            "path": "user/friends_async",
+            "path": "/user/friends_async",
             "description": "Returns the list of friends of the current user.",
             "getParams": [],
             "postParams": [],
@@ -64,7 +64,7 @@
             ]
         },
         {
-            "path": "user/friend_requests_async",
+            "path": "/user/friend_requests_async",
             "description": "Returns the list of friend requests to the current user.",
             "getParams": [],
             "postParams": [],
@@ -90,7 +90,7 @@
             ]
         },
         {
-            "path": "user/add_friend",
+            "path": "/user/add_friend",
             "description": "Add another user as a friend to the current user. The other user must have sent friend request to the current user.",
             "getParams": [],
             "postParams": [
@@ -106,7 +106,7 @@
             "return": "<success status 200, or status 4xx if the request is invalid>"
         },
         {
-            "path": "user/search",
+            "path": "/user/search",
             "description": "Returns search results of users.",
             "getParams": [
                 {
@@ -139,7 +139,40 @@
             }
         },
         {
-            "path": "user/delete_friend",
+            "path": "/user/search_friend",
+            "description": "Returns the search results of friends.",
+            "getParams": [
+                {
+                    "name": "username",
+                    "description": "The search phrase, which each of the friend result returned must has username with the search phrase as substring."
+                }
+            ],
+            "postParams": [],
+            "return": {
+                "users": [
+                    {
+                        "name": "<friend 1 name>",
+                        "username": "<friend 1 username>",
+                        "profile_pic_url": "<URL to profile pic of friend 1>",
+                        "profile_link": "<URL to profile of friend 1>"
+                    },
+                    {
+                        "name": "<friend 2 name>",
+                        "username": "<friend 2 username>",
+                        "profile_pic_url": "<URL to profile pic of friend 2>",
+                        "profile_link": "<URL to profile of friend 2>"
+                    },
+                    {
+                        "name": "<friend 3 name>",
+                        "username": "<friend 3 username>",
+                        "profile_pic_url": "<URL to profile pic of friend 3>",
+                        "profile_link": "<URL to profile of friend 3>"
+                    }
+                ]
+            }
+        },
+        {
+            "path": "/user/delete_friend",
             "description": "Delete a user from the current user's list of friends",
             "getParams": [],
             "postParams": [

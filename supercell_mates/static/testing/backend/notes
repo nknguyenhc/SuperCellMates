@@ -5,4 +5,5 @@ By default, unless stated otherwise, you must be logged in to conduct the test. 
 Replace the values inside the diamond operator with the correct value. Don't come back to us saying the API does not work when you have not done so.
 Some instruction on a POST request may involve reloading the page. This is for you to verify, but on our side, we check the database to verify the modifications.
 Trivial test cases are presented in user_auth section, but omitted everywhere else in this testing documentation. Trivial test cases include those with invalid POST request body content and invalid settings (e.g. logged in settings, user relationships).
+Unit tests for admin features (i.e. APIs that only admins can access) are not yet designed. Please note that we have tested them, but the tests are not yet documented.
 Do not attempt to send a request to our server cross-origin. We do not accommodate for cross-origin request, hence there is no 'Access-Control-Allow-Origin' in the response header. GET request may still go through, but POST request will strictly not go through.

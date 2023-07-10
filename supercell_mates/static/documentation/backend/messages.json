@@ -2,11 +2,228 @@
     "name": "message",
     "views": [
         {
+            "path": "/messages/create_group_chat",
+            "description": "Create a new group chat including the request user and some other people indicated. Users to be added must be friend with the current user",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "users",
+                    "description": "The list of usernames of users to be added to the group"
+                },
+                {
+                    "name": "group_name",
+                    "description": "The name of the new group chat"
+                }
+            ],
+            "return": {
+                "id": "<group chat id>",
+                "timestamp": "<the epoch time that the group was created>",
+                "name": "<the name of the group>",
+                "img": "<the URL to the representative image of the group>"
+            }
+        },
+        {
+            "path": "/messages/get_members",
+            "description": "Obtain members of the group chat with id indicated.",
+            "getParams": [
+                {
+                    "name": "chatid",
+                    "description": "The id of the group chat to obtain users from"
+                }
+            ],
+            "postParams": [],
+            "return": {
+                "users": [
+                    {
+                        "name": "<name of user 1>",
+                        "username": "<username of user 1>",
+                        "profile_link": "<URL to profile of user 1>",
+                        "profile_pic_url": "<URL to the profile picture of user 1>"
+                    },
+                    {
+                        "name": "<name of user 2>",
+                        "username": "<username of user 2>",
+                        "profile_link": "<URL to profile of user 2>",
+                        "profile_pic_url": "<URL to the profile picture of user 2>"
+                    },
+                    {
+                        "name": "<name of user 3>",
+                        "username": "<username of user 3>",
+                        "profile_link": "<URL to profile of user 3>",
+                        "profile_pic_url": "<URL to the profile picture of user 3>"
+                    }
+                ]
+            }
+        },
+        {
+            "path": "/messages/add_member",
+            "description": "Add a friend into the group chat with the given id. The request user must be in the chat, and the target user must be friend with the request user.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "username",
+                    "description": "The username of the user to be added"
+                },
+                {
+                    "name": "chat_id",
+                    "description": "The id of the chat to add the user to"
+                }
+            ],
+            "return": "<response status 200, or 4xx if the request is invalid>"
+        },
+        {
+            "path": "/messages/is_admin",
+            "description": "Check if the request user is admin of the chat with the given chat id",
+            "getParams": [
+                {
+                    "name": "chatid",
+                    "description": "The chat id to check admin privilege"
+                }
+            ],
+            "postParams": [],
+            "return": "'yes' or 'no'"
+        },
+        {
+            "path": "/messages/is_creator",
+            "description": "Check if the request user is creator (leader) of the chat with the given chat id",
+            "getParams": [
+                {
+                    "name": "chatid",
+                    "description": "The chat id to check leader privilege"
+                }
+            ],
+            "postParams": [],
+            "return": "'yes' or 'no'"
+        },
+        {
+            "path": "/messages/remove_user",
+            "description": "Remove a user from the group chat. You must have admin privilege to perform this action. If the target user is admin, the request user must be creator (leader) of the group chat.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "username",
+                    "description": "The username of the target user to boot"
+                }
+            ],
+            "return": "<response status 200, or 4xx if the request is invalid>"
+        },
+        {
+            "path": "/messages/get_admins",
+            "description": "Get the list of admin of a given group chat. You must be admin of the group chat to access this view.",
+            "getParams": [
+                {
+                    "name": "chatid",
+                    "description": "The chat id of the group chat to obtain list of admin from"
+                }
+            ],
+            "postParams": [],
+            "return": {
+                "users": [
+                    {
+                        "name": "<name of admin 1>",
+                        "username": "<username of admin 1>",
+                        "profile_link": "<URL to profile page of admin 1>",
+                        "profile_pic_url": "<URL to profile picture of admin 1>"
+                    },
+                    {
+                        "name": "<name of admin 2>",
+                        "username": "<username of admin 2>",
+                        "profile_link": "<URL to profile page of admin 2>",
+                        "profile_pic_url": "<URL to profile picture of admin 2>"
+                    },
+                    {
+                        "name": "<name of admin 3>",
+                        "username": "<username of admin 3>",
+                        "profile_link": "<URL to profile page of admin 3>",
+                        "profile_pic_url": "<URL to profile picture of admin 3>"
+                    }
+                ]
+            }
+        },
+        {
+            "path": "/messages/add_admin",
+            "description": "Add a person in the chat to be an admin of the group chat.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "chatid",
+                    "description": "The id of the group chat to add the admin"
+                },
+                {
+                    "name": "username",
+                    "description": "The username of the user to add as admin"
+                }
+            ],
+            "return": "<response status 200, or 4xx if the request is invalid>"
+        },
+        {
+            "path": "/messages/remove_admin",
+            "description": "Remove admin privileges from a person in the group chat. The request user must be creator (leader) of the group chat.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "chatid",
+                    "description": "The id of the group chat to remove admin privileges from the target user"
+                },
+                {
+                    "name": "username",
+                    "description": "The username of the target user to remove admin privileges"
+                }
+            ],
+            "return": "<response status 200, or 4xx if the request is invalid>"
+        },
+        {
+            "path": "/messages/assign_leader",
+            "description": "Assign another user as creator (leader) of the group chat. The request user must be current creator (leader) of the indicated group chat.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "chatid",
+                    "description": "The id of the group chat to transfer leadership"
+                },
+                {
+                    "name": "username",
+                    "description": "The username of the target user to assign as new leader"
+                }
+            ],
+            "return": "<response status 200, or 4xx if the request is invalid>"
+        },
+        {
+            "path": "/messages/get_group_chat_rep_img/<str:chat_id>",
+            "description": "Obtain the representative image of the group chat. Currently, this feature is not yet implemented, hence it redirects to the default profile image.",
+            "getParams": [],
+            "postParams": [],
+            "return": "<the image>"
+        },
+        {
             "path": "/messages/get_group_chats",
             "description": "Obtain the information of all group chats that the current user belongs to",
             "getParams": [],
             "postParams": [],
-            "return": "<not yet implemented>"
+            "return": {
+                "privates": [
+                    {
+                        "id": "<id of group chat 1>",
+                        "timestamp": "<epoch timestamp of group chat 1>",
+                        "user": {
+                            "name": "<name of the friend>",
+                            "username": "<username of the friend>",
+                            "profile_link": "<URL to the friend's profile page>",
+                            "profile_img_url": "<URL to the friend's profile image>"
+                        }
+                    },
+                    {
+                        "id": "<id of group chat 2>",
+                        "timestamp": "<epoch timestamp of group chat 2>",
+                        "user": {
+                            "name": "<name of the friend>",
+                            "username": "<username of the friend>",
+                            "profile_link": "<URL to the friend's profile page>",
+                            "profile_img_url": "<URL to the friend's profile image>"
+                        }
+                    }
+                ]
+            }
         },
         {
             "path": "/messages/get_private_chats",
@@ -24,14 +241,81 @@
                             "profile_link": "<URL to the friend's profile page>",
                             "profile_img_url": "<URL to the friend's profile image>"
                         }
+                    },
+                    {
+                        "id": "<id of private chat 2>",
+                        "timestamp": "<epoch timestamp of private chat 2>",
+                        "user": {
+                            "name": "<name of the friend>",
+                            "username": "<username of the friend>",
+                            "profile_link": "<URL to the friend's profile page>",
+                            "profile_img_url": "<URL to the friend's profile image>"
+                        }
                     }
                 ]
             }
         },
         {
+            "path": "/messages/get_group_messages/<str:chat_id>",
+            "description": "Get messages in the current group chat. Returns messages within a time period given",
+            "getParams": [
+                {
+                    "name": "start",
+                    "description": "The starting time of the messages to be loaded, epoch time in seconds"
+                },
+                {
+                    "name": "end",
+                    "description": "The ending time of the messages to be loaded, epoch time in seconds"
+                }
+            ],
+            "postParams": [],
+            "return": {
+                "messages": [
+                    {
+                        "id": "<id of message 1>",
+                        "timestamp": "<epoch timestamp of message 1>",
+                        "user": {
+                            "name": "<sender's name>",
+                            "username": "<sender's username>",
+                            "profile_link": "<URL to the sender's profile page>",
+                            "profile_img_url": "<URL to the sender's profile image>"
+                        },
+                        "type": "text/file",
+                        "message": "<text message, available only if type is text>",
+                        "filename": "<name of file, available only if type is file>",
+                        "is_image": "<whether the file is an image, available only if type is file>"
+                    },
+                    {
+                        "id": "<id of message 2>",
+                        "timestamp": "<epoch timestamp of message 2>",
+                        "user": {
+                            "name": "<sender's name>",
+                            "username": "<sender's username>",
+                            "profile_link": "<URL to the sender's profile page>",
+                            "profile_img_url": "<URL to the sender's profile image>"
+                        },
+                        "type": "text/file",
+                        "message": "<text message, available only if type is text>",
+                        "filename": "<name of file, available only if type is file>",
+                        "is_image": "<whether the file is an image, available only if type is file>"
+                    }
+                ],
+                "next_last_timestamp": "<timestamp of the next older message to be loaded>"
+            }
+        },
+        {
             "path": "/messages/get_private_messages/<str:chat_id>",
-            "description": "Get messages in the current chat. Currently it returns info on all messages, in a future release it will only return messages within a time period given",
-            "getParams": [],
+            "description": "Get messages in the current private chat. Returns messages within a time period given",
+            "getParams": [
+                {
+                    "name": "start",
+                    "description": "The starting time of the messages to be loaded, epoch time in seconds"
+                },
+                {
+                    "name": "end",
+                    "description": "The ending time of the messages to be loaded, epoch time in seconds"
+                }
+            ],
             "postParams": [],
             "return": {
                 "messages": [
@@ -48,8 +332,23 @@
                         "message": "<text message, available only if type is text>",
                         "filename": "<name of file, available only if type is file>",
                         "is_image": "<whether the file is an image, available only if type is file>"
+                    },
+                    {
+                        "id": "<id of message 2>",
+                        "timestamp": "<epoch timestamp of message 2>",
+                        "user": {
+                            "name": "<friend's name>",
+                            "username": "<friend's username>",
+                            "profile_link": "<URL to the friend's profile page>",
+                            "profile_img_url": "<URL to the friend's profile image>"
+                        },
+                        "type": "text/file",
+                        "message": "<text message, available only if type is text>",
+                        "filename": "<name of file, available only if type is file>",
+                        "is_image": "<whether the file is an image, available only if type is file>"
                     }
-                ]
+                ],
+                "next_last_timestamp": "<timestamp of the next older message to be loaded>"
             }
         },
         {

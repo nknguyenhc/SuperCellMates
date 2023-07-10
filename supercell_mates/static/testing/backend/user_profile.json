@@ -47,6 +47,11 @@
             "javascript": "fetch('/profile/user_tags/<username>').then(response => response.json()).then(response => console.log(response))",
             "expected": "The list of tags of the user with provided username.",
             "datePassed": "06/07/2023"
+        },
+        {
+            "setup": "The following API call will change your profile name.",
+            "javascript": "fetch('/profile/change_name', postRequestContent({ password: '<your password>', name: '<your new name>' })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Console notification that your name has been changed."
         }
     ]
 }

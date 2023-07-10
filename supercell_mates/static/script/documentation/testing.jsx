@@ -14,6 +14,7 @@ function Testing() {
             path: "web_frontend/",
             apps: [
                 "logged_out",
+                "layout",
                 "profile",
                 "settings"
             ]

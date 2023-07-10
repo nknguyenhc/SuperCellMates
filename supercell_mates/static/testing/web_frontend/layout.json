@@ -1,0 +1,44 @@
+{
+    "tests": [
+        {
+            "instruction": "Press on the home button.",
+            "expected": "User should be redirected to the home page.",
+            "datePassed": "10/07/2023"
+        },
+        {
+            "instruction": "Press on the request tag button.",
+            "expected": "Request tag button should appear.",
+            "datePassed": "10/07/2023"
+        },
+        {
+            "instruction": "Press on the request tag button. Fill in at least the tag name, and press submit.",
+            "expected": "Request should be submitted, viewable in the admin page. The request tag window should close, and a pop up message appears notifying the user.",
+            "datePassed": "10/07/2023"
+        },
+        {
+            "instruction": "Press on your profile button.",
+            "expected": "User should be redirected to their own profile page.",
+            "datePassed": "10/07/2023"
+        },
+        {
+            "instruction": "Press on the message button.",
+            "expected": "User should be redirected to their message page, and private chats appear by default.",
+            "datePassed": "10/07/2023"
+        },
+        {
+            "instruction": "Press on the settings button.",
+            "expected": "User should be redirected to the settings page.",
+            "datePassed": "10/07/2023"
+        },
+        {
+            "instruction": "Log in with an admin account. (Note: apply for admin if you want to test this. If you don't know how, you have not read our README carefully)",
+            "expected": "User should be redirected to the admin page.",
+            "datePassed": "10/07/2023"
+        },
+        {
+            "instruction": "Input some text into the search bar. Hit enter or press search.",
+            "expected": "All users with username that has search parameter as substring appears in the result list.",
+            "datePassed": "10/07/2023"
+        }
+    ]
+}

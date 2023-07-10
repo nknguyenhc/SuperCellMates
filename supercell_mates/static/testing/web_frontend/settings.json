@@ -24,6 +24,26 @@
             "instruction": "Navigate to settings page by pressing settings button on the navigation bar. Click change password, type in the correct old password, and input the same new password and confirm password.",
             "expected": "Password is changed. Logging in to the same account now requires the same password.",
             "datePassed": "06/07/2023"
+        },
+        {
+            "instruction": "Navigate to settings page by pressing settings button on the navigation bar. Click log out.",
+            "expected": "The user is logged out and redirected to the login page. Try accessing a page that requires logging in will redirects the user to the log in page.",
+            "datePassed": "10/07/2023"
+        },
+        {
+            "instruction": "Navigate to settings page by pressing settings button on the navigation bar. Click on edit profile.",
+            "expected": "The user is redirected to the profile setup (edit) page.",
+            "datePassed": "10/07/2023"
+        },
+        {
+            "instruction": "Navigate to settings page by pressing settings button on the navigation bar. Click on change name, input a wrong password and optionally a new name.",
+            "expected": "Notification that authentication fails, and name is not changed.",
+            "datePassed": "10/07/2023"
+        },
+        {
+            "instruction": "Navigate to settings page by pressing settings button on the navigation bar. Click on change name, input the correct current password, and input a new name.",
+            "expected": "Notification that name is changed. Navigate to your profile page to verify.",
+            "datePassed": "10/07/2023"
         }
     ]
 }

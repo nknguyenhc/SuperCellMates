@@ -315,7 +315,7 @@ def add_tag_admin(request):
                 tag_request_id = request.POST["tag_request_id"]
                 tag_request_obj = TagRequest.objects.get(id=tag_request_id)
                 icon = tag_request_obj.image
-                tag_name = request.POST["tag"]
+                tag_name = tag_request_obj.name
                 if not icon:
                     tag = Tag(name=tag_name)
                 else:

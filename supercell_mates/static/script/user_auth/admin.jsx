@@ -8,10 +8,9 @@ function ManageTags() {
             .catch(() => triggerErrorMessage());
     }, []);
 
-    function submitTag(tag_request_id, tag) {
+    function submitTag(tag_request_id) {
         fetch('/add_tag_admin', postRequestContent({
-            tag_request_id: tag_request_id,
-            tag: tag
+            tag_request_id: tag_request_id
         }))
             .then(response => {
                 if (response.status !== 200) {
@@ -51,7 +50,7 @@ function ManageTags() {
                             <td>{request.description}</td>
                             <td>
                                 <button type="button" class="btn btn-success" onClick={() => {
-                                    submitTag(request.id, request.name);
+                                    submitTag(request.id);
                                 }}>Approve</button>
                                 <button type="button" class="btn btn-danger" onClick={() => {
                                     removeRequest(request.id);
