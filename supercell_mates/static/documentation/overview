@@ -1,0 +1,3 @@
+Our backend is based on Django, a popular framework known for its security. We use Django’s default app framework to split up our app based on components’ functionalities. We also use Django’s default middlewares for security, such as CSRF token validation, authentication validation, etc.
+For the web frontend, we use a mix of conventional template rendering as well as API calls to render our pages. ReactJS and VanillaJS are both used to handle page interactions. CSS and Bootstrap are used to beautify our pages.
+For mobile frontend, flutter is used to render on mobile in an app. API calls are used to obtain information from the backend and display them in the interface.
