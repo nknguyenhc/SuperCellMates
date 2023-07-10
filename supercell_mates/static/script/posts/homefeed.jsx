@@ -6,6 +6,8 @@ function HomeFeed() {
     const startTimestamp = React.useRef('');
     const postsPerLoad = 10;
     const homeFeedContent = React.useRef(null);
+    const filterMessageDiv = React.useRef(null);
+    const messageTimeout = React.useRef(null);
 
     const setSortMethod = (newSortMethod) => sortMethod.current = newSortMethod;
     const setIsFriendFilter = (newValue) => isFriendFilter.current = newValue;
@@ -58,6 +60,24 @@ function HomeFeed() {
             });
     }
 
+    function popFilterMessage() {
+        function addClasses() {
+            filterMessageDiv.current.classList.add('filter-message-transition');
+            filterMessageDiv.current.classList.add('filter-message-position');
+            filterMessageDiv.current.classList.add('filter-message-fading');
+        }
+        function removeClasses() {
+            filterMessageDiv.current.classList.remove('filter-message-transition');
+            filterMessageDiv.current.classList.remove('filter-message-position');
+            filterMessageDiv.current.classList.remove('filter-message-fading');
+        }
+
+        clearTimeout(messageTimeout.current);
+        removeClasses();
+        setTimeout(addClasses, 10);
+        messageTimeout.current = setTimeout(removeClasses, 2000);
+    }
+
     return (
         <React.Fragment>
             <div id="home-feed-content" ref={homeFeedContent}></div>
@@ -66,6 +86,7 @@ function HomeFeed() {
                     <input class="form-check-input" type="checkbox" role="switch" id="friend-filter" onChange={event => {
                         setIsFriendFilter(event.target.checked);
                         setIsAllPostsLoaded(false);
+                        popFilterMessage();
                     }} />
                     <label class="form-check-label" for="friend-filter">My friends only</label>
                 </div>
@@ -73,10 +94,12 @@ function HomeFeed() {
                     <input class="form-check-input" type="checkbox" role="switch" id="tag-filter" onChange={event => {
                         setIsTagFilter(event.target.checked);
                         setIsAllPostsLoaded(false);
+                        popFilterMessage();
                     }} />
                     <label class="form-check-label" for="tag-filter">My tags only</label>
                 </div>
             </div>
+            <div id="filter-message" ref={filterMessageDiv} class="alert alert-info" role="alert">Filter will be applied when you scroll to the bottom!</div>
         </React.Fragment>
     )
 }
