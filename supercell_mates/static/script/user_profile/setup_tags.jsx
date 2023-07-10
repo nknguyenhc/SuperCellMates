@@ -8,6 +8,7 @@ function SetupTags() {
     const searchTagForm = React.useRef(null);
     const [showTagResult, setShowTagResult] = React.useState(false);
     const [showAlert, setShowAlert] = React.useState(false);
+    const [searchDone, setSearchDone] = React.useState(false);
 
     React.useEffect(() => {
         fetch('/profile/obtain_tags')
@@ -61,6 +62,7 @@ function SetupTags() {
                 } else {
                     response.json().then(response => {
                         setSearchResults(response.tags.filter(tag => toBeSubmitted.find(addedTag => addedTag.name === tag.name) === undefined));
+                        setSearchDone(true);
                     })
                 }
             })
@@ -115,7 +117,7 @@ function SetupTags() {
                             <div id="search-tag-result-window" className='p-2' style={{display: showTagResult ? '' : 'none'}}>
                                 {
                                     searchResults.length === 0 
-                                    ? <div class='text-body-tertiary'>No result/No search is done</div> 
+                                    ? <div class='text-body-tertiary'>{searchDone ? 'No result matches your query' : 'Type something and hit enter'}</div>
                                     : searchResults.map((tag, index) => (
                                         <div className="tag-button btn btn-outline-info" onClick={() => addNewTag(index)}>
                                             <img src={tag.icon} />
