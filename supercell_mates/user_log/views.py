@@ -44,7 +44,7 @@ def view_profile_context(user_auth_obj, request_user):
     result = {
         "tags": tags,
         "my_profile": False,
-        "is_friend": user_auth_obj.user_log in list(request_user.user_log.friend_list.all()),
+        "is_friend": user_auth_obj.user_log in request_user.user_log.friend_list.all(),
         "is_friend_request_sent": FriendRequest.objects.filter(to_user=request_user.user_log, from_user=user_auth_obj.user_log).exists()
     }
     result.update(layout_context(user_auth_obj))
@@ -110,6 +110,8 @@ def add_friend_request(request):
     
     try:
         username = request.POST["username"]
+        if username == request.user.username:
+            return HttpResponseBadRequest("cannot send friend request to yourself")
         user_log_obj = UserAuth.objects.get(username=username).user_log
         if user_log_obj not in request.user.user_log.friend_list.all() and not FriendRequest.objects.filter(from_user=request.user.user_log, to_user=user_log_obj).exists():
             friend_request = FriendRequest(from_user=request.user.user_log, to_user=user_log_obj)

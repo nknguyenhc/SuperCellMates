@@ -53,9 +53,9 @@
                     </div>
                 </div>
             </div>
-            <div id="profile-achievements">
+            <a id="profile-achievements" href="{% url 'user_profile:achievements' username=user_profile.username %}">
                 <img src="/static/media/trophy.jpg" height="100" width="100">
-            </div>
+            </a>
         </div>
         <div id="profile-content">
             <div id="profile-side-nav" class="sticky-top p-3 border-end">
