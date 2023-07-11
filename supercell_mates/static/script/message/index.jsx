@@ -409,17 +409,22 @@ function ChatPage() {
                 <div id="chat-list" className="border">
                     {
                         isPrivateChatsSelected
-                        ? privateChats.map((privateChat, i) => (
-                            <div className="chat-listing" 
-                            onClick={() => clickOpenChat(privateChat.id, i, true, true)} style={{
-                                backgroundColor: highlighting === i && chatSelected ? "#CDCBCB" : '',
-                            }}>
-                                <div className="chat-listing-image">
-                                    <img src={privateChat.image} />
-                                </div>
-                                <div className="chat-listing-name">{privateChat.chatName}</div>
+                        ? privateChats.length === 0
+                            ? <div className="p-3 text-danger">
+                                <p>Oh no, you have no friend ...</p>
+                                <p>Start adding friends and chat with your friends here!</p>
                             </div>
-                        ))
+                            : privateChats.map((privateChat, i) => (
+                                <div className="chat-listing" 
+                                onClick={() => clickOpenChat(privateChat.id, i, true, true)} style={{
+                                    backgroundColor: highlighting === i && chatSelected ? "#CDCBCB" : '',
+                                }}>
+                                    <div className="chat-listing-image">
+                                        <img src={privateChat.image} />
+                                    </div>
+                                    <div className="chat-listing-name">{privateChat.chatName}</div>
+                                </div>
+                            ))
                         : <React.Fragment>
                             <div className="create-new-group" onClick={() => openNewGroupChatForm(true)} style={{
                                 backgroundColor: highlighting === -2 ? "#CDCBCB" : '',
