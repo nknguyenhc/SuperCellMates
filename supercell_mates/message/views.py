@@ -573,7 +573,6 @@ def get_texts(chat_obj, start, end):
     next_file_messages = chat_obj.file_messages.filter(timestamp__lt=start)
     if next_text_messages.exists():
         next_last_timestamp = next_text_messages.order_by("timestamp").last().timestamp.timestamp()
-        print(next_last_timestamp)
         if next_file_messages.exists():
             next_last_timestamp = max(next_last_timestamp, next_file_messages.order_by("timestamp").last().timestamp.timestamp())
     elif next_file_messages.exists():
