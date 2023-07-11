@@ -14,6 +14,25 @@ Future<CroppedFile?> cropSquaredImage(XFile imageFile) async {
           activeControlsWidgetColor: Colors.blue,
           ),
       IOSUiSettings(
+        title: 'Crop a squared image',
+      ),
+    ],
+  );
+}
+
+Future<CroppedFile?> cropImage(XFile imageFile) async {
+  return ImageCropper().cropImage(
+    sourcePath: imageFile.path,
+    aspectRatioPresets: [CropAspectRatioPreset.original, CropAspectRatioPreset.square,],
+    uiSettings: [
+      AndroidUiSettings(
+          toolbarTitle: 'Crop your image',
+          toolbarColor: Colors.blue,
+          toolbarWidgetColor: Colors.white,
+          activeControlsWidgetColor: Colors.blue,
+          lockAspectRatio: false,
+          ),
+      IOSUiSettings(
         title: 'Crop your image',
       ),
     ],

@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:math';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -12,6 +11,7 @@ import 'package:supercellmates/config/config.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:supercellmates/features/dialogs.dart';
+import 'package:supercellmates/functions/crop_image.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/get_image.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
@@ -178,24 +178,28 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
     );
 
     if (result != null) {
-      final bytes = await result.readAsBytes();
+      final croppedImage = await cropImage(result);
+      if (croppedImage != null) {
+        final bytes = await croppedImage!.readAsBytes();
 
-      dynamic body = {
-        "chat_id": widget.chatInfo["id"],
-        "file": bytes,
-        "file_name": result.name,
-      };
+        dynamic body = {
+          "chat_id": widget.chatInfo["id"],
+          "file": bytes,
+          "file_name": result.name,
+        };
 
-      String response = await postWithCSRF(EndPoints.uploadFile.endpoint, body);
-      if (response == "Connection error") {
-        showErrorDialog(context, response);
-        return;
+        String response =
+            await postWithCSRF(EndPoints.uploadFile.endpoint, body);
+        if (response == "Connection error") {
+          showErrorDialog(context, response);
+          return;
+        }
+        dynamic messageMap = {
+          "type": "file",
+          "message_id": response,
+        };
+        wsChannel!.sink.add(jsonEncode(messageMap));
       }
-      dynamic messageMap = {
-        "type": "file",
-        "message_id": response,
-      };
-      wsChannel!.sink.add(jsonEncode(messageMap));
     }
   }
 
@@ -375,11 +379,19 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                               builder: (_, snap) {
                                 if (snap.hasData) {
                                   return IconButton(
+                                    constraints: BoxConstraints(
+                                        maxWidth:
+                                            MediaQuery.of(context).size.width *
+                                                0.7,
+                                        maxHeight:
+                                            MediaQuery.of(context).size.height *
+                                                0.3),
                                     onPressed: () => context.router.push(
                                         SinglePhotoViewer(
                                             photoBytes: snap.data! as Uint8List,
                                             actions: [])),
-                                    icon: Image.memory(snap.data! as Uint8List),
+                                    icon: Image.memory(snap.data! as Uint8List,
+                                        fit: BoxFit.contain),
                                     padding: EdgeInsets.zero,
                                   );
                                 }
