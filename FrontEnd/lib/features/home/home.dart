@@ -69,7 +69,7 @@ class HomePageState extends State<HomePage> {
         nextStartID = "";
       }
       nextStartMatchingIndex = "5";
-      query["start_datetime"] = nextStartTime;
+      query["start_timestamp"] = nextStartTime;
     } else {
       if (nextStartMatchingIndex == "") {
         // changed from another sorting method
@@ -86,9 +86,9 @@ class HomePageState extends State<HomePage> {
       return;
     }
     dynamic homeFeedResponse = jsonDecode(homeFeedResponseJson);
-    nextStartID = homeFeedResponse["stop_id"];
+    nextStartID = homeFeedResponse["stop_id"] ?? "";
     if (sort == "time") {
-      nextStartTime = homeFeedResponse["stop_datetime"];
+      nextStartTime = homeFeedResponse["stop_timestamp"].toString();
     } else {
       nextStartMatchingIndex = homeFeedResponse["stop_matching_index"];
     }

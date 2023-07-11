@@ -53,9 +53,9 @@ class OthersProfilePageState extends State<OthersProfilePage> {
     }
     // posts
     profilePostsLoaded = false;
-    dynamic requestBody = {
-      "start": "2023-01-01-00-00-00",
-      "end": "2099-01-01-00-00-00"
+    Map<String, dynamic> requestBody = {
+      "start": DateTime(2023).microsecondsSinceEpoch.toDouble() / 1000000,
+      "end": DateTime(2099).microsecondsSinceEpoch.toDouble() / 1000000,
     };
     if (selectedTagIndex != -1) {
       requestBody["tag"] = widget.data["tags"][selectedTagIndex - 1]["name"];
