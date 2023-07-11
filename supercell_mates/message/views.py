@@ -7,6 +7,8 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.http import require_http_methods
 from datetime import datetime
+from django.core.files.base import ContentFile
+from PIL import Image
 from user_profile.views import verify_image
 
 from user_auth.models import UserAuth
@@ -628,13 +630,26 @@ def upload_file(request):
         
         if not chat_obj.users.filter(username=request.user.username).exists():
             return HttpResponseBadRequest("you do not have access to this chat")
-        
-        file_uploaded = request.FILES["file"]
+
+        is_image = True
+
+        if "file" in request.POST:
+            file_bytearray = request.POST["file"].strip("[]").split(", ")
+            file_bytearray = bytearray(list(map(lambda x: int(x.strip()), file_bytearray)))
+            file_uploaded = ContentFile(file_bytearray, name=request.POST["file_name"])
+            try:
+                pil_img = Image.open(file_uploaded)
+                pil_img.verify()
+            except (IOError, SyntaxError):
+                is_image = False
+        else:
+            file_uploaded = request.FILES["file"]
+            is_image = verify_image(file_uploaded)
         file_name = request.POST["file_name"]
         if isinstance(chat_obj, PrivateChat):
-            file_message = PrivateFileMessage(file_field=file_uploaded, file_name=file_name, chat=chat_obj, user=request.user, is_image=verify_image(file_uploaded))
+            file_message = PrivateFileMessage(file_field=file_uploaded, file_name=file_name, chat=chat_obj, user=request.user, is_image=is_image)
         else:
-            file_message = GroupFileMessage(file_field=file_uploaded, file_name=file_name, chat=chat_obj, user=request.user, is_image=verify_image(file_uploaded))
+            file_message = GroupFileMessage(file_field=file_uploaded, file_name=file_name, chat=chat_obj, user=request.user, is_image=is_image)
         file_message.save()
         chat_obj.timestamp = datetime.now()
         chat_obj.save()

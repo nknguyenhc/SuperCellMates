@@ -29,6 +29,12 @@ enum EndPoints {
 
   getHomeFeed,
 
+  getPrivateChats,
+  getPrivateMessages,
+  getGroupMessages,
+  uploadFile,
+  getImage
+
 }
 
 extension ExtendedEndPoints on EndPoints {
@@ -58,6 +64,11 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.editPost: "/post/post/edit/",
     EndPoints.deletePost: "/post/delete",
     EndPoints.getHomeFeed: "/post/",
+    EndPoints.getPrivateChats: "/messages/get_private_chats",
+    EndPoints.getPrivateMessages: "/messages/get_private_messages/",
+    EndPoints.getGroupMessages: "/messages/get_group_messages/",
+    EndPoints.uploadFile: "/messages/upload_file",
+    EndPoints.getImage: "/messages/image/"
     
 
   };

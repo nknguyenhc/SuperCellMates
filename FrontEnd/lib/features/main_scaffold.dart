@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:supercellmates/features/chat/chat_appbar.dart';
 import 'package:supercellmates/features/dialogs.dart';
 import 'dart:convert';
 
@@ -32,12 +33,7 @@ class MainScaffoldState extends State<MainScaffold> {
 
   int selectedIndex = 0;
 
-  final pages = <Widget>[
-    HomePage(key: UniqueKey()),
-    const ChatPage(),
-    Container(),
-  ];
-
+  late dynamic pages;
   late dynamic appbars;
 
   void getProfileMap() async {
@@ -53,13 +49,20 @@ class MainScaffoldState extends State<MainScaffold> {
       HomeAppBar(data: {
         "isAdmin": profileMap["is_admin"],
       }, updateCallBack: updateHomePageBody),
-      AppBar(),
-      ProfileAppBar(profileMap: profileMap, updateProfileMapCallBack: getProfileMap,),
+      ChatAppBar(),
+      ProfileAppBar(
+        profileMap: profileMap,
+        updateProfileMapCallBack: getProfileMap,
+      ),
     ];
 
-    pages[2] = ProfilePage(
-      updateCallBack: getProfileMap,
-    );
+    pages = [
+      HomePage(key: UniqueKey()),
+      ChatPage(username: profileMap["user_profile"]["username"]),
+      ProfilePage(
+        updateCallBack: getProfileMap,
+      )
+    ];
 
     setState(() => dataLoaded = true);
   }
