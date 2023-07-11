@@ -495,22 +495,25 @@ function ChatPage() {
                             </div>
                             <img src="/static/media/plus-icon.png" />
                         </div>
-                        <textarea id="chat-text-input" rows={1} className="form-control" value={inputText}
-                        onInput={changeInputText}
-                        onKeyUp={event => {
-                            changeInputText(event);
-                            if (!isHoldingShift && event.key === "Enter") {
-                                sendMessage();
-                            } else if (event.key === "Shift") {
-                                setIsHoldingShift(false);
-                            }
-                        }}
-                        onKeyDown={event => {
-                            if (event.key === "Shift") {
-                                setIsHoldingShift(true);
-                            }
-                        }}
-                        ref={inputField} />
+                        <div id="chat-text-input-div">
+                            <textarea id="chat-text-input" rows={1} className="form-control" value={inputText}
+                            onInput={changeInputText}
+                            onKeyUp={event => {
+                                changeInputText(event);
+                                if (!isHoldingShift && event.key === "Enter") {
+                                    sendMessage();
+                                } else if (event.key === "Shift") {
+                                    setIsHoldingShift(false);
+                                }
+                            }}
+                            onKeyDown={event => {
+                                if (event.key === "Shift") {
+                                    setIsHoldingShift(true);
+                                }
+                            }}
+                            ref={inputField} />
+                            <div className={"chat-text-char-count " + (inputText.length === 700 ? "text-danger" : "text-primary")}>{inputText.length}/700</div>
+                        </div>
                         <button className="btn btn-outline-primary chat-input-send-button" onClick={() => sendMessage()}>Send</button>
                     </div>
                     : isChatDisabled

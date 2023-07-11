@@ -117,6 +117,7 @@
     display: flex;
     flex-direction: row;
     gap: 10px;
+    padding-bottom: 0px !important;
 }
 
 #chat-more-input {
@@ -158,11 +159,19 @@
     display: none;
 }
 
+#chat-text-input-div {
+    flex-grow: 1;
+}
+
 #chat-text-input {
     min-width: 0px;
     flex-shrink: 1;
     resize: none;
     overflow: hidden;
+}
+
+.chat-text-char-count {
+    font-size: 9px;
 }
 
 .chat-input-send-button {
