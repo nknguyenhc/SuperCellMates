@@ -145,8 +145,6 @@ def add_tags(request):
         for i in range(count):
             user_profile_obj.tagList.add(Tag.objects.get(name=requested_tags[i]))
         return HttpResponse("success")
-    except AttributeError:
-        return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body is missing an important key")
     except ValueError:
@@ -254,8 +252,6 @@ def search_tags(request):
         return JsonResponse({
             "tags": result
         })
-    except AttributeError:
-        return HttpResponseBadRequest("GET parameters not found")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("tag GET parameter not found")
 
@@ -329,8 +325,8 @@ def set_profile_image(request):
             user_profile_obj.profile_pic = img
         user_profile_obj.save()
         return HttpResponse("success")
-    except (AttributeError, NameError):
-        return HttpResponseBadRequest("request does not contain form data/image file")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body is missing image (file)")
 
 
 @login_required

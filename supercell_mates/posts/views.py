@@ -114,8 +114,6 @@ def create_post(request):
 
         return HttpResponse("post created")
     
-    except AttributeError:
-        return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body is missing an important key")
     except ObjectDoesNotExist:
@@ -182,72 +180,70 @@ def edit_post(request, post_id):
         HttpResponse: the feedback of the process
     """
 
-    # try:
-    post = Post.objects.get(id=post_id)
-    if not post in request.user.user_log.posts.all():
-        return HttpResponseBadRequest("post with provided id does not belong to you")
+    try:
+        post = Post.objects.get(id=post_id)
+        if not post in request.user.user_log.posts.all():
+            return HttpResponseBadRequest("post with provided id does not belong to you")
 
-    # basic info: title and content
-    title = request.POST["title"]
-    content = request.POST["content"]
-    if title == '' or content == '':
-        return HttpResponseBadRequest("title or content is empty")
-    if len(title) > 100:
-        return HttpResponseBadRequest("title too long")
-    if len(content) > 100:
-        return HttpResponseBadRequest("content too long")
+        # basic info: title and content
+        title = request.POST["title"]
+        content = request.POST["content"]
+        if title == '' or content == '':
+            return HttpResponseBadRequest("title or content is empty")
+        if len(title) > 100:
+            return HttpResponseBadRequest("title too long")
+        if len(content) > 100:
+            return HttpResponseBadRequest("content too long")
 
-    # visibility
-    visibility = get_list_from_request_body(request, "visibility")
-    friend_visible = "friends" in visibility
-    tag_visible = "tag" in visibility
-    public_visible = "public" in visibility
-    if not friend_visible and not tag_visible and not public_visible:
-        return HttpResponseBadRequest("visibility malformed")
-    
-    post.title = title
-    post.content = content
-    post.friend_visible = friend_visible
-    post.tag_visible = tag_visible
-    post.public_visible = public_visible
-    
-    # images
-    for img in post.images.all():
-        img.delete()
-    if "imgs" in request.POST:
-        if request.POST["imgs"] == '[]':
-            imgs = []
+        # visibility
+        visibility = get_list_from_request_body(request, "visibility")
+        friend_visible = "friends" in visibility
+        tag_visible = "tag" in visibility
+        public_visible = "public" in visibility
+        if not friend_visible and not tag_visible and not public_visible:
+            return HttpResponseBadRequest("visibility malformed")
+        
+        post.title = title
+        post.content = content
+        post.friend_visible = friend_visible
+        post.tag_visible = tag_visible
+        post.public_visible = public_visible
+        
+        # images
+        for img in post.images.all():
+            img.delete()
+        if "imgs" in request.POST:
+            if request.POST["imgs"] == '[]':
+                imgs = []
+            else:
+                imgs = request.POST["imgs"].strip('[[]]').split('], [')
+                for (i, img_raw) in enumerate(imgs):
+                    img_bytearray = img_raw.split(", ")
+                    img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
+                    img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
+                    try:
+                        pil_img = Image.open(img)
+                        pil_img.verify()
+                    except (IOError, SyntaxError):
+                        return HttpResponseBadRequest("not image")
+                    img_obj = PostImage(order=i, image=img, post=post)
+                    img_obj.save()
         else:
-            imgs = request.POST["imgs"].strip('[[]]').split('], [')
-            for (i, img_raw) in enumerate(imgs):
-                img_bytearray = img_raw.split(", ")
-                img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
-                img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
-                try:
-                    pil_img = Image.open(img)
-                    pil_img.verify()
-                except (IOError, SyntaxError):
+            imgs = request.FILES.getlist("imgs")
+            for (i, img) in enumerate(imgs):
+                if not verify_image(img):
                     return HttpResponseBadRequest("not image")
                 img_obj = PostImage(order=i, image=img, post=post)
                 img_obj.save()
-    else:
-        imgs = request.FILES.getlist("imgs")
-        for (i, img) in enumerate(imgs):
-            if not verify_image(img):
-                return HttpResponseBadRequest("not image")
-            img_obj = PostImage(order=i, image=img, post=post)
-            img_obj.save()
-    post.img_count = len(imgs)
-    post.save()
+        post.img_count = len(imgs)
+        post.save()
 
-    return HttpResponse("post updated")
+        return HttpResponse("post updated")
 
-    # except AttributeError:
-    #     return HttpResponseBadRequest("request does not contain form data")
-    # except MultiValueDictKeyError:
-    #     return HttpResponseBadRequest("request body is missing an important key")
-    # except ObjectDoesNotExist:
-    #     return HttpResponseBadRequest("post with provided id not found")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body is missing an important key")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("post with provided id not found")
 
 
 @login_required
@@ -287,8 +283,6 @@ def add_photo(request):
         post.save()
         return HttpResponse(reverse("posts:get_post_pic", args=(img_obj.id,)))
     
-    except AttributeError:
-        return HttpResponseBadRequest("request does not contain form data/image")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request does not contain an important key")
     except ObjectDoesNotExist:
@@ -320,8 +314,6 @@ def delete_photo(request):
         pic.delete()
         return HttpResponse("picture deleted")
     
-    except AttributeError:
-        return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body does not contain an important key")
     except ObjectDoesNotExist:
@@ -349,8 +341,6 @@ def delete_post(request):
         post.delete()
         return HttpResponse("post deleted")
     
-    except AttributeError:
-        return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body does not contain an important key")
     except ObjectDoesNotExist:
@@ -611,8 +601,6 @@ def get_home_feed(request):
 
         return JsonResponse(ret)
 
-    except AttributeError:
-        return HttpResponseBadRequest("GET parameter(s) malformed")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("certain field(s) not found in GET parameter")
     except ValueError:
