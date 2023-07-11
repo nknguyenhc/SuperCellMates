@@ -7,7 +7,6 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('user_profile', '0002_alter_userprofile_name'),
         ('user_auth', '0001_initial'),
     ]
 
@@ -16,15 +15,5 @@ class Migration(migrations.Migration):
             model_name='tagrequest',
             name='requester',
             field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='tag_requests', to='user_profile.userprofile'),
-        ),
-        migrations.AlterField(
-            model_name='tag',
-            name='name',
-            field=models.CharField(max_length=25),
-        ),
-        migrations.AlterField(
-            model_name='tagrequest',
-            name='name',
-            field=models.CharField(max_length=25),
         ),
     ]

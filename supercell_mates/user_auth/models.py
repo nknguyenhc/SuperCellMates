@@ -3,14 +3,14 @@ from django.contrib.auth.models import AbstractUser
 
 
 class TagRequest(models.Model):
-    name = models.CharField(max_length=25)
+    name = models.CharField(max_length=100)
     image = models.ImageField(upload_to='tag/', blank=True)
     description = models.TextField(default='')
     requester = models.ForeignKey('user_profile.UserProfile', on_delete=models.SET_NULL, null=True, related_name='tag_requests')
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=25)
+    name = models.CharField(max_length=100)
     image = models.ImageField(upload_to='tag/', blank=True)
 
 
