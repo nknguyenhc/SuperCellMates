@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:file_saver/file_saver.dart';
 import 'package:requests/requests.dart';
 
 import 'package:supercellmates/config/config.dart';
@@ -144,7 +147,11 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                 firstName: m["user"]["name"],
                 imageUrl: m["user"]["profile_link"]),
             id: m["id"],
-            metadata: {"futureImageData": futureImageData});
+            metadata: {
+              "name": m["file_name"],
+              "is_image": m["is_image"],
+              "futureImageData": futureImageData
+            });
       }
     }).toList();
     setState(() {
@@ -180,7 +187,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
     if (result != null) {
       final croppedImage = await cropImage(result);
       if (croppedImage != null) {
-        final bytes = await croppedImage!.readAsBytes();
+        final bytes = await croppedImage.readAsBytes();
 
         dynamic body = {
           "chat_id": widget.chatInfo["id"],
@@ -203,6 +210,32 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
     }
   }
 
+  void _handleFileSelection() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.any,
+    );
+
+    if (result != null && result.files.single.path != null) {
+      Uint8List fileBytes = await File(result.paths[0]!).readAsBytes();
+      print(fileBytes);
+      dynamic body = {
+        "chat_id": widget.chatInfo["id"],
+        "file": fileBytes,
+        "file_name": result.files[0].name,
+      };
+      String response = await postWithCSRF(EndPoints.uploadFile.endpoint, body);
+      if (response == "Connection error") {
+        showErrorDialog(context, response);
+        return;
+      }
+      dynamic messageMap = {
+        "type": "file",
+        "message_id": response,
+      };
+      wsChannel!.sink.add(jsonEncode(messageMap));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // PopupMenuButton that shows file type selection
@@ -211,15 +244,15 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
     final dummyButton = PopupMenuButton(
         key: _menuKey,
         iconSize: 0,
-        offset: Offset.fromDirection(pi * 1.5, 60),
+        offset: Offset.fromDirection(pi * 1.5, 50),
         onCanceled: () {
           FocusManager.instance.primaryFocus?.unfocus();
         },
         itemBuilder: (context) => <PopupMenuEntry>[
               PopupMenuItem(
-                  height: 40,
+                  height: 30,
                   onTap: () {
-                    print(1);
+                    _handleFileSelection();
                   },
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -230,8 +263,9 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                       ),
                     ],
                   )),
+              const PopupMenuDivider(),
               PopupMenuItem(
-                  height: 40,
+                  height: 30,
                   onTap: () {
                     _handleImageSelection();
                   },
@@ -314,6 +348,8 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                                   firstName: messageMap["user"]["name"],
                                   imageUrl: messageMap["user"]["profile_link"]),
                               metadata: {
+                                "name": messageMap["file_name"],
+                                "is_image": messageMap["is_image"],
                                 "futureImageData": getRawImageData(
                                     "${EndPoints.getImage.endpoint}${messageMap["id"]}"),
                               }));
@@ -378,22 +414,73 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                               future: p0.metadata!["futureImageData"],
                               builder: (_, snap) {
                                 if (snap.hasData) {
-                                  return IconButton(
-                                    constraints: BoxConstraints(
-                                        maxWidth:
-                                            MediaQuery.of(context).size.width *
-                                                0.7,
-                                        maxHeight:
-                                            MediaQuery.of(context).size.height *
-                                                0.3),
-                                    onPressed: () => context.router.push(
-                                        SinglePhotoViewer(
-                                            photoBytes: snap.data! as Uint8List,
-                                            actions: [])),
-                                    icon: Image.memory(snap.data! as Uint8List,
-                                        fit: BoxFit.contain),
-                                    padding: EdgeInsets.zero,
-                                  );
+                                  return p0.metadata!["is_image"]
+                                      ? IconButton(
+                                          constraints: BoxConstraints(
+                                              maxWidth: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.7,
+                                              maxHeight: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.3),
+                                          onPressed: () => context.router.push(
+                                              SinglePhotoViewer(
+                                                  photoBytes:
+                                                      snap.data! as Uint8List,
+                                                  actions: [])),
+                                          icon: Image.memory(
+                                              snap.data! as Uint8List,
+                                              fit: BoxFit.contain),
+                                          padding: EdgeInsets.zero,
+                                        )
+                                      : TextButton(
+                                          onPressed: () {
+                                            int dotIndex = p0.metadata!["name"]
+                                                .lastIndexOf('.');
+                                            String fileName = dotIndex == -1
+                                                ? p0.metadata!["name"]
+                                                : p0.metadata!["name"]
+                                                    .substring(0, dotIndex);
+                                            String extension = dotIndex == -1
+                                                ? ""
+                                                : p0.metadata!["name"]
+                                                    .substring(dotIndex + 1);
+                                            FileSaver.instance.saveAs(
+                                                name: fileName,
+                                                bytes: snap.data! as Uint8List,
+                                                ext: extension,
+                                                mimeType: MimeType.other);
+                                          },
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Icon(
+                                                Icons.file_present,
+                                                size: 20,
+                                              ),
+                                              const Padding(padding: EdgeInsets.only(right: 5)),
+                                              Container(
+                                                  constraints: BoxConstraints(
+                                                      maxWidth:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.5),
+                                                  child: Text(
+                                                    p0.metadata!["name"],
+                                                    style: const TextStyle(
+                                                        color: Colors.indigo,
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        decoration:
+                                                            TextDecoration
+                                                                .underline),
+                                                  )),
+                                            ],
+                                          ));
                                 }
                                 return const CircularProgressIndicator();
                               });
