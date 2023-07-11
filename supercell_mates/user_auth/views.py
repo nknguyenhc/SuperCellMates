@@ -63,8 +63,6 @@ def login_async(request):
                 return HttpResponse("logged in")
             else:
                 return HttpResponse("wrong username or password")
-        except AttributeError:
-            return HttpResponseBadRequest("request does not contain form data")
         except MultiValueDictKeyError:
             return HttpResponseBadRequest("request body is missing username or password")
     else:
@@ -98,8 +96,6 @@ def login_user(request):
                     return render(request, 'user_auth/login.html', {
                         "error_message": "Wrong username or password"
                     })
-            except AttributeError:
-                return HttpResponseBadRequest("request does not contain form data")
             except MultiValueDictKeyError:
                 return HttpResponseBadRequest("request body is missing username or password")
     
@@ -116,8 +112,6 @@ def check_unique_username_async(request):
         if UserAuth.objects.filter(username = username).exists():
             return HttpResponse("username is already taken")
         return HttpResponse("username is unique")
-    except AttributeError:
-        return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body is missing username")
 
@@ -152,8 +146,6 @@ def register_async(request):
         try:
             register_feedback = register_user(request)
             return (HttpResponse if register_feedback == "account created" else HttpResponseBadRequest)(register_feedback)
-        except AttributeError:
-            return HttpResponseBadRequest("request does not contain form data")
         except MultiValueDictKeyError:
             return HttpResponseBadRequest("request body is missing name, username or password")
     
@@ -171,8 +163,6 @@ def register(request):
                     return redirect(reverse("user_profile:setup"))
                 else:
                     return HttpResponseBadRequest(register_feedback)
-            except AttributeError:
-                return HttpResponseBadRequest("request does not contain form data")
             except MultiValueDictKeyError:
                 return HttpResponseBadRequest("request body is missing name, username or password")
 
@@ -243,8 +233,6 @@ def change_username(request):
         else:
             return HttpResponse("Password is incorrect")
     
-    except AttributeError:
-        return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body does not contain an important key")
 
@@ -277,8 +265,6 @@ def change_password(request):
         else:
             return HttpResponse("Old password is incorrect")
     
-    except AttributeError:
-        return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body does not contain an important key")
 
@@ -329,8 +315,6 @@ def add_tag_admin(request):
                 tag_request_obj.delete()
                 return HttpResponse("successfully added tag")
 
-            except AttributeError:
-                return HttpResponseBadRequest("request does not contain form data")
             except MultiValueDictKeyError:
                 return HttpResponseBadRequest("request body is missing an important key")
             except ObjectDoesNotExist:
@@ -365,8 +349,6 @@ def new_tag_admin(request):
                 tag.save()
                 return HttpResponse("Tag added")
             
-            except AttributeError:
-                return HttpResponseBadRequest("request does not contain form data")
             except MultiValueDictKeyError:
                 return HttpResponseBadRequest("request body is missing an important key")
         else:
@@ -382,8 +364,6 @@ def remove_tag_request(request):
                 tag_request_id = request.POST["tag_request_id"]
                 TagRequest.objects.get(id=tag_request_id).delete()
                 return HttpResponse("successfully removed request")
-            except AttributeError:
-                return HttpResponseBadRequest("request does not contain form data")
             except MultiValueDictKeyError:
                 return HttpResponseBadRequest("request body is missing an important key")
             except ObjectDoesNotExist:
@@ -452,8 +432,6 @@ def add_tag_request(request):
         tag_request.save()
         return HttpResponse("Successfully added tag request")
     
-    except AttributeError:
-        return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request is missing an important key")
 

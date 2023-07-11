@@ -317,8 +317,6 @@ def search(request):
         return JsonResponse({
             "users": users
         })
-    except AttributeError:
-        return HttpResponseBadRequest("get parameters not found")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("no username (GET) parameter found in the request")
 
@@ -379,8 +377,6 @@ def search_friend(request):
         return JsonResponse({
             "users": users
         })
-    except AttributeError:
-        return HttpResponseBadRequest("GET parameters not found")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("no username (GET) parameter found in the request")
 
@@ -408,8 +404,6 @@ def delete_friend(request):
             return HttpResponse("friend deleted")
         else:
             return HttpResponseBadRequest("user with username is not in your friend list")
-    except AttributeError:
-        return HttpResponseBadRequest("request does not have form data")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request form data does not contain an important key")
     except ObjectDoesNotExist:

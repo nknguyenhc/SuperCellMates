@@ -5,6 +5,10 @@
     align-items: center;
 }
 
+#home-feed {
+    width: 70vw;
+}
+
 #home-feed-content {
     display: flex;
     flex-direction: column;

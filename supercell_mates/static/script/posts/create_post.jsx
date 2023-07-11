@@ -120,8 +120,8 @@ function CreatePost() {
     }
 
     function clearInput() {
-        titleInput.current.value = '';
-        contentInput.current.value = '';
+        setTitle('');
+        setContent('');
         setVisibility('Visibility');
         for (let i = 0; i < userTags.length; i++) {
             document.getElementById("post-tag-" + userTags[i].name).checked = false;
@@ -167,7 +167,10 @@ function CreatePost() {
                 <div ref={tagInput} id="post-choose-tag">
                     {
                         userTags.length === 0
-                        ? <div className="text-danger">Your profile needs at least one tag to post! Setup your tags <a href="/profile/setup">here</a></div>
+                        ? <div className="text-danger">
+                            <p>Your profile needs at least one tag to post! Setup your tags <a href="/profile/setup">here</a></p>
+                            <p>More about our tag system <a href="/about">here</a></p>
+                        </div>
                         : userTags.map(tag => (
                             <React.Fragment>
                                 <input type="radio" class="btn-check" name="options" id={"post-tag-" + tag.name} autocomplete="off" />
