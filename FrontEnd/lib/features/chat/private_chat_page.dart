@@ -362,13 +362,27 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                         user: types.User(id: widget.username),
                         messages: messages,
                         onSendPressed: (s) {
-                          dynamic messageMap = {
-                            "type": "text",
-                            "message": s.text,
-                          };
+                          dynamic messageMap;
+                          if (s.text.isEmpty) {
+                            showErrorDialog(
+                                context, "Message cannot be empty!");
+                            return;
+                          } else if (s.text.length > 700) {
+                            messageMap = {
+                              "type": "text",
+                              "message": s.text.substring(0, 700),
+                            };
+                            showCustomDialog(context, "Message is too long",
+                                "Only the first 700 characters were sent");
+                          } else {
+                            messageMap = {
+                              "type": "text",
+                              "message": s.text,
+                            };
+                          }
+
                           wsChannel!.sink.add(jsonEncode(messageMap));
                         },
-
                         theme: DefaultChatTheme(
                             primaryColor: Colors.blue,
                             secondaryColor: Colors.pinkAccent,
@@ -460,7 +474,9 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                                                 Icons.file_present,
                                                 size: 20,
                                               ),
-                                              const Padding(padding: EdgeInsets.only(right: 5)),
+                                              const Padding(
+                                                  padding: EdgeInsets.only(
+                                                      right: 5)),
                                               Container(
                                                   constraints: BoxConstraints(
                                                       maxWidth:

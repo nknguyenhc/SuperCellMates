@@ -123,14 +123,14 @@ class RequestTagPageState extends State<RequestTagPage> {
                 SizedBox(
                     width: MediaQuery.of(context).size.width - 140,
                     child: TextField(
-                      maxLength: 100,
+                      maxLength: 200,
                       decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           hintText: "Additional information about the tag...",
                           hintStyle:
                               TextStyle(color: Colors.grey, fontSize: 14)),
                       style: const TextStyle(fontSize: 14),
-                      maxLines: 3,
+                      maxLines: 5,
                       onChanged: (input) {
                         tagDescription = input;
                       },
