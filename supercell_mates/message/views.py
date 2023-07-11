@@ -81,26 +81,32 @@ def get_members(request):
             profile_link: the link to the profile of the member
             profile_pic_url: the URL to the profile picture of the member
     """
-    chat_id = request.GET["chatid"]
+    try:
+        chat_id = request.GET["chatid"]
 
-    chat = GroupChat.objects.get(id=chat_id)
-    if not chat.users.filter(username=request.user.username).exists():
-        return HttpResponseBadRequest("you do not have access to this chat")
+        chat = GroupChat.objects.get(id=chat_id)
+        if not chat.users.filter(username=request.user.username).exists():
+            return HttpResponseBadRequest("you do not have access to this chat")
+        
+        users = list(map(
+            lambda user: {
+                "name": user.user_profile.name,
+                "username": user.username,
+                "profile_link": reverse("user_log:view_profile", args=(user.username,)),
+                "profile_pic_url": reverse("user_profile:get_profile_pic", args=(user.username,)),
+            },
+            list(chat.users.all())
+        ))
+        users.sort(key=lambda user: user["username"].lower())
+        
+        return JsonResponse({
+            "users": users
+        })
     
-    users = list(map(
-        lambda user: {
-            "name": user.user_profile.name,
-            "username": user.username,
-            "profile_link": reverse("user_log:view_profile", args=(user.username,)),
-            "profile_pic_url": reverse("user_profile:get_profile_pic", args=(user.username,)),
-        },
-        list(chat.users.all())
-    ))
-    users.sort(key=lambda user: user["username"].lower())
-    
-    return JsonResponse({
-        "users": users
-    })
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("chat id not found in GET parameters")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("invalid chat id")
 
 
 @login_required
@@ -119,19 +125,25 @@ def add_member(request):
     Returns:
         HttpResponse: the feedback of the process
     """
-    username = request.POST["username"]
-    chat_id = request.POST["chat_id"]
+    try:
+        username = request.POST["username"]
+        chat_id = request.POST["chat_id"]
 
-    chat = GroupChat.objects.get(id=chat_id)
-    if not chat.users.filter(username=request.user.username).exists():
-        return HttpResponseBadRequest("you are not in this group chat")
+        chat = GroupChat.objects.get(id=chat_id)
+        if not chat.users.filter(username=request.user.username).exists():
+            return HttpResponseBadRequest("you are not in this group chat")
+        
+        new_user = UserAuth.objects.get(username=username)
+        if not new_user.user_log.friend_list.filter(user_auth=request.user).exists():
+            return HttpResponseBadRequest("you are not friend with this user")
+        
+        chat.users.add(new_user)
+        return HttpResponse('ok')
     
-    new_user = UserAuth.objects.get(username=username)
-    if not new_user.user_log.friend_list.filter(user_auth=request.user).exists():
-        return HttpResponseBadRequest("you are not friend with this user")
-    
-    chat.users.add(new_user)
-    return HttpResponse('ok')
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body is missing an important key")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("user with provided username not found / chat with provided chatid not found")
 
 
 @login_required
@@ -140,8 +152,13 @@ def is_admin(request):
     GET parameters:
         chatid: the chat id to check
     """
-    chat_id = request.GET["chatid"]
-    return HttpResponse("yes" if GroupChat.objects.get(id=chat_id).admins.filter(username=request.user.username).exists() else "no")
+    try:
+        chat_id = request.GET["chatid"]
+        return HttpResponse("yes" if GroupChat.objects.get(id=chat_id).admins.filter(username=request.user.username).exists() else "no")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("chatid GET parameter not found")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("chat with provided chatid not found")
 
 
 @login_required
@@ -150,8 +167,13 @@ def is_creator(request):
     GET parameters:
         chatid: the chat id to check
     """
-    chat_id = request.GET["chatid"]
-    return HttpResponse("yes" if GroupChat.objects.get(id=chat_id).creator == request.user else "no")
+    try:
+        chat_id = request.GET["chatid"]
+        return HttpResponse("yes" if GroupChat.objects.get(id=chat_id).creator == request.user else "no")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("chatid GET parameter not found")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("chat with provided chatid not found")
 
 
 @login_required
@@ -163,21 +185,27 @@ def remove_user(request):
         username: the username of the user to remove from the chat
     """
 
-    chat_id = request.POST["chatid"]
+    try:
+        chat_id = request.POST["chatid"]
 
-    chat = GroupChat.objects.get(id=chat_id)
-    if not chat.admins.filter(username=request.user.username).exists():
-        return HttpResponseBadRequest("you are not admin of this chat")
+        chat = GroupChat.objects.get(id=chat_id)
+        if not chat.admins.filter(username=request.user.username).exists():
+            return HttpResponseBadRequest("you are not admin of this chat")
+        
+        username = request.POST["username"]
+        user = UserAuth.objects.get(username=username)
+        if user == request.user:
+            return HttpResponseBadRequest("removing yourself, wrong API used")
+        if chat.admins.filter(username=username).exists() and chat.creator != request.user:
+            return HttpResponseBadRequest("you cannot remove another admin")
+        chat.users.remove(user)
+        chat.admins.remove(user) # in case the person doing this request is the creator
+        return HttpResponse("ok")
     
-    username = request.POST["username"]
-    user = UserAuth.objects.get(username=username)
-    if user == request.user:
-        return HttpResponseBadRequest("removing yourself, wrong API used")
-    if chat.admins.filter(username=username).exists() and chat.creator != request.user:
-        return HttpResponseBadRequest("you cannot remove another admin")
-    chat.users.remove(user)
-    chat.admins.remove(user) # in case the person doing this request is the creator
-    return HttpResponse("ok")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body is missing an important key")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("chat with provided chat id not found / user with provided username not found")
 
 
 @login_required
@@ -194,26 +222,33 @@ def get_admins(request):
             profile_link: the link to the profile of the member
             profile_pic_url: the URL to the profile picture of the member
     """
-    chat_id = request.GET["chatid"]
 
-    chat = GroupChat.objects.get(id=chat_id)
-    if not chat.admins.filter(username=request.user.username).exists():
-        return HttpResponseBadRequest("you are not an admin of this chat")
-    
-    users = list(map(
-        lambda user: {
-            "name": user.user_profile.name,
-            "username": user.username,
-            "profile_link": reverse("user_log:view_profile", args=(user.username,)),
-            "profile_pic_url": reverse("user_profile:get_profile_pic", args=(user.username,)),
-        },
-        list(chat.admins.all())
-    ))
-    users.sort(key=lambda user: user["username"].lower())
-    
-    return JsonResponse({
-        "users": users
-    })
+    try:
+        chat_id = request.GET["chatid"]
+
+        chat = GroupChat.objects.get(id=chat_id)
+        if not chat.admins.filter(username=request.user.username).exists():
+            return HttpResponseBadRequest("you are not an admin of this chat")
+        
+        users = list(map(
+            lambda user: {
+                "name": user.user_profile.name,
+                "username": user.username,
+                "profile_link": reverse("user_log:view_profile", args=(user.username,)),
+                "profile_pic_url": reverse("user_profile:get_profile_pic", args=(user.username,)),
+            },
+            list(chat.admins.all())
+        ))
+        users.sort(key=lambda user: user["username"].lower())
+        
+        return JsonResponse({
+            "users": users
+        })
+
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("chatid GET parameter not found")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("chat with provided chatid not found")
 
 
 @login_required
@@ -226,19 +261,25 @@ def add_admin(request):
         username: the username of the user to add as admin
     """
 
-    chat_id = request.POST["chatid"]
+    try:
+        chat_id = request.POST["chatid"]
 
-    chat = GroupChat.objects.get(id=chat_id)
-    if not chat.admins.filter(username=request.user.username).exists():
-        return HttpResponseBadRequest("you are not admin of this chat")
+        chat = GroupChat.objects.get(id=chat_id)
+        if not chat.admins.filter(username=request.user.username).exists():
+            return HttpResponseBadRequest("you are not admin of this chat")
+        
+        username = request.POST["username"]
+        user = UserAuth.objects.get(username=username)
+        if not chat.users.filter(username=username).exists():
+            return HttpResponseBadRequest("target user not in this group chat")
+
+        chat.admins.add(user)
+        return HttpResponse("ok")
     
-    username = request.POST["username"]
-    user = UserAuth.objects.get(username=username)
-    if not chat.users.filter(username=username).exists():
-        return HttpResponseBadRequest("target user not in this group chat")
-
-    chat.admins.add(user)
-    return HttpResponse("ok")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body is missing an important key")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("chat with provided chatid not found / user with provided username not found")
 
 
 @login_required
@@ -250,16 +291,22 @@ def remove_admin(request):
         username: the username of the user to remove admin
     """
 
-    chat_id = request.POST["chatid"]
+    try:
+        chat_id = request.POST["chatid"]
 
-    chat = GroupChat.objects.get(id=chat_id)
-    if chat.creator != request.user:
-        return HttpResponseBadRequest("you are not the creator of this chat")
+        chat = GroupChat.objects.get(id=chat_id)
+        if chat.creator != request.user:
+            return HttpResponseBadRequest("you are not the creator of this chat")
+        
+        username = request.POST["username"]
+        user = UserAuth.objects.get(username=username)
+        chat.admins.remove(user)
+        return HttpResponse("ok")
     
-    username = request.POST["username"]
-    user = UserAuth.objects.get(username=username)
-    chat.admins.remove(user)
-    return HttpResponse("ok")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body is missing an important key")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("chat with provided chatid not found / user with provided username not found")
 
 
 @login_required
@@ -272,25 +319,32 @@ def assign_leader(request):
         username: the username of the new creator
         password: the password of the request user (i.e. current creator), for confirmation
     """
-    chat_id = request.POST["chatid"]
 
-    chat = GroupChat.objects.get(id=chat_id)
-    if chat.creator != request.user:
-        return HttpResponseBadRequest("you are not the creator of this chat")
-    
-    password = request.POST["password"]
-    curr_creator = authenticate(username=request.user.username, password=password)
-    if curr_creator != request.user:
-        return HttpResponse("authentication fails")
-    
-    username = request.POST["username"]
-    user = UserAuth.objects.get(username=username)
-    if not chat.admins.filter(username=username).exists():
-        return HttpResponseBadRequest("user with provided username not admin of this chat")
-    
-    chat.creator = user 
-    chat.save()
-    return HttpResponse("ok")
+    try:
+        chat_id = request.POST["chatid"]
+
+        chat = GroupChat.objects.get(id=chat_id)
+        if chat.creator != request.user:
+            return HttpResponseBadRequest("you are not the creator of this chat")
+        
+        password = request.POST["password"]
+        curr_creator = authenticate(username=request.user.username, password=password)
+        if curr_creator != request.user:
+            return HttpResponse("authentication fails")
+        
+        username = request.POST["username"]
+        user = UserAuth.objects.get(username=username)
+        if not chat.admins.filter(username=username).exists():
+            return HttpResponseBadRequest("user with provided username not admin of this chat")
+        
+        chat.creator = user 
+        chat.save()
+        return HttpResponse("ok")
+
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body is missing an important key")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("chat with provided chatid not found / user with provided username not found")
 
 
 def chat_info(chat_object):
@@ -312,6 +366,7 @@ def chat_info(chat_object):
     }
 
 
+@login_required
 def get_group_chat_rep_img(request, chat_id):
     """Return the representative image of a group chat.
     This view checks whether the user is in the group chat first before allowing the user to access the photo.
@@ -693,10 +748,14 @@ def get_private_chat_id(request, username):
         HttpResponse: the response with the id of the private chat
     """
 
-    if not UserAuth.objects.get(username=username).user_log.friend_list.filter(user_auth=request.user).exists():
-        return HttpResponseBadRequest("You are not friend with this user!")
-    result = list(filter(
-        lambda chat: chat.users.filter(username=username).exists(),
-        list(request.user.private_chats.all())
-    ))[0]
-    return HttpResponse(result.id)
+    try:
+        if not UserAuth.objects.get(username=username).user_log.friend_list.filter(user_auth=request.user).exists():
+            return HttpResponseBadRequest("You are not friend with this user!")
+        result = list(filter(
+            lambda chat: chat.users.filter(username=username).exists(),
+            list(request.user.private_chats.all())
+        ))[0]
+        return HttpResponse(result.id)
+    
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("user with provided username not found")
