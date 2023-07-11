@@ -86,7 +86,7 @@ class HomeAppBarState extends State<HomeAppBar> {
           );
         }
       },
-      searchHintText: "Names, Usernames...",
+      searchHintText: "Search for usernames...",
       leading: IconButton(
         onPressed: () {
           AutoRouter.of(context).push(const SettingsRoute());
@@ -102,10 +102,10 @@ class HomeAppBarState extends State<HomeAppBar> {
             "Match Miner",
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 22,
+              fontSize: 20,
             ),
           ),
-          Padding(padding: EdgeInsets.only(bottom: 1)),
+          Padding(padding: EdgeInsets.only(bottom: 4)),
         ],
       ),
       actions: [
@@ -134,12 +134,13 @@ class HomeAppBarState extends State<HomeAppBar> {
             children: [
               const Text(
                 "Filter",
-                style: TextStyle(fontSize: 16, color: Colors.black),
+                style: TextStyle(fontSize: 14, color: Colors.black),
               ),
               Transform.rotate(
                 angle: showFilters ? pi / 2 * 3 : pi / 2,
                 child: const Icon(
                   Icons.arrow_right,
+                  size: 20,
                 ),
               )
             ],

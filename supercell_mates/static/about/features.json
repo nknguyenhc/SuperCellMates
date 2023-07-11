@@ -9,7 +9,7 @@
                 },
                 {
                     "details": "Change username and change password",
-                    "progress": "Done on web"
+                    "progress": "Done"
                 },
                 {
                     "details": "Privacy agreement upon registration",
@@ -25,7 +25,7 @@
             "name": "User profile",
             "rows": [
                 {
-                    "details": "View user’s own profile page with profile image, name, username, friend list, achievements, tag list, post history",
+                    "details": "View user’s own profile page with profile image, name, username, friend list, achievements, tag list, own posts",
                     "progress": "Done"
                 },
                 {
@@ -38,10 +38,10 @@
                 },
                 {
                     "details": "Change name",
-                    "progress": "Done"
+                    "progress": "Done on web, to do on mobile"
                 },
                 {
-                    "details": "View others’ profile page, showing relevant visible fields",
+                    "details": "View others’ profile page, showing relevant visible fields and posts with view permission",
                     "progress": "Done"
                 }
             ]
@@ -134,12 +134,16 @@
             "name": "Home feed",
             "rows": [
                 {
-                    "details": "Displaying posts visible to user, sorted by time and matching index",
-                    "progress": "Partially done on mobile, matching index to-do"
+                    "details": "Displaying posts visible to user, sorted by time",
+                    "progress": "Done"
                 },
                 {
-                    "details": "Search users by name / username",
-                    "progress": "Done on mobile, searching by username done on web"
+                    "details": "Search users by username",
+                    "progress": "Done"
+                },
+                {
+                    "details": "Search users by name",
+                    "progress": "To do"
                 },
                 {
                     "details": "Search posts by content",
@@ -152,15 +156,15 @@
             "rows": [
                 {
                     "details": "Filter home feed by tag",
-                    "progress": "Done on mobile"
+                    "progress": "Done"
                 },
                 {
-                    "details": "Filter home feed by matching index",
+                    "details": "Filter/sort home feed by matching index",
                     "progress": "To do"
                 },
                 {
                     "details": "Filter home feed by friends only",
-                    "progress": "Done on mobile"
+                    "progress": "Done"
                 }
             ]
         },
@@ -185,11 +189,27 @@
             "name": "Instant messaging",
             "rows": [
                 {
-                    "details": "Direct message",
-                    "progress": "Partially done on web"
+                    "details": "Direct messaging",
+                    "progress": "Done"
                 },
                 {
-                    "details": "Group chat creation and settings",
+                    "details": "Send files through direct messaging",
+                    "progress": "Done"
+                },
+                {
+                    "details": "Group chat creation and users & admins settings",
+                    "progress": "Done on web, to do on mobile"
+                },
+                {
+                    "details": "Group chat messaging",
+                    "progress": "Done on web, to do on mobile"
+                },
+                {
+                    "details": "Send files through group chat",
+                    "progress": "Done on web, to do on mobile"
+                },
+                {
+                    "details": "Group chat representative image",
                     "progress": "To do"
                 }
             ]
@@ -228,12 +248,16 @@
             "name": "App settings",
             "rows": [
                 {
+                    "details": "Change basic info: name, username and password",
+                    "progress": "Done on web, changing name to do on mobile"
+                },
+                {
                     "details": "Display customisation",
                     "progress": "Add-on"
                 },
                 {
                     "details": "General privacy settings",
-                    "progress": "Add on"
+                    "progress": "Add-on"
                 }
             ]
         },
@@ -241,16 +265,20 @@
             "name": "Community admins",
             "rows": [
                 {
+                    "details": "Admins to be able to accept or reject tag requests, and add new tag",
+                    "progress": "Done on web, to do on mobile"
+                },
+                {
                     "details": "Users with high achievement level and engagement level in a community, can apply to be the community’s admin",
-                    "progress": "Add on"
+                    "progress": "Add-on"
                 },
                 {
                     "details": "Regular users can report inappropriate or irrelevant posts",
-                    "progress": "Add on"
+                    "progress": "Add-on"
                 },
                 {
                     "details": "Community admins can decide to remove posts and ban accounts",
-                    "progress": "Add on"
+                    "progress": "Add-on"
                 }
             ]
         }

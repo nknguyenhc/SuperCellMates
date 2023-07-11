@@ -1,0 +1,114 @@
+{
+    "tests": [
+        {
+            "instruction": "Navigate to your profile page by pressing 'Your Profile' button in the navigation bar.",
+            "expected": "The page should redirect to your profile page, with your profile picture, name, username, and side navigation for friends page and friend requests page. Your posts should be loaded, sorted in reverse chronological order. If you have posts older than 1 day, scrolling down will load your older posts. Each post should have a button to edit the post.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to your profile page by pressing 'Your Profile' button in the navigation bar. Click edit button on any of the posts.",
+            "expected": "A window to edit post should pop up, with content prefilled. The fields are exactly the same as the home page post creation form, except for the tags section, only one should appear, which is the tag that post is attached to. This field cannot be changed.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to your profile page by pressing 'Your Profile' button in the navigation bar. Click edit button on any of the posts and fill with the new contents. Click confirm edit post.",
+            "expected": "Notification that post has been edited appears, and the content of the same post on the page changes. Upon reloading, the new contents of the new post remains.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to your profile page by pressing 'Your Profile' button in the navigation bar. Click edit button on any of the posts. Fill with new contents, but cancel the edit by clicking outside.",
+            "expected": "The post content remains the same, and upon reloading, the post content still remains the same.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to your profile page by pressing 'Your Profile' button in the navigation bar. Click edit button on any of the posts, scroll down in the window and click delete post. Press confirm delete post.",
+            "expected": "The post disappears from the page. Upon reloading, the post is no longer there.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to setup page by either pressing 'Edit Profile' button in profile page or 'Edit Profile' button in setup page. Choose a new profile image, crop the image to a square (using our cropping functionality) and confirm new profile image.",
+            "expected": "Profile image is updated. Upon redirecting to profile page, there appears the new profile picture on top right corner.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to setup page by either pressing 'Edit Profile' button in profile page or 'Edit Profile' button in setup page. Choose a new profile image, but cancel the image updating by clicking on cancel button.",
+            "expected": "Profile image is not updated. Upon redirecting to profile page, the old profile picture remains.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to setup page by either pressing 'Edit Profile' button in profile page or 'Edit Profile' button in setup page. Enter a search phrase in the search tag input (e.g. 'computer'). Press enter key or press search button",
+            "expected": "All tags with search phrase as substring should appear in lexicographical order.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to setup page by either pressing 'Edit Profile' button in profile page or 'Edit Profile' button in setup page. Enter a search phrase that shows at least one tag in the tag input (e.g. 'computer'). Press on one of the tags and press 'Update Tags'.",
+            "expected": "The new tags are transferred to the current tags. Upon redirecting to the profile page, the list of your tags is updated.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to setup page by either pressing 'Edit Profile' button in profile page or 'Edit Profile' button in setup page. Attempt to add tags to more than 4 tags.",
+            "expected": "Limit cannot be exceeded, the page notifies the user of the limit.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to friends page by clicking on 'Friends' button on the side navigation of the profile page.",
+            "expected": "All your friends with their information (profile picture, name, username) should be listed.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to friend requests page by clicking on 'Friend Requests' button on the side navigation of the profile page.",
+            "expected": "All incoming friend requests with the senders' information (profile picture, name, username) should be listed, along with the clickable actions (accept, reject).",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to friend requests page by clicking on 'Friend Requests' button on the side navigation of the profile page. Click on accepting one of the active incoming friend requests.",
+            "expected": "Notification that friend request accepted is shown, and a new friend is added to your friend list. Upon reloading the page, the friend request is no longer there. Upon redirecting to the friends page, the new friend is listed.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to friend requests page by clicking on 'Friend Requests' button on the side navigation of the profile page. Click on rejecting one of the active incoming friend requests.",
+            "expected": "Notification that friend request rejected is shown. Reloading the page shows that the request is removed, and redirecting to friends page shows that the user is not added to your friend list.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to another user's profile page by searching for the user's username on the top navigation bar, and click on the user.",
+            "expected": "The user's profile page is loaded, with their posts sorted in reverse chronological order. Only posts with visibility settings such that you can see will be rendered. Older posts are loaded when you scroll down to the bottom. If the user is not your friend, it shows add friend button, otherwise it shows message & unfriend button.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to another user's profile page by searching for the user's username on the top navigation bar, and click on the user. This user must not be your friend. Press on add friend button beside the profile image.",
+            "expected": "A new friend request is created. The other user should be able to view the friend request in the friend requests page. Reloading the page shows the same button, this is so that you cannot track the friend request.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to another user's profile page by searching for the user's username on the top navigation bar, and click on the user. This user must be your friend. Click on message button.",
+            "expected": "Page redirects to instant messaging page with the chat between you and your friend opened.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to another user's profile page by searching for the user's username on the top navigation bar, and click on the user. This user must be your friend. Press unfriend button and confirm.",
+            "expected": "No longer friend notification appears, and the target user is removed from your friend list. Reloading the same user's profile page shows interface of accessing a user profile page with no friend relation.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to another user's profile page by searching for the user's username on the top navigation bar, and click on the user. This user must not be your friend, must have posted using a tag that you do not own but with public visibillity.",
+            "expected": "You can view all the posts that are set to public, but not those set to friends privilege.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to another user's profile page by searching for the user's username on the top navigation bar, and click on the user. This user must not be your friend, and must have posted using a tag that you have.",
+            "expected": "You can view all the posts that are set to people of the same tag and public, but not those set to friends privilege.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to another user's profile page by searching for the user's username on the top navigation bar, and click on the user. This user must be your friend, and must have posted using a tag that you do not have.",
+            "expected": "You can view all the posts that are set to public and friends, but not those that require having the same tag.",
+            "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to another user's profile page by searching for the user's username on the top navigation bar, and click on the user. This user must be your friend, and must have posted using a tag that you have.",
+            "expected": "You can view all posts that are set to public and friends, and posts under a tag that you have and that require people to have the same tag.",
+            "datePassed": "04/07/2023"
+        }
+    ]
+}

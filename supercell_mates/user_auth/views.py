@@ -20,11 +20,15 @@ from user_log.models import UserLog
 
 
 def documentation(request):
-    return render(request, 'user_auth/documentation.html')
+    return render(request, 'documentation/documentation.html')
+
+
+def testing(request):
+    return render(request, 'documentation/testing.html')
 
 
 def about(request):
-    return render(request, "user_auth/about.html")
+    return render(request, "documentation/about.html")
 
 
 @login_required
@@ -58,8 +62,6 @@ def login_async(request):
                 return HttpResponse("logged in")
             else:
                 return HttpResponse("wrong username or password")
-        except AttributeError:
-            return HttpResponseBadRequest("request does not contain form data")
         except MultiValueDictKeyError:
             return HttpResponseBadRequest("request body is missing username or password")
     else:
@@ -93,8 +95,6 @@ def login_user(request):
                     return render(request, 'user_auth/login.html', {
                         "error_message": "Wrong username or password"
                     })
-            except AttributeError:
-                return HttpResponseBadRequest("request does not contain form data")
             except MultiValueDictKeyError:
                 return HttpResponseBadRequest("request body is missing username or password")
     
@@ -111,8 +111,6 @@ def check_unique_username_async(request):
         if UserAuth.objects.filter(username = username).exists():
             return HttpResponse("username is already taken")
         return HttpResponse("username is unique")
-    except AttributeError:
-        return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body is missing username")
 
@@ -123,6 +121,11 @@ def register_user(request):
     name = request.POST["name"]
     if username == '' or password == '' or name == '':
         return "username/password or name is empty"
+    
+    if len(username) > 15:
+        return "username too long"
+    if len(name) > 15:
+        return "name too long"
 
     try:
         user = UserAuth.objects.create_user(username=username, password=password)
@@ -141,9 +144,7 @@ def register_async(request):
     if not request.user.is_authenticated:
         try:
             register_feedback = register_user(request)
-            return HttpResponse(register_feedback)
-        except AttributeError:
-            return HttpResponseBadRequest("request does not contain form data")
+            return (HttpResponse if register_feedback == "account created" else HttpResponseBadRequest)(register_feedback)
         except MultiValueDictKeyError:
             return HttpResponseBadRequest("request body is missing name, username or password")
     
@@ -160,11 +161,7 @@ def register(request):
                 if register_feedback == "account created":
                     return redirect(reverse("user_profile:setup"))
                 else:
-                    return render(request, "user_auth/register.html", {
-                        "error_message": "username already taken"
-                    })
-            except AttributeError:
-                return HttpResponseBadRequest("request does not contain form data")
+                    return HttpResponseBadRequest(register_feedback)
             except MultiValueDictKeyError:
                 return HttpResponseBadRequest("request body is missing name, username or password")
 
@@ -217,6 +214,10 @@ def change_username(request):
     try:
         new_username = request.POST["new_username"]
         password = request.POST["password"]
+
+        if len(new_username) > 15:
+            return HttpResponseBadRequest("name too long")
+
         if new_username == '' or password == '':
             return HttpResponseBadRequest("empty username/password")
         if UserAuth.objects.filter(username=new_username).exists():
@@ -231,8 +232,6 @@ def change_username(request):
         else:
             return HttpResponse("Password is incorrect")
     
-    except AttributeError:
-        return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body does not contain an important key")
 
@@ -265,8 +264,6 @@ def change_password(request):
         else:
             return HttpResponse("Old password is incorrect")
     
-    except AttributeError:
-        return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body does not contain an important key")
 
@@ -303,16 +300,20 @@ def add_tag_admin(request):
                 tag_request_id = request.POST["tag_request_id"]
                 tag_request_obj = TagRequest.objects.get(id=tag_request_id)
                 icon = tag_request_obj.image
-                tag_request_obj.delete()
-                tag_name = request.POST["tag"]
+                tag_name = tag_request_obj.name
                 if not icon:
                     tag = Tag(name=tag_name)
                 else:
                     tag = Tag(name=tag_name, image=icon)
                 tag.save()
+
+                if tag_request_obj.requester:
+                    if len(tag_request_obj.requester.tagList.all()) < tag_request_obj.requester.tag_count_limit:
+                        tag_request_obj.requester.tagList.add(tag)
+
+                tag_request_obj.delete()
                 return HttpResponse("successfully added tag")
-            except AttributeError:
-                return HttpResponseBadRequest("request does not contain form data")
+
             except MultiValueDictKeyError:
                 return HttpResponseBadRequest("request body is missing an important key")
             except ObjectDoesNotExist:
@@ -328,13 +329,25 @@ def new_tag_admin(request):
         if request.method == "POST":
             try:
                 tag_name = request.POST["tag"]
+                if len(tag_name) > 25:
+                    return HttpResponseBadRequest("tag name too long")
                 if TagRequest.objects.filter(name=tag_name).exists() or Tag.objects.filter(name=tag_name).exists():
-                    return HttpResponseBadRequest("tag already exists/tag request already exists")
-                tag = Tag(name=tag_name)
+                    return HttpResponse("Tag already exists/Tag request already exists")
+
+                has_img = False
+                if "img" in request.FILES:
+                    has_img = True
+                    img = request.FILES["img"]
+                    if not verify_image(img):
+                        return HttpResponseBadRequest("Tag icon is not image")
+
+                if has_img:
+                    tag = Tag(name=tag_name, image=img)
+                else:
+                    tag = Tag(name=tag_name)
                 tag.save()
-                return HttpResponse("tag added")
-            except AttributeError:
-                return HttpResponseBadRequest("request does not contain form data")
+                return HttpResponse("Tag added")
+            
             except MultiValueDictKeyError:
                 return HttpResponseBadRequest("request body is missing an important key")
         else:
@@ -350,8 +363,6 @@ def remove_tag_request(request):
                 tag_request_id = request.POST["tag_request_id"]
                 TagRequest.objects.get(id=tag_request_id).delete()
                 return HttpResponse("successfully removed request")
-            except AttributeError:
-                return HttpResponseBadRequest("request does not contain form data")
             except MultiValueDictKeyError:
                 return HttpResponseBadRequest("request body is missing an important key")
             except ObjectDoesNotExist:
@@ -382,9 +393,16 @@ def add_tag_request(request):
     try:
         tag_name = request.POST["tag"]
         description = request.POST["description"]
+        if len(tag_name) > 25:
+            return HttpResponseBadRequest("tag name too long")
+        if len(description) > 200:
+            return HttpResponseBadRequest("description too long")
         if duplicate_tag_exists(tag_name):
             return HttpResponse("tag already present/requested")
+        
+        has_img = False
         if "img" in request.POST:
+            has_img = True
             img_bytearray = request.POST["img"].strip("[]").split(", ")
             img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
             img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
@@ -393,18 +411,26 @@ def add_tag_request(request):
                 pil_img.verify()
             except (IOError, SyntaxError):
                 return HttpResponseBadRequest("not image")
-            tag_request = TagRequest(name=tag_name, image=img, description=description)
         elif "img" in request.FILES:
+            has_img = True
             img = request.FILES["img"]
             if not verify_image(img):
                 return HttpResponseBadRequest("not image")
-            tag_request = TagRequest(name=tag_name, image=img, description=description)
+    
+        if request.POST["attach"] == "true":
+            if has_img:
+                tag_request = TagRequest(name=tag_name, image=img, description=description, requester=request.user.user_profile)
+            else:
+                tag_request = TagRequest(name=tag_name, description=description, requester=request.user.user_profile)
         else:
-            tag_request = TagRequest(name=tag_name, description=description)
+            if has_img:
+                tag_request = TagRequest(name=tag_name, image=img, description=description)
+            else:
+                tag_request = TagRequest(name=tag_name, description=description)
+
         tag_request.save()
         return HttpResponse("Successfully added tag request")
-    except AttributeError:
-        return HttpResponseBadRequest("request does not contain form data")
+    
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request is missing an important key")
 

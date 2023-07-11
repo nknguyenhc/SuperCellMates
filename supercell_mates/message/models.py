@@ -16,7 +16,10 @@ class PrivateChat(AbstractChat):
 
 
 class GroupChat(AbstractChat):
+    name = models.CharField(max_length=15)
     users = models.ManyToManyField('user_auth.UserAuth', related_name='group_chats')
+    admins = models.ManyToManyField('user_auth.UserAuth', related_name='admin_chats')
+    creator = models.ForeignKey("user_auth.UserAuth", on_delete=models.SET_NULL, null=True, related_name='created_chats')
     rep_img = models.ImageField(null=True)
 
 """Chat Messages"""

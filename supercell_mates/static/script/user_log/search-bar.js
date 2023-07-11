@@ -6,9 +6,13 @@ document.addEventListener("DOMContentLoaded", () => {
         searchForm.addEventListener('submit', event => {
             event.preventDefault();
             fetch('/user/search?username=' + searchField.value)
-                .then(response => response.json())
-                .then(response => displayResult(response.users))
-                .catch(() => triggerErrorMessage());
+                .then(response => {
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else {
+                        response.json().then(response => displayResult(response.users))
+                    }
+                })
         });
         searchField.addEventListener('focus', () => {
             if (searchResultBox.style.display === "none") {

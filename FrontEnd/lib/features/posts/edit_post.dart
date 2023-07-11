@@ -171,6 +171,8 @@ class EditPostPageState extends State<EditPostPage> {
       widget.updateCallBack();
       AutoRouter.of(context).pop().then(
           (value) => showSuccessDialog(context, "Successfully updated post!"));
+    } else {
+      showErrorDialog(context, r);
     }
   }
 
@@ -206,6 +208,7 @@ class EditPostPageState extends State<EditPostPage> {
                     SizedBox(
                       width: MediaQuery.of(context).size.width - 150,
                       child: TextFormField(
+                        maxLength: 100,
                         initialValue: widget.oldPostData["title"],
                         onTap: collapseVisibilities,
                         onTapOutside: (e) =>
@@ -213,6 +216,7 @@ class EditPostPageState extends State<EditPostPage> {
                         decoration: const InputDecoration(
                             isDense: true,
                             contentPadding: EdgeInsets.fromLTRB(8, 0, 0, 1),
+                            counterText: "",
                             hintText: "Post title",
                             hintStyle:
                                 TextStyle(color: Colors.grey, fontSize: 18)),
@@ -239,6 +243,7 @@ class EditPostPageState extends State<EditPostPage> {
                         width: MediaQuery.of(context).size.width - 40,
                         height: MediaQuery.of(context).size.height - 575,
                         child: TextFormField(
+                          maxLength: 2000,
                           initialValue: widget.oldPostData["content"],
                           onTap: collapseVisibilities,
                           onTapOutside: (e) =>
@@ -246,6 +251,7 @@ class EditPostPageState extends State<EditPostPage> {
                           decoration: const InputDecoration(
                               border: OutlineInputBorder(),
                               contentPadding: EdgeInsets.fromLTRB(8, 15, 0, 0),
+                              counterText: "",
                               hintText: "Post content",
                               hintStyle:
                                   TextStyle(color: Colors.grey, fontSize: 14)),
@@ -267,7 +273,6 @@ class EditPostPageState extends State<EditPostPage> {
                   children: [
                     const Padding(padding: EdgeInsets.only(left: 20)),
                     Container(
-                      alignment: Alignment.topLeft,
                       width: MediaQuery.of(context).size.width - 40,
                       height: previewImageWidth * 3 + 60,
                       decoration: BoxDecoration(
@@ -377,10 +382,13 @@ class EditPostPageState extends State<EditPostPage> {
                     ),
                   ],
                 ),
+              ]),
 
-                // Bottom Bar
-                SizedBox(
-                  height: 40,
+              // Bottom Bar
+              Positioned(
+                bottom: 20,
+                child: SizedBox(
+                  height: 30,
                   width: MediaQuery.of(context).size.width,
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -389,10 +397,10 @@ class EditPostPageState extends State<EditPostPage> {
                         Text(
                           "Tag: \"${widget.tagName}\"",
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                           ),
                         ),
-                        const Padding(padding: EdgeInsets.only(left: 10)),
+                        const Padding(padding: EdgeInsets.only(left: 20)),
 
                         // Visibility button
                         TextButton(
@@ -402,6 +410,8 @@ class EditPostPageState extends State<EditPostPage> {
                               });
                             },
                             style: const ButtonStyle(
+                                padding:
+                                    MaterialStatePropertyAll(EdgeInsets.zero),
                                 backgroundColor:
                                     MaterialStatePropertyAll(Colors.white),
                                 iconColor:
@@ -421,71 +431,77 @@ class EditPostPageState extends State<EditPostPage> {
                               ],
                             ))
                       ]),
-                )
-              ]),
+                ),
+              ),
 
               // visibility settings drawer
               // as a child of the stack, overlays the content above
               showVisibilites
-                  ? Container(
-                      padding: EdgeInsets.fromLTRB(
-                          MediaQuery.of(context).size.width - 190,
-                          MediaQuery.of(context).size.height - 300,
-                          30,
-                          30),
-                      height: MediaQuery.of(context).size.height - 120,
-                      child: Container(
-                          alignment: Alignment.bottomCenter,
-                          width: 160,
-                          height: 150,
-                          color: const Color.fromARGB(255, 223, 234, 237),
-                          child: ListView.builder(
-                              scrollDirection: Axis.vertical,
-                              itemCount: 3,
-                              itemBuilder: (context, index) {
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    index == 0
-                                        ? Container()
-                                        : const Divider(
-                                            height: 1,
-                                            thickness: 1,
-                                            indent: 12,
-                                            endIndent: 25,
-                                          ),
-                                    Row(
+                  ? Positioned(
+                      bottom: 60,
+                      right: 30,
+                      top: MediaQuery.of(context).size.height - 290,
+                      child: SizedBox(
+                          child: Container(
+                              alignment: Alignment.bottomCenter,
+                              width: 180,
+                              height: 150,
+                              color: const Color.fromARGB(255, 223, 234, 237),
+                              child: ListView.builder(
+                                  scrollDirection: Axis.vertical,
+                                  itemCount: 3,
+                                  itemBuilder: (context, index) {
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
-                                        TextButton(
-                                            onPressed: () {
-                                              setVisibility(index);
-                                            },
-                                            style: const ButtonStyle(
+                                        index == 0
+                                            ? Container()
+                                            : const Divider(
+                                                height: 1,
+                                                thickness: 1,
+                                                indent: 20,
+                                                endIndent: 20,
+                                              ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            TextButton(
+                                                onPressed: () {
+                                                  setVisibility(index);
+                                                },
+                                                style: const ButtonStyle(
+                                                    padding:
+                                                        MaterialStatePropertyAll(
+                                                            EdgeInsets.only(
+                                                                left: 13.5))),
+                                                child: Text(
+                                                    visibilityDescriptions[
+                                                        index])),
+                                            Padding(
+                                                padding: EdgeInsets.only(
+                                                    left: index == 0
+                                                        ? 6.5
+                                                        : index == 1
+                                                            ? 8
+                                                            : 4)),
+                                            isVisibilitiesChosen[index]
+                                                ? const Icon(
+                                                    Icons.circle,
+                                                    size: 8,
+                                                  )
+                                                : Container(),
+                                            const Padding(
                                                 padding:
-                                                    MaterialStatePropertyAll(
-                                                        EdgeInsets.only(
-                                                            left: 13.5))),
-                                            child: Text(
-                                                visibilityDescriptions[index])),
-                                        Padding(
-                                            padding: EdgeInsets.only(
-                                                left: index == 0
-                                                    ? 6.5
-                                                    : index == 1
-                                                        ? 8
-                                                        : 4)),
-                                        isVisibilitiesChosen[index]
-                                            ? const Icon(
-                                                Icons.circle,
-                                                size: 8,
-                                              )
-                                            : Container()
+                                                    EdgeInsets.only(right: 10))
+                                          ],
+                                        )
                                       ],
-                                    )
-                                  ],
-                                );
-                              })))
+                                    );
+                                  }))))
                   : Container(),
             ])));
   }

@@ -11,6 +11,8 @@ enum EndPoints {
   obtainTags,
   searchTags,
   setProfileImage,
+  changeUsername, 
+  changePassword,
 
   viewFriends,
   viewFriendRequests,
@@ -27,6 +29,12 @@ enum EndPoints {
 
   getHomeFeed,
 
+  getPrivateChats,
+  getPrivateMessages,
+  getGroupMessages,
+  uploadFile,
+  getImage
+
 }
 
 extension ExtendedEndPoints on EndPoints {
@@ -42,6 +50,8 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.obtainTags: "/profile/obtain_tags",
     EndPoints.searchTags: "/profile/search_tags",
     EndPoints.setProfileImage: "/profile/set_profile_image",
+    EndPoints.changeUsername: "/change_username",
+    EndPoints.changePassword: "/change_password",
     EndPoints.viewFriends: "/user/friends_async",
     EndPoints.viewFriendRequests: "/user/friend_requests_async",
     EndPoints.addFriendRequest: "/user/add_friend_request",
@@ -54,6 +64,11 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.editPost: "/post/post/edit/",
     EndPoints.deletePost: "/post/delete",
     EndPoints.getHomeFeed: "/post/",
+    EndPoints.getPrivateChats: "/messages/get_private_chats",
+    EndPoints.getPrivateMessages: "/messages/get_private_messages/",
+    EndPoints.getGroupMessages: "/messages/get_group_messages/",
+    EndPoints.uploadFile: "/messages/upload_file",
+    EndPoints.getImage: "/messages/image/"
     
 
   };

@@ -5,4 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector("#change-password-button").addEventListener('click', () => {
         popChangePasswordWindow();
     });
+    document.querySelector("#change-name-button").addEventListener('click', () => {
+        popChangeNameWindow();
+    })
 });

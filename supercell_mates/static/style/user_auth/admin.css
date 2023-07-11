@@ -21,3 +21,9 @@
 #add-tags {
     width: 40vw;
 }
+
+#new-tag-admin-icon {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}

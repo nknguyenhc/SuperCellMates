@@ -38,6 +38,10 @@ dependencies:
 
   image_picker: ^0.8.7+5
 
+  file_picker: ^5.3.2
+
+  file_saver: ^0.2.6
+
   get_it: ^7.6.0
 
   cached_network_image: ^3.2.3
@@ -47,6 +51,14 @@ dependencies:
   image_cropper: ^4.0.0
 
   photo_view: ^0.14.0
+
+  web_socket_channel: ^2.4.0
+
+  flutter_chat_ui: ^1.6.8
+
+  flutter_chat_types: ^3.6.1
+
+  intl: ^0.18.1
 
 
   # The following adds the Cupertino Icons font to your application.

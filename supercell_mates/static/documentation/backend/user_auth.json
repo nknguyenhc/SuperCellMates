@@ -6,7 +6,7 @@
             "description": "Entry to the host from mobile frontend.",
             "getParams": [],
             "postParams": [],
-            "return": ""
+            "return": "<blank response with CSRF token as cookie>"
         },
         {
             "path": "/login_async",
@@ -65,16 +65,12 @@
         },
         {
             "path": "/add_tag_admin",
-            "description": "Add a tag based on a request. You must be an admin to access this API.",
+            "description": "Add a tag based on a request. You must be an admin to access this API. If the requester previously indicated to attach this tag to him/her, it will follow as such.",
             "getParams": [],
             "postParams": [
                 {
                     "name": "tag_request_id",
                     "description": "The id of the tag request to create a tag from"
-                },
-                {
-                    "name": "tag",
-                    "description": "The name of the new tag"
                 }
             ],
             "return": "<success status 200, or status 4xx if the request is invalid>"
@@ -102,11 +98,15 @@
                 },
                 {
                     "name": "description",
-                    "description": "The description of what the new tag is about"
+                    "description": "The description of what the new tag is about, for the admin to see"
                 },
                 {
                     "name": "img",
                     "description": "The icon to represent the tag"
+                },
+                {
+                    "name": "attach",
+                    "description": "'true' if the requester wants the tag to be attached to him/her after the tag is approved"
                 }
             ],
             "return": "<success status 200, or status 4xx if the request is invalid>"
@@ -145,6 +145,10 @@
                 {
                     "name": "tag",
                     "description": "The name of the new tag"
+                },
+                {
+                    "name": "img",
+                    "description": "The image file to be set as icon of this tag"
                 }
             ],
             "return": "<success status 200, or status 4xx if the request is invalid>"

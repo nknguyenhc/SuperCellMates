@@ -50,6 +50,10 @@ def create_post(request):
         content = request.POST["content"]
         if title == '' or content == '':
             return HttpResponseBadRequest("title or content is empty")
+        if len(title) > 100:
+            return HttpResponseBadRequest("title too long")
+        if len(content) > 2000:
+            return HttpResponseBadRequest("content too long")
 
         # tag
         tag_name = request.POST["tag"]
@@ -83,6 +87,8 @@ def create_post(request):
                 imgs = []
             else:
                 imgs = request.POST["imgs"].strip('[[]]').split('], [')
+                if len(imgs) > 9:
+                    return HttpResponseBadRequest("too many images")
                 for (i, img_raw) in enumerate(imgs):
                     img_bytearray = img_raw.split(", ")
                     img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
@@ -96,6 +102,8 @@ def create_post(request):
                     img_obj.save()
         else:
             imgs = request.FILES.getlist("imgs")
+            if len(imgs) > 9:
+                return HttpResponseBadRequest("too many images")
             for (i, img) in enumerate(imgs):
                 if not verify_image(img):
                     return HttpResponseBadRequest("not image")
@@ -106,8 +114,6 @@ def create_post(request):
 
         return HttpResponse("post created")
     
-    except AttributeError:
-        return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body is missing an important key")
     except ObjectDoesNotExist:
@@ -174,68 +180,70 @@ def edit_post(request, post_id):
         HttpResponse: the feedback of the process
     """
 
-    # try:
-    post = Post.objects.get(id=post_id)
-    if not post in request.user.user_log.posts.all():
-        return HttpResponseBadRequest("post with provided id does not belong to you")
+    try:
+        post = Post.objects.get(id=post_id)
+        if not post in request.user.user_log.posts.all():
+            return HttpResponseBadRequest("post with provided id does not belong to you")
 
-    # basic info: title and content
-    title = request.POST["title"]
-    content = request.POST["content"]
-    if title == '' or content == '':
-        return HttpResponseBadRequest("title or content is empty")
+        # basic info: title and content
+        title = request.POST["title"]
+        content = request.POST["content"]
+        if title == '' or content == '':
+            return HttpResponseBadRequest("title or content is empty")
+        if len(title) > 100:
+            return HttpResponseBadRequest("title too long")
+        if len(content) > 100:
+            return HttpResponseBadRequest("content too long")
 
-    # visibility
-    visibility = get_list_from_request_body(request, "visibility")
-    friend_visible = "friends" in visibility
-    tag_visible = "tag" in visibility
-    public_visible = "public" in visibility
-    if not friend_visible and not tag_visible and not public_visible:
-        return HttpResponseBadRequest("visibility malformed")
-    
-    post.title = title
-    post.content = content
-    post.friend_visible = friend_visible
-    post.tag_visible = tag_visible
-    post.public_visible = public_visible
-    
-    # images
-    for img in post.images.all():
-        img.delete()
-    if "imgs" in request.POST:
-        if request.POST["imgs"] == '[]':
-            imgs = []
+        # visibility
+        visibility = get_list_from_request_body(request, "visibility")
+        friend_visible = "friends" in visibility
+        tag_visible = "tag" in visibility
+        public_visible = "public" in visibility
+        if not friend_visible and not tag_visible and not public_visible:
+            return HttpResponseBadRequest("visibility malformed")
+        
+        post.title = title
+        post.content = content
+        post.friend_visible = friend_visible
+        post.tag_visible = tag_visible
+        post.public_visible = public_visible
+        
+        # images
+        for img in post.images.all():
+            img.delete()
+        if "imgs" in request.POST:
+            if request.POST["imgs"] == '[]':
+                imgs = []
+            else:
+                imgs = request.POST["imgs"].strip('[[]]').split('], [')
+                for (i, img_raw) in enumerate(imgs):
+                    img_bytearray = img_raw.split(", ")
+                    img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
+                    img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
+                    try:
+                        pil_img = Image.open(img)
+                        pil_img.verify()
+                    except (IOError, SyntaxError):
+                        return HttpResponseBadRequest("not image")
+                    img_obj = PostImage(order=i, image=img, post=post)
+                    img_obj.save()
         else:
-            imgs = request.POST["imgs"].strip('[[]]').split('], [')
-            for (i, img_raw) in enumerate(imgs):
-                img_bytearray = img_raw.split(", ")
-                img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
-                img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
-                try:
-                    pil_img = Image.open(img)
-                    pil_img.verify()
-                except (IOError, SyntaxError):
+            imgs = request.FILES.getlist("imgs")
+            for (i, img) in enumerate(imgs):
+                if not verify_image(img):
                     return HttpResponseBadRequest("not image")
                 img_obj = PostImage(order=i, image=img, post=post)
                 img_obj.save()
-    else:
-        imgs = request.FILES.getlist("imgs")
-        for (i, img) in enumerate(imgs):
-            if not verify_image(img):
-                return HttpResponseBadRequest("not image")
-            img_obj = PostImage(order=i, image=img, post=post)
-            img_obj.save()
-    post.img_count = len(imgs)
-    post.save()
+        post.img_count = len(imgs)
+        post.save()
 
-    return HttpResponse("post updated")
+        return HttpResponse("post updated")
 
-    # except AttributeError:
-    #     return HttpResponseBadRequest("request does not contain form data")
-    # except MultiValueDictKeyError:
-    #     return HttpResponseBadRequest("request body is missing an important key")
-    # except ObjectDoesNotExist:
-    #     return HttpResponseBadRequest("post with provided id not found")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body is missing an important key")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("post with provided id not found")
 
 
 @login_required
@@ -275,8 +283,6 @@ def add_photo(request):
         post.save()
         return HttpResponse(reverse("posts:get_post_pic", args=(img_obj.id,)))
     
-    except AttributeError:
-        return HttpResponseBadRequest("request does not contain form data/image")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request does not contain an important key")
     except ObjectDoesNotExist:
@@ -308,8 +314,6 @@ def delete_photo(request):
         pic.delete()
         return HttpResponse("picture deleted")
     
-    except AttributeError:
-        return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body does not contain an important key")
     except ObjectDoesNotExist:
@@ -337,8 +341,6 @@ def delete_post(request):
         post.delete()
         return HttpResponse("post deleted")
     
-    except AttributeError:
-        return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body does not contain an important key")
     except ObjectDoesNotExist:
@@ -366,13 +368,7 @@ def parse_post_object(post):
                 username: the username of the creator
                 profile_pic_url: the URL to the profile pic of the creator
                 profile_link: the link to the profile of the creator
-            time_posted: the time posted given in a dictionary with the following fields:
-                year (int)
-                month (int)
-                day (int)
-                hour (int)
-                minute (int)
-                second (int)
+            time_posted: the time posted given in epoch time (in seconds)
             images: the list of URL to the images of the post
     """
     images = list(PostImage.objects.filter(post=post))
@@ -381,7 +377,6 @@ def parse_post_object(post):
         lambda image: reverse("posts:get_post_pic", args=(image.id,)),
         images
     ))
-    post_timing = post.time_posted + timedelta(hours=8) # SG time
 
     return {
         "id": post.id,
@@ -400,14 +395,7 @@ def parse_post_object(post):
             "profile_pic_url": reverse("user_profile:get_profile_pic", args=(post.creator.user_auth.username,)),
             "profile_link": reverse("user_log:view_profile", args=(post.creator.user_auth.username,)),
         },
-        "time_posted": {
-            "year": post_timing.year,
-            "month": post_timing.month,
-            "day": post_timing.day,
-            "hour": post_timing.hour,
-            "minute": post_timing.minute,
-            "second": post_timing.second,
-        },
+        "time_posted": post.time_posted.timestamp(),
         "images": images
     }
 
@@ -490,24 +478,19 @@ def get_post_pic(request, pic_id):
 def get_profile_posts(request, username):
     """Return the posts of the user with the given username within a time frame.
     The time limits are given in the GET parameters. The URL therefore must contain the following GET paramters:
-        start (str): the string of the start date given in the format YYYY-MM-DD-HH-MM-SS
-        end (str): the string of the end date given in the format YYYY-MM-DD-HH-MM-SS
+        start (str): epoch time of start time in seconds
+        end (str): epoch time of end time in seconds
         [Optional] tag (str): the string of the tag filter applied to the profile posts
     
     The returned json response contains the following fields:
         posts (list(dict)): the list of posts, each represented by a dictionary
-        hasOlderPosts (bool): whether there are posts older than the requested start time, True if there is, false otherwise
+        next (int): the time stamp of the next older post, 0 if there is no older post
         myProfile (bool): whether the request user has the username
     """
 
     try:
-        start_arr = request.GET["start"].split("-")
-        end_arr = request.GET["end"].split("-")
-        if len(start_arr) != 6 or len(end_arr) != 6:
-            return HttpResponseBadRequest("start or end date malformed")
-        start_time = datetime(year=int(start_arr[0]), month=int(start_arr[1]), day=int(start_arr[2]), hour=int(start_arr[3]), minute=int(start_arr[4]), second=int(start_arr[5]))
-        end_time = datetime(year=int(end_arr[0]), month=int(end_arr[1]), day=int(end_arr[2]), hour=int(end_arr[3]), minute=int(end_arr[4]), second=int(end_arr[5]))
-        # only meant to be in SG. If post is made at another point of the world, have to fix this time display
+        start_time = datetime.fromtimestamp(float(request.GET["start"]))
+        end_time = datetime.fromtimestamp(float(request.GET["end"]))
         user_log_obj = UserAuth.objects.get(username=username).user_log
 
         posts_queryset = user_log_obj.posts.filter(time_posted__range=(start_time, end_time)).order_by('-time_posted')
@@ -524,20 +507,25 @@ def get_profile_posts(request, username):
             )
         ))
 
+        older_posts = user_log_obj.posts.filter(time_posted__lt=start_time)
+        next_last_timestamp = 0
+        if older_posts.exists():
+            next_last_timestamp = older_posts.first().time_posted.timestamp()
+
         return JsonResponse({
             "posts": posts,
-            "hasOlderPosts": user_log_obj.posts.filter(time_posted__lt=start_time).exists(),
+            "next": next_last_timestamp,
             "myProfile": request.user.username == username,
         })
     
-    except AttributeError:
-        return HttpResponseBadRequest("GET parameter(s) malformed")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("start or end date not found in GET parameter")
     except ObjectDoesNotExist:
-        return HttpResponseNotFound("user with the username not found")
+        return HttpResponseNotFound("user with the username not found / tag with requested tag not found")
     except ValueError:
         return HttpResponseBadRequest("time fields containing characters other than numbers / invalid time")
+    except OSError:
+        return HttpResponseBadRequest("time requested is invalid epoch time")
 
 @login_required
 def get_home_feed(request):
@@ -546,72 +534,76 @@ def get_home_feed(request):
     Args:
         request (HttpRequest): the request made to this view
 
-    The request contains the following query fields:
+    The request must contain the following query fields:
         - sort (str): the sorting method applied by user
-        - friend_filter (1/0): whether user filters home feed to friends only
-        - tag_filter(1/0): whether user filters home feed to their tags only
-        - start_id (str): the id of the post to start displaying from (excluding)
-            When entering home feed for the first time, start_id should be ""
-            When trying to load more posts, use the previously returned stop_id as the new start_id
+        - friend_filter ('1'/'0'): whether user filters home feed to friends only
+        - tag_filter('1'/'0'): whether user filters home feed to their tags only
         - limit (str): the maximum number of posts to return
+
+    If sort is "time", the request must contain:
+        - start_timestamp (int): epoch time in seconds of the post to start displaying from (excluding), or empty string if fetching post from current time
+            When entering home feed for the first time, start_timestamp should be ""
+            When trying to load more posts, use the previously returned stop_timestamp as the new start_timestamp
+
+    If sort is "matching_index", the request must contain:
+        - start_matching_index (str): the exact matching index of the post to start displaying from
+            When entering home feed for the first time, start_matching_index should be "5"
+            When trying to load more posts, use the previous stop_matching_index as the new start_matching_index
 
     Returns:
         JsonResponse containing post data, or HttpResponseBadRequest
 
-    The jsonResponse contains the following fields:
+    The jsonResponse contains:
         - posts (list(dict)): the list of posts, each represented by a dictionary
-        - stop_id (str): the id of the last post in the list of posts
+
+    If sort is "time", the response also contains:
+        - stop_timestamp (str): the epoch time of the last post in the list of posts, if none is found, this field is 0
+
+    If sort is "matching_index", the response also contains:
+        - stop_matching_index (str): the matching index between user and the creator of the last post
     """
     try:
         posts = Post.objects
 
+        # Exclude user's own posts, and apply filters
+        posts = posts.exclude(creator=request.user.user_log)
+        if request.GET["friend_filter"] == '1':
+            friend_list = request.user.user_log.friend_list.all()
+            posts = posts.filter(creator__in=friend_list)
+        if request.GET["tag_filter"] == '1':
+            tag_list = request.user.user_profile.tagList.all()
+            posts = posts.filter(tag__in=tag_list)
+
+        count = 0
+        result = []
+
+        # Sort, then take accessible posts until limit is reached
         if request.GET["sort"] == "time":
+            if request.GET["start_timestamp"] != "":
+                start_timestamp = datetime.fromtimestamp(float(request.GET["start_timestamp"]))
+                posts = posts.filter(time_posted__lt=start_timestamp)
             posts = posts.order_by('-time_posted')
+            for post_object in posts:
+                if has_access(request.user, post_object):
+                    result.append(parse_post_object(post_object))
+                    count += 1
+                    if count >= int(request.GET["limit"]):
+                        break
+            ret = {
+                "posts": result,
+                "stop_timestamp": 0
+            }
+            if count > 0:
+                ret["stop_timestamp"] = result[count-1]["time_posted"]
         # TODO: sort by matching index
         else:
             return HttpResponseBadRequest("sort method query string malformed")
 
-        posts = posts.exclude(creator=request.user.user_log)
-        if request.GET["friend_filter"] == '1':
-            friend_list = list(request.user.user_log.friend_list.all())
-            if friend_list is None:
-                posts = posts.filter(False)
-            else:
-                posts = posts.filter(creator__in=friend_list)
-        if request.GET["tag_filter"] == '1':
-            tag_list = list(request.user.user_profile.tagList.all())
-            if tag_list is None:
-                posts = posts.filter(False)
-            else:
-                posts = posts.filter(tag__in=tag_list)
-
-        count = 0
-        result = []
-        skip = True
-
-        if request.GET["start_id"] == "":
-            skip = False
-        for post_object in posts:
-            if post_object.id == request.GET["start_id"]:
-                skip = False
-                continue
-            if not skip and has_access(request.user, post_object):
-                result.append(parse_post_object(post_object))
-                count += 1
-                if count >= int(request.GET["limit"]):
-                    break
-
-        ret = {
-            "posts": result,
-            "stop_id": "",
-        }
-
-        if count > 0:
-            ret["stop_id"] = result[count-1]["id"]
-
         return JsonResponse(ret)
 
-    except AttributeError:
-        return HttpResponseBadRequest("GET parameter(s) malformed")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("certain field(s) not found in GET parameter")
+    except ValueError:
+        return HttpResponseBadRequest("start_time provided is not a number / limit provided is not an integer")
+    except OSError:
+        return HttpResponseBadRequest("start_time provided is not epoch time in seconds")

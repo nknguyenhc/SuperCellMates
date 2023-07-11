@@ -1,0 +1,21 @@
+#testing-window {
+    margin: 0 auto;
+    width: 80%;
+}
+
+#testing-sections {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+#testing-apps {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.testing-textarea {
+    resize: none;
+    font: revert;
+}

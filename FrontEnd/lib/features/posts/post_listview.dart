@@ -37,10 +37,10 @@ class PostListView extends StatefulWidget {
 
 class PostListViewState extends State<PostListView> {
   int count = 0;
-  dynamic postList;
   List<bool> dataLoaded = [];
   List<Uint8List> profileImages = [];
   List<List<Uint8List>?> postImagesRaw = [];
+  List<dynamic> timePosted = [];
 
   final _controller = ScrollController();
 
@@ -51,8 +51,10 @@ class PostListViewState extends State<PostListView> {
     dataLoaded = List.filled(count, false, growable: true);
     profileImages = List.filled(count, Uint8List.fromList([]), growable: true);
     postImagesRaw = List.filled(count, null, growable: true);
+    timePosted = List.filled(count, null, growable: true);
     for (int i = 0; i < count; i++) {
       loadImages(i);
+      loadTime(i);
     }
     _controller.addListener(() {
       if (_controller.position.atEdge) {
@@ -79,7 +81,9 @@ class PostListViewState extends State<PostListView> {
       dataLoaded.add(false);
       profileImages.add(Uint8List.fromList([]));
       postImagesRaw.add(null);
+      timePosted.add(null);
       loadImages(i);
+      loadTime(i);
     }
   }
 
@@ -97,6 +101,15 @@ class PostListViewState extends State<PostListView> {
     setState(() {
       dataLoaded[index] = true;
     });
+  }
+
+  void loadTime(index) {
+    timePosted[index] = widget.postList[index]["time_posted"];
+    for (String key in ["month", "day", "hour", "minute", "second"]) {
+      if (timePosted[index][key] < 10) {
+        timePosted[index][key] = "0${timePosted[index][key]}";
+      }
+    }
   }
 
   @override
@@ -121,6 +134,10 @@ class PostListViewState extends State<PostListView> {
                       FocusManager.instance.primaryFocus?.unfocus();
                       dynamic data = await getRequest(
                           "${EndPoints.viewProfile.endpoint}/$username", null);
+                      if (data == "Connection error") {
+                        showErrorDialog(context, data);
+                        return;
+                      }
                       AutoRouter.of(context)
                           .push(OthersProfileRoute(data: jsonDecode(data)));
                     },
@@ -179,161 +196,187 @@ class PostListViewState extends State<PostListView> {
                         Row(
                           children: [
                             const Padding(padding: EdgeInsets.only(left: 10)),
-                            Text(
-                              title,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width - 40,
+                              child: Text(
+                                title,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 17),
+                              ),
+                            )
                           ],
                         ),
+                        const Padding(padding: EdgeInsets.only(top: 5)),
                         Row(
                           children: [
                             const Padding(padding: EdgeInsets.only(left: 10)),
-                            Text(
-                              content,
-                              style: const TextStyle(fontSize: 14),
-                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width - 40,
+                              child: Text(
+                                content,
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            )
                           ],
                         ),
                         const Padding(padding: EdgeInsets.only(top: 10)),
-
                         // images
                         dataLoaded[index]
                             ? images!.isEmpty
                                 ? Container()
-                                : images.length < 5
-                                    ? SizedBox(
-                                        width:
-                                            MediaQuery.of(context).size.width -
-                                                40,
-                                        height: images.length < 3
-                                            ? MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                    2 -
-                                                40
-                                            : MediaQuery.of(context)
-                                                    .size
-                                                    .width -
-                                                65,
-                                        child: GridView.builder(
-                                          itemCount: images.length,
-                                          shrinkWrap: true,
-                                          padding: const EdgeInsets.only(
-                                              left: 10, right: 10),
-                                          physics:
-                                              const NeverScrollableScrollPhysics(),
-                                          gridDelegate:
-                                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                                  crossAxisCount: 2,
-                                                  mainAxisSpacing: 10,
-                                                  crossAxisSpacing: 10),
-                                          itemBuilder: (context, imageIndex) {
-                                            return IconButton(
-                                                splashColor: Colors.transparent,
-                                                highlightColor: Colors
-                                                    .transparent,
-                                                padding: EdgeInsets.zero,
-                                                onPressed: () =>
-                                                    AutoRouter.of(context).push(
-                                                        MultiplePhotosViewer(
-                                                            listOfPhotoBytes:
-                                                                postImagesRaw[
-                                                                    index]!,
-                                                            initialIndex:
-                                                                imageIndex,
-                                                            actionFunction:
-                                                                null)),
-                                                icon: Image.memory(
-                                                  images[imageIndex],
-                                                  width: MediaQuery.of(context)
+                                : Column(
+                                    children: [
+                                      const Padding(
+                                          padding: EdgeInsets.only(top: 10)),
+                                      images.length < 5
+                                          ? SizedBox(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width -
+                                                  40,
+                                              height: images.length < 3
+                                                  ? MediaQuery.of(context)
+                                                              .size
+                                                              .width /
+                                                          2 -
+                                                      20
+                                                  : MediaQuery.of(context)
                                                           .size
-                                                          .width /
-                                                      2,
-                                                  height: MediaQuery.of(context)
+                                                          .width -
+                                                      45,
+                                              child: GridView.builder(
+                                                itemCount: images.length,
+                                                shrinkWrap: true,
+                                                padding: const EdgeInsets.only(
+                                                    left: 10, right: 10),
+                                                physics:
+                                                    const NeverScrollableScrollPhysics(),
+                                                gridDelegate:
+                                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                                        crossAxisCount: 2,
+                                                        mainAxisSpacing: 10,
+                                                        crossAxisSpacing: 10),
+                                                itemBuilder:
+                                                    (context, imageIndex) {
+                                                  return IconButton(
+                                                      splashColor:
+                                                          Colors.transparent,
+                                                      highlightColor:
+                                                          Colors.transparent,
+                                                      padding: EdgeInsets.zero,
+                                                      onPressed: () => AutoRouter
+                                                              .of(context)
+                                                          .push(MultiplePhotosViewer(
+                                                              listOfPhotoBytes:
+                                                                  postImagesRaw[
+                                                                      index]!,
+                                                              initialIndex:
+                                                                  imageIndex,
+                                                              actionFunction:
+                                                                  null)),
+                                                      icon: Image.memory(
+                                                        images[imageIndex],
+                                                        width: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width /
+                                                            2,
+                                                        height: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width /
+                                                            2,
+                                                        fit: BoxFit.cover,
+                                                      ));
+                                                },
+                                              ),
+                                            )
+                                          : SizedBox(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width -
+                                                  40,
+                                              height: images.length < 7
+                                                  ? MediaQuery.of(context)
+                                                              .size
+                                                              .width *
+                                                          2 /
+                                                          3 -
+                                                      27
+                                                  : MediaQuery.of(context)
                                                           .size
-                                                          .width /
-                                                      2,
-                                                  fit: BoxFit.cover,
-                                                ));
-                                          },
-                                        ),
-                                      )
-                                    : SizedBox(
-                                        width:
-                                            MediaQuery.of(context).size.width -
-                                                40,
-                                        height: images.length < 7
-                                            ? MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    2 /
-                                                    3 -
-                                                47
-                                            : MediaQuery.of(context)
-                                                    .size
-                                                    .width -
-                                                65,
-                                        child: GridView.builder(
-                                          itemCount: images.length,
-                                          shrinkWrap: true,
-                                          padding: const EdgeInsets.only(
-                                              left: 10, right: 10),
-                                          physics:
-                                              const NeverScrollableScrollPhysics(),
-                                          gridDelegate:
-                                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                                  crossAxisCount: 3,
-                                                  mainAxisSpacing: 10,
-                                                  crossAxisSpacing: 10),
-                                          itemBuilder: (context, imageIndex) {
-                                            return IconButton(
-                                                splashColor: Colors.transparent,
-                                                highlightColor: Colors
-                                                    .transparent,
-                                                padding: EdgeInsets.zero,
-                                                onPressed: () =>
-                                                    AutoRouter.of(context).push(
-                                                        MultiplePhotosViewer(
-                                                            listOfPhotoBytes:
-                                                                postImagesRaw[
-                                                                    index]!,
-                                                            initialIndex:
-                                                                imageIndex,
-                                                            actionFunction:
-                                                                null)),
-                                                icon: Image.memory(
-                                                  images[imageIndex],
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      2,
-                                                  height: MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      2,
-                                                  fit: BoxFit.cover,
-                                                ));
-                                          },
-                                        ),
-                                      )
+                                                          .width -
+                                                      65,
+                                              child: GridView.builder(
+                                                itemCount: images.length,
+                                                shrinkWrap: true,
+                                                padding: const EdgeInsets.only(
+                                                    left: 10, right: 10),
+                                                physics:
+                                                    const NeverScrollableScrollPhysics(),
+                                                gridDelegate:
+                                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                                        crossAxisCount: 3,
+                                                        mainAxisSpacing: 10,
+                                                        crossAxisSpacing: 10),
+                                                itemBuilder:
+                                                    (context, imageIndex) {
+                                                  return IconButton(
+                                                      splashColor:
+                                                          Colors.transparent,
+                                                      highlightColor:
+                                                          Colors.transparent,
+                                                      padding: EdgeInsets.zero,
+                                                      onPressed: () => AutoRouter
+                                                              .of(context)
+                                                          .push(MultiplePhotosViewer(
+                                                              listOfPhotoBytes:
+                                                                  postImagesRaw[
+                                                                      index]!,
+                                                              initialIndex:
+                                                                  imageIndex,
+                                                              actionFunction:
+                                                                  null)),
+                                                      icon: Image.memory(
+                                                        images[imageIndex],
+                                                        width: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width /
+                                                            2,
+                                                        height: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width /
+                                                            2,
+                                                        fit: BoxFit.cover,
+                                                      ));
+                                                },
+                                              ),
+                                            )
+                                    ],
+                                  )
                             : const CircularProgressIndicator(),
                       ])
                 ],
               ),
             ),
 
-            // post time, edit and delete
+            // tag, edit and delete
             SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: 40,
-              child: Row(
-                children: [
-                  const Padding(padding: EdgeInsets.only(left: 30)),
-                  const Text("post time"),
+                width: MediaQuery.of(context).size.width,
+                height: 25,
+                child: Stack(children: [
+                  Container(
+                    padding: const EdgeInsets.only(left: 30),
+                    child: Text(
+                      "#${widget.postList[index]["tag"]["name"]}",
+                      style: const TextStyle(color: Colors.pink),
+                    ),
+                  ),
                   widget.isMyPost && dataLoaded[index]
                       ? SizedBox(
-                          width: MediaQuery.of(context).size.width - 120,
+                          width: MediaQuery.of(context).size.width,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -374,6 +417,8 @@ class PostListViewState extends State<PostListView> {
                                           widget.updateCallBack();
                                           showSuccessDialog(context,
                                               "Successfully deleted post");
+                                        } else {
+                                          showErrorDialog(context, r);
                                         }
                                       });
                                     },
@@ -383,12 +428,29 @@ class PostListViewState extends State<PostListView> {
                                     ),
                                     iconSize: 20,
                                   )),
+                              const Padding(
+                                  padding: EdgeInsets.only(right: 20)),
                             ],
                           ))
                       : Container()
+                ])),
+
+            // post time
+            SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: 25,
+              child: Row(
+                children: [
+                  const Padding(padding: EdgeInsets.only(left: 30)),
+                  Text(
+                    "${timePosted[index]["year"]}-${timePosted[index]["month"]}-${timePosted[index]["day"]} ${timePosted[index]["hour"]}:${timePosted[index]["minute"]}",
+                    style: const TextStyle(color: Colors.blueGrey),
+                  ),
                 ],
               ),
             ),
+
+            const Padding(padding: EdgeInsets.only(top: 5)),
 
             const Divider(
               height: 1,

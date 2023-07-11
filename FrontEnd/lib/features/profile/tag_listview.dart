@@ -37,7 +37,8 @@ class TagListViewState extends State<TagListView> {
     super.initState();
     count = widget.tagList.length;
     dataLoaded = List<bool>.filled(count, false, growable: true);
-    tagIcons = List<Uint8List?>.filled(count, Uint8List.fromList([]), growable: true);
+    tagIcons =
+        List<Uint8List?>.filled(count, Uint8List.fromList([]), growable: true);
     for (int i = 0; i < count; i++) {
       loadImage(i);
     }
@@ -66,6 +67,8 @@ class TagListViewState extends State<TagListView> {
     if (response == "success") {
       widget.onAddCallBack();
       showSuccessDialog(context, "Successfully added tag!");
+    } else {
+      showErrorDialog(context, response);
     }
   }
 
@@ -128,7 +131,7 @@ class TagListViewState extends State<TagListView> {
                         child: Text(
                           name,
                           style: const TextStyle(
-                              color: Colors.black, fontSize: 17),
+                              color: Colors.black, fontSize: 15),
                         ),
                       ),
                     ],
@@ -157,6 +160,27 @@ class TagListViewState extends State<TagListView> {
             ],
           );
         });
-    return list;
+    return count > 0
+        ? list
+        : widget.isAddTag
+            ? const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "No results for this search",
+                    textAlign: TextAlign.center,
+                  )
+                ],
+              )
+            : const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "No tags yet.\n\nClick on \"Add new tags\" to search for tags!",
+                    textAlign: TextAlign.center,
+                  ),
+                  Padding(padding: EdgeInsets.only(bottom: 80))
+                ],
+              );
   }
 }

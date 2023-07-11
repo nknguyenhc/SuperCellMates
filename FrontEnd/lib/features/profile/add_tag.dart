@@ -25,7 +25,16 @@ class AddTagPageState extends State<AddTagPage> {
   var tagCount = 0;
   var tagLimit = 0;
   int navigationBarIndex = 0;
-  Widget? searchTagsResult = Container();
+  Widget? searchTagsResult = const Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Text(
+        "Use the search button above to find tags!",
+        textAlign: TextAlign.center,
+      ),
+      Padding(padding: EdgeInsets.only(bottom: 80))
+    ],
+  );
 
   @override
   void initState() {
@@ -35,8 +44,13 @@ class AddTagPageState extends State<AddTagPage> {
 
   void obtainMyTagsList() async {
     dataLoaded = false;
-    dynamic response =
-        jsonDecode(await getRequest(EndPoints.obtainTags.endpoint, null));
+    dynamic responseJson =
+        await getRequest(EndPoints.obtainTags.endpoint, null);
+    if (responseJson == "Connection error") {
+      showErrorDialog(context, responseJson);
+      return;
+    }
+    dynamic response = jsonDecode(responseJson);
     myTagsList = response["tags"];
     setState(() {
       tagLimit = response["tag_count_limit"];
@@ -79,7 +93,7 @@ class AddTagPageState extends State<AddTagPage> {
                 onAddCallBack: () => navigate(0)),
         body: Column(children: [
           NavigationBar(
-            height: 50,
+            height: 55,
             destinations: [
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -162,7 +176,7 @@ class AddTagPageState extends State<AddTagPage> {
               child: dataLoaded
                   ? navigationBarIndex == 0
                       ? TagListView(tagList: myTagsList, isAddTag: false)
-                      : searchTagsResult ?? Container()
+                      : searchTagsResult
                   : const CircularProgressIndicator()),
           navigationBarIndex == 1
               ? Container(
@@ -179,7 +193,7 @@ class AddTagPageState extends State<AddTagPage> {
                       TextButton(
                         style: const ButtonStyle(
                             padding: MaterialStatePropertyAll(
-                                EdgeInsets.only(left: 5))),
+                                EdgeInsets.only(left: 2))),
                         onPressed: () {
                           AutoRouter.of(context).push(const RequestTagRoute());
                         },

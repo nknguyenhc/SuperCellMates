@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:supercellmates/features/chat/chat_appbar.dart';
+import 'package:supercellmates/features/dialogs.dart';
 import 'dart:convert';
 
 import 'package:supercellmates/features/home/home.dart';
@@ -31,36 +33,46 @@ class MainScaffoldState extends State<MainScaffold> {
 
   int selectedIndex = 0;
 
-  final pages = <Widget>[
-    HomePage(key:UniqueKey()),
-    const ChatPage(),
-    Container(),
-  ];
-
+  late dynamic pages;
   late dynamic appbars;
 
   void getProfileMap() async {
-    profileMap =
-        jsonDecode(await getRequest(EndPoints.profileIndex.endpoint, null));
+    dynamic profileMapJson =
+        await getRequest(EndPoints.profileIndex.endpoint, null);
+    if (profileMapJson == "Connection error") {
+      showErrorDialog(context, profileMapJson);
+      return;
+    }
+    profileMap = jsonDecode(profileMapJson);
 
     appbars = <AppBar>[
       HomeAppBar(data: {
         "isAdmin": profileMap["is_admin"],
       }, updateCallBack: updateHomePageBody),
-      AppBar(),
-      ProfileAppBar(profileMap: profileMap),
+      ChatAppBar(),
+      ProfileAppBar(
+        profileMap: profileMap,
+        updateProfileMapCallBack: getProfileMap,
+      ),
     ];
 
-    pages[2] = ProfilePage(
-      updateCallBack: getProfileMap,
-    );
+    pages = [
+      HomePage(key: UniqueKey()),
+      ChatPage(username: profileMap["user_profile"]["username"]),
+      ProfilePage(
+        updateCallBack: getProfileMap,
+      )
+    ];
 
     setState(() => dataLoaded = true);
   }
 
   void updateHomePageBody(Widget? body) {
     setState(() {
-      pages[0] = body ?? HomePage(key: UniqueKey(),);
+      pages[0] = body ??
+          HomePage(
+            key: UniqueKey(),
+          );
     });
   }
 

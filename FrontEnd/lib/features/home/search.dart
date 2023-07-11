@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supercellmates/features/dialogs.dart';
 import 'dart:convert';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
@@ -7,13 +8,26 @@ import 'package:supercellmates/features/profile/tag_listview.dart';
 
 Future<Widget> searchUser(BuildContext context, input) async {
   dynamic query = {"username": input};
-  dynamic userList =
-      jsonDecode(await getRequest(EndPoints.search.endpoint, query))["users"];
+  dynamic userListJson = await getRequest(EndPoints.search.endpoint, query);
+  if (userListJson == "Connection error") {
+    showErrorDialog(context, userListJson);
+    return Container();
+  }
+  dynamic userList = jsonDecode(userListJson)["users"];
 
-  Widget list = UserListView(
-    userList: userList,
-    updateCallBack: () {},
-  );
+  Widget list = userList.length > 0
+      ? UserListView(
+          userList: userList,
+          updateCallBack: () {},
+        )
+      : const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "No results for this search.",
+            ),
+          ],
+        );
 
   return Column(
     key: UniqueKey(),
@@ -27,8 +41,12 @@ Future<Widget> searchUser(BuildContext context, input) async {
 Future<Widget> searchTag(
     BuildContext context, bool tagLimitReached, input, onAddCallBack) async {
   dynamic query = {"tag": input};
-  dynamic tagList = jsonDecode(
-      await getRequest(EndPoints.searchTags.endpoint, query))["tags"];
+  dynamic tagListJson = await getRequest(EndPoints.searchTags.endpoint, query);
+  if (tagListJson == "Connection error") {
+    showErrorDialog(context, tagListJson);
+    return Container();
+  }
+  dynamic tagList = jsonDecode(tagListJson)["tags"];
 
   Widget list = TagListView(
     tagList: tagList,

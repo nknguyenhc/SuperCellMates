@@ -20,7 +20,7 @@
     width: 24vw;
     display: flex;
     flex-direction: column;
-    flex-shrink: none;
+    flex-shrink: 0;
 }
 
 #chat-categories {
@@ -62,8 +62,28 @@
 }
 
 .chat-listing-image img {
+    height: 100%;
+    width: 100%;
+}
+
+.create-new-group {
     height: 50px;
-    width: 50px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+    padding-left: 25px;
+}
+
+.create-new-group-icon {
+    flex-shrink: 0;
+    height: 30px;
+    width: 30px;
+}
+
+.create-new-group-icon img {
+    height: 100%;
+    width: 100%;
 }
 
 #chat-log {
@@ -86,12 +106,18 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    padding: 3px;
+}
+
+.message-disabled {
+    text-align: center;
 }
 
 #chat-input {
     display: flex;
     flex-direction: row;
     gap: 10px;
+    padding-bottom: 0px !important;
 }
 
 #chat-more-input {
@@ -118,6 +144,9 @@
 
 .chat-more-option {
     min-height: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .chat-more-option img {
@@ -130,9 +159,23 @@
     display: none;
 }
 
+#chat-text-input-div {
+    flex-grow: 1;
+}
+
 #chat-text-input {
     min-width: 0px;
     flex-shrink: 1;
+    resize: none;
+    overflow: hidden;
+}
+
+.chat-text-char-count {
+    font-size: 9px;
+}
+
+.chat-input-send-button {
+    height: fit-content;
 }
 
 .text-line {
@@ -144,6 +187,7 @@
 .text-line-user-img {
     height: 40px;
     width: 40px;
+    flex-shrink: 0;
 }
 
 .text-line-user-img img {
@@ -157,9 +201,10 @@
 }
 
 .text-line-content {
-    max-width: calc(100% - min(250px, 20%));
+    max-width: calc(100% - min(250px, 30%));
     border-radius: 10px;
     word-wrap: break-word;
+    white-space: pre-wrap;
 }
 
 .file-preview {
@@ -199,4 +244,145 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+
+.find-friend-input {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.find-friend-result {
+    position: relative;
+}
+
+.find-friend-result-box {
+    position: absolute;
+    top: 0px;
+    left: 10px;
+    z-index: 1;
+    width: 30vw;
+    min-height: 70px;
+    border: solid;
+    border-width: 1px;
+    border-color: black;
+    border-radius: 10px;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+}
+
+.search-friend-listing {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-friend-img {
+    height: 40px;
+    width: 40px;
+}
+
+.search-friend-img img {
+    height: 100%;
+    width: 100%;
+}
+
+.search-friend-info {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+}
+
+.friends-added {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.friend-added-listing {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.friend-added-img {
+    height: 50px;
+    width: 50px;
+}
+
+.friend-added-img img {
+    height: 100%;
+    width: 100%;
+}
+
+.friend-added-info {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+}
+
+.group-chat-submit {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+}
+
+.add-people-form {
+    overflow: auto;
+    height: 100%;
+}
+
+.add-friend-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+}
+
+.add-friend-success-icon {
+    max-height: 25px;
+    max-width: 25px;
+}
+
+.user-display {
+    height: 30vh;
+    overflow: auto;
+    border: solid;
+    border-width: 1px;
+    border-radius: 7px;
+}
+
+.table-element {
+    padding-left: 6px;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.action-buttons button {
+    height: fit-content;
+}
+
+.user-action-message {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.user-action-message-text {
+    white-space: pre-line;
+}
+
+.user-action-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
 }

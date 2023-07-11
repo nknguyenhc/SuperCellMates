@@ -16,6 +16,7 @@ class ChangeProfileImageButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
+        style: const ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.blue)),
         onPressed: () async {
           final XFile? image =
               await imagePicker.pickImage(source: ImageSource.gallery);
@@ -33,6 +34,7 @@ class ChangeProfileImageButton extends StatelessWidget {
             }
           }
         },
-        child: const Text("Change Profile Image"));
+        child: const Text("Change profile image",
+        style: TextStyle(color: Colors.white)));
   }
 }

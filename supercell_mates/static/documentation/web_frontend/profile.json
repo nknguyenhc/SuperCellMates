@@ -95,6 +95,33 @@
                 }
             ],
             "redirects": []
+        },
+        {
+            "path": "/profile/setup",
+            "description": "The page to setup one's profile",
+            "APIs": [
+                {
+                    "path": "/profile/obtain_tags",
+                    "trigger": "First load",
+                    "purpose": "Obtain the current list of tags the user has."
+                },
+                {
+                    "path": "/profile/add_tags",
+                    "trigger": "When the user presses update tag",
+                    "purpose": "To update the list of tags of the user with backend"
+                },
+                {
+                    "path": "/profile/search_tags",
+                    "trigger": "When the user presses search next to the tag search bar, or when the user presses enter in the search bar",
+                    "purpose": "To retrieve the list of tags that match the search and present to the user to select"
+                },
+                {
+                    "path": "/profile/set_profile_image",
+                    "trigger": "When the user presses confirm to update profile picture",
+                    "purpose": "To update user's profile picture"
+                }
+            ],
+            "redirects": []
         }
     ]
 }

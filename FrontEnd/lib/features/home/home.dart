@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/features/posts/post_listview.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
@@ -22,7 +23,10 @@ class HomePageState extends State<HomePage> {
   List<dynamic> homeFeed = [];
   bool homeFeedLoaded = false;
   bool mayHaveMore = true;
+  bool isLoadingMore = true;
+  String nextStartTime = "";
   String nextStartID = "";
+  String nextStartMatchingIndex = "5";
 
   String sort = "time";
   String friendFilter = "0";
@@ -47,19 +51,51 @@ class HomePageState extends State<HomePage> {
     if (!mayHaveMore) {
       return;
     }
+    setState(() {
+      isLoadingMore = true;
+    });
+
     dynamic query = {
       "sort": sort,
       "friend_filter": friendFilter,
       "tag_filter": tagFilter,
-      "start_id": nextStartID,
       "limit": blockLimit,
+      "start_id": nextStartID,
     };
-    dynamic homeFeedResponse =
-        jsonDecode(await getRequest(EndPoints.getHomeFeed.endpoint, query));
+
+    if (sort == "time") {
+      if (nextStartTime == "") {
+        // changed from another sorting method
+        nextStartID = "";
+      }
+      nextStartMatchingIndex = "5";
+      query["start_datetime"] = nextStartTime;
+    } else {
+      if (nextStartMatchingIndex == "") {
+        // changed from another sorting method
+        nextStartID = "";
+      }
+      nextStartTime = "";
+      query["start_matching_index"] = nextStartMatchingIndex;
+    }
+
+    dynamic homeFeedResponseJson =
+        await getRequest(EndPoints.getHomeFeed.endpoint, query);
+    if (homeFeedResponseJson == "Connection error") {
+      showErrorDialog(context, homeFeedResponseJson);
+      return;
+    }
+    dynamic homeFeedResponse = jsonDecode(homeFeedResponseJson);
     nextStartID = homeFeedResponse["stop_id"];
+    if (sort == "time") {
+      nextStartTime = homeFeedResponse["stop_datetime"];
+    } else {
+      nextStartMatchingIndex = homeFeedResponse["stop_matching_index"];
+    }
 
     setState(() {
       homeFeed.addAll(homeFeedResponse["posts"]);
+      isLoadingMore = false;
       homeFeedLoaded = true;
     });
 
@@ -77,13 +113,22 @@ class HomePageState extends State<HomePage> {
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height - 100,
           child: homeFeedLoaded
-              ? PostListView(
-                  postList: homeFeed,
-                  isInProfile: false,
-                  isMyPost: false,
-                  updateCallBack: () {},
-                  scrollAtTopEvent: () {},
-                  scrollAtBottomEvent: getHomeFeed,
+              ? Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    PostListView(
+                      postList: homeFeed,
+                      isInProfile: false,
+                      isMyPost: false,
+                      updateCallBack: () {},
+                      scrollAtTopEvent: () {},
+                      scrollAtBottomEvent: getHomeFeed,
+                    ),
+                    isLoadingMore
+                        ? const Positioned(
+                            bottom: 5, child: CircularProgressIndicator())
+                        : Container()
+                  ],
                 )
               : const CircularProgressIndicator()),
     );

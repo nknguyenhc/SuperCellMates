@@ -44,7 +44,8 @@ def view_profile_context(user_auth_obj, request_user):
     result = {
         "tags": tags,
         "my_profile": False,
-        "is_friend": user_auth_obj.user_log in list(request_user.user_log.friend_list.all())
+        "is_friend": user_auth_obj.user_log in request_user.user_log.friend_list.all(),
+        "is_friend_request_sent": FriendRequest.objects.filter(to_user=request_user.user_log, from_user=user_auth_obj.user_log).exists()
     }
     result.update(layout_context(user_auth_obj))
     return result
@@ -109,6 +110,8 @@ def add_friend_request(request):
     
     try:
         username = request.POST["username"]
+        if username == request.user.username:
+            return HttpResponseBadRequest("cannot send friend request to yourself")
         user_log_obj = UserAuth.objects.get(username=username).user_log
         if user_log_obj not in request.user.user_log.friend_list.all() and not FriendRequest.objects.filter(from_user=request.user.user_log, to_user=user_log_obj).exists():
             friend_request = FriendRequest(from_user=request.user.user_log, to_user=user_log_obj)
@@ -136,7 +139,7 @@ def get_friend_list(user):
             profile_link: the URL to the profile page of the friend
     """
 
-    return list(map(
+    result = list(map(
         lambda friend: ({
             "name": friend.user_profile.name,
             "username": friend.user_auth.username,
@@ -145,6 +148,8 @@ def get_friend_list(user):
         }),
         list(user.user_log.friend_list.all())
     ))
+    result.sort(key=lambda friend: friend["name"])
+    return result
 
 
 # may be obsolete
@@ -237,11 +242,12 @@ def add_friend(request):
             request.user.user_log.friend_requests.get(from_user=user_log_obj).delete()
             if accepted == "true":
                 request.user.user_log.friend_list.add(user_log_obj)
-                new_chat = PrivateChat(timestamp=datetime.now())
-                new_chat.save()
-                new_chat.users.add(request.user)
-                new_chat.users.add(user_log_obj.user_auth)
-                new_chat.save()
+                if not request.user.private_chats.filter(users=request.user).filter(users=user_log_obj.user_auth).exists():
+                    new_chat = PrivateChat(timestamp=datetime.now())
+                    new_chat.save()
+                    new_chat.users.add(request.user)
+                    new_chat.users.add(user_log_obj.user_auth)
+                    new_chat.save()
             return HttpResponse("ok")
         else:
             return HttpResponseBadRequest("the user with provided username did not send a friend request to you")
@@ -311,8 +317,66 @@ def search(request):
         return JsonResponse({
             "users": users
         })
-    except AttributeError:
-        return HttpResponseBadRequest("get parameters not found")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("no username (GET) parameter found in the request")
+
+
+def find_friends(search_param, user_log_obj):
+    """Find friends of the current user represented by the user log instance.
+
+    Args:
+        search_param (str): the search parameter to find users that have usernames with this as substring
+        user_log_obj (UserLog): the UserLog instance representing the current user
+    
+    Returns:
+        list(dict): a list of users that matches the search conditions, each represented by a dictionary.
+        Each dictionary representing a user has the following fields:
+            name: the name of the user
+            username: the username of the user
+            profile_pic_url: the URL to the profile picture of the user
+            profile_link: the URL to the profile page of the user
+    """
+    search_param = search_param.lower()
+
+    result = list(map(
+        lambda user: ({
+            "name": user.user_profile.name,
+            "username": user.user_auth.username,
+            "profile_pic_url": reverse("user_profile:get_profile_pic", args=(user.user_auth.username,)),
+            "profile_link": reverse("user_log:view_profile", args=(user.user_auth.username,)),
+        }),
+        filter(
+            lambda user: search_param in user.user_auth.username.lower(),
+            list(user_log_obj.friend_list.all())
+        )
+    ))
+    result.sort(key=lambda user: user["name"].lower())
+    return result
+
+
+@login_required
+def search_friend(request):
+    """Search for a friend.
+    The request must contain GET parameter of "username", which is the search parameter.
+    The search returns friends with current user whose usernames contain the search parameter as substring.
+    The returned json contains the following fields:
+        users: the list of friends that match the query
+    
+    Args:
+        request (HttpRequest): the request made to this view
+
+    Returns:
+        JsonResponse/HttpResponse: the result of the search.
+    """
+
+    try:
+        search_param = request.GET["username"]
+        if type(search_param) != str:
+            return HttpRequestBadRequest("username GET parameter is not string!")
+        users = find_friends(search_param, request.user.user_log)
+        return JsonResponse({
+            "users": users
+        })
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("no username (GET) parameter found in the request")
 
@@ -340,8 +404,6 @@ def delete_friend(request):
             return HttpResponse("friend deleted")
         else:
             return HttpResponseBadRequest("user with username is not in your friend list")
-    except AttributeError:
-        return HttpResponseBadRequest("request does not have form data")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request form data does not contain an important key")
     except ObjectDoesNotExist:

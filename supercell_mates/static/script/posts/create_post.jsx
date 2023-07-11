@@ -5,7 +5,9 @@ function CreatePost() {
     const contentInput = React.useRef(null);
     const [tag, setTag] = React.useState(undefined);
     const [visibility, setVisibility] = React.useState('Visibility');
+    const visibilityInput = React.useRef(null);
     const [userTags, setUserTags] = React.useState([]);
+    const tagInput = React.useRef(null);
     const postCreateButton = React.useRef(null);
     const [errorMessage, setErrorMessage] = React.useState('');
     const imagesInput = React.useRef(null);
@@ -14,8 +16,13 @@ function CreatePost() {
 
     React.useEffect(() => {
         fetch('/profile/user_tags/' + username)
-            .then(response => response.json())
-            .then(response => setUserTags(response.tags));
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    response.json().then(response => setUserTags(response.tags));
+                }
+            })
     }, []);
 
     function removeImage(index) {
@@ -25,19 +32,57 @@ function CreatePost() {
     function submitPost(event) {
         event.preventDefault();
 
+        function displayInputError(inputField, isError) {
+            if (isError) {
+                inputField.current.classList.add('is-invalid');
+                inputField.current.classList.remove('is-valid');
+            } else {
+                inputField.current.classList.add('is-valid');
+                inputField.current.classList.remove('is-invalid');
+            }
+        }
+
+        function clearInputValidations() {
+            titleInput.current.classList.remove('is-valid');
+            contentInput.current.classList.remove('is-valid');
+            visibilityInput.current.classList.remove('is-valid');
+            tagInput.current.classList.remove('is-valid');
+        }
+
+        let hasError = false;
+        if (visibility === "Visibility") {
+            setErrorMessage("Please choose a visibility setting");
+            displayInputError(visibilityInput, true);
+            hasError = true;
+        } else {
+            displayInputError(visibilityInput, false);
+        }
+        if (tag === undefined) {
+            setErrorMessage("You must choose a tag to associate with this post");
+            displayInputError(tagInput, true);
+            hasError = true;
+        } else {
+            displayInputError(tagInput, false);
+        }
+        if (content === '') {
+            setErrorMessage("Content cannot be empty");
+            displayInputError(contentInput, true);
+            hasError = true;
+        } else {
+            displayInputError(contentInput, false);
+        }
         if (title === '') {
             setErrorMessage("Title cannot be empty");
-            return;
-        } else if (content === '') {
-            setErrorMessage("Content cannot be empty");
-            return;
-        } else if (tag === undefined) {
-            setErrorMessage("You must choose a tag to associate with this post");
-            return;
-        } else if (visibility === "Visibility") {
-            setErrorMessage("Please choose a visibility setting");
+            displayInputError(titleInput, true);
+            hasError = true;
+        } else {
+            displayInputError(titleInput, false);
+        }
+        
+        if (hasError) {
             return;
         }
+        setErrorMessage('');
 
         let visList;
         switch (visibility) {
@@ -69,39 +114,43 @@ function CreatePost() {
                     postCreateButton.current.click();
                     setErrorMessage('');
                     clearInput();
+                    clearInputValidations();
                 }
             });
     }
 
     function clearInput() {
-        titleInput.current.value = '';
-        contentInput.current.value = '';
+        setTitle('');
+        setContent('');
         setVisibility('Visibility');
         for (let i = 0; i < userTags.length; i++) {
             document.getElementById("post-tag-" + userTags[i].name).checked = false;
         }
         setImgs([]);
+        imagesInput.current.files = null;
     }
 
     return (
-        <React.Fragment>
+        <form onSubmit={event => event.preventDefault()} className="needs-validation" noValidate>
             <div className="mb-3">
                 <label htmlFor="post-title" className="form-label">Title</label>
-                <input type="text" id="post-title" className="form-control" ref={titleInput} onChange={event => {
-                    setTitle(event.target.value);
+                <input type="text" id="post-title" className="form-control" ref={titleInput} value={title} autoComplete="off" onChange={event => {
+                    setTitle(event.target.value.slice(0, 100));
                 }} />
+                <div className="invalid-feedback">Please enter a title</div>
             </div>
             <div className="mb-3">
                 <label htmlFor="post-content" className="form-label">Content</label>
-                <textarea id="post-content" rows="8" className="form-control" ref={contentInput} onChange={event => {
-                    setContent(event.target.value);
+                <textarea id="post-content" rows="8" className="form-control" ref={contentInput} value={content} onChange={event => {
+                    setContent(event.target.value.slice(0, 2000));
                 }}></textarea>
+                <div className="invalid-feedback">Please enter some content</div>
             </div>
             <div className="mb-3 visibility-section">
                 <div className="visibility-indicator">
                     <img src="/static/media/eye-icon.png" />
                 </div>
-                <div class="btn-group">
+                <div class="btn-group" ref={visibilityInput}>
                     <button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                         {visibility}
                     </button>
@@ -112,29 +161,48 @@ function CreatePost() {
                         <li><a class="dropdown-item" href="javascript:void(0)" onClick={() => setVisibility("Friends with same tag")}>Friends with same tag</a></li>
                     </ul>
                 </div>
+                <div className="invalid-feedback">Please select visibility</div>
             </div>
-            <div className="mt-3" id="post-choose-tag">
-                {
-                    userTags.length === 0
-                    ? <div className="text-danger">Your profile needs at least one tag to post!</div>
-                    : userTags.map(tag => (
-                        <React.Fragment>
-                            <input type="radio" class="btn-check" name="options" id={"post-tag-" + tag.name} autocomplete="off" />
-                            <label class="tag-button btn btn-outline-info" for={"post-tag-" + tag.name} onClick={() => {
-                                setTag(tag);
-                            }}>
-                                <img src={tag.icon} />
-                                <div>{tag.name}</div>
-                            </label>
-                        </React.Fragment>
-                    ))
-                }
+            <div className="mt-3">
+                <div ref={tagInput} id="post-choose-tag">
+                    {
+                        userTags.length === 0
+                        ? <div className="text-danger">
+                            <p>Your profile needs at least one tag to post! Setup your tags <a href="/profile/setup">here</a></p>
+                            <p>More about our tag system <a href="/about">here</a></p>
+                        </div>
+                        : userTags.map(tag => (
+                            <React.Fragment>
+                                <input type="radio" class="btn-check" name="options" id={"post-tag-" + tag.name} autocomplete="off" />
+                                <label class="tag-button btn btn-outline-info" for={"post-tag-" + tag.name} onClick={() => {
+                                    setTag(tag);
+                                }}>
+                                    <img src={tag.icon} />
+                                    <div>{tag.name}</div>
+                                </label>
+                            </React.Fragment>
+                        ))
+                    }
+                </div>
+                <div className="invalid-feedback">Please choose a tag to post</div>
             </div>
             <div class="mt-3">
-                <label for="post-choose-images" class="form-label">Images</label>
-                <input ref={imagesInput} class="form-control" type="file" id="post-choose-images" multiple onChange={() => {
-                    setImgs(imgs.concat(Array.from(imagesInput.current.files)));
-                }} />
+                <div>Images &#40;max file size: 5MB, limit: 9&#41;</div>
+                <button className="post-choose-img-label add-image-label" onClick={() => imagesInput.current.click()}>
+                    <img src="/static/media/add-image-icon.png" />
+                </button>
+                <div>
+                    <input ref={imagesInput} class="form-control img-input" accept="image/*" type="file" multiple onChange={() => {
+                        const files = Array.from(imagesInput.current.files);
+                        if (imgs.length + files.length > 9) {
+                            alert("9 images only please!");
+                        } else if (files.map(file => file.size / 1024 / 1024).reduce((prev, curr) => prev && curr < 5, true)) {
+                            setImgs(imgs.concat(files));
+                        } else {
+                            alert("One of your images exceeds 5MB, please ensure all images are below 5MB.");
+                        }
+                    }} />
+                </div>
             </div>
             <div className="mt-4" id="post-images-preview">
                 {
@@ -178,7 +246,7 @@ function CreatePost() {
                     </div>
                 </div>
             </div>
-        </React.Fragment>
+        </form>
     );
 }
 

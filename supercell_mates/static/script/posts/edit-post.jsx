@@ -1,6 +1,8 @@
 function EditPost(props) {
     const [title, setTitle] = React.useState('');
     const [content, setContent] = React.useState('');
+    const titleInput = React.useRef(null);
+    const contentInput = React.useRef(null);
     const [tag, setTag] = React.useState(undefined);
     const [visibility, setVisibility] = React.useState('Visibility');
     const [errorMessage, setErrorMessage] = React.useState('');
@@ -14,45 +16,58 @@ function EditPost(props) {
 
     React.useEffect(() => {
         fetch('/post/post/' + postId)
-            .then(response => response.json())
             .then(response => {
-                setTitle(response.title);
-                setContent(response.content);
-                setTag(response.tag);
-                if (response.public_visible) {
-                    setVisibility("Public");
+                if (response.status !== 200) {
+                    triggerErrorMessage();
                 } else {
-                    if (response.friend_visible) {
-                        if (response.tag_visible) {
-                            setVisibility("Friends with same tag");
-                        } else {
-                            setVisibility("Friends");
-                        }
-                    } else {
-                        setVisibility("People with same tag");
-                    }
+                    response.json()
+                        .then(response => {
+                            setTitle(response.title);
+                            setContent(response.content);
+                            setTag(response.tag);
+                            if (response.public_visible) {
+                                setVisibility("Public");
+                            } else {
+                                if (response.friend_visible) {
+                                    if (response.tag_visible) {
+                                        setVisibility("Friends with same tag");
+                                    } else {
+                                        setVisibility("Friends");
+                                    }
+                                } else {
+                                    setVisibility("People with same tag");
+                                }
+                            }
+                            setImgLinks(response.images)
+                            setNumOfImgsToLoad(response.images.length);
+                            if (response.images.length === 0) {
+                                setAllImgsLoaded(true);
+                            }
+                        });
                 }
-                setImgLinks(response.images)
-                setNumOfImgsToLoad(response.images.length);
-                if (response.images.length === 0) {
-                    setAllImgsLoaded(true);
-                }
-            })
-            .catch(() => triggerErrorMessage());
+            });
     }, []);
 
     if (numOfImgsToLoad !== -1 && imgs.length !== numOfImgsToLoad && !allImgsLoaded) {
-        fetch(imgLinks[imgs.length])
-            .then(response => response.blob())
-            .then(blob => {
-                const file = new File([blob], 'image.jpeg', {
-                    type: blob.type,
-                })
-                setImgs([...imgs, file]);
-                if (imgs.length === numOfImgsToLoad - 1) {
-                    setAllImgsLoaded(true);
+        const imgLink = imgLinks[imgs.length];
+        fetch(imgLink)
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                    return;
                 }
-            })
+                response.blob()
+                    .then(blob => {
+                        const arr = imgLink.split('/');
+                        const file = new File([blob], `${arr[arr.length - 1]}.${blob.type.split('/')[1]}`, {
+                            type: blob.type,
+                        })
+                        setImgs([...imgs, file]);
+                        if (imgs.length === numOfImgsToLoad - 1) {
+                            setAllImgsLoaded(true);
+                        }
+                    });
+            });
     }
 
     function removeImage(index) {
@@ -70,13 +85,36 @@ function EditPost(props) {
     function submitPost(event) {
         event.preventDefault();
 
+        function displayInputError(inputField, isError) {
+            if (isError) {
+                inputField.current.classList.add('is-invalid');
+                inputField.current.classList.remove('is-valid');
+            } else {
+                inputField.current.classList.add('is-valid');
+                inputField.current.classList.remove('is-invalid');
+            }
+        }
+
+        let hasError = false;
+        if (content === '') {
+            setErrorMessage("Content cannot be empty");
+            displayInputError(contentInput, true);
+            hasError = true;
+        } else {
+            displayInputError(contentInput, false);
+        }
         if (title === '') {
             setErrorMessage("Title cannot be empty");
-            return;
-        } else if (content === '') {
-            setErrorMessage("Content cannot be empty");
+            displayInputError(titleInput, true);
+            hasError = true;
+        } else {
+            displayInputError(titleInput, false);
+        }
+
+        if (hasError) {
             return;
         }
+        setErrorMessage('');
 
         let visList;
         switch (visibility) {
@@ -131,6 +169,7 @@ function EditPost(props) {
                 if (response.status !== 200) {
                     triggerErrorMessage();
                 } else {
+                    document.querySelector("#post-delete-message-button").click();
                     deletePostCard(postId);
                 }
             })
@@ -140,15 +179,17 @@ function EditPost(props) {
         <React.Fragment>
             <div className="mb-3">
                 <label htmlFor="post-title" className="form-label">Title</label>
-                <input type="text" id="post-title" className="form-control" value={title} onChange={event => {
-                    setTitle(event.target.value);
+                <input type="text" id="post-title" className="form-control" value={title} autoComplete="off" ref={titleInput} onChange={event => {
+                    setTitle(event.target.value.slice(0, 100));
                 }} />
+                <div className="invalid-feedback">Please enter a title</div>
             </div>
             <div className="mb-3">
                 <label htmlFor="post-content" className="form-label">Content</label>
-                <textarea id="post-content" rows="6" className="form-control" value={content} onChange={event => {
-                    setContent(event.target.value);
+                <textarea id="post-content" rows="6" className="form-control" value={content} ref={contentInput} onChange={event => {
+                    setContent(event.target.value.slice(0, 2000));
                 }}></textarea>
+                <div className="invalid-feedback">Please enter some content</div>
             </div>
             <div className="mb-3 visibility-section">
                 <div className="visibility-indicator">

@@ -5,6 +5,7 @@ from django.http.response import FileResponse
 from django.utils.datastructures import MultiValueDictKeyError
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate
 from .models import UserProfile
 from user_auth.models import UserAuth, Tag
 import io
@@ -15,6 +16,7 @@ from django.conf import settings
 from PIL import Image
 
 from user_auth.models import Tag, UserAuth
+from user_log.models import FriendRequest
 
 
 def layout_context(user_auth_obj):
@@ -76,7 +78,7 @@ def index_context(user_auth_obj):
     result = {
         "tags": get_tag_list(user_auth_obj),
         "my_profile": True,
-        "is_admin": user_auth_obj.is_superuser
+        "is_admin": user_auth_obj.is_staff
     }
     result.update(layout_context(user_auth_obj))
     return result
@@ -143,8 +145,6 @@ def add_tags(request):
         for i in range(count):
             user_profile_obj.tagList.add(Tag.objects.get(name=requested_tags[i]))
         return HttpResponse("success")
-    except AttributeError:
-        return HttpResponseBadRequest("request does not contain form data")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body is missing an important key")
     except ValueError:
@@ -252,8 +252,6 @@ def search_tags(request):
         return JsonResponse({
             "tags": result
         })
-    except AttributeError:
-        return HttpResponseBadRequest("GET parameters not found")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("tag GET parameter not found")
 
@@ -327,8 +325,8 @@ def set_profile_image(request):
             user_profile_obj.profile_pic = img
         user_profile_obj.save()
         return HttpResponse("success")
-    except (AttributeError, NameError):
-        return HttpResponseBadRequest("request does not contain form data/image file")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body is missing image (file)")
 
 
 @login_required
@@ -375,3 +373,47 @@ def get_tag_icon(request, tag_name):
             return redirect('/static/media/default-tag-icon.png')
         else:
             return FileResponse(icon)
+
+
+@login_required
+def change_name(request):
+    """Allow a user to change to a new name. Password authentication is required.
+    The request body must contain the following fields:
+        name: the new name to be adopted
+        password: the current password for authentication
+    """
+
+    try:
+        name = request.POST["name"]
+        password = request.POST["password"]
+
+        if len(name) > 15:
+            return HttpResponseBadRequest("name too long")
+
+        user = authenticate(username=request.user.username, password=password)
+        if request.user != user:
+            return HttpResponse("Authentication fails")
+
+        request.user.user_profile.name = name
+        request.user.user_profile.save()
+        return HttpResponse("Name changed")
+    
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request body is missing an important key")
+    
+
+@login_required
+def achievements(request, username):
+    """Render achievement page.
+    # TODO
+    """
+    if not UserAuth.objects.filter(username=username).exists():
+        return HttpResponseNotFound()
+    user_auth_obj = UserAuth.objects.get(username=username)
+    context = layout_context(user_auth_obj)
+    context.update({
+        "my_profile": request.user.username == username,
+        "is_friend": user_auth_obj.user_log in request.user.user_log.friend_list.all(),
+        "is_friend_request_sent": FriendRequest.objects.filter(to_user=request.user.user_log, from_user=user_auth_obj.user_log).exists()
+    })
+    return render(request, 'user_profile/achievements.html', context)

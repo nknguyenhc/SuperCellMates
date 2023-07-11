@@ -10,6 +10,7 @@
     flex-direction: column;
     gap: 10px;
     background-color: white;
+    width: 300px;
 }
 
 #tag-request-icon-preview {

@@ -1,0 +1,57 @@
+{
+    "tests": [
+        {
+            "setup": "NIL",
+            "javascript": "fetch('/profile/obtain_tags').then(response => response.json()).then(response => console.log(response))",
+            "expected": "A list of tags that you currently have, and the tag limit on you.",
+            "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "NIL",
+            "javascript": "fetch('/profile/async').then(response => response.json()).then(response => console.log(response))",
+            "expected": "Relevant information to render your profile page, including name, username, URL to profile image, list of tags, etc.",
+            "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "Prepare the names of tags in existence. You can do so by searching for tags in the profile setup page.",
+            "javascript": "fetch('profile/add_tags', postRequestContent({ count: 1, tags: ['Artificial Intelligence'] })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Success (in console). Redirecting to your profile to see your 'Artificial Intelligence' tag added to your profile.",
+            "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "Execute the first line of code into the console. Upon pop up, choose a picture (if you choose a file that is not a picture, server will respond with 400). After that, execute the second line of code in the console.",
+            "javascript": "const input = document.createElement('input'); input.type = 'file'; input.click();\n\nfetch('/profile/set_profile_image', postRequestContent({ img: input.files[0] })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Success (in console). Redirecting to your profile to see your new profile picture.",
+            "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "You may paste '<host>/profile/img/<username>' into the URL bar to view the profile image of the user with the specified username.",
+            "javascript": "NIL",
+            "expected": "The profile image of the user with the given username",
+            "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "Replace the query parameter with an actual query string",
+            "javascript": "fetch('profile/search_tags?tag=<query parameter>').then(response => response.json()).then(response => console.log(response))",
+            "expected": "The list of tags that have the query parameter as substring of their names",
+            "datePassed": "06/07/2023"
+        },
+        {
+            "setup": "Replace the tag name with the name of a tag. This tag must exist. You may paste '<host>/profile/tag/<tag_name>' into the URL bar to view the image.",
+            "javascript": "NIL",
+            "expected": "The icon of the tag with the specified tag name.",
+            "datePassed": "06/07/2023"
+        },
+        {
+            "setup": "Replace the username with the username of an existing user.",
+            "javascript": "fetch('/profile/user_tags/<username>').then(response => response.json()).then(response => console.log(response))",
+            "expected": "The list of tags of the user with provided username.",
+            "datePassed": "06/07/2023"
+        },
+        {
+            "setup": "The following API call will change your profile name.",
+            "javascript": "fetch('/profile/change_name', postRequestContent({ password: '<your password>', name: '<your new name>' })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Console notification that your name has been changed."
+        }
+    ]
+}

@@ -60,6 +60,10 @@ class UserListViewState extends State<UserListView> {
                   FocusManager.instance.primaryFocus?.unfocus();
                   dynamic data = await getRequest(
                       "${EndPoints.viewProfile.endpoint}/$username", null);
+                  if (data == "Connection error") {
+                    showErrorDialog(context, data);
+                    return;
+                  }
                   AutoRouter.of(context).push(OthersProfileRoute(
                       data: jsonDecode(data),
                       onDeleteFriendCallBack: () {
@@ -71,9 +75,9 @@ class UserListViewState extends State<UserListView> {
                 },
                 child: Row(children: [
                   SizedBox(
-                    height: 45,
-                    width: 45,
-                    child: IconButton(
+                      height: 45,
+                      width: 45,
+                      child: IconButton(
                         onPressed: () {
                           AutoRouter.of(context).push(SinglePhotoViewer(
                               photoBytes: profileImages[index], actions: []));
@@ -83,8 +87,7 @@ class UserListViewState extends State<UserListView> {
                             : const CircularProgressIndicator(),
                         iconSize: 45,
                         padding: EdgeInsets.zero,
-                      )
-                  ),
+                      )),
                   const Padding(padding: EdgeInsets.all(5)),
                   Column(
                     children: [
@@ -119,7 +122,18 @@ class UserListViewState extends State<UserListView> {
             ],
           );
         });
-    return list;
+    return count > 0
+        ? list
+        : const Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "No friends yet.\n\nClick on other users' profile to send friend requests!",
+                textAlign: TextAlign.center,
+              ),
+              Padding(padding: EdgeInsets.only(bottom: 80))
+            ],
+          );
   }
 }
 
@@ -146,15 +160,16 @@ class FriendRequestListState extends State<FriendRequestListView> {
     super.initState();
     count = widget.friendRequestList.length;
     dataLoaded = List<bool>.filled(count, false, growable: true);
-    profileImages = List<Uint8List>.filled(count, Uint8List.fromList([]), growable: true);
+    profileImages =
+        List<Uint8List>.filled(count, Uint8List.fromList([]), growable: true);
     for (int i = 0; i < count; i++) {
       loadImage(i);
     }
   }
 
   void loadImage(index) async {
-    profileImages[index] =
-        await getRawImageData(widget.friendRequestList[index]["profile_pic_url"]);
+    profileImages[index] = await getRawImageData(
+        widget.friendRequestList[index]["profile_pic_url"]);
     setState(() {
       dataLoaded[index] = true;
     });
@@ -194,6 +209,10 @@ class FriendRequestListState extends State<FriendRequestListView> {
                         dynamic data = await getRequest(
                             "${EndPoints.viewProfile.endpoint}/$username",
                             null);
+                        if (data == "Connection error") {
+                          showErrorDialog(context, data);
+                          return;
+                        }
                         AutoRouter.of(context)
                             .push(OthersProfileRoute(data: jsonDecode(data)));
                       },
@@ -291,6 +310,14 @@ class FriendRequestListState extends State<FriendRequestListView> {
             ],
           );
         });
-    return list;
+    return count > 0
+        ? list
+        : const Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("No friend requests yet."),
+              Padding(padding: EdgeInsets.only(bottom: 80))
+            ],
+          );
   }
 }

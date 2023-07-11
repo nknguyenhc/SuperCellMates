@@ -1,0 +1,88 @@
+{
+    "tests": [
+        {
+            "setup": "Log in. Check the current cookies in browser. There should be two and only two cookies, csrftoken and sessionid. You may also omit some fields username/password in the request body.",
+            "javascript": "fetch('/login_async', postRequestContent({ username: '<random/correct username>', password: '<random/correct password>' })).then(response => response.text()).then(response => console.log(response));",
+            "expected": "Response 400, console notification that you are already logged in. There should still remain the two cookies with the same name.",
+            "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "Log out. Check the current cookies in browser. There should be only one cookie, the csrftoken. Omit either one or both fields username/password in the post request body.",
+            "javascript": "fetch('/login_async', postRequestContent({ username: '<random/correct username>', password: '<random/correct password>' })).then(response => response.text()).then(response => console.log(response));",
+            "expected": "Response 400, console notification that either username or password is missing. There should still remain the one csrftoken cookie.",
+            "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "Log out. Check the current cookies in browser. There should be only one cookie, the csrftoken.",
+            "javascript": "fetch('/login_async', postRequestContent({ username: '<wrong username>', password: '<wrong password>' })).then(response => response.text()).then(response => console.log(response));",
+            "expected": "Response 400, console notification that wrong login credentials are provided. There should still remain the one csrftoken cookie.",
+            "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "Log out. Check the current cookies in browser. There should be only one cookie, the csrftoken. After running the javascript code, refresh the page.",
+            "javascript": "fetch('/login_async', postRequestContent({ username: '<correct username>', password: '<correct password>' })).then(response => response.text()).then(response => console.log(response));",
+            "expected": "Response 200, console notification that you are logged in. A new cookie sessionid is added, and csrftoken cookie remains. After refreshing, you are redirected to the home page.",
+            "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "Log in.",
+            "javascript": "fetch('/register_async', postRequestContent({ name: '<name>', username: '<username>', password: '<password>' })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Response 400, console notification that you are already logged in.",
+            "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "Log out. Check the current cookies in browser. There should only be one cookie, the csrftoken. Omit at least one field in the request body.",
+            "javascript": "fetch('/register_async', postRequestContent({ name: '<name>', username: '<username>', password: '<password>' })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Response 400, console notification that request body is missing one of the values. There should still remain only one cookie, the csrftoken.",
+            "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "Log out. Check the current cookies in browser. There should only be one cookie, the csrftoken.",
+            "javascript": "fetch('/register_async', postRequestContent({ name: '<name>', username: '<a username already in existence>', password: '<password>' })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Response 200, console notification that username is already taken. There should still remain only one cookie, the csrftoken.",
+            "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "Log out. Check the current cookies in browser. There should be only one cookie, the csrftoken. Make the value corresponding to at least one field an empty string.",
+            "javascript": "fetch('/register_async', postRequestContent({ name: '<name>', username: '<username>', password: '<password>' })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Response 200, console notification that one of the fields is empty. There should still remain only one cookie, the csrftoken.",
+            "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "Log out. Check the current cookies in browser. There should be only one cookie, the csrftoken.",
+            "javascript": "fetch('/register_async', postRequestContent({ name: '<name>', username: '<a username not already in existence>', password: '<password>' })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Response 200, console notification that account is already created. There should still remain the csrftoken cookie, and a new sessionid cookie is added. Reloading the page will redirect the user to the home page.",
+            "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "Log in. Check the current cookies in browser. There should be two cookies, the csrftoken and the sessionid.",
+            "javascript": "fetch('/logout_async').then(response => response.text()).then(response => console.log(response))",
+            "expected": "Response 200, console notification that you are logged out. The cookie sessionid should disappear.",
+            "datePassed": "03/07/2023"
+        },
+        {
+            "setup": "Replace the username with a username already in existence.",
+            "javascript": "fetch('/check_unique_username_async?username=<username already in existence>').then(response => response.text()).then(response => console.log(response))",
+            "expected": "Console notification that username is already taken.",
+            "datePassed": "10/07/2023"
+        },
+        {
+            "setup": "Replace the username with a username not in existence.",
+            "javascript": "fetch('/check_unique_username_async?username=<username not yet in existence>').then(response => response.text()).then(response => console.log(response))",
+            "expected": "Console notification that username is unique.",
+            "datePassed": "10/07/2023"
+        },
+        {
+            "setup": "The following API call will change your username.",
+            "javascript": "fetch('/change_username', postRequestContent({ new_username: '<your new username>', password: '<your current password>' })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Console notification that username has been changed. Navigate to profile page or log out and log in again to verify.",
+            "datePassed": "10/07/2023"
+        },
+        {
+            "setup": "The following API call will change your password.",
+            "javascript": "fetch('/change_password', postRequestContent({ old_password: '<your old password>', new_password: '<your new password>' })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Console notification that password has been changed. Log out and log in again to verify.",
+            "datePassed": "10/07/2023"
+        }
+    ]
+}

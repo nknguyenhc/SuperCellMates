@@ -61,10 +61,15 @@ class OthersProfilePageState extends State<OthersProfilePage> {
       requestBody["tag"] = widget.data["tags"][selectedTagIndex - 1]["name"];
     }
 
-    dynamic profilePostsResponse = jsonDecode(await getRequest(
+    dynamic profilePostsResponseJson = await getRequest(
         EndPoints.getProfilePosts.endpoint +
             widget.data["user_profile"]["username"],
-        requestBody));
+        requestBody);
+    if (profilePostsResponseJson == "Connection error") {
+      showErrorDialog(context, profilePostsResponseJson);
+      return;
+    }
+    dynamic profilePostsResponse = jsonDecode(profilePostsResponseJson);
     assert(!profilePostsResponse["myProfile"]);
     profilePosts = profilePostsResponse["posts"];
     setState(() => profilePostsLoaded = true);
