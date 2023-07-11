@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
@@ -75,6 +77,8 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
     if (end == 0) {
       return;
     }
+
+    // get List<Dict> oldMessages
     dynamic queryDict = {
       "start": start,
       "end": end,
@@ -92,8 +96,11 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
     } else {
       nextLastTimestamp = oldMessages["next_last_timestamp"];
     }
+
+    // map old messages dicts to types.Message
     List<types.Message> oldMessagesList =
         oldMessages["messages"].map<types.Message>((m) {
+      // load the message sender's profile picture, if absent
       if (usernameToProfileImageUrl[m["user"]["username"]] == null) {
         usernameToProfileImageUrl[m["user"]["username"]] =
             const CircularProgressIndicator();
@@ -116,19 +123,34 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
             .then((button) => setState(() =>
                 usernameToProfileImageUrl[m["user"]["username"]] = button));
       }
-      return types.TextMessage(
-          id: m["id"],
-          author: types.User(
-              id: m["user"]["username"],
-              firstName: m["user"]["name"],
-              imageUrl: m["user"]["profile_link"]),
-          text: m["message"],
-          createdAt: (m["timestamp"] * 1000).toInt() // in milliseconds,
-          );
+      // create corresponding types.Message
+      if (m["type"] == "text") {
+        return types.TextMessage(
+            id: m["id"],
+            author: types.User(
+                id: m["user"]["username"],
+                firstName: m["user"]["name"],
+                imageUrl: m["user"]["profile_link"]),
+            text: m["message"],
+            createdAt: (m["timestamp"] * 1000).toInt() // in milliseconds,
+            );
+      } else {
+        Future<Uint8List> futureImageData =
+            getRawImageData("${EndPoints.getImage.endpoint}${m["id"]}");
+
+        return types.CustomMessage(
+            author: types.User(
+                id: m["user"]["username"],
+                firstName: m["user"]["name"],
+                imageUrl: m["user"]["profile_link"]),
+            id: m["id"],
+            metadata: {"futureImageData": futureImageData});
+      }
     }).toList();
     setState(() {
       messages.addAll(oldMessagesList.reversed);
     });
+
     if (messages.length < 10) {
       loadMessages(nextLastTimestamp - jump, nextLastTimestamp);
     }
@@ -169,12 +191,11 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
         showErrorDialog(context, response);
         return;
       }
-
       dynamic messageMap = {
         "type": "file",
         "message_id": response,
       };
-      wsChannel!.sink.add(messageMap);
+      wsChannel!.sink.add(jsonEncode(messageMap));
     }
   }
 
@@ -182,10 +203,14 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
   Widget build(BuildContext context) {
     // PopupMenuButton that shows file type selection
     // onButtonPressed called when user presses on attachment button
+
     final dummyButton = PopupMenuButton(
         key: _menuKey,
         iconSize: 0,
         offset: Offset.fromDirection(pi * 1.5, 60),
+        onCanceled: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+        },
         itemBuilder: (context) => <PopupMenuEntry>[
               PopupMenuItem(
                   height: 40,
@@ -235,7 +260,9 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                 stream: wsChannel!.stream,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
+                    // deal with new message received
                     dynamic messageMap = jsonDecode(snapshot.data);
+                    // save message sender's profile image, if haven't
                     if (usernameToProfileImageUrl[messageMap["user"]
                             ["username"]] ==
                         null) {
@@ -260,17 +287,33 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                               usernameToProfileImageUrl[messageMap["user"]
                                   ["username"]] = button));
                     }
-                    types.Message message = types.TextMessage(
-                        author: types.User(
-                            id: messageMap["user"]["username"],
-                            firstName: messageMap["user"]["name"],
-                            imageUrl: messageMap["user"]["profile_link"]),
-                        id: messageMap["id"],
-                        text: messageMap["message"],
-                        createdAt: (messageMap["timestamp"] * 1000)
-                            .toInt() // in milliseconds
-                        );
-                    messages.insert(0, message);
+                    if (messageMap["type"] == "text") {
+                      messages.insert(
+                          0,
+                          types.TextMessage(
+                              author: types.User(
+                                  id: messageMap["user"]["username"],
+                                  firstName: messageMap["user"]["name"],
+                                  imageUrl: messageMap["user"]["profile_link"]),
+                              id: messageMap["id"],
+                              text: messageMap["message"],
+                              createdAt: (messageMap["timestamp"] * 1000)
+                                  .toInt() // in milliseconds
+                              ));
+                    } else {
+                      messages.insert(
+                          0,
+                          types.CustomMessage(
+                              id: messageMap["id"],
+                              author: types.User(
+                                  id: messageMap["user"]["username"],
+                                  firstName: messageMap["user"]["name"],
+                                  imageUrl: messageMap["user"]["profile_link"]),
+                              metadata: {
+                                "futureImageData": getRawImageData(
+                                    "${EndPoints.getImage.endpoint}${messageMap["id"]}"),
+                              }));
+                    }
                   }
                   return Stack(children: [
                     SizedBox(
@@ -285,6 +328,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                           };
                           wsChannel!.sink.add(jsonEncode(messageMap));
                         },
+
                         theme: DefaultChatTheme(
                             primaryColor: Colors.blue,
                             secondaryColor: Colors.pinkAccent,
@@ -300,10 +344,13 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                                     const BorderRadius.all(Radius.circular(15)),
                                 border: Border.all()),
                             attachmentButtonMargin: EdgeInsets.zero),
+
                         dateFormat: DateFormat('dd/MM/yy'),
                         dateHeaderThreshold: 5 * 60 * 1000, // 5 minutes
+
                         showUserAvatars: true,
                         showUserNames: false,
+
                         avatarBuilder: (userId) {
                           return usernameToProfileImageUrl[userId] != null
                               ? Row(
@@ -319,22 +366,41 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                                 )
                               : const CircularProgressIndicator();
                         },
+
                         nameBuilder: (p0) => Text(p0.firstName ?? ""),
+
+                        customMessageBuilder: (p0, {messageWidth = 1}) {
+                          return FutureBuilder(
+                              future: p0.metadata!["futureImageData"],
+                              builder: (_, snap) {
+                                if (snap.hasData) {
+                                  return IconButton(
+                                    onPressed: () => context.router.push(
+                                        SinglePhotoViewer(
+                                            photoBytes: snap.data! as Uint8List,
+                                            actions: [])),
+                                    icon: Image.memory(snap.data! as Uint8List),
+                                    padding: EdgeInsets.zero,
+                                  );
+                                }
+                                return const CircularProgressIndicator();
+                              });
+                        },
+
                         onEndReached: () => Future(() => loadMessages(
                             nextLastTimestamp - jump, nextLastTimestamp)),
                         isLastPage: nextLastTimestamp == 0,
+
                         onAttachmentPressed: () {
-                          setState(() {
-                            dynamic state = _menuKey.currentState;
-                            state.showButtonMenu();
-                          });
+                          dynamic state = _menuKey.currentState;
+                          state.showButtonMenu();
                         },
                       ),
                     ),
                     Positioned(
-                      child: dummyButton,
                       bottom: 60,
                       left: 20,
+                      child: dummyButton,
                     ),
                   ]);
                 }));

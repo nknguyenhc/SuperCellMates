@@ -58,7 +58,6 @@ class ChatListViewState extends State<ChatListView> {
             children: [
               TextButton(
                 onPressed: () async {
-                  // FocusManager.instance.primaryFocus?.unfocus();
                   widget.isPrivate
                       ? context.router.push(PrivateChatRoute(
                           username: widget.username,
