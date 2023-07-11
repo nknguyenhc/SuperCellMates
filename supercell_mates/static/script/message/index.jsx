@@ -533,7 +533,7 @@ function Message({ text, username }) {
 
     function timestampToTime(timestamp) {
         const time = new Date(timestamp * 1000);
-        return `${formatNumber(time.getHours(), 2)}:${formatNumber(time.getMinutes(), 2)} ${formatNumber(time.getDate(), 2)}/${formatNumber(time.getMonth(), 2)}/${formatNumber(time.getFullYear(), 2)}`;
+        return `${formatNumber(time.getHours(), 2)}:${formatNumber(time.getMinutes(), 2)} ${formatNumber(time.getDate(), 2)}/${formatNumber(time.getMonth() + 1, 2)}/${formatNumber(time.getFullYear(), 2)}`;
     }
 
     return (
