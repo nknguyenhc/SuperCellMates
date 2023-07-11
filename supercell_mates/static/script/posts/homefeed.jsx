@@ -50,6 +50,8 @@ function HomeFeed() {
                 }
                 return response.json().then(response => {
                     response.posts.forEach(post => {
+                        post.time_posted *= 1000;
+                        console.log(post.time_posted);
                         const postCard = document.createElement('div');
                         postCard.className = 'post-card';
                         ReactDOM.render(<Post post={post} myProfile={false} />, postCard);
