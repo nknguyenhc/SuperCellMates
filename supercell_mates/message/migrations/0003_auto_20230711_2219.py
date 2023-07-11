@@ -13,11 +13,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # migrations.AddField(
-        #     model_name='groupchat',
-        #     name='admins',
-        #     field=models.ManyToManyField(related_name='admin_chats', to=settings.AUTH_USER_MODEL),
-        # ),
+        migrations.AddField(
+            model_name='groupchat',
+            name='admins',
+            field=models.ManyToManyField(related_name='admin_chats', to=settings.AUTH_USER_MODEL),
+        ),
         migrations.AddField(
             model_name='groupchat',
             name='creator',
