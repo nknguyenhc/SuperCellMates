@@ -8,6 +8,7 @@ import "package:supercellmates/http_requests/make_requests.dart";
 import "package:supercellmates/router/router.gr.dart";
 import "package:supercellmates/http_requests/endpoints.dart";
 import "package:supercellmates/features/dialogs.dart";
+import 'package:intl/intl.dart';
 
 class PostListView extends StatefulWidget {
   const PostListView({
@@ -104,12 +105,7 @@ class PostListViewState extends State<PostListView> {
   }
 
   void loadTime(index) {
-    timePosted[index] = widget.postList[index]["time_posted"];
-    for (String key in ["month", "day", "hour", "minute", "second"]) {
-      if (timePosted[index][key] < 10) {
-        timePosted[index][key] = "0${timePosted[index][key]}";
-      }
-    }
+    timePosted[index] = DateTime.fromMicrosecondsSinceEpoch((widget.postList[index]["time_posted"] * 1000000).toInt());
   }
 
   @override
@@ -443,7 +439,7 @@ class PostListViewState extends State<PostListView> {
                 children: [
                   const Padding(padding: EdgeInsets.only(left: 30)),
                   Text(
-                    "${timePosted[index]["year"]}-${timePosted[index]["month"]}-${timePosted[index]["day"]} ${timePosted[index]["hour"]}:${timePosted[index]["minute"]}",
+                    DateFormat('yyyy-MM-dd HH:mm').format(timePosted[index]),
                     style: const TextStyle(color: Colors.blueGrey),
                   ),
                 ],
