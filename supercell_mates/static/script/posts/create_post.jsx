@@ -13,6 +13,8 @@ function CreatePost() {
     const imagesInput = React.useRef(null);
     const [imgs, setImgs] = React.useState([]);
     const username = document.querySelector("#welcome-message").innerHTML.split("@")[1];
+    const isLoading = React.useRef(false);
+    const setIsLoading = (newValue) => isLoading.current = newValue;
 
     React.useEffect(() => {
         fetch('/profile/user_tags/' + username)
@@ -100,23 +102,28 @@ function CreatePost() {
                 break;
         }
 
-        fetch('/post/create_post', postRequestContent({
-            title: title,
-            content: content,
-            tag: tag.name,
-            visibility: visList,
-            imgs: imgs
-        }))
-            .then(response => {
-                if (response.status !== 200) {
-                    triggerErrorMessage();
-                } else {
-                    postCreateButton.current.click();
-                    setErrorMessage('');
-                    clearInput();
-                    clearInputValidations();
-                }
-            });
+        console.log(isLoading);
+        if (!isLoading.current) {
+            setIsLoading(true);
+            fetch('/post/create_post', postRequestContent({
+                title: title,
+                content: content,
+                tag: tag.name,
+                visibility: visList,
+                imgs: imgs
+            }))
+                .then(response => {
+                    setIsLoading(false);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else {
+                        postCreateButton.current.click();
+                        setErrorMessage('');
+                        clearInput();
+                        clearInputValidations();
+                    }
+                });
+        }
     }
 
     function clearInput() {

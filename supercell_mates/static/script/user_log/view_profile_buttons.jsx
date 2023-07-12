@@ -1,18 +1,24 @@
 function Buttons() {
     const [friendDeleted, setFriendDeleted] = React.useState(false);
     const username = document.querySelector("#profile-id").innerText.slice(1);
+    const isLoading = React.useRef(false);
+    const setIsLoading = (newValue) => isLoading.current = newValue;
 
     function deleteFriend() {
-        fetch('/user/delete_friend', postRequestContent({
-            username: username
-        }))
-            .then(response => {
-                if (response.status === 200) {
-                    setFriendDeleted(true);
-                } else {
-                    triggerErrorMessage();
-                }
-            });
+        if (!isLoading.current) {
+            setIsLoading(true);
+            fetch('/user/delete_friend', postRequestContent({
+                username: username
+            }))
+                .then(response => {
+                    setIsLoading(false);
+                    if (response.status === 200) {
+                        setFriendDeleted(true);
+                    } else {
+                        triggerErrorMessage();
+                    }
+                });
+        }
     }
 
     function toMessagePage() {

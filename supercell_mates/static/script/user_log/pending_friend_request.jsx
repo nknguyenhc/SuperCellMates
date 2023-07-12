@@ -1,18 +1,24 @@
 function PendingFriendRequest() {
     const username = document.querySelector("#profile-id").innerText.slice(1);
+    const isLoading = React.useRef(false);
+    const setIsLoading = (newValue) => isLoading.current = newValue;
 
     function respondFriend(accepted) {
-        fetch('/user/add_friend', postRequestContent({
-            username: username,
-            accepted: accepted
-        }))
-            .then(response => {
-                if (response.status === 200) {
-                    window.location.reload();
-                } else {
-                    triggerErrorMessage();
-                }
-            })
+        if (!isLoading.current) {
+            setIsLoading(true);
+            fetch('/user/add_friend', postRequestContent({
+                username: username,
+                accepted: accepted
+            }))
+                .then(response => {
+                    setIsLoading(false);
+                    if (response.status === 200) {
+                        window.location.reload();
+                    } else {
+                        triggerErrorMessage();
+                    }
+                });
+        }
     }
 
     return (

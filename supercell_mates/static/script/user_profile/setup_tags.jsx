@@ -9,6 +9,8 @@ function SetupTags() {
     const [showTagResult, setShowTagResult] = React.useState(false);
     const [showAlert, setShowAlert] = React.useState(false);
     const [searchDone, setSearchDone] = React.useState(false);
+    const isLoading = React.useRef(false);
+    const setIsLoading = (newValue) => isLoading.current = newValue;
 
     React.useEffect(() => {
         fetch('/profile/obtain_tags')
@@ -37,20 +39,24 @@ function SetupTags() {
 
     function submitTags(event) {
         event.preventDefault();
-        fetch('/profile/add_tags', postRequestContent({
-            count: toBeSubmitted.length,
-            tags: toBeSubmitted.map(tag => tag.name)
-        }))
-            .then(response => {
-                if (response.status !== 200) {
-                    triggerErrorMessage();
-                } else {
-                    popSetupMessage("Tags updated successfully!");
-                    setTags([...tags].concat(toBeSubmitted));
-                    setToBeSubmitted([]);
-                    setShowAlert(false);
-                }
-            });
+        if (!isLoading.current) {
+            setIsLoading(true);
+            fetch('/profile/add_tags', postRequestContent({
+                count: toBeSubmitted.length,
+                tags: toBeSubmitted.map(tag => tag.name)
+            }))
+                .then(response => {
+                    setIsLoading(false);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else {
+                        popSetupMessage("Tags updated successfully!");
+                        setTags([...tags].concat(toBeSubmitted));
+                        setToBeSubmitted([]);
+                        setShowAlert(false);
+                    }
+                });
+        }
     }
 
     function searchTag(event) {

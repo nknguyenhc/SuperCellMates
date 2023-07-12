@@ -24,6 +24,8 @@ function SetupImage() {
     const frameResizer = React.useRef(null);
     const [imgToBeSubmitted, setImgToBeSubmitted] = React.useState(null);
     const [fileName, setFileName] = React.useState('');
+    const isLoading = React.useRef(false);
+    const setIsLoading = (newValue) => isLoading.current = newValue;
 
     function image() {
         return (
@@ -43,19 +45,23 @@ function SetupImage() {
     }
 
     function submitPhoto() {
-        fetch('/profile/set_profile_image', postRequestContent({
-            img: imgToBeSubmitted
-        }))
-            .then(response => {
-                if (response.status !== 200) {
-                    triggerErrorMessage();
-                } else {
-                    popSetupMessage("Profile image updated successfully!");
-                    imgPreviewPage.current.style.display = 'none';
-                    const content = profileImgContainer.current.innerHTML;
-                    profileImgContainer.current.innerHTML = content;
-                }
-            });
+        if (!isLoading.current) {
+            setIsLoading(true);
+            fetch('/profile/set_profile_image', postRequestContent({
+                img: imgToBeSubmitted
+            }))
+                .then(response => {
+                    setIsLoading(false);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else {
+                        popSetupMessage("Profile image updated successfully!");
+                        imgPreviewPage.current.style.display = 'none';
+                        const content = profileImgContainer.current.innerHTML;
+                        profileImgContainer.current.innerHTML = content;
+                    }
+                });
+        }
     }
 
     return (

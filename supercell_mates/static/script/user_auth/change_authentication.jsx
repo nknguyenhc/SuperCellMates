@@ -2,6 +2,8 @@ function ChangeUsername() {
     const [newUsername, setNewUsername] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [errorMessage, setErrorMessage] = React.useState('');
+    const isLoading = React.useRef(false);
+    const setIsLoading = (newValue) => isLoading.current = newValue;
 
     function submitForm(event) {
         event.preventDefault();
@@ -16,24 +18,28 @@ function ChangeUsername() {
             return;
         }
 
-        fetch('/change_username', postRequestContent({
-            new_username: newUsername,
-            password: password
-        }))
-            .then(response => {
-                if (response.status !== 200) {
-                    triggerErrorMessage();
-                } else {
-                    response.text().then(text => {
-                        if (text !== "Username changed") {
-                            setErrorMessage(text);
-                        } else {
-                            document.querySelector("#change-username-page").style.display = 'none';
-                            popChangeAuthMessage("Username changed");
-                        }
-                    })
-                }
-            })
+        if (!isLoading.current) {
+            setIsLoading(true);
+            fetch('/change_username', postRequestContent({
+                new_username: newUsername,
+                password: password
+            }))
+                .then(response => {
+                    setIsLoading(false);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else {
+                        response.text().then(text => {
+                            if (text !== "Username changed") {
+                                setErrorMessage(text);
+                            } else {
+                                document.querySelector("#change-username-page").style.display = 'none';
+                                popChangeAuthMessage("Username changed");
+                            }
+                        })
+                    }
+                });
+        }
     }
 
     return (
@@ -73,6 +79,8 @@ function ChangePassword() {
     const [newPassword, setNewPassword] = React.useState('');
     const [confirmNewPassword, setConfirmNewPassword] = React.useState('');
     const [errorMessage, setErrorMessage] = React.useState('');
+    const isLoading = React.useRef(false);
+    const setIsLoading = (newValue) => isLoading.current = newValue;
 
     function submitForm(event) {
         event.preventDefault();
@@ -87,24 +95,28 @@ function ChangePassword() {
             return;
         }
 
-        fetch('/change_password', postRequestContent({
-            old_password: oldPassword,
-            new_password: newPassword
-        }))
-            .then(response => {
-                if (response.status !== 200) {
-                    triggerErrorMessage();
-                } else {
-                    response.text().then(text => {
-                        if (text !== "Password changed") {
-                            setErrorMessage(text);
-                        } else {
-                            document.querySelector("#change-password-page").style.display = 'none';
-                            popChangeAuthMessage("Password changed");
-                        }
-                    })
-                }
-            })
+        if (!isLoading.current) {
+            setIsLoading(true);
+            fetch('/change_password', postRequestContent({
+                old_password: oldPassword,
+                new_password: newPassword
+            }))
+                .then(response => {
+                    setIsLoading(false);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else {
+                        response.text().then(text => {
+                            if (text !== "Password changed") {
+                                setErrorMessage(text);
+                            } else {
+                                document.querySelector("#change-password-page").style.display = 'none';
+                                popChangeAuthMessage("Password changed");
+                            }
+                        })
+                    }
+                });
+        }
     }
 
     return (
@@ -147,6 +159,8 @@ function ChangeName() {
     const [newName, setNewName] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [errorMessage, setErrorMessage] = React.useState('');
+    const isLoading = React.useRef(false);
+    const setIsLoading = (newValue) => isLoading.current = newValue;
 
     function submitForm(event) {
         event.preventDefault();
@@ -161,24 +175,28 @@ function ChangeName() {
             return;
         }
 
-        fetch('/profile/change_name', postRequestContent({
-            name: newName,
-            password: password
-        }))
-            .then(response => {
-                if (response.status !== 200) {
-                    triggerErrorMessage();
-                } else {
-                    response.text().then(text => {
-                        if (text !== "Name changed") {
-                            setErrorMessage(text);
-                        } else {
-                            document.querySelector("#change-name-page").style.display = "none";
-                            popChangeAuthMessage("Name changed");
-                        }
-                    })
-                }
-            })
+        if (!isLoading.current) {
+            setIsLoading(false);
+            fetch('/profile/change_name', postRequestContent({
+                name: newName,
+                password: password
+            }))
+                .then(response => {
+                    setIsLoading(true);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else {
+                        response.text().then(text => {
+                            if (text !== "Name changed") {
+                                setErrorMessage(text);
+                            } else {
+                                document.querySelector("#change-name-page").style.display = "none";
+                                popChangeAuthMessage("Name changed");
+                            }
+                        })
+                    }
+                });
+        }
     }
 
     return (
