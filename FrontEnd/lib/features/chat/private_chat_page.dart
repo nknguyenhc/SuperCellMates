@@ -21,7 +21,6 @@ import 'package:supercellmates/http_requests/make_requests.dart';
 import 'package:supercellmates/router/router.gr.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
-import 'package:web_socket_channel/status.dart' as status;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:intl/intl.dart';
@@ -44,25 +43,19 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
   WebSocketChannel? wsChannel;
   final int jump = 60; // seconds within which a batch of messages are loaded
   double nextLastTimestamp = 0;
-  final _controller = ScrollController();
 
   List<types.Message> messages = [];
+  // memoised profile image urls
+  // asynchronously mapped to IconButtons with icon being the image
   Map<String, dynamic> usernameToProfileImageUrl = {};
 
   bool showAttachmentMenu = false;
-  final GlobalKey _menuKey = GlobalKey();
+  final GlobalKey _menuKey =
+      GlobalKey(); // dirty hack: for opening the popupmenu
 
   @override
   void initState() {
     super.initState();
-    _controller.addListener(() {
-      if (_controller.position.atEdge) {
-        bool isTop = _controller.position.pixels == 0;
-        if (isTop) {
-          loadMessages(nextLastTimestamp - jump, nextLastTimestamp);
-        }
-      }
-    });
     double currTimestamp = DateTime.now().microsecondsSinceEpoch / 1000000;
     loadMessages(currTimestamp - jump, currTimestamp);
     connect();
@@ -71,6 +64,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
   @override
   void dispose() {
     super.dispose();
+    // close websocket connection
     if (wsChannel != null) {
       wsChannel!.sink.close();
     }
@@ -154,33 +148,118 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
             });
       }
     }).toList();
+
+    // update Chat widget
     setState(() {
       messages.addAll(oldMessagesList.reversed);
     });
 
+    // ensure enough messages initially
     if (messages.length < 10) {
       loadMessages(nextLastTimestamp - jump, nextLastTimestamp);
     }
   }
 
-  void connect() async {
+  void connect() {
+    // connect websocket
     wsUrl = "${GetIt.I<Config>().wsBaseURL}/message/${widget.chatInfo["id"]}/";
     Requests.getStoredCookies(GetIt.I<Config>().restBaseURL)
         .then(
       (cookieJar) => cookieJar.delegate,
     )
         .then((cookieMap) {
+      // extract cookies and initiate websocket connection
       setState(() {
-        wsChannel = IOWebSocketChannel.connect(Uri.parse(wsUrl), headers: {
-          "origin": "ws://matchminer-d5ebcada4488.herokuapp.com",
-          "cookie":
-              "sessionid=${cookieMap["sessionid"]!.value}"
-        });
+        try {
+          wsChannel = IOWebSocketChannel.connect(Uri.parse(wsUrl), headers: {
+            "origin": "ws://matchminer-d5ebcada4488.herokuapp.com",
+            "cookie":
+                "sessionid=${cookieMap["sessionid"]!.value}"
+          });
+        } catch (e) {
+          showErrorDialog(context,
+              "An error has occurred. Please try entering the chat again!");
+        }
       });
-    });
+    }).then(
+      (value) {
+        // start stream listener, only once at initState
+        // deal with new messages received right in this chat room
+        wsChannel!.stream.listen((data) {
+          dynamic messageMap = jsonDecode(data);
+
+          // save message sender's profile image url, then load it, if haven't
+          if (usernameToProfileImageUrl[messageMap["user"]["username"]] ==
+              null) {
+            getImage(messageMap["user"]["profile_img_url"])
+                .then((image) => IconButton(
+                    style: const ButtonStyle(
+                        padding: MaterialStatePropertyAll(EdgeInsets.zero)),
+                    onPressed: () async {
+                      dynamic data = await getRequest(
+                          "${EndPoints.viewProfile.endpoint}/${messageMap["user"]["username"]}",
+                          null);
+                      if (data == "Connection error") {
+                        showErrorDialog(context, data);
+                        return;
+                      }
+                      AutoRouter.of(context)
+                          .push(OthersProfileRoute(data: jsonDecode(data)));
+                    },
+                    icon: image))
+                .then((button) => setState(() =>
+                    usernameToProfileImageUrl[messageMap["user"]["username"]] =
+                        button));
+          }
+
+          // create corresponding types.message
+          if (messageMap["type"] == "text") {
+            messages.insert(
+                0,
+                types.TextMessage(
+                    author: types.User(
+                        id: messageMap["user"]["username"],
+                        firstName: messageMap["user"]["name"],
+                        imageUrl: messageMap["user"]["profile_link"]),
+                    id: messageMap["id"],
+                    text: messageMap["message"],
+                    createdAt: (messageMap["timestamp"] * 1000)
+                        .toInt() // in milliseconds
+                    ));
+          } else {
+            messages.insert(
+                0,
+                types.CustomMessage(
+                    id: messageMap["id"],
+                    author: types.User(
+                        id: messageMap["user"]["username"],
+                        firstName: messageMap["user"]["name"],
+                        imageUrl: messageMap["user"]["profile_link"]),
+                    metadata: {
+                      "name": messageMap["file_name"],
+                      "is_image": messageMap["is_image"],
+                      "futureImageData": getRawImageData(
+                          "${EndPoints.getImage.endpoint}${messageMap["id"]}"),
+                    }));
+          }
+
+          // update Chat widget
+          setState(() {
+            messages = messages;
+          });
+        }, onError: (e) {
+          showErrorDialog(context,
+              "An error has occurred. Please try entering the chat again!");
+        }, onDone: () {
+          showErrorDialog(context,
+              "Connection closed unexpectedly. Please try entering the chat again!");
+        });
+      },
+    );
   }
 
   void _handleImageSelection() async {
+    // "send image" function
     final result = await ImagePicker().pickImage(
       source: ImageSource.gallery,
     );
@@ -216,6 +295,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
   }
 
   void _handleFileSelection() async {
+    // "send_file" function
     final result = await FilePicker.platform.pickFiles(
       type: FileType.any,
     );
@@ -247,8 +327,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
   @override
   Widget build(BuildContext context) {
     // PopupMenuButton that shows file type selection
-    // onButtonPressed called when user presses on attachment button
-
+    // showButtonMenu() called when user presses on attachment button
     final dummyButton = PopupMenuButton(
         key: _menuKey,
         iconSize: 0,
@@ -302,230 +381,173 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
         ),
         body: wsChannel == null
             ? const CircularProgressIndicator()
-            : StreamBuilder(
-                stream: wsChannel!.stream,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    // deal with new message received
-                    dynamic messageMap = jsonDecode(snapshot.data);
-                    // save message sender's profile image, if haven't
-                    if (usernameToProfileImageUrl[messageMap["user"]
-                            ["username"]] ==
-                        null) {
-                      getImage(messageMap["user"]["profile_img_url"])
-                          .then((image) => IconButton(
-                              style: const ButtonStyle(
-                                  padding: MaterialStatePropertyAll(
-                                      EdgeInsets.zero)),
-                              onPressed: () async {
-                                dynamic data = await getRequest(
-                                    "${EndPoints.viewProfile.endpoint}/${messageMap["user"]["username"]}",
-                                    null);
-                                if (data == "Connection error") {
-                                  showErrorDialog(context, data);
-                                  return;
-                                }
-                                AutoRouter.of(context).push(
-                                    OthersProfileRoute(data: jsonDecode(data)));
-                              },
-                              icon: image))
-                          .then((button) => setState(() =>
-                              usernameToProfileImageUrl[messageMap["user"]
-                                  ["username"]] = button));
-                    }
-                    if (messageMap["type"] == "text") {
-                      messages.insert(
-                          0,
-                          types.TextMessage(
-                              author: types.User(
-                                  id: messageMap["user"]["username"],
-                                  firstName: messageMap["user"]["name"],
-                                  imageUrl: messageMap["user"]["profile_link"]),
-                              id: messageMap["id"],
-                              text: messageMap["message"],
-                              createdAt: (messageMap["timestamp"] * 1000)
-                                  .toInt() // in milliseconds
-                              ));
-                    } else {
-                      messages.insert(
-                          0,
-                          types.CustomMessage(
-                              id: messageMap["id"],
-                              author: types.User(
-                                  id: messageMap["user"]["username"],
-                                  firstName: messageMap["user"]["name"],
-                                  imageUrl: messageMap["user"]["profile_link"]),
-                              metadata: {
-                                "name": messageMap["file_name"],
-                                "is_image": messageMap["is_image"],
-                                "futureImageData": getRawImageData(
-                                    "${EndPoints.getImage.endpoint}${messageMap["id"]}"),
-                              }));
-                    }
-                  }
-                  return Stack(children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      child: Chat(
-                        user: types.User(id: widget.username),
-                        messages: messages,
-                        onSendPressed: (s) {
-                          dynamic messageMap;
-                          if (s.text.isEmpty) {
-                            showErrorDialog(
-                                context, "Message cannot be empty!");
-                            return;
-                          } else if (s.text.length > 700) {
-                            messageMap = {
-                              "type": "text",
-                              "message": s.text.substring(0, 700),
-                            };
-                            showCustomDialog(context, "Message is too long",
-                                "Only the first 700 characters were sent");
-                          } else {
-                            messageMap = {
-                              "type": "text",
-                              "message": s.text,
-                            };
-                          }
+            : Stack(children: [
+                // Chat widget that contains the chat ui
+                SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Chat(
+                    user: types.User(id: widget.username),
+                    messages: messages,
 
-                          wsChannel!.sink.add(jsonEncode(messageMap));
-                        },
-                        theme: DefaultChatTheme(
-                            primaryColor: Colors.blue,
-                            secondaryColor: Colors.pinkAccent,
-                            inputBackgroundColor: Colors.white,
-                            inputMargin: const EdgeInsets.only(
-                                left: 20, right: 20, bottom: 20),
-                            inputPadding: const EdgeInsets.all(15),
-                            inputTextColor: Colors.black,
-                            messageInsetsHorizontal: 12,
-                            messageInsetsVertical: 12,
-                            inputContainerDecoration: BoxDecoration(
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(15)),
-                                border: Border.all()),
-                            attachmentButtonMargin: EdgeInsets.zero),
+                    onSendPressed: (s) {
+                      dynamic messageMap;
+                      if (s.text.isEmpty) {
+                        showErrorDialog(context, "Message cannot be empty!");
+                        return;
+                      } else if (s.text.length > 700) {
+                        messageMap = {
+                          "type": "text",
+                          "message": s.text.substring(0, 700),
+                        };
+                        showCustomDialog(context, "Message is too long",
+                            "Only the first 700 characters were sent");
+                      } else {
+                        messageMap = {
+                          "type": "text",
+                          "message": s.text,
+                        };
+                      }
+                      wsChannel!.sink.add(jsonEncode(messageMap));
+                      setState(() {
+                        messages = messages;
+                      });
+                    },
 
-                        dateFormat: DateFormat('dd/MM/yy'),
-                        dateHeaderThreshold: 5 * 60 * 1000, // 5 minutes
+                    theme: DefaultChatTheme(
+                        primaryColor: Colors.blue,
+                        secondaryColor: Colors.pinkAccent,
+                        inputBackgroundColor: Colors.white,
+                        inputMargin: const EdgeInsets.only(
+                            left: 20, right: 20, bottom: 20),
+                        inputPadding: const EdgeInsets.all(15),
+                        inputTextColor: Colors.black,
+                        messageInsetsHorizontal: 12,
+                        messageInsetsVertical: 12,
+                        inputContainerDecoration: BoxDecoration(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(15)),
+                            border: Border.all()),
+                        attachmentButtonMargin: EdgeInsets.zero),
 
-                        showUserAvatars: true,
-                        showUserNames: false,
+                    dateFormat: DateFormat('dd/MM/yy'),
+                    dateHeaderThreshold: 5 * 60 * 1000, // 5 minutes
 
-                        avatarBuilder: (userId) {
-                          return usernameToProfileImageUrl[userId] != null
-                              ? Row(
-                                  children: [
-                                    SizedBox(
-                                        width: 30,
-                                        height: 30,
-                                        child:
-                                            usernameToProfileImageUrl[userId]),
-                                    const Padding(
-                                        padding: EdgeInsets.only(right: 10))
-                                  ],
-                                )
-                              : const CircularProgressIndicator();
-                        },
+                    showUserAvatars: true,
+                    showUserNames: false,
 
-                        nameBuilder: (p0) => Text(p0.firstName ?? ""),
+                    avatarBuilder: (userId) {
+                      return usernameToProfileImageUrl[userId] != null
+                          ? Row(
+                              children: [
+                                SizedBox(
+                                    width: 30,
+                                    height: 30,
+                                    child: usernameToProfileImageUrl[userId]),
+                                const Padding(
+                                    padding: EdgeInsets.only(right: 10))
+                              ],
+                            )
+                          : const CircularProgressIndicator();
+                    },
 
-                        customMessageBuilder: (p0, {messageWidth = 1}) {
-                          return FutureBuilder(
-                              future: p0.metadata!["futureImageData"],
-                              builder: (_, snap) {
-                                if (snap.hasData) {
-                                  return p0.metadata!["is_image"]
-                                      ? IconButton(
-                                          constraints: BoxConstraints(
-                                              maxWidth: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.7,
-                                              maxHeight: MediaQuery.of(context)
-                                                      .size
-                                                      .height *
-                                                  0.3),
-                                          onPressed: () => context.router.push(
-                                              SinglePhotoViewer(
-                                                  photoBytes:
-                                                      snap.data! as Uint8List,
-                                                  actions: [])),
-                                          icon: Image.memory(
-                                              snap.data! as Uint8List,
-                                              fit: BoxFit.contain),
-                                          padding: EdgeInsets.zero,
-                                        )
-                                      : TextButton(
-                                          onPressed: () {
-                                            int dotIndex = p0.metadata!["name"]
-                                                .lastIndexOf('.');
-                                            String fileName = dotIndex == -1
-                                                ? p0.metadata!["name"]
-                                                : p0.metadata!["name"]
-                                                    .substring(0, dotIndex);
-                                            String extension = dotIndex == -1
-                                                ? ""
-                                                : p0.metadata!["name"]
-                                                    .substring(dotIndex + 1);
-                                            FileSaver.instance.saveAs(
-                                                name: fileName,
-                                                bytes: snap.data! as Uint8List,
-                                                ext: extension,
-                                                mimeType: MimeType.other);
-                                          },
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              const Icon(
-                                                Icons.file_present,
-                                                size: 20,
-                                              ),
-                                              const Padding(
-                                                  padding: EdgeInsets.only(
-                                                      right: 5)),
-                                              Container(
-                                                  constraints: BoxConstraints(
-                                                      maxWidth:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.5),
-                                                  child: Text(
-                                                    p0.metadata!["name"],
-                                                    style: const TextStyle(
-                                                        color: Colors.indigo,
-                                                        fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        decoration:
-                                                            TextDecoration
-                                                                .underline),
-                                                  )),
-                                            ],
-                                          ));
-                                }
-                                return const CircularProgressIndicator();
-                              });
-                        },
+                    nameBuilder: (p0) => Text(p0.firstName ?? ""),
 
-                        onEndReached: () => Future(() => loadMessages(
-                            nextLastTimestamp - jump, nextLastTimestamp)),
-                        isLastPage: nextLastTimestamp == 0,
+                    customMessageBuilder: (p0, {messageWidth = 1}) {
+                      // build corresponding widget from metadata in customMessage instances
+                      return FutureBuilder(
+                          future: p0.metadata!["futureImageData"],
+                          builder: (_, snap) {
+                            if (snap.hasData) {
+                              return p0.metadata!["is_image"]
+                                  ? IconButton(
+                                      constraints: BoxConstraints(
+                                          maxWidth: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.7,
+                                          maxHeight: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.3),
+                                      onPressed: () => context.router.push(
+                                          SinglePhotoViewer(
+                                              photoBytes:
+                                                  snap.data! as Uint8List,
+                                              actions: [])),
+                                      icon: Image.memory(
+                                          snap.data! as Uint8List,
+                                          fit: BoxFit.contain),
+                                      padding: EdgeInsets.zero,
+                                    )
+                                  : TextButton(
+                                      onPressed: () {
+                                        int dotIndex = p0.metadata!["name"]
+                                            .lastIndexOf('.');
+                                        String fileName = dotIndex == -1
+                                            ? p0.metadata!["name"]
+                                            : p0.metadata!["name"]
+                                                .substring(0, dotIndex);
+                                        String extension = dotIndex == -1
+                                            ? ""
+                                            : p0.metadata!["name"]
+                                                .substring(dotIndex + 1);
+                                        FileSaver.instance.saveAs(
+                                            name: fileName,
+                                            bytes: snap.data! as Uint8List,
+                                            ext: extension,
+                                            mimeType: MimeType.other);
+                                      },
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(
+                                            Icons.file_present,
+                                            size: 20,
+                                          ),
+                                          const Padding(
+                                              padding:
+                                                  EdgeInsets.only(right: 5)),
+                                          Container(
+                                              constraints: BoxConstraints(
+                                                  maxWidth:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width *
+                                                          0.5),
+                                              child: Text(
+                                                p0.metadata!["name"],
+                                                style: const TextStyle(
+                                                    color: Colors.indigo,
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    decoration: TextDecoration
+                                                        .underline),
+                                              )),
+                                        ],
+                                      ));
+                            }
+                            return const CircularProgressIndicator();
+                          });
+                    },
 
-                        onAttachmentPressed: () {
-                          dynamic state = _menuKey.currentState;
-                          state.showButtonMenu();
-                        },
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 60,
-                      left: 20,
-                      child: dummyButton,
-                    ),
-                  ]);
-                }));
+                    onEndReached: () {
+                      return Future(() => loadMessages(
+                          nextLastTimestamp - jump, nextLastTimestamp));
+                    },
+                    onEndReachedThreshold: 0.8,
+                    isLastPage: nextLastTimestamp == 0,
+
+                    onAttachmentPressed: () {
+                      dynamic state = _menuKey.currentState;
+                      state.showButtonMenu();
+                    },
+                  ),
+                ),
+                Positioned(
+                  bottom: 60,
+                  left: 20,
+                  child: dummyButton,
+                ),
+              ]));
   }
 }
