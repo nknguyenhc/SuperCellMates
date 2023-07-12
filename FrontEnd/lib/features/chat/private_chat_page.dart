@@ -165,7 +165,6 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
 
   void connect() async {
     wsUrl = "${GetIt.I<Config>().wsBaseURL}/message/${widget.chatInfo["id"]}/";
-    print(wsUrl);
     Requests.getStoredCookies(GetIt.I<Config>().restBaseURL)
         .then(
       (cookieJar) => cookieJar.delegate,
@@ -173,9 +172,9 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
         .then((cookieMap) {
       setState(() {
         wsChannel = IOWebSocketChannel.connect(Uri.parse(wsUrl), headers: {
-          "origin": "matchminer-d5ebcada4488.herokuapp.com",
+          "origin": "ws://matchminer-d5ebcada4488.herokuapp.com",
           "cookie":
-              "sessionid=${cookieMap["sessionid"]!.value},csrftoken=${cookieMap["csrftoken"]!.value}"
+              "sessionid=${cookieMap["sessionid"]!.value}"
         });
       });
     });
@@ -219,7 +218,6 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
 
     if (result != null && result.files.single.path != null) {
       Uint8List fileBytes = await File(result.paths[0]!).readAsBytes();
-      print(fileBytes);
       dynamic body = {
         "chat_id": widget.chatInfo["id"],
         "file": fileBytes,
