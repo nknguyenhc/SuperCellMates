@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 import io
 from django.core.files.images import ImageFile
 from PIL import Image
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from user_profile.views import verify_image
 
@@ -76,7 +76,8 @@ def create_post(request):
             friend_visible=friend_visible, 
             tag_visible=tag_visible, 
             public_visible=public_visible,
-            creator=request.user.user_log
+            creator=request.user.user_log,
+            time_posted=datetime.now().timestamp()
         )
         post.save()
 
@@ -208,6 +209,8 @@ def edit_post(request, post_id):
         post.friend_visible = friend_visible
         post.tag_visible = tag_visible
         post.public_visible = public_visible
+        post.time_posted = datetime.now().timestamp()
+        print(datetime.now().timestamp())
         
         # images
         for img in post.images.all():
@@ -246,78 +249,78 @@ def edit_post(request, post_id):
         return HttpResponseBadRequest("post with provided id not found")
 
 
-@login_required
-@require_http_methods(["POST"])
-def add_photo(request):
-    """Attempt to add one photo associated with a given post.
-    The photo is given in the "img" field, either in request.POST as binary or request.FILES as file.
-    The post is given by the "post_id" field in request.POST .
-    The view checks whether the request user is the owner of the post first before making edits to the post.
+# @login_required
+# @require_http_methods(["POST"])
+# def add_photo(request):
+#     """Attempt to add one photo associated with a given post.
+#     The photo is given in the "img" field, either in request.POST as binary or request.FILES as file.
+#     The post is given by the "post_id" field in request.POST .
+#     The view checks whether the request user is the owner of the post first before making edits to the post.
 
-    Args:
-        request (HttpRequest): the request made to this view
+#     Args:
+#         request (HttpRequest): the request made to this view
     
-    Returns:
-        HttpResponse: the URL to the image, or the feedback of the process if failed
-    """
+#     Returns:
+#         HttpResponse: the URL to the image, or the feedback of the process if failed
+#     """
 
-    try:
-        post_id = request.POST["post_id"]
-        post = Post.objects.get(id=post_id)
-        if not post in request.user.user_log.posts.all():
-            return HttpResponseBadRequest("you are not the owner of this post")
-        if "img" in request.POST:
-            img_raw = request.POST["img"]
-            img_bytearray = img_raw.strip("[]").split(", ")
-            img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
-            img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
-            if not verify_image(img):
-                return HttpResponseBadRequest("not image")
-        else:
-            img = request.FILES["img"]
-            if not verify_image(img):
-                return HttpResponseBadRequest("not image")
-        img_obj = PostImage(order=post.img_count, image=img, post=post)
-        img_obj.save()
-        post.img_count += 1
-        post.save()
-        return HttpResponse(reverse("posts:get_post_pic", args=(img_obj.id,)))
+#     try:
+#         post_id = request.POST["post_id"]
+#         post = Post.objects.get(id=post_id)
+#         if not post in request.user.user_log.posts.all():
+#             return HttpResponseBadRequest("you are not the owner of this post")
+#         if "img" in request.POST:
+#             img_raw = request.POST["img"]
+#             img_bytearray = img_raw.strip("[]").split(", ")
+#             img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
+#             img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
+#             if not verify_image(img):
+#                 return HttpResponseBadRequest("not image")
+#         else:
+#             img = request.FILES["img"]
+#             if not verify_image(img):
+#                 return HttpResponseBadRequest("not image")
+#         img_obj = PostImage(order=post.img_count, image=img, post=post)
+#         img_obj.save()
+#         post.img_count += 1
+#         post.save()
+#         return HttpResponse(reverse("posts:get_post_pic", args=(img_obj.id,)))
     
-    except MultiValueDictKeyError:
-        return HttpResponseBadRequest("request does not contain an important key")
-    except ObjectDoesNotExist:
-        return HttpResponseBadRequest("post with provided id not found")
+#     except MultiValueDictKeyError:
+#         return HttpResponseBadRequest("request does not contain an important key")
+#     except ObjectDoesNotExist:
+#         return HttpResponseBadRequest("post with provided id not found")
 
 
-@login_required
-@require_http_methods(["POST"])
-def delete_photo(request):
-    """Attempt to delete a post photo from the database.
-    The request body contains the following fields:
-        post_id: the id of the post
-        pic_id: the id of the pic
-    The view checks whether the request user is the owner of the post before deleting the photo.
+# @login_required
+# @require_http_methods(["POST"])
+# def delete_photo(request):
+#     """Attempt to delete a post photo from the database.
+#     The request body contains the following fields:
+#         post_id: the id of the post
+#         pic_id: the id of the pic
+#     The view checks whether the request user is the owner of the post before deleting the photo.
 
-    Args:
-        request (HttpRequest): the request made to this view
+#     Args:
+#         request (HttpRequest): the request made to this view
     
-    Returns:
-        HttpResponse: the feedback of the process
-    """
-    try:
-        post_id = request.POST["post_id"]
-        pic_id = request.POST["pic_id"]
-        post = Post.objects.get(id=post_id)
-        if post not in request.user.user_log.posts.all():
-            return HttpResponseBadRequest("you are not the owner of this post")
-        pic = PostImage.objects.get(id=pic_id)
-        pic.delete()
-        return HttpResponse("picture deleted")
+#     Returns:
+#         HttpResponse: the feedback of the process
+#     """
+#     try:
+#         post_id = request.POST["post_id"]
+#         pic_id = request.POST["pic_id"]
+#         post = Post.objects.get(id=post_id)
+#         if post not in request.user.user_log.posts.all():
+#             return HttpResponseBadRequest("you are not the owner of this post")
+#         pic = PostImage.objects.get(id=pic_id)
+#         pic.delete()
+#         return HttpResponse("picture deleted")
     
-    except MultiValueDictKeyError:
-        return HttpResponseBadRequest("request body does not contain an important key")
-    except ObjectDoesNotExist:
-        return HttpResponseBadRequest("picture with given id/post with given id not found")
+#     except MultiValueDictKeyError:
+#         return HttpResponseBadRequest("request body does not contain an important key")
+#     except ObjectDoesNotExist:
+#         return HttpResponseBadRequest("picture with given id/post with given id not found")
 
 
 @login_required
@@ -395,7 +398,7 @@ def parse_post_object(post):
             "profile_pic_url": reverse("user_profile:get_profile_pic", args=(post.creator.user_auth.username,)),
             "profile_link": reverse("user_log:view_profile", args=(post.creator.user_auth.username,)),
         },
-        "time_posted": post.time_posted.timestamp(),
+        "time_posted": post.time_posted,
         "images": images
     }
 
@@ -489,8 +492,8 @@ def get_profile_posts(request, username):
     """
 
     try:
-        start_time = datetime.fromtimestamp(float(request.GET["start"]))
-        end_time = datetime.fromtimestamp(float(request.GET["end"]))
+        start_time = float(request.GET["start"])
+        end_time = float(request.GET["end"])
         user_log_obj = UserAuth.objects.get(username=username).user_log
 
         posts_queryset = user_log_obj.posts.filter(time_posted__range=(start_time, end_time)).order_by('-time_posted')
@@ -510,7 +513,7 @@ def get_profile_posts(request, username):
         older_posts = user_log_obj.posts.filter(time_posted__lt=start_time)
         next_last_timestamp = 0
         if older_posts.exists():
-            next_last_timestamp = older_posts.first().time_posted.timestamp()
+            next_last_timestamp = older_posts.first().time_posted
 
         return JsonResponse({
             "posts": posts,
@@ -580,7 +583,7 @@ def get_home_feed(request):
         # Sort, then take accessible posts until limit is reached
         if request.GET["sort"] == "time":
             if request.GET["start_timestamp"] != "":
-                start_timestamp = datetime.fromtimestamp(float(request.GET["start_timestamp"]))
+                start_timestamp = float(request.GET["start_timestamp"])
                 posts = posts.filter(time_posted__lt=start_timestamp)
             posts = posts.order_by('-time_posted')
             for post_object in posts:

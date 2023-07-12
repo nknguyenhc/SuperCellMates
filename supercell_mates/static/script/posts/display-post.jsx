@@ -85,6 +85,7 @@ function editPostCard(postId) {
             } else {
                 response.json()
                     .then(post => {
+                        post.time_posted *= 1000;
                         ReactDOM.render(<Post post={post} myProfile={true} />, oldCard);
                     });
             }

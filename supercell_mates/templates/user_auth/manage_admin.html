@@ -32,6 +32,8 @@
         function ManageAdmin() {
             const [applications, setApplications] = React.useState([]);
             const [admins, setAdmins] = React.useState([]);
+            const isLoading = React.useRef(false);
+            const setIsLoading = (newValue) => isLoading.current = newValue;
 
             React.useEffect(resetData, []);
 
@@ -45,29 +47,37 @@
             }
 
             function addAdmin(username) {
-                fetch('/add_admin', postRequestContent({
-                    username: username
-                }))
-                    .then(response => {
-                        if (response.status !== 200) {
-                            triggerErrorMessage();
-                        } else {
-                            resetData();
-                        }
-                    })
+                if (!isLoading.current) {
+                    setIsLoading(true);
+                    fetch('/add_admin', postRequestContent({
+                        username: username
+                    }))
+                        .then(response => {
+                            setIsLoading(false);
+                            if (response.status !== 200) {
+                                triggerErrorMessage();
+                            } else {
+                                resetData();
+                            }
+                        });
+                }
             }
 
             function removeAdmin(username) {
-                fetch('/remove_admin', postRequestContent({
-                    username: username
-                }))
-                    .then(response => {
-                        if (response.status !== 200) {
-                            triggerErrorMessage();
-                        } else {
-                            resetData();
-                        }
-                    })
+                if (!isLoading.current) {
+                    setIsLoading(true);
+                    fetch('/remove_admin', postRequestContent({
+                        username: username
+                    }))
+                        .then(response => {
+                            setIsLoading(false);
+                            if (response.status !== 200) {
+                                triggerErrorMessage();
+                            } else {
+                                resetData();
+                            }
+                        });
+                }
             }
 
             return (

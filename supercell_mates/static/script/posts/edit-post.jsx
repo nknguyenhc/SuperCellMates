@@ -13,6 +13,8 @@ function EditPost(props) {
     const [allImgsLoaded, setAllImgsLoaded] = React.useState(false);
     const postId = props.postId;
     const [deleteMessage, setDeleteMessage] = React.useState('');
+    const isLoading = React.useRef(false);
+    const setIsLoading = (newValue) => isLoading.current = newValue;
 
     React.useEffect(() => {
         fetch('/post/post/' + postId)
@@ -132,22 +134,26 @@ function EditPost(props) {
                 break;
         }
 
-        fetch('/post/post/edit/' + postId, postRequestContent({
-            title: title,
-            content: content,
-            visibility: visList,
-            imgs: imgs
-        }))
-            .then(response => {
-                if (response.status !== 200) {
-                    triggerErrorMessage();
-                } else {
-                    document.querySelector("#edit-post").style.display = 'none';
-                    setErrorMessage('');
-                    document.querySelector("#post-edit-button").click();
-                    editPostCard(postId);
-                }
-            });
+        if (!isLoading.current) {
+            setIsLoading(true);
+            fetch('/post/post/edit/' + postId, postRequestContent({
+                title: title,
+                content: content,
+                visibility: visList,
+                imgs: imgs
+            }))
+                .then(response => {
+                    setIsLoading(false);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else {
+                        document.querySelector("#edit-post").style.display = 'none';
+                        setErrorMessage('');
+                        document.querySelector("#post-edit-button").click();
+                        editPostCard(postId);
+                    }
+                });
+        }
     }
 
     function popDeleteMessage() {
@@ -162,17 +168,21 @@ function EditPost(props) {
     }
 
     function deletePost() {
-        fetch('/post/delete', postRequestContent({
-            post_id: postId
-        }))
-            .then(response => {
-                if (response.status !== 200) {
-                    triggerErrorMessage();
-                } else {
-                    document.querySelector("#post-delete-message-button").click();
-                    deletePostCard(postId);
-                }
-            })
+        if (!isLoading.current) {
+            setIsLoading(true);
+            fetch('/post/delete', postRequestContent({
+                post_id: postId
+            }))
+                .then(response => {
+                    setIsLoading(false);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else {
+                        document.querySelector("#post-delete-message-button").click();
+                        deletePostCard(postId);
+                    }
+                });
+        }
     }
 
     return (

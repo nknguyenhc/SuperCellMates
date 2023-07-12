@@ -17,6 +17,8 @@ function AddTag() {
     const imageInput = React.useRef(null);
     const [description, setDescription] = React.useState('');
     const [attach, setAttach] = React.useState(false);
+    const isLoading = React.useRef(false);
+    const setIsLoading = (newValue) => isLoading.current = newValue;
 
     function image() {
         return (
@@ -41,22 +43,25 @@ function AddTag() {
         if (imagePreview !== undefined) {
             requestBody.img = imageInput.current.files[0]
         }
-        fetch('/add_tag_request', postRequestContent(requestBody))
-            .then(async response => {
-                if (response.status !== 200) {
-                    triggerErrorMessage();
-                } else {
-                    const text = await response.text();
-                    if (text === "tag already present/requested") {
-                        document.querySelector("#tag-request-message-content").innerText = 'Tag is already present/requested';
+        if (!isLoading.current) {
+            setIsLoading(true);
+            fetch('/add_tag_request', postRequestContent(requestBody))
+                .then(async response => {
+                    if (response.status !== 200) {
+                        setIsLoading(false);
+                        triggerErrorMessage();
                     } else {
-                        document.querySelector("#tag-request-message-content").innerText = 'Your request is sent, our admin will review your request.';
+                        const text = await response.text();
+                        if (text === "tag already present/requested") {
+                            document.querySelector("#tag-request-message-content").innerText = 'Tag is already present/requested';
+                        } else {
+                            document.querySelector("#tag-request-message-content").innerText = 'Your request is sent, our admin will review your request.';
+                        }
+                        document.querySelector('#add_tag').style.display = 'none';
+                        document.querySelector("#tag_request_message_button").click();
                     }
-                    document.querySelector('#add_tag').style.display = 'none';
-                    document.querySelector("#tag_request_message_button").click();
-                }
-            })
-            .catch(() => triggerErrorMessage());
+                });
+        }
         setErrMessage("");
     }
 
