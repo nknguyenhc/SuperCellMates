@@ -115,6 +115,7 @@ function CreatePost() {
                 .then(response => {
                     setIsLoading(false);
                     if (response.status !== 200) {
+                        response.text().then(text => console.log(text));
                         triggerErrorMessage();
                     } else {
                         postCreateButton.current.click();
@@ -149,7 +150,7 @@ function CreatePost() {
             <div className="mb-3">
                 <label htmlFor="post-content" className="form-label">Content</label>
                 <textarea id="post-content" rows="8" className="form-control" ref={contentInput} value={content} onChange={event => {
-                    setContent(event.target.value.slice(0, 2000));
+                    setContent(event.target.value.slice(0, 1950));
                 }}></textarea>
                 <div className="invalid-feedback">Please enter some content</div>
             </div>
