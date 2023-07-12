@@ -3,9 +3,15 @@ import 'package:flutter/material.dart';
 bool customCheckboxChecked = false;
 
 class CustomCheckbox extends StatefulWidget {
-  const CustomCheckbox({required this.togglePACheckedFunction, super.key});
+  const CustomCheckbox(
+      {required this.togglePACheckedFunction,
+      required this.tickColor,
+      required this.boxColor,
+      super.key});
 
   final Function() togglePACheckedFunction;
+  final Color tickColor;
+  final Color boxColor;
 
   @override
   State<CustomCheckbox> createState() => _CustomCheckboxState();
@@ -23,15 +29,15 @@ class _CustomCheckboxState extends State<CustomCheckbox> {
         MaterialState.focused,
       };
       if (states.any(interactiveStates.contains)) {
-        return Colors.blue;
+        return widget.tickColor;
       }
-      return Colors.white;
+      return widget.boxColor;
     }
 
     return Transform.scale(
         scale: 0.85,
         child: Checkbox(
-          checkColor: Colors.blue,
+          checkColor: widget.tickColor,
           fillColor: MaterialStateProperty.resolveWith(getColor),
           value: isChecked,
           onChanged: (bool? value) {

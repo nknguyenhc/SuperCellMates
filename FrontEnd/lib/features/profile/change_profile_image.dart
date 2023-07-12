@@ -16,25 +16,31 @@ class ChangeProfileImageButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-        style: const ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.blue)),
+        style: const ButtonStyle(
+            backgroundColor: MaterialStatePropertyAll(Colors.blue)),
         onPressed: () async {
           final XFile? image =
               await imagePicker.pickImage(source: ImageSource.gallery);
           if (image == null) return;
           final CroppedFile? croppedImage = await cropSquaredImage(image);
           if (croppedImage != null) {
+            startUploadingDialog(context, "image");
             var body = {"img": await croppedImage.readAsBytes()};
             final response =
                 await postWithCSRF(EndPoints.setProfileImage.endpoint, body);
-            if (response == "success") {
-              callBack();
-              showSuccessDialog(context, "Successfully updated profile image.");
-            } else {
-              showErrorDialog(context, "Image is not in supported format.");
-            }
+            stopLoadingDialog(context);
+            Future.delayed(Duration(milliseconds: 100)).then((value) {
+              if (response == "success") {
+                callBack();
+                showSuccessDialog(
+                    context, "Successfully updated profile image.");
+              } else {
+                showErrorDialog(context, "Image is not in supported format.");
+              }
+            });
           }
         },
         child: const Text("Change profile image",
-        style: TextStyle(color: Colors.white)));
+            style: TextStyle(color: Colors.white)));
   }
 }

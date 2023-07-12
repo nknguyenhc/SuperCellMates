@@ -33,8 +33,8 @@ class MainScaffoldState extends State<MainScaffold> {
 
   int selectedIndex = 0;
 
-  late dynamic pages;
-  late dynamic appbars;
+  late List<Widget> pages;
+  late List<PreferredSizeWidget> appbars;
 
   void getProfileMap() async {
     dynamic profileMapJson =

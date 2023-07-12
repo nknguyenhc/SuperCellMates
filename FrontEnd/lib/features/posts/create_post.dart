@@ -110,6 +110,7 @@ class CreatePostPageState extends State<CreatePostPage> {
       return;
     }
 
+    startUploadingDialog(context, "post");
     List<String> postVisibility = [];
     if (isVisibilitiesChosen[0]) {
       postVisibility.add("public");
@@ -131,13 +132,16 @@ class CreatePostPageState extends State<CreatePostPage> {
 
     dynamic r = await postWithCSRF(EndPoints.createPost.endpoint, body);
 
-    if (r == "post created") {
-      widget.updateCallBack();
-      AutoRouter.of(context).pop().then(
-          (value) => showSuccessDialog(context, "Successfully created post!"));
-    } else {
-      showErrorDialog(context, r);
-    }
+    stopLoadingDialog(context);
+    Future.delayed(Duration(milliseconds: 100)).then((value) {
+      if (r == "post created") {
+        widget.updateCallBack();
+        AutoRouter.of(context).pop().then((value) =>
+            showSuccessDialog(context, "Successfully created post!"));
+      } else {
+        showErrorDialog(context, r);
+      }
+    });
   }
 
   @override

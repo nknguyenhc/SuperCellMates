@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
 void showConfirmationDialog(
@@ -105,4 +106,42 @@ void showCustomDialog(BuildContext context, String title, String message) {
           ],
         );
       });
+}
+
+void startLoadingDialog(BuildContext context, Widget loadingAnimation) {
+  showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return SimpleDialog(
+        elevation: 0.0,
+        backgroundColor:
+            Colors.transparent, // can change this to your prefered color
+        children: <Widget>[
+          Center(
+            child: loadingAnimation,
+          )
+        ],
+      );
+    },
+  );
+}
+
+void startUploadingDialog(BuildContext context, String item) {
+  startLoadingDialog(
+      context,
+      Column(
+        children: [
+          CircularProgressIndicator(),
+          Padding(padding: EdgeInsets.only(top: 10)),
+          Text(
+            "Uploading $item...",
+            style: TextStyle(color: Colors.white),
+          )
+        ],
+      ));
+}
+
+void stopLoadingDialog(BuildContext context) {
+  context.router.pop();
 }

@@ -27,7 +27,7 @@ class PrivacyAgreementSectionState extends State<PrivacyAgreementSection> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CustomCheckbox(togglePACheckedFunction: widget.togglePACheckedFunction),
+              CustomCheckbox(togglePACheckedFunction: widget.togglePACheckedFunction, tickColor: Colors.blue, boxColor: Colors.white,),
               const Text(
                 "I have read and agree to the ",
                 style: TextStyle(

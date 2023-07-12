@@ -103,31 +103,35 @@ class OthersProfilePageState extends State<OthersProfilePage> {
     double myPostsHeight = MediaQuery.of(context).size.height - 173;
 
     void sendFriendRequest() async {
+      startUploadingDialog(context, "data");
       dynamic body = {"username": widget.data["user_profile"]["username"]};
-
       dynamic message =
           await postWithCSRF(EndPoints.addFriendRequest.endpoint, body);
-
-      if (message == "ok") {
-        showSuccessDialog(context, "Friend request sent!");
-      } else {
-        showErrorDialog(context, message);
-      }
+      stopLoadingDialog(context);
+      Future.delayed(Duration(milliseconds: 100)).then((value) {
+        if (message == "ok") {
+          showSuccessDialog(context, "Friend request sent!");
+        } else {
+          showErrorDialog(context, message);
+        }
+      });
     }
 
     void deleteFriend() async {
+      startUploadingDialog(context, "data");
       dynamic body = {"username": widget.data["user_profile"]["username"]};
-
       dynamic message =
           await postWithCSRF(EndPoints.deleteFriend.endpoint, body);
-
-      if (message == "friend deleted") {
-        widget.onDeleteFriendCallBack();
-        AutoRouter.of(context).pop().then((value) =>
-            showSuccessDialog(context, "Successfully removed friend!"));
-      } else {
-        showErrorDialog(context, message);
-      }
+      stopLoadingDialog(context);
+      Future.delayed(Duration(milliseconds: 100)).then((value) {
+        if (message == "friend deleted") {
+          widget.onDeleteFriendCallBack();
+          AutoRouter.of(context).pop().then((value) =>
+              showSuccessDialog(context, "Successfully removed friend!"));
+        } else {
+          showErrorDialog(context, message);
+        }
+      });
     }
 
     return Scaffold(
