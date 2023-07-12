@@ -32,7 +32,7 @@ def create_superusers():
     jiale_log = UserLog(user_auth=jiale, user_profile=jiale_profile)
     jiale_log.save()
     jiale_log.friend_list.add(nguyen_log)
-    chat = PrivateChat(timestamp=datetime.now())
+    chat = PrivateChat(timestamp=datetime.now().timestamp())
     chat.save()
     chat.users.add(nguyen)
     chat.users.add(jiale)
