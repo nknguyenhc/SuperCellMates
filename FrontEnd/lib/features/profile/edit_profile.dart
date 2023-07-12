@@ -42,8 +42,27 @@ class EditProfilePageState extends State<EditProfilePage> {
                       fontSize: 18),
                 ),
                 const Padding(padding: EdgeInsets.only(top: 10)),
-                ChangeProfileImageButton(
-                    callBack: widget.updateProfileImageCallBack),
+                Row(
+                  children: [
+                    ChangeProfileImageButton(
+                        callBack: widget.updateProfileImageCallBack),
+                    const Padding(padding: EdgeInsets.only(right: 10)),
+                    
+                    // Change name button
+                    TextButton(
+                        style: const ButtonStyle(
+                            backgroundColor:
+                                MaterialStatePropertyAll(Colors.blue)),
+                        onPressed: () async {
+                          context.router.push(ChangeNameRoute(
+                              updateProfileMapCallBack:
+                                  widget.updateProfileMapCallBack));
+                        },
+                        child: const Text("Change name",
+                            style: TextStyle(color: Colors.white))),
+                    const Padding(padding: EdgeInsets.only(right: 10)),
+                  ],
+                ),
                 const Padding(padding: EdgeInsets.only(top: 40)),
                 const Text(
                   "Authentication",

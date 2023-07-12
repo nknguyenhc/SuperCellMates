@@ -13,6 +13,7 @@ enum EndPoints {
   setProfileImage,
   changeUsername, 
   changePassword,
+  changeName,
 
   viewFriends,
   viewFriendRequests,
@@ -52,6 +53,7 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.setProfileImage: "/profile/set_profile_image",
     EndPoints.changeUsername: "/change_username",
     EndPoints.changePassword: "/change_password",
+    EndPoints.changeName: "/profile/change_name",
     EndPoints.viewFriends: "/user/friends_async",
     EndPoints.viewFriendRequests: "/user/friend_requests_async",
     EndPoints.addFriendRequest: "/user/add_friend_request",
