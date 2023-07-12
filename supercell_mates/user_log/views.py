@@ -243,7 +243,7 @@ def add_friend(request):
             if accepted == "true":
                 request.user.user_log.friend_list.add(user_log_obj)
                 if not request.user.private_chats.filter(users=request.user).filter(users=user_log_obj.user_auth).exists():
-                    new_chat = PrivateChat(timestamp=datetime.now())
+                    new_chat = PrivateChat(timestamp=datetime.now().timestamp())
                     new_chat.save()
                     new_chat.users.add(request.user)
                     new_chat.users.add(user_log_obj.user_auth)

@@ -45,7 +45,7 @@ def create_group_chat(request):
     try:
         users = request.POST.getlist('users')
         group_name = request.POST["group_name"]
-        groupchat = GroupChat(timestamp = datetime.now(), name=group_name, creator=request.user)
+        groupchat = GroupChat(timestamp=datetime.now().timestamp(), name=group_name, creator=request.user)
         groupchat.save()
         for user in users:
             if not UserAuth.objects.get(username=user).user_log.friend_list.filter(user_auth=request.user).exists():
@@ -57,7 +57,7 @@ def create_group_chat(request):
         groupchat.save()
         return JsonResponse({
             "id": groupchat.id,
-            "timestamp": groupchat.timestamp.timestamp(),
+            "timestamp": groupchat.timestamp,
             "name": group_name,
             "img": reverse("message:get_group_chat_rep_img", args=(groupchat.id,)),
         })
@@ -362,7 +362,7 @@ def chat_info(chat_object):
     """
     return {
         "id": chat_object.id,
-        "timestamp": chat_object.timestamp.timestamp(),
+        "timestamp": chat_object.timestamp,
     }
 
 
@@ -503,7 +503,7 @@ def message_info(message_obj):
     """
     result = {
         "id": message_obj.id,
-        "timestamp": message_obj.timestamp.timestamp(),
+        "timestamp": message_obj.timestamp,
         "user": {
             "name": message_obj.user.user_profile.name,
             "username": message_obj.user.username,
@@ -552,8 +552,8 @@ def start_and_end(request):
         tuple/str: start and end from the request GET parameters, or a string if there is an error
     """
     try:
-        start = datetime.fromtimestamp(float(request.GET["start"]))
-        end = datetime.fromtimestamp(float(request.GET["end"]))
+        start = float(request.GET["start"])
+        end = float(request.GET["end"])
         return (start, end)
     except MultiValueDictKeyError:
         return "start and end GET parameters not provided"
@@ -572,11 +572,11 @@ def get_texts(chat_obj, start, end):
     next_text_messages = chat_obj.text_messages.filter(timestamp__lt=start)
     next_file_messages = chat_obj.file_messages.filter(timestamp__lt=start)
     if next_text_messages.exists():
-        next_last_timestamp = next_text_messages.order_by("timestamp").last().timestamp.timestamp()
+        next_last_timestamp = next_text_messages.order_by("timestamp").last().timestamp
         if next_file_messages.exists():
-            next_last_timestamp = max(next_last_timestamp, next_file_messages.order_by("timestamp").last().timestamp.timestamp())
+            next_last_timestamp = max(next_last_timestamp, next_file_messages.order_by("timestamp").last().timestamp)
     elif next_file_messages.exists():
-        next_last_timestamp = next_file_messages.order_by("timestamp").last().timestamp.timestamp()
+        next_last_timestamp = next_file_messages.order_by("timestamp").last().timestamp
     
     return all_messages, next_last_timestamp
 
@@ -701,11 +701,11 @@ def upload_file(request):
             is_image = verify_image(file_uploaded)
         file_name = request.POST["file_name"]
         if isinstance(chat_obj, PrivateChat):
-            file_message = PrivateFileMessage(file_field=file_uploaded, file_name=file_name, chat=chat_obj, user=request.user, is_image=is_image)
+            file_message = PrivateFileMessage(timestamp=datetime.now().timestamp(), file_field=file_uploaded, file_name=file_name, chat=chat_obj, user=request.user, is_image=is_image)
         else:
-            file_message = GroupFileMessage(file_field=file_uploaded, file_name=file_name, chat=chat_obj, user=request.user, is_image=is_image)
+            file_message = GroupFileMessage(timestamp=datetime.now().timestamp(), file_field=file_uploaded, file_name=file_name, chat=chat_obj, user=request.user, is_image=is_image)
         file_message.save()
-        chat_obj.timestamp = datetime.now()
+        chat_obj.timestamp = datetime.now().timestamp()
         chat_obj.save()
         return HttpResponse(file_message.id)
     

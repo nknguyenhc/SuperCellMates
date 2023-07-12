@@ -4,7 +4,7 @@ from posts.models import random_str
 """Chats"""
 class AbstractChat(models.Model):
     id = models.CharField(unique=True, primary_key=True, default=random_str, max_length=50)
-    timestamp = models.DateTimeField()
+    timestamp = models.FloatField()
 
     class Meta:
         abstract = True
@@ -24,7 +24,7 @@ class GroupChat(AbstractChat):
 """Chat Messages"""
 class AbstractMessage(models.Model):
     id = models.CharField(unique=True, primary_key=True, default=random_str, max_length=50)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.FloatField()
 
     class Meta:
         abstract = True
