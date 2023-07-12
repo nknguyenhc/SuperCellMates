@@ -106,7 +106,7 @@ def setup_tags():
 
 
 if __name__ == '__main__':
-    if not UserAuth.objects.get(username='nguyen').exists(): # not yet set up
+    if not UserAuth.objects.filter(username='nguyen').exists(): # not yet set up
         print("creating superusers ...")
         create_superusers()
         print("creating tags ...")
