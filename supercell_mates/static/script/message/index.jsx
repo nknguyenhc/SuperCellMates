@@ -25,6 +25,8 @@ function ChatPage() {
     const imageExtensions = ['png', 'jpg', 'jpeg', 'bmp', 'webp', 'svg', 'heic'];
     const jump = 60;
     const [showAddPeopleForm, setShowAddPeopleForm] = React.useState(false);
+    const isLoading = React.useRef(false);
+    const setIsLoading = (newValue) => isLoading.current = newValue;
 
     React.useEffect(() => {
         fetch('/messages/get_private_chats')
@@ -352,13 +354,15 @@ function ChatPage() {
     }
 
     function submitFile(file, isPrivate) {
-        if (currSocket.readyState === 1) {
+        if (currSocket.readyState === 1 && !isLoading.current) {
+            setIsLoading(true);
             fetch('/messages/upload_file', postRequestContent({
                 chat_id: currChatId,
                 file: file,
                 file_name: file.name
             }))
                 .then(async response => {
+                    setIsLoading(false);
                     if (response.status !== 200) {
                         triggerErrorMessage();
                         return;
@@ -589,6 +593,8 @@ function NewGroupChatForm({ isDisplay, createGroupChatListing }) {
     const [searchFriends, setSearchFriends] = React.useState([]);
     const [addedFriends, dispatchAddedFriends] = React.useReducer(addFriendReducer, []);
     const [error, setError] = React.useState('');
+    const isLoading = React.useRef(false);
+    const setIsLoading = (newValue) => isLoading.current = newValue;
 
     React.useEffect(() => {
         document.addEventListener('click', event => {
@@ -634,17 +640,22 @@ function NewGroupChatForm({ isDisplay, createGroupChatListing }) {
         } else {
             setError('');
         }
-        fetch('/messages/create_group_chat', postRequestContent({
-            group_name: groupName,
-            users: addedFriends.map(friend => friend.username)
-        }))
-            .then(response => {
-                if (response.status !== 200) {
-                    triggerErrorMessage();
-                } else {
-                    response.json().then(chat => createGroupChatListing(chat));
-                }
-            })
+        
+        if (!isLoading.current) {
+            setIsLoading(true);
+            fetch('/messages/create_group_chat', postRequestContent({
+                group_name: groupName,
+                users: addedFriends.map(friend => friend.username)
+            }))
+                .then(response => {
+                    setIsLoading(false);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else {
+                        response.json().then(chat => createGroupChatListing(chat));
+                    }
+                });
+        }
     }
 
     return (
@@ -722,6 +733,8 @@ function AddPeopleForm({ chatId, myUsername }) {
     const [isAdmin, setIsAdmin] = React.useState(false);
     const [isCreator, setIsCreator] = React.useState(false);
     const [currentAdmins, setCurrentAdmins] = React.useState([]);
+    const isLoading = React.useRef(false);
+    const setIsLoading = (newValue) => isLoading.current = newValue;
 
     function addFriendReducer(state, friend) {
         return [...state, friend];
@@ -799,83 +812,103 @@ function AddPeopleForm({ chatId, myUsername }) {
     }
 
     function addFriend(friend) {
-        fetch('/messages/add_member', postRequestContent({
-            username: currFriend.username,
-            chat_id: chatId,
-        }))
-            .then(response => {
-                if (response.status !== 200) {
-                    triggerErrorMessage();
-                } else {
-                    dispatchAddedFriends(friend);
-                    setShowAddMessage(false);
-                    getCurrentMembers();
-                }
-            });
+        if (!isLoading.current) {
+            setIsLoading(true);
+            fetch('/messages/add_member', postRequestContent({
+                username: currFriend.username,
+                chat_id: chatId,
+            }))
+                .then(response => {
+                    setIsLoading(false);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else {
+                        dispatchAddedFriends(friend);
+                        setShowAddMessage(false);
+                        getCurrentMembers();
+                    }
+                });
+        }
     }
 
     function removeUser(username) {
-        fetch('/messages/remove_user', postRequestContent({
-            chatid: chatId,
-            username: username
-        }))
-            .then(response => {
-                if (response.status !== 200) {
-                    triggerErrorMessage();
-                } else {
-                    getCurrentMembers();
-                    getCurrentAdmins();
-                }
-            });
+        if (!isLoading.current) {
+            setIsLoading(true);
+            fetch('/messages/remove_user', postRequestContent({
+                chatid: chatId,
+                username: username
+            }))
+                .then(response => {
+                    setIsLoading(false);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else {
+                        getCurrentMembers();
+                        getCurrentAdmins();
+                    }
+                });
+        }
     }
 
     function addAdmin(username) {
-        fetch('/messages/add_admin', postRequestContent({
-            chatid: chatId,
-            username: username
-        }))
-            .then(response => {
-                if (response.status !== 200) {
-                    triggerErrorMessage();
-                } else {
-                    getCurrentAdmins();
-                }
-            });
+        if (!isLoading.current) {
+            setIsLoading(true);
+            fetch('/messages/add_admin', postRequestContent({
+                chatid: chatId,
+                username: username
+            }))
+                .then(response => {
+                    setIsLoading(false);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else {
+                        getCurrentAdmins();
+                    }
+                });
+        }
     }
 
     function removeAdmin(username) {
-        fetch('/messages/remove_admin', postRequestContent({
-            chatid: chatId,
-            username: username
-        }))
-            .then(response => {
-                if (response.status !== 200) {
-                    triggerErrorMessage();
-                } else {
-                    getCurrentAdmins();
-                }
-            });
+        if (!isLoading.current) {
+            setIsLoading(true);
+            fetch('/messages/remove_admin', postRequestContent({
+                chatid: chatId,
+                username: username
+            }))
+                .then(response => {
+                    setIsLoading(false);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else {
+                        getCurrentAdmins();
+                    }
+                });
+        }
     }
 
     function assignLeader(username, currPassword, setAuthErr) {
-        fetch('/messages/assign_leader', postRequestContent({
-            chatid: chatId,
-            username: username,
-            password: currPassword
-        }))
-            .then(response => {
-                if (response.status !== 200) {
-                    triggerErrorMessage();
-                } else {
-                    response.text().then(text => {
-                        if (text === 'ok') {
-                            setIsCreator(false);
-                        } else {
-                            setAuthErr("Authentication failed");
-                        }
-                    });
-                }
-            })
+        if (!isLoading.current) {
+            setIsLoading(true);
+            fetch('/messages/assign_leader', postRequestContent({
+                chatid: chatId,
+                username: username,
+                password: currPassword
+            }))
+                .then(response => {
+                    setIsLoading(false);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    } else {
+                        response.text().then(text => {
+                            if (text === 'ok') {
+                                setIsCreator(false);
+                            } else {
+                                setAuthErr("Authentication failed");
+                            }
+                        });
+                    }
+                });
+        }
     }
 
     function UserTable({ users, privilegedUsers, removeAction, addAction, removeBtnText, addBtnText, removeCaption, addCaption }) {

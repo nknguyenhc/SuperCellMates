@@ -49,9 +49,9 @@ class AbstractMessageConsumer(ABC, AsyncWebsocketConsumer):
 
     def parse_text_message(self, text_message):
         text_message.save()
-        self.chat_object.timestamp = datetime.now()
+        self.chat_object.timestamp = datetime.now().timestamp()
         self.chat_object.save()
-        return (text_message.id, text_message.timestamp.timestamp())
+        return (text_message.id, text_message.timestamp)
 
 
     @abstractmethod
@@ -62,7 +62,7 @@ class AbstractMessageConsumer(ABC, AsyncWebsocketConsumer):
     def parse_file_message(self, file_message):
         return {
             "file_name": file_message.file_name,
-            "timestamp": file_message.timestamp.timestamp(),
+            "timestamp": file_message.timestamp,
             "is_image": file_message.is_image,
         }
     
@@ -169,7 +169,7 @@ class PrivateMessageConsumer(AbstractMessageConsumer):
 
     @database_sync_to_async
     def add_text_message(self, message):
-        text_message = PrivateTextMessage(user=self.user, chat=self.chat_object, text=message)
+        text_message = PrivateTextMessage(timestamp=datetime.now().timestamp(), user=self.user, chat=self.chat_object, text=message)
         return self.parse_text_message(text_message)
     
 
@@ -200,7 +200,7 @@ class GroupMessageConsumer(AbstractMessageConsumer):
 
     @database_sync_to_async
     def add_text_message(self, message):
-        text_message = GroupTextMessage(user=self.user, chat=self.chat_object, text=message)
+        text_message = GroupTextMessage(timestamp=datetime.now().timestamp(), user=self.user, chat=self.chat_object, text=message)
         return self.parse_text_message(text_message)
     
 

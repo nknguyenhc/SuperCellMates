@@ -1,5 +1,7 @@
 function ManageTags() {
     const [requests, setRequests] = React.useState([]);
+    const isLoading = React.useRef(false);
+    const setIsLoading = (newValue) => isLoading.current = newValue;
 
     React.useEffect(() => {
         fetch('/obtain_tag_requests')
@@ -9,22 +11,35 @@ function ManageTags() {
     }, []);
 
     function submitTag(tag_request_id) {
-        fetch('/add_tag_admin', postRequestContent({
-            tag_request_id: tag_request_id
-        }))
-            .then(response => {
-                if (response.status !== 200) {
-                    triggerErrorMessage();
-                }
-            });
-        setRequests(requests.filter(request => request.id != tag_request_id));
+        if (!isLoading.current) {
+            setIsLoading(true);
+            fetch('/add_tag_admin', postRequestContent({
+                tag_request_id: tag_request_id
+            }))
+                .then(response => {
+                    setIsLoading(false);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    }
+                });
+            setRequests(requests.filter(request => request.id != tag_request_id));
+        }
     }
 
     function removeRequest(tag_request_id) {
-        fetch('/remove_tag_request', postRequestContent({
-            tag_request_id: tag_request_id
-        }));
-        setRequests(requests.filter(request => request.id != tag_request_id));
+        if (!isLoading.current) {
+            setIsLoading(true);
+            fetch('/remove_tag_request', postRequestContent({
+                tag_request_id: tag_request_id
+            }))
+                .then(response => {
+                    setIsLoading(false);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                    }
+                });
+            setRequests(requests.filter(request => request.id != tag_request_id));
+        }
     }
 
     return (
@@ -72,6 +87,8 @@ function AddTags() {
     const [imagePreview, setImagePreview] = React.useState('');
     const [imgFile, setImgFile] = React.useState(null);
     const fileInput = React.useRef(null);
+    const isLoading = React.useRef(false);
+    const setIsLoading = (newValue) => isLoading.current = newValue;
     
     function addTag(event) {
         event.preventDefault();
@@ -86,19 +103,23 @@ function AddTags() {
         if (imgFile !== null) {
             requestBody.img = imgFile;
         }
-        fetch('/new_tag_admin', postRequestContent(requestBody))
-            .then(response => {
-                if (response.status === 200) {
-                    response.text().then(text => setAdminMessage(text));
-                    addTagAdminButton.current.click();
-                    setTagName('');
-                    setImgFile(null);
-                    fileInput.current.files = null;
-                    setEmptyErrorMessageTriggered(false);
-                } else {
-                    triggerErrorMessage();
-                }
-            });
+        if (!isLoading.current) {
+            setIsLoading(true);
+            fetch('/new_tag_admin', postRequestContent(requestBody))
+                .then(response => {
+                    setIsLoading(false);
+                    if (response.status === 200) {
+                        response.text().then(text => setAdminMessage(text));
+                        addTagAdminButton.current.click();
+                        setTagName('');
+                        setImgFile(null);
+                        fileInput.current.files = null;
+                        setEmptyErrorMessageTriggered(false);
+                    } else {
+                        triggerErrorMessage();
+                    }
+                });
+        }
     }
 
     function iconUpload(event) {
