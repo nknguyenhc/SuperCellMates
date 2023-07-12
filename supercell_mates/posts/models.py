@@ -1,6 +1,5 @@
 from django.db import models
 import uuid
-from supercell_mates.models import DateTimeFieldNTZ
 
 
 def random_str():

@@ -1,6 +1,5 @@
 from django.db import models
 from posts.models import random_str
-from supercell_mates.models import DateTimeFieldNTZ
 
 """Chats"""
 class AbstractChat(models.Model):
