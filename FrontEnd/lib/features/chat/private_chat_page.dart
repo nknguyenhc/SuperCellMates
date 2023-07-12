@@ -165,6 +165,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
 
   void connect() async {
     wsUrl = "${GetIt.I<Config>().wsBaseURL}/message/${widget.chatInfo["id"]}/";
+    print(wsUrl);
     Requests.getStoredCookies(GetIt.I<Config>().restBaseURL)
         .then(
       (cookieJar) => cookieJar.delegate,
@@ -172,8 +173,9 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
         .then((cookieMap) {
       setState(() {
         wsChannel = IOWebSocketChannel.connect(Uri.parse(wsUrl), headers: {
-          "origin": "ws://10.0.2.2:8000",
-          "cookie": "sessionid=${cookieMap["sessionid"]!.value}"
+          "origin": "matchminer-d5ebcada4488.herokuapp.com",
+          "cookie":
+              "sessionid=${cookieMap["sessionid"]!.value},csrftoken=${cookieMap["csrftoken"]!.value}"
         });
       });
     });

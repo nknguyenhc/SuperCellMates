@@ -9,7 +9,7 @@ class ProdConfig extends Config {
   String get restBaseURL => "https://matchminer-d5ebcada4488.herokuapp.com";
 
   @override
-  String get wsBaseURL => "ws://matchminer.pythonanywhere.com/ws";
+  String get wsBaseURL => "wss://matchminer-d5ebcada4488.herokuapp.com/ws";
   // int get connectTimeout => 10000; // 10s
   // int get receiveTimeout => 6000; // 6s
 }
