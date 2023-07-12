@@ -93,7 +93,7 @@ DATABASES = {
     'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
 }
 
-DATABASES['default']['CONN_MAX_AGE'] = 60
+# DATABASES['default']['CONN_MAX_AGE'] = 60
 
 # DATABASES = {
 #     'default': {
