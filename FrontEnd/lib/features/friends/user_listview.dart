@@ -244,22 +244,27 @@ class FriendRequestListState extends State<FriendRequestListView> {
                         showConfirmationDialog(context,
                             "Are you sure to accept $name's friend request?",
                             () async {
+                          startUploadingDialog(context, "data");
                           dynamic body = {
                             "username": username,
                             "accepted": true,
                           };
                           dynamic message = await postWithCSRF(
                               EndPoints.addFriend.endpoint, body);
-                          if (message == "ok") {
-                            showSuccessDialog(
-                                context, "Successfully added friend!");
-                            count -= 1;
-                            dataLoaded.removeAt(index);
-                            profileImages.removeAt(index);
-                            widget.updateCallBack();
-                          } else {
-                            showErrorDialog(context, message);
-                          }
+                          stopLoadingDialog(context);
+                          Future.delayed(Duration(milliseconds: 100))
+                              .then((value) {
+                            if (message == "ok") {
+                              showSuccessDialog(
+                                  context, "Successfully added friend!");
+                              count -= 1;
+                              dataLoaded.removeAt(index);
+                              profileImages.removeAt(index);
+                              widget.updateCallBack();
+                            } else {
+                              showErrorDialog(context, message);
+                            }
+                          });
                         });
                       },
                       style: ButtonStyle(
@@ -275,22 +280,27 @@ class FriendRequestListState extends State<FriendRequestListView> {
                         showConfirmationDialog(context,
                             "Are you sure to reject $name's friend request?",
                             () async {
+                          startUploadingDialog(context, "data");
                           dynamic body = {
                             "username": username,
                             "accepted": false,
                           };
                           dynamic message = await postWithCSRF(
                               EndPoints.addFriend.endpoint, body);
-                          if (message == "ok") {
-                            showSuccessDialog(context,
-                                "Successfully declined friend request!");
-                            count -= 1;
-                            dataLoaded.removeAt(index);
-                            profileImages.removeAt(index);
-                            widget.updateCallBack();
-                          } else {
-                            showErrorDialog(context, message);
-                          }
+                          stopLoadingDialog(context);
+                          Future.delayed(Duration(milliseconds: 100))
+                              .then((value) {
+                            if (message == "ok") {
+                              showSuccessDialog(context,
+                                  "Successfully declined friend request!");
+                              count -= 1;
+                              dataLoaded.removeAt(index);
+                              profileImages.removeAt(index);
+                              widget.updateCallBack();
+                            } else {
+                              showErrorDialog(context, message);
+                            }
+                          });
                         });
                       },
                       style: ButtonStyle(

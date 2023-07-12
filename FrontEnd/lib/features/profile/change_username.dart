@@ -85,21 +85,26 @@ class ChangeUsernamePageState extends State<ChangeUsernamePage> {
                         showConfirmationDialog(
                             context, "Are you sure to change your username?",
                             () async {
+                          startUploadingDialog(context, "data");
                           dynamic body = {
                             "new_username": newUsername,
                             "password": password,
                           };
                           dynamic response = await postWithCSRF(
                               EndPoints.changeUsername.endpoint, body);
-                          if (response == "Username changed") {
-                            context.router.pop().then((value) {
-                              widget.updateProfileMapCallBack();
-                              showSuccessDialog(
-                                  context, "Successfully updated username!");
-                            });
-                          } else {
-                            showErrorDialog(context, response);
-                          }
+                          stopLoadingDialog(context);
+                          Future.delayed(Duration(milliseconds: 100))
+                              .then((value) {
+                            if (response == "Username changed") {
+                              context.router.pop().then((value) {
+                                widget.updateProfileMapCallBack();
+                                showSuccessDialog(
+                                    context, "Successfully updated username!");
+                              });
+                            } else {
+                              showErrorDialog(context, response);
+                            }
+                          });
                         });
                       }
                     },

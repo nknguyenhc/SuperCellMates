@@ -105,7 +105,8 @@ class PostListViewState extends State<PostListView> {
   }
 
   void loadTime(index) {
-    timePosted[index] = DateTime.fromMicrosecondsSinceEpoch((widget.postList[index]["time_posted"] * 1000000).toInt());
+    timePosted[index] = DateTime.fromMicrosecondsSinceEpoch(
+        (widget.postList[index]["time_posted"] * 1000000).toInt());
   }
 
   @override
@@ -402,6 +403,7 @@ class PostListViewState extends State<PostListView> {
                                       showConfirmationDialog(context,
                                           "Are you sure to delete this post?",
                                           () async {
+                                        startUploadingDialog(context, "data");
                                         dynamic body = {
                                           "post_id": widget.postList[index]
                                               ["id"],
@@ -409,13 +411,18 @@ class PostListViewState extends State<PostListView> {
                                         dynamic r = await postWithCSRF(
                                             EndPoints.deletePost.endpoint,
                                             body);
-                                        if (r == "post deleted") {
-                                          widget.updateCallBack();
-                                          showSuccessDialog(context,
-                                              "Successfully deleted post");
-                                        } else {
-                                          showErrorDialog(context, r);
-                                        }
+                                        stopLoadingDialog(context);
+                                        Future.delayed(
+                                                Duration(milliseconds: 100))
+                                            .then((value) {
+                                          if (r == "post deleted") {
+                                            widget.updateCallBack();
+                                            showSuccessDialog(context,
+                                                "Successfully deleted post");
+                                          } else {
+                                            showErrorDialog(context, r);
+                                          }
+                                        });
                                       });
                                     },
                                     icon: const Icon(

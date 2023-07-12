@@ -188,6 +188,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
     if (result != null) {
       final croppedImage = await cropImage(result);
       if (croppedImage != null) {
+        startUploadingDialog(context, "image");
         final bytes = await croppedImage.readAsBytes();
 
         dynamic body = {
@@ -199,7 +200,9 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
         String response =
             await postWithCSRF(EndPoints.uploadFile.endpoint, body);
         if (response == "Connection error") {
-          showErrorDialog(context, response);
+          stopLoadingDialog(context);
+          Future.delayed(const Duration(milliseconds: 100))
+              .then((v) => showErrorDialog(context, response));
           return;
         }
         dynamic messageMap = {
@@ -207,6 +210,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
           "message_id": response,
         };
         wsChannel!.sink.add(jsonEncode(messageMap));
+        stopLoadingDialog(context);
       }
     }
   }
@@ -217,6 +221,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
     );
 
     if (result != null && result.files.single.path != null) {
+      startUploadingDialog(context, "file");
       Uint8List fileBytes = await File(result.paths[0]!).readAsBytes();
       dynamic body = {
         "chat_id": widget.chatInfo["id"],
@@ -225,7 +230,9 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
       };
       String response = await postWithCSRF(EndPoints.uploadFile.endpoint, body);
       if (response == "Connection error") {
-        showErrorDialog(context, response);
+        stopLoadingDialog(context);
+        Future.delayed(const Duration(milliseconds: 100))
+            .then((v) => showErrorDialog(context, response));
         return;
       }
       dynamic messageMap = {
@@ -233,6 +240,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
         "message_id": response,
       };
       wsChannel!.sink.add(jsonEncode(messageMap));
+      stopLoadingDialog(context);
     }
   }
 

@@ -146,6 +146,7 @@ class EditPostPageState extends State<EditPostPage> {
       return;
     }
 
+    startUploadingDialog(context, "post");
     List<String> postVisibility = [];
     if (isVisibilitiesChosen[0]) {
       postVisibility.add("public");
@@ -167,13 +168,16 @@ class EditPostPageState extends State<EditPostPage> {
     dynamic r = await postWithCSRF(
         EndPoints.editPost.endpoint + widget.oldPostData["id"], body);
 
-    if (r == "post updated") {
-      widget.updateCallBack();
-      AutoRouter.of(context).pop().then(
-          (value) => showSuccessDialog(context, "Successfully updated post!"));
-    } else {
-      showErrorDialog(context, r);
-    }
+    stopLoadingDialog(context);
+    Future.delayed(Duration(milliseconds: 100)).then((value) {
+      if (r == "post updated") {
+        widget.updateCallBack();
+        AutoRouter.of(context).pop().then((value) =>
+            showSuccessDialog(context, "Successfully updated post!"));
+      } else {
+        showErrorDialog(context, r);
+      }
+    });
   }
 
   @override

@@ -42,8 +42,7 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
                           obscureText: true,
                           decoration: const InputDecoration(
                               isDense: true,
-                              contentPadding:
-                                  EdgeInsets.only(bottom: 5)),
+                              contentPadding: EdgeInsets.only(bottom: 5)),
                           onChanged: (value) => oldPassword = value,
                         ))
                   ],
@@ -62,8 +61,7 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
                           obscureText: true,
                           decoration: const InputDecoration(
                               isDense: true,
-                              contentPadding:
-                                  EdgeInsets.only(bottom: 5)),
+                              contentPadding: EdgeInsets.only(bottom: 5)),
                           onChanged: (value) => newPassword = value,
                         ))
                   ],
@@ -95,30 +93,33 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
                 TextButton(
                     onPressed: () {
                       if (oldPassword.length < 6) {
-                        showErrorDialog(
-                            context, "Old password is too short!");
+                        showErrorDialog(context, "Old password is too short!");
                       } else if (newPassword != confirmNewPassword) {
                         showErrorDialog(context, "New passwords do not match!");
                       } else if (newPassword.length < 6) {
                         showErrorDialog(context, "New password is too short!");
-                      } 
-                      else {
+                      } else {
                         showConfirmationDialog(
                             context, "Are you sure to change your password?",
                             () async {
+                          startUploadingDialog(context, "data");
                           dynamic body = {
                             "old_password": oldPassword,
                             "new_password": newPassword,
                           };
                           dynamic response = await postWithCSRF(
                               EndPoints.changePassword.endpoint, body);
-                          if (response == "Password changed") {
-                            context.router.pop().then((value) =>
-                                showSuccessDialog(
-                                    context, "Successfully updated password!"));
-                          } else {
-                            showErrorDialog(context, response);
-                          }
+                          stopLoadingDialog(context);
+                          Future.delayed(Duration(milliseconds: 100))
+                              .then((value) {
+                            if (response == "Password changed") {
+                              context.router.pop().then((value) =>
+                                  showSuccessDialog(context,
+                                      "Successfully updated password!"));
+                            } else {
+                              showErrorDialog(context, response);
+                            }
+                          });
                         });
                       }
                     },

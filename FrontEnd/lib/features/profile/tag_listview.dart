@@ -52,6 +52,7 @@ class TagListViewState extends State<TagListView> {
   }
 
   void _addTags(dynamic names) async {
+    startUploadingDialog(context, "data");
     String listToAddString = "";
     // currently only supports adding one tag
     // backend implementation needs to be changed if want multiple
@@ -64,12 +65,15 @@ class TagListViewState extends State<TagListView> {
       "count": names.length,
     };
     var response = await postWithCSRF(EndPoints.addTags.endpoint, body);
-    if (response == "success") {
-      widget.onAddCallBack();
-      showSuccessDialog(context, "Successfully added tag!");
-    } else {
-      showErrorDialog(context, response);
-    }
+    stopLoadingDialog(context);
+    Future.delayed(Duration(milliseconds: 100)).then((value) {
+      if (response == "success") {
+        widget.onAddCallBack();
+        showSuccessDialog(context, "Successfully added tag!");
+      } else {
+        showErrorDialog(context, response);
+      }
+    });
   }
 
   void _requestConfirmationForTag(dynamic indexes) {

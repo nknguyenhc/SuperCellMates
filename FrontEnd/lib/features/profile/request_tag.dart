@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:supercellmates/features/custom_checkbox.dart';
 import 'dart:io';
 
 import 'package:supercellmates/functions/crop_image.dart';
@@ -22,11 +23,16 @@ class RequestTagPageState extends State<RequestTagPage> {
   String tagName = "";
   CroppedFile? tagIcon;
   String tagDescription = "";
+  bool attachTag = false;
 
   void setIcon(CroppedFile icon) {
     setState(() {
       tagIcon = icon;
     });
+  }
+
+  void toggleAttachTag() {
+    attachTag = !attachTag;
   }
 
   @override
@@ -138,7 +144,21 @@ class RequestTagPageState extends State<RequestTagPage> {
               ],
             ),
             const Padding(
-              padding: EdgeInsets.all(20),
+              padding: EdgeInsets.all(5),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CustomCheckbox(
+                  togglePACheckedFunction: toggleAttachTag,
+                  tickColor: Colors.white,
+                  boxColor: Colors.black,
+                ),
+                const Text("If approved, attach tag to my profile")
+              ],
+            ),
+            const Padding(
+              padding: EdgeInsets.all(5),
             ),
             Row(
               children: [
@@ -151,24 +171,32 @@ class RequestTagPageState extends State<RequestTagPage> {
                         showConfirmationDialog(
                             context, "Are you sure to request for this tag?",
                             () async {
+                          startUploadingDialog(context, "data");
+                          print(attachTag);
                           dynamic body = tagIcon == null
                               ? {
                                   "tag": tagName,
                                   "description": tagDescription,
+                                  "attach": attachTag,
                                 }
                               : {
                                   "tag": tagName,
                                   "description": tagDescription,
                                   "img": await tagIcon!.readAsBytes(),
+                                  "attach": attachTag
                                 };
                           dynamic response = await postWithCSRF(
                               EndPoints.addTagRequest.endpoint, body);
-                          if (response == "Successfully added tag request") {
-                            showSuccessDialog(context,
-                                "Your request is sent, our admin will review your request.");
-                          } else {
-                            showErrorDialog(context, response);
-                          }
+                          stopLoadingDialog(context);
+                          Future.delayed(Duration(milliseconds: 100))
+                              .then((value) {
+                            if (response == "Successfully added tag request") {
+                              showSuccessDialog(context,
+                                  "Your request is sent, our admin will review your request.");
+                            } else {
+                              showErrorDialog(context, response);
+                            }
+                          });
                         });
                       }
                     },
