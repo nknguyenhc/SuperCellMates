@@ -193,7 +193,7 @@ def edit_post(request, post_id):
             return HttpResponseBadRequest("title or content is empty")
         if len(title) > 100:
             return HttpResponseBadRequest("title too long")
-        if len(content) > 100:
+        if len(content) > 2000:
             return HttpResponseBadRequest("content too long")
 
         # visibility
