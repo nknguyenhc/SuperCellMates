@@ -455,6 +455,11 @@ def get_post(request, post_id):
 
 
 @login_required
+def display_post(request):
+    return render(request, "posts/display.html")
+
+
+@login_required
 def get_post_pic(request, pic_id):
     """Return the picture with the given id.
     This view checks the user privilege to the post first before returning the image.
