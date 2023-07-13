@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
@@ -43,6 +44,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
   WebSocketChannel? wsChannel;
   final int jump = 60; // seconds within which a batch of messages are loaded
   double nextLastTimestamp = 0;
+  bool inputEnabled = true;
 
   List<types.Message> messages = [];
   // memoised profile image urls
@@ -58,7 +60,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
     super.initState();
     double currTimestamp = DateTime.now().microsecondsSinceEpoch / 1000000;
     loadMessages(currTimestamp - jump, currTimestamp);
-    connect();
+    connect(0);
   }
 
   @override
@@ -106,15 +108,8 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                 style: const ButtonStyle(
                     padding: MaterialStatePropertyAll(EdgeInsets.zero)),
                 onPressed: () async {
-                  dynamic data = await getRequest(
-                      "${EndPoints.viewProfile.endpoint}/${m["user"]["username"]}",
-                      null);
-                  if (data == "Connection error") {
-                    showErrorDialog(context, data);
-                    return;
-                  }
-                  AutoRouter.of(context)
-                      .push(OthersProfileRoute(data: jsonDecode(data)));
+                  AutoRouter.of(context).push(
+                      OthersProfileRoute(username: m["user"]["username"]));
                 },
                 icon: image))
             .then((button) => setState(() =>
@@ -160,8 +155,9 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
     }
   }
 
-  void connect() {
+  void connect(int count) {
     // connect websocket
+    // count is the number of retries, max 3 tries before prompting error
     wsUrl = "${GetIt.I<Config>().wsBaseURL}/message/${widget.chatInfo["id"]}/";
     Requests.getStoredCookies(GetIt.I<Config>().restBaseURL)
         .then(
@@ -170,16 +166,14 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
         .then((cookieMap) {
       // extract cookies and initiate websocket connection
       setState(() {
-        try {
-          wsChannel = IOWebSocketChannel.connect(Uri.parse(wsUrl), headers: {
+        wsChannel = IOWebSocketChannel.connect(
+          Uri.parse(wsUrl),
+          headers: {
             "origin": "ws://matchminer-d5ebcada4488.herokuapp.com",
-            "cookie":
-                "sessionid=${cookieMap["sessionid"]!.value}"
-          });
-        } catch (e) {
-          showErrorDialog(context,
-              "An error has occurred. Please try entering the chat again!");
-        }
+            "cookie": "sessionid=${cookieMap["sessionid"]!.value}"
+          },
+          connectTimeout: const Duration(seconds: 2),
+        );
       });
     }).then(
       (value) {
@@ -196,15 +190,8 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                     style: const ButtonStyle(
                         padding: MaterialStatePropertyAll(EdgeInsets.zero)),
                     onPressed: () async {
-                      dynamic data = await getRequest(
-                          "${EndPoints.viewProfile.endpoint}/${messageMap["user"]["username"]}",
-                          null);
-                      if (data == "Connection error") {
-                        showErrorDialog(context, data);
-                        return;
-                      }
-                      AutoRouter.of(context)
-                          .push(OthersProfileRoute(data: jsonDecode(data)));
+                      AutoRouter.of(context).push(OthersProfileRoute(
+                          username: messageMap["user"]["username"]));
                     },
                     icon: image))
                 .then((button) => setState(() =>
@@ -248,11 +235,21 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
             messages = messages;
           });
         }, onError: (e) {
-          showErrorDialog(context,
-              "An error has occurred. Please try entering the chat again!");
+          if (e is! WebSocketChannelException) {
+            showErrorDialog(context,
+                "An error has occurred. Please try entering the chat again!");
+          }
         }, onDone: () {
-          showErrorDialog(context,
-              "Connection closed unexpectedly. Please try entering the chat again!");
+          if (wsChannel!.closeCode == 4003) {
+            setState(() {
+              inputEnabled = false;
+            });
+          } else if (count > 1) {
+            showErrorDialog(context,
+                "Failed to connect to the chat. Please try entering the chat again!");
+          } else {
+            connect(count + 1);
+          }
         });
       },
     );
@@ -412,8 +409,24 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                         messages = messages;
                       });
                     },
+                    inputOptions: InputOptions(enabled: inputEnabled),
 
                     theme: DefaultChatTheme(
+                        inputTextDecoration: inputEnabled
+                            ? const InputDecoration(
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.zero,
+                                isCollapsed: true,
+                              )
+                            : const InputDecoration(
+                                labelText: "Add friend to send messages",
+                                labelStyle: TextStyle(
+                                    color: Colors.blueGrey,
+                                    fontWeight: FontWeight.normal),
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.zero,
+                                isCollapsed: true,
+                              ),
                         primaryColor: Colors.blue,
                         secondaryColor: Colors.pinkAccent,
                         inputBackgroundColor: Colors.white,
@@ -440,11 +453,11 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                           ? Row(
                               children: [
                                 SizedBox(
-                                    width: 30,
-                                    height: 30,
+                                    width: 35,
+                                    height: 35,
                                     child: usernameToProfileImageUrl[userId]),
                                 const Padding(
-                                    padding: EdgeInsets.only(right: 10))
+                                    padding: EdgeInsets.only(right: 5))
                               ],
                             )
                           : const CircularProgressIndicator();
@@ -537,10 +550,12 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                     onEndReachedThreshold: 0.8,
                     isLastPage: nextLastTimestamp == 0,
 
-                    onAttachmentPressed: () {
-                      dynamic state = _menuKey.currentState;
-                      state.showButtonMenu();
-                    },
+                    onAttachmentPressed: inputEnabled
+                        ? () {
+                            dynamic state = _menuKey.currentState;
+                            state.showButtonMenu();
+                          }
+                        : () {},
                   ),
                 ),
                 Positioned(

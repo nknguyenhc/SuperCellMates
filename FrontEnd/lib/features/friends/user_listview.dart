@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'package:supercellmates/http_requests/get_image.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
@@ -58,14 +57,8 @@ class UserListViewState extends State<UserListView> {
               TextButton(
                 onPressed: () async {
                   FocusManager.instance.primaryFocus?.unfocus();
-                  dynamic data = await getRequest(
-                      "${EndPoints.viewProfile.endpoint}/$username", null);
-                  if (data == "Connection error") {
-                    showErrorDialog(context, data);
-                    return;
-                  }
                   AutoRouter.of(context).push(OthersProfileRoute(
-                      data: jsonDecode(data),
+                      username: username,
                       onDeleteFriendCallBack: () {
                         count -= 1;
                         dataLoaded.removeAt(index);
@@ -206,15 +199,8 @@ class FriendRequestListState extends State<FriendRequestListView> {
                           padding: MaterialStatePropertyAll(EdgeInsets.all(8))),
                       onPressed: () async {
                         FocusManager.instance.primaryFocus?.unfocus();
-                        dynamic data = await getRequest(
-                            "${EndPoints.viewProfile.endpoint}/$username",
-                            null);
-                        if (data == "Connection error") {
-                          showErrorDialog(context, data);
-                          return;
-                        }
                         AutoRouter.of(context)
-                            .push(OthersProfileRoute(data: jsonDecode(data)));
+                            .push(OthersProfileRoute(username: username));
                       },
                       child: Column(
                         children: [

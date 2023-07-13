@@ -1,4 +1,3 @@
-import "dart:convert";
 import "dart:typed_data";
 import "package:auto_route/auto_route.dart";
 import "package:flutter/material.dart";
@@ -129,14 +128,8 @@ class PostListViewState extends State<PostListView> {
                   ? () {}
                   : () async {
                       FocusManager.instance.primaryFocus?.unfocus();
-                      dynamic data = await getRequest(
-                          "${EndPoints.viewProfile.endpoint}/$username", null);
-                      if (data == "Connection error") {
-                        showErrorDialog(context, data);
-                        return;
-                      }
                       AutoRouter.of(context)
-                          .push(OthersProfileRoute(data: jsonDecode(data)));
+                          .push(OthersProfileRoute(username: username));
                     },
               child: Row(children: [
                 const Padding(padding: EdgeInsets.only(left: 5)),

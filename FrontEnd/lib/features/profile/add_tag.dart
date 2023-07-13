@@ -177,7 +177,10 @@ class AddTagPageState extends State<AddTagPage> {
                   ? navigationBarIndex == 0
                       ? TagListView(tagList: myTagsList, isAddTag: false)
                       : searchTagsResult
-                  : const CircularProgressIndicator()),
+                  : Container(
+                      alignment: Alignment.center,
+                      child: const CircularProgressIndicator(),
+                    )),
           navigationBarIndex == 1
               ? Container(
                   alignment: Alignment.topCenter,
