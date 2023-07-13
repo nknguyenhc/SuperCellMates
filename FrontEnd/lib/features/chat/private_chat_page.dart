@@ -108,15 +108,8 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                 style: const ButtonStyle(
                     padding: MaterialStatePropertyAll(EdgeInsets.zero)),
                 onPressed: () async {
-                  dynamic data = await getRequest(
-                      "${EndPoints.viewProfile.endpoint}/${m["user"]["username"]}",
-                      null);
-                  if (data == "Connection error") {
-                    showErrorDialog(context, data);
-                    return;
-                  }
-                  AutoRouter.of(context)
-                      .push(OthersProfileRoute(data: jsonDecode(data)));
+                  AutoRouter.of(context).push(
+                      OthersProfileRoute(username: m["user"]["username"]));
                 },
                 icon: image))
             .then((button) => setState(() =>
@@ -197,15 +190,8 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                     style: const ButtonStyle(
                         padding: MaterialStatePropertyAll(EdgeInsets.zero)),
                     onPressed: () async {
-                      dynamic data = await getRequest(
-                          "${EndPoints.viewProfile.endpoint}/${messageMap["user"]["username"]}",
-                          null);
-                      if (data == "Connection error") {
-                        showErrorDialog(context, data);
-                        return;
-                      }
-                      AutoRouter.of(context)
-                          .push(OthersProfileRoute(data: jsonDecode(data)));
+                      AutoRouter.of(context).push(OthersProfileRoute(
+                          username: messageMap["user"]["username"]));
                     },
                     icon: image))
                 .then((button) => setState(() =>
