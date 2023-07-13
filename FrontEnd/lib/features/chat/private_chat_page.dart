@@ -44,6 +44,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
   WebSocketChannel? wsChannel;
   final int jump = 60; // seconds within which a batch of messages are loaded
   double nextLastTimestamp = 0;
+  bool inputEnabled = true;
 
   List<types.Message> messages = [];
   // memoised profile image urls
@@ -253,7 +254,11 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                 "An error has occurred. Please try entering the chat again!");
           }
         }, onDone: () {
-          if (count > 1) {
+          if (wsChannel!.closeCode == 4003) {
+            setState(() {
+              inputEnabled = false;
+            });
+          } else if (count > 1) {
             showErrorDialog(context,
                 "Failed to connect to the chat. Please try entering the chat again!");
           } else {
@@ -418,8 +423,24 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                         messages = messages;
                       });
                     },
+                    inputOptions: InputOptions(enabled: inputEnabled),
 
                     theme: DefaultChatTheme(
+                        inputTextDecoration: inputEnabled
+                            ? const InputDecoration(
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.zero,
+                                isCollapsed: true,
+                              )
+                            : const InputDecoration(
+                                labelText: "Add friend to send messages",
+                                labelStyle: TextStyle(
+                                    color: Colors.blueGrey,
+                                    fontWeight: FontWeight.normal),
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.zero,
+                                isCollapsed: true,
+                              ),
                         primaryColor: Colors.blue,
                         secondaryColor: Colors.pinkAccent,
                         inputBackgroundColor: Colors.white,
@@ -543,10 +564,12 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                     onEndReachedThreshold: 0.8,
                     isLastPage: nextLastTimestamp == 0,
 
-                    onAttachmentPressed: () {
-                      dynamic state = _menuKey.currentState;
-                      state.showButtonMenu();
-                    },
+                    onAttachmentPressed: inputEnabled
+                        ? () {
+                            dynamic state = _menuKey.currentState;
+                            state.showButtonMenu();
+                          }
+                        : () {},
                   ),
                 ),
                 Positioned(
