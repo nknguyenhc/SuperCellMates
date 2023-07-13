@@ -205,6 +205,13 @@
     border-radius: 10px;
     word-wrap: break-word;
     white-space: pre-wrap;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.text-line-content-username {
+    text-decoration: none;
 }
 
 .file-preview {

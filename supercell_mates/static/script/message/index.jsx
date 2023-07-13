@@ -547,15 +547,20 @@ function Message({ text, username }) {
             <a className="text-line-user-img" href={text.user.profile_link}>
                 <img src={text.user.profile_img_url} />
             </a>
-            <div className="text-line-content p-1 border border-primary">{
-                text.type === "text" 
-                ? <Text text={text.message} /> 
-                : text.is_image 
-                ? <img className="text-line-img" src={"/messages/image/" + text.id} />
-                : <a href={"/messages/image/" + text.id} target='_blank'>
-                    {text.file_name}
-                </a>
-            }</div>
+            <div className="text-line-content p-1 border border-primary" style={{
+                alignItems: text.user.username === username ? "end" : "start"
+            }}>
+                <a href={text.user.profile_link} className="text-line-content-username">{text.user.username}</a>
+                {
+                    text.type === "text" 
+                    ? <Text text={text.message} /> 
+                    : text.is_image 
+                    ? <img className="text-line-img" src={"/messages/image/" + text.id} />
+                    : <a href={"/messages/image/" + text.id} target='_blank'>
+                        {text.file_name}
+                    </a>
+                }
+            </div>
             <div className="text-timestamp text-secondary" style={{
                 display: isHovering ? '' : 'none'
             }}>{timestampToTime(text.timestamp)}</div>
