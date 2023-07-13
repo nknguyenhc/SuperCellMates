@@ -85,7 +85,14 @@ class MainScaffoldState extends State<MainScaffold> {
   @override
   Widget build(BuildContext context) {
     if (!dataLoaded) {
-      return const CircularProgressIndicator();
+      return WillPopScope(
+          onWillPop: () async => false,
+          child: Scaffold(
+              appBar: AppBar(),
+              body: Container(
+                alignment: Alignment.center,
+                child: const CircularProgressIndicator(),
+              )));
     } else {
       return WillPopScope(
         onWillPop: () async => false,
