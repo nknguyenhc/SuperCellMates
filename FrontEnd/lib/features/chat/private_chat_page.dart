@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
@@ -58,7 +59,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
     super.initState();
     double currTimestamp = DateTime.now().microsecondsSinceEpoch / 1000000;
     loadMessages(currTimestamp - jump, currTimestamp);
-    connect();
+    connect(0);
   }
 
   @override
@@ -160,8 +161,9 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
     }
   }
 
-  void connect() {
+  void connect(int count) {
     // connect websocket
+    // count is the number of retries, max 3 tries before prompting error
     wsUrl = "${GetIt.I<Config>().wsBaseURL}/message/${widget.chatInfo["id"]}/";
     Requests.getStoredCookies(GetIt.I<Config>().restBaseURL)
         .then(
@@ -170,15 +172,14 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
         .then((cookieMap) {
       // extract cookies and initiate websocket connection
       setState(() {
-        try {
-          wsChannel = IOWebSocketChannel.connect(Uri.parse(wsUrl), headers: {
+        wsChannel = IOWebSocketChannel.connect(
+          Uri.parse(wsUrl),
+          headers: {
             "origin": "ws://10.0.2.2:8000",
             "cookie": "sessionid=${cookieMap["sessionid"]!.value}"
-          });
-        } catch (e) {
-          showErrorDialog(context,
-              "An error has occurred. Please try entering the chat again!");
-        }
+          },
+          connectTimeout: const Duration(seconds: 2),
+        );
       });
     }).then(
       (value) {
@@ -247,11 +248,17 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
             messages = messages;
           });
         }, onError: (e) {
-          showErrorDialog(context,
-              "An error has occurred. Please try entering the chat again!");
+          if (e is! WebSocketChannelException) {
+            showErrorDialog(context,
+                "An error has occurred. Please try entering the chat again!");
+          }
         }, onDone: () {
-          showErrorDialog(context,
-              "Connection closed unexpectedly. Please try entering the chat again!");
+          if (count > 1) {
+            showErrorDialog(context,
+                "Failed to connect to the chat. Please try entering the chat again!");
+          } else {
+            connect(count + 1);
+          }
         });
       },
     );
