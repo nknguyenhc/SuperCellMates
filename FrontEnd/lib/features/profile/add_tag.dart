@@ -90,7 +90,10 @@ class AddTagPageState extends State<AddTagPage> {
             : SearchTagAppBar(
                 tagLimitReached: tagCount >= tagLimit,
                 updateCallBack: updateSearchTagsResult,
-                onAddCallBack: () => navigate(0)),
+                onAddCallBack: () {
+                  navigate(0);
+                  widget.updateCallBack();
+                }),
         body: Column(children: [
           NavigationBar(
             height: 55,

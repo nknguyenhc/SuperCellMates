@@ -69,7 +69,10 @@ class OthersProfilePageState extends State<OthersProfilePage> {
     for (int i = 0; i < tagListCount; i++) {
       loadTagIcons(i);
     }
-    // posts
+    loadProfilePosts();
+  }
+
+  void loadProfilePosts() async {
     profilePostsLoaded = false;
     Map<String, dynamic> requestBody = {
       "start": DateTime(2023).microsecondsSinceEpoch.toDouble() / 1000000,
@@ -112,7 +115,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
     setState(() {
       selectedTagIndex = selectedTagIndex == index ? -1 : index;
     });
-    loadData();
+    loadProfilePosts();
   }
 
   @override
@@ -346,9 +349,6 @@ class OthersProfilePageState extends State<OthersProfilePage> {
             indent: 15,
             endIndent: 15,
           ),
-          // TODO: Change to Posts class
-          // The Posts should return a column whose width is full width of phone
-          // and pass this column to a flex expanded so that can scroll down
           SizedBox(
               height: myPostsHeight,
               width: MediaQuery.of(context).size.width,
@@ -357,11 +357,14 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                       postList: profilePosts,
                       isInProfile: true,
                       isMyPost: false,
-                      updateCallBack: loadData,
+                      updateCallBack: loadProfilePosts,
                       scrollAtTopEvent: () {},
                       scrollAtBottomEvent: () {},
                     )
-                  : const CircularProgressIndicator()),
+                  : Container(
+                      alignment: Alignment.center,
+                      child: const CircularProgressIndicator(),
+                    )),
         ],
       ),
     );
