@@ -164,14 +164,16 @@ class TagListViewState extends State<TagListView> {
             ],
           );
         });
-    return count > 0
-        ? list
+    return count > 0 && (widget.isAddTag && count <= 20 || !widget.isAddTag)
+        ? list // mytags page & at least a tag, OR, addtags page and 1-20 tags
         : widget.isAddTag
-            ? const Column(
+            ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "No results for this search",
+                    count == 0
+                        ? "No results for this search"
+                        : "Please be more specific in your search",
                     textAlign: TextAlign.center,
                   )
                 ],

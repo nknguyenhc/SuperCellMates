@@ -15,16 +15,19 @@ Future<Widget> searchUser(BuildContext context, input) async {
   }
   dynamic userList = jsonDecode(userListJson)["users"];
 
-  Widget list = userList.length > 0
+  Widget list = userList.length > 0 && userList.length <= 20
       ? UserListView(
           userList: userList,
           updateCallBack: () {},
         )
-      : const Column(
+      : Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "No results for this search.",
+              userList.length == 0
+                  ? "No results for this search."
+                  : "Please be more specific in your search",
+              textAlign: TextAlign.center,
             ),
           ],
         );
@@ -33,7 +36,9 @@ Future<Widget> searchUser(BuildContext context, input) async {
     key: UniqueKey(),
     children: [
       SizedBox(
-          width: MediaQuery.of(context).size.width, height: 400, child: list),
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height - 170,
+          child: list),
     ],
   );
 }
@@ -59,7 +64,9 @@ Future<Widget> searchTag(
     key: UniqueKey(),
     children: [
       SizedBox(
-          width: MediaQuery.of(context).size.width, height: 400, child: list),
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height - 230,
+          child: list),
     ],
   );
 }
