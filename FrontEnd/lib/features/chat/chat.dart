@@ -108,30 +108,32 @@ class ChatPageState extends State<ChatPage> {
         selectedIndex: navigationBarIndex,
         shadowColor: Colors.grey,
       ),
-      !dataLoaded
-          ? const CircularProgressIndicator()
-          : navigationBarIndex == 0
-              ? SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height - 220,
-                  child: ChatListView(
-                    username: widget.username,
-                    chatList: chatList,
-                    isPrivate: navigationBarIndex == 0,
-                  ))
-              : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                      Padding(
-                          padding: EdgeInsets.only(
-                              top: MediaQuery.of(context).size.height / 2 -
-                                  150)),
-                      const Text(
-                        "Group chat is under construction on mobile version\n\nYou can try it out in our web version!",
-                        textAlign: TextAlign.center,
-                      ),
-                    ]),
+      navigationBarIndex == 0
+          ? SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height - 220,
+              child: dataLoaded
+                  ? ChatListView(
+                      username: widget.username,
+                      chatList: chatList,
+                      isPrivate: navigationBarIndex == 0,
+                    )
+                  : Container(
+                      alignment: Alignment.center,
+                      child: const CircularProgressIndicator(),
+                    ))
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                  Padding(
+                      padding: EdgeInsets.only(
+                          top: MediaQuery.of(context).size.height / 2 - 150)),
+                  const Text(
+                    "Group chat is under construction on mobile version\n\nYou can try it out in our web version!",
+                    textAlign: TextAlign.center,
+                  ),
+                ]),
     ]);
   }
 }

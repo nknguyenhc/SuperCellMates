@@ -252,9 +252,15 @@ class ProfilePageState extends State<ProfilePage> {
                               scrollAtTopEvent: () {},
                               scrollAtBottomEvent: () {},
                             )
-                          : const CircularProgressIndicator()),
+                          : Container(
+                              alignment: Alignment.center,
+                              child: const CircularProgressIndicator(),
+                            )),
             ],
           )
-        : const CircularProgressIndicator();
+        : Container(
+            alignment: Alignment.center,
+            child: const CircularProgressIndicator(),
+          );
   }
 }

@@ -130,12 +130,15 @@ class FriendsPageState extends State<FriendsPage> {
             selectedIndex: navigationBarIndex,
             shadowColor: Colors.grey,
           ),
-          !dataLoaded
-              ? const CircularProgressIndicator()
-              : SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height - 140,
-                  child: friendPageBody),
+          SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height - 140,
+              child: dataLoaded
+                  ? friendPageBody
+                  : Container(
+                      alignment: Alignment.center,
+                      child: const CircularProgressIndicator(),
+                    )),
         ]));
   }
 }
