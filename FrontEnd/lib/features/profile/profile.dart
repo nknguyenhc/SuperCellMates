@@ -50,6 +50,10 @@ class ProfilePageState extends State<ProfilePage> {
       loadTagIcons(i);
     }
     setState(() => data = data);
+    loadProfilePosts();
+  }
+
+  void loadProfilePosts() async {
     profilePostsLoaded = false;
     Map<String, dynamic> requestBody = {
       "start": DateTime(2023).microsecondsSinceEpoch.toDouble() / 1000000,
@@ -84,7 +88,7 @@ class ProfilePageState extends State<ProfilePage> {
     setState(() {
       selectedTagIndex = selectedTagIndex == index ? -1 : index;
     });
-    loadData();
+    loadProfilePosts();
   }
 
   @override
@@ -149,9 +153,7 @@ class ProfilePageState extends State<ProfilePage> {
                                   : IconButton(
                                       onPressed: () => AutoRouter.of(context)
                                           .push(AddTagRoute(
-                                              updateCallBack:
-                                                  widget.updateCallBack))
-                                          .then((value) => loadData()),
+                                              updateCallBack: loadData)),
                                       icon: const Icon(
                                           Icons.add_circle_outline_rounded),
                                       iconSize: 45,
@@ -204,7 +206,7 @@ class ProfilePageState extends State<ProfilePage> {
                               AutoRouter.of(context).push(CreatePostRoute(
                                   tagName: data["tags"][selectedTagIndex - 1]
                                       ["name"],
-                                  updateCallBack: loadData));
+                                  updateCallBack: loadProfilePosts));
                             },
                             child: const Row(children: [
                               Icon(Icons.post_add, size: 40),
@@ -248,13 +250,19 @@ class ProfilePageState extends State<ProfilePage> {
                               postList: profilePosts,
                               isInProfile: true,
                               isMyPost: true,
-                              updateCallBack: loadData,
+                              updateCallBack: loadProfilePosts,
                               scrollAtTopEvent: () {},
                               scrollAtBottomEvent: () {},
                             )
-                          : const CircularProgressIndicator()),
+                          : Container(
+                              alignment: Alignment.center,
+                              child: const CircularProgressIndicator(),
+                            )),
             ],
           )
-        : const CircularProgressIndicator();
+        : Container(
+            alignment: Alignment.center,
+            child: const CircularProgressIndicator(),
+          );
   }
 }
