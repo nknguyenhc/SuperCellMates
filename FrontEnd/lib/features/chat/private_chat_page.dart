@@ -467,11 +467,11 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                           ? Row(
                               children: [
                                 SizedBox(
-                                    width: 30,
-                                    height: 30,
+                                    width: 35,
+                                    height: 35,
                                     child: usernameToProfileImageUrl[userId]),
                                 const Padding(
-                                    padding: EdgeInsets.only(right: 10))
+                                    padding: EdgeInsets.only(right: 5))
                               ],
                             )
                           : const CircularProgressIndicator();
