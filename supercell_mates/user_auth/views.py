@@ -220,6 +220,8 @@ def change_username(request):
 
         if len(new_username) > 15:
             return HttpResponseBadRequest("name too long")
+        if not new_username.isalnum():
+            return HttpResponseBadRequest("malicious username")
 
         if new_username == '' or password == '':
             return HttpResponseBadRequest("empty username/password")
