@@ -25,6 +25,7 @@ class _CustomCheckboxState extends State<CustomCheckbox> {
   }
 
   void toggle() {
+    widget.togglePACheckedFunction();
     setState(() {
       CustomCheckbox.ischecked = !CustomCheckbox.ischecked;
     });

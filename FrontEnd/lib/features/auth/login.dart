@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
+import 'package:supercellmates/features/custom_checkbox.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 
 import '../../http_requests/make_requests.dart';
@@ -16,7 +17,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class LoginPageState extends State<LoginPage> {
-  bool privacyAgreementChecked = false;
+  bool privacyAgreementChecked = CustomCheckbox.ischecked;
 
   // TODO: lock PA action when logging in
 

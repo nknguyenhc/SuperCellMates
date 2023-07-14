@@ -23,7 +23,7 @@ class RequestTagPageState extends State<RequestTagPage> {
   String tagName = "";
   CroppedFile? tagIcon;
   String tagDescription = "";
-  bool attachTag = false;
+  bool attachTag = CustomCheckbox.ischecked;
 
   void setIcon(CroppedFile icon) {
     setState(() {
@@ -158,7 +158,8 @@ class RequestTagPageState extends State<RequestTagPage> {
                   boxColor: Colors.black,
                 ),
                 TextButton(
-                  style:const ButtonStyle(padding: MaterialStatePropertyAll(EdgeInsets.zero)),
+                    style: const ButtonStyle(
+                        padding: MaterialStatePropertyAll(EdgeInsets.zero)),
                     onPressed: () {
                       dynamic state = checkBoxKey.currentState;
                       setState(() {
