@@ -90,7 +90,10 @@ class AddTagPageState extends State<AddTagPage> {
             : SearchTagAppBar(
                 tagLimitReached: tagCount >= tagLimit,
                 updateCallBack: updateSearchTagsResult,
-                onAddCallBack: () => navigate(0)),
+                onAddCallBack: () {
+                  navigate(0);
+                  widget.updateCallBack();
+                }),
         body: Column(children: [
           NavigationBar(
             height: 55,
@@ -177,7 +180,10 @@ class AddTagPageState extends State<AddTagPage> {
                   ? navigationBarIndex == 0
                       ? TagListView(tagList: myTagsList, isAddTag: false)
                       : searchTagsResult
-                  : const CircularProgressIndicator()),
+                  : Container(
+                      alignment: Alignment.center,
+                      child: const CircularProgressIndicator(),
+                    )),
           navigationBarIndex == 1
               ? Container(
                   alignment: Alignment.topCenter,

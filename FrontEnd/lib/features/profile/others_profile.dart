@@ -13,10 +13,10 @@ import 'package:supercellmates/features/dialogs.dart';
 @RoutePage()
 class OthersProfilePage extends StatefulWidget {
   const OthersProfilePage(
-      {Key? key, required this.data, this.onDeleteFriendCallBack})
+      {Key? key, required this.username, this.onDeleteFriendCallBack})
       : super(key: key);
 
-  final dynamic data;
+  final String username;
   final dynamic onDeleteFriendCallBack;
 
   @override
@@ -24,6 +24,8 @@ class OthersProfilePage extends StatefulWidget {
 }
 
 class OthersProfilePageState extends State<OthersProfilePage> {
+  dynamic profileData;
+  bool profileDataLoaded = false;
   bool profileImageLoaded = false;
   Uint8List profileImage = Uint8List.fromList([]);
   bool profilePostsLoaded = false;
@@ -37,33 +39,52 @@ class OthersProfilePageState extends State<OthersProfilePage> {
   @override
   void initState() {
     super.initState();
-    loadData();
+    getProfileInfo();
+  }
+
+  void getProfileInfo() {
+    getRequest("${EndPoints.viewProfile.endpoint}/${widget.username}", null)
+        .then((value) {
+      if (value == "Connection error") {
+        showErrorDialog(context, value);
+        return;
+      }
+      profileData = jsonDecode(value);
+      setState(() {
+        profileDataLoaded = true;
+      });
+    }).then((value) {
+      loadData();
+    });
   }
 
   void loadData() async {
     // profile image
     initProfileImage();
     // tags
-    tagListCount = widget.data["tags"].length;
+    tagListCount = profileData["tags"].length;
     dataLoaded = List<bool>.filled(tagListCount, false, growable: true);
     tagIcons = List<Uint8List>.filled(tagListCount, Uint8List.fromList([]),
         growable: true);
     for (int i = 0; i < tagListCount; i++) {
       loadTagIcons(i);
     }
-    // posts
+    loadProfilePosts();
+  }
+
+  void loadProfilePosts() async {
     profilePostsLoaded = false;
     Map<String, dynamic> requestBody = {
       "start": DateTime(2023).microsecondsSinceEpoch.toDouble() / 1000000,
       "end": DateTime(2099).microsecondsSinceEpoch.toDouble() / 1000000,
     };
     if (selectedTagIndex != -1) {
-      requestBody["tag"] = widget.data["tags"][selectedTagIndex - 1]["name"];
+      requestBody["tag"] = profileData["tags"][selectedTagIndex - 1]["name"];
     }
 
     dynamic profilePostsResponseJson = await getRequest(
         EndPoints.getProfilePosts.endpoint +
-            widget.data["user_profile"]["username"],
+            profileData["user_profile"]["username"],
         requestBody);
     if (profilePostsResponseJson == "Connection error") {
       showErrorDialog(context, profilePostsResponseJson);
@@ -76,7 +97,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
   }
 
   void loadTagIcons(index) async {
-    tagIcons[index] = await getRawImageData(widget.data["tags"][index]["icon"]);
+    tagIcons[index] = await getRawImageData(profileData["tags"][index]["icon"]);
     setState(() {
       dataLoaded[index] = true;
     });
@@ -84,7 +105,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
 
   void initProfileImage() async {
     profileImageLoaded = false;
-    profileImage = await getRawImageData(widget.data["image_url"]);
+    profileImage = await getRawImageData(profileData["image_url"]);
     setState(() {
       profileImageLoaded = true;
     });
@@ -94,17 +115,25 @@ class OthersProfilePageState extends State<OthersProfilePage> {
     setState(() {
       selectedTagIndex = selectedTagIndex == index ? -1 : index;
     });
-    loadData();
+    loadProfilePosts();
   }
 
   @override
   Widget build(BuildContext context) {
-    var tagList = widget.data["tags"];
+    if (!profileDataLoaded) {
+      return Scaffold(
+          appBar: AppBar(),
+          body: Container(
+            alignment: Alignment.center,
+            child: const CircularProgressIndicator(),
+          ));
+    }
+    var tagList = profileData["tags"];
     double myPostsHeight = MediaQuery.of(context).size.height - 173;
 
     void sendFriendRequest() async {
       startUploadingDialog(context, "data");
-      dynamic body = {"username": widget.data["user_profile"]["username"]};
+      dynamic body = {"username": profileData["user_profile"]["username"]};
       dynamic message =
           await postWithCSRF(EndPoints.addFriendRequest.endpoint, body);
       stopLoadingDialog(context);
@@ -119,7 +148,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
 
     void deleteFriend() async {
       startUploadingDialog(context, "data");
-      dynamic body = {"username": widget.data["user_profile"]["username"]};
+      dynamic body = {"username": profileData["user_profile"]["username"]};
       dynamic message =
           await postWithCSRF(EndPoints.deleteFriend.endpoint, body);
       stopLoadingDialog(context);
@@ -163,7 +192,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                 height: 25,
                 width: 130,
                 child: Text(
-                  widget.data["user_profile"]["name"],
+                  profileData["user_profile"]["name"],
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -175,7 +204,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                 height: 20,
                 width: 130,
                 child: Text(
-                  widget.data["user_profile"]["username"],
+                  profileData["user_profile"]["username"],
                   style: const TextStyle(fontSize: 14, color: Colors.blueGrey),
                 ),
               ),
@@ -183,7 +212,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
           ],
         ),
         actions: [
-          widget.data["is_friend"]
+          profileData["is_friend"]
               ? Column(
                   children: [
                     const Padding(padding: EdgeInsets.all(3)),
@@ -194,7 +223,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                         onPressed: () {
                           showConfirmationDialog(
                               context,
-                              "Are you sure to unfriend ${widget.data["user_profile"]["name"]}?",
+                              "Are you sure to unfriend ${profileData["user_profile"]["name"]}?",
                               deleteFriend);
                         },
                         iconSize: 35,
@@ -246,7 +275,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                 child: IconButton(
                   icon: const Icon(Icons.pentagon),
                   onPressed: () => AutoRouter.of(context).push(AchievementRoute(
-                      name: widget.data["user_profile"]["name"],
+                      name: profileData["user_profile"]["name"],
                       myProfile: false)),
                   iconSize: 35,
                 ),
@@ -320,9 +349,6 @@ class OthersProfilePageState extends State<OthersProfilePage> {
             indent: 15,
             endIndent: 15,
           ),
-          // TODO: Change to Posts class
-          // The Posts should return a column whose width is full width of phone
-          // and pass this column to a flex expanded so that can scroll down
           SizedBox(
               height: myPostsHeight,
               width: MediaQuery.of(context).size.width,
@@ -331,11 +357,14 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                       postList: profilePosts,
                       isInProfile: true,
                       isMyPost: false,
-                      updateCallBack: loadData,
+                      updateCallBack: loadProfilePosts,
                       scrollAtTopEvent: () {},
                       scrollAtBottomEvent: () {},
                     )
-                  : const CircularProgressIndicator()),
+                  : Container(
+                      alignment: Alignment.center,
+                      child: const CircularProgressIndicator(),
+                    )),
         ],
       ),
     );

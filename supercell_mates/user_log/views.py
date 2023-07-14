@@ -37,7 +37,7 @@ def view_profile_context(user_auth_obj, request_user):
     tags = list(map(
         lambda tag: ({
             "name": tag.name,
-            "icon": reverse('user_profile:get_tag_icon', args=(tag.name,)),
+            "icon": reverse('user_profile:get_tag_icon', args=(tag.id,)),
         }),
         list(user_auth_obj.user_profile.tagList.all())
     ))

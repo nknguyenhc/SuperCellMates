@@ -12,13 +12,23 @@ class CustomCheckbox extends StatefulWidget {
   final Function() togglePACheckedFunction;
   final Color tickColor;
   final Color boxColor;
+  static bool ischecked = false;
 
   @override
   State<CustomCheckbox> createState() => _CustomCheckboxState();
 }
 
 class _CustomCheckboxState extends State<CustomCheckbox> {
-  bool isChecked = false;
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void toggle() {
+    setState(() {
+      CustomCheckbox.ischecked = !CustomCheckbox.ischecked;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,10 +49,10 @@ class _CustomCheckboxState extends State<CustomCheckbox> {
         child: Checkbox(
           checkColor: widget.tickColor,
           fillColor: MaterialStateProperty.resolveWith(getColor),
-          value: isChecked,
+          value: CustomCheckbox.ischecked,
           onChanged: (bool? value) {
             setState(() {
-              isChecked = value!;
+              CustomCheckbox.ischecked = !CustomCheckbox.ischecked;
               widget.togglePACheckedFunction();
             });
           },

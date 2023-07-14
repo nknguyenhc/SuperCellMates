@@ -387,7 +387,7 @@ def parse_post_object(post):
         "content": post.content,
         "tag": {
             "name": post.tag.name,
-            "icon": reverse("user_profile:get_tag_icon", args=(post.tag.name,)),
+            "icon": reverse("user_profile:get_tag_icon", args=(post.tag.id,)),
         },
         "public_visible": post.public_visible,
         "friend_visible": post.friend_visible,

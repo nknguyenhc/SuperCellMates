@@ -48,7 +48,7 @@ def get_tag_list(user_auth_obj):
     return list(map(
         lambda tag: ({
             "name": tag.name,
-            "icon": reverse('user_profile:get_tag_icon', args=(tag.name,)),
+            "icon": reverse('user_profile:get_tag_icon', args=(tag.id,)),
         }),
         list(user_auth_obj.user_profile.tagList.all())
     ))
@@ -190,7 +190,7 @@ def obtain_tags(request):
 
     tags = list(map(lambda tag: {
         "name": tag.name,
-        "icon": reverse('user_profile:get_tag_icon', args=(tag.name,)),
+        "icon": reverse('user_profile:get_tag_icon', args=(tag.id,)),
     }, list(request.user.user_profile.tagList.all())))
     return JsonResponse({
         "tags": tags,
@@ -219,7 +219,7 @@ def find_tags(search_param, user_profile_obj):
     result = list(map(
         lambda tag: ({
             "name": tag.name,
-            "icon": reverse('user_profile:get_tag_icon', args=(tag.name,)),
+            "icon": reverse('user_profile:get_tag_icon', args=(tag.id,)),
         }),
         filter(
             lambda tag: search_param in tag.name.lower() and tag not in user_tags,
@@ -353,7 +353,7 @@ def get_profile_pic(request, username):
 
 
 @login_required
-def get_tag_icon(request, tag_name):
+def get_tag_icon(request, tag_id):
     """Obtain the icon of the tag.
     The tag name must be spelled out clearly in the URL.
 
@@ -365,10 +365,10 @@ def get_tag_icon(request, tag_name):
         FileResponse: the image of the icon
     """
 
-    if not Tag.objects.filter(name=tag_name).exists():
+    if not Tag.objects.filter(id=tag_id).exists():
         return HttpResponseNotFound()
     else:
-        icon = Tag.objects.get(name=tag_name).image
+        icon = Tag.objects.get(id=tag_id).image
         if not icon:
             return redirect('/static/media/default-tag-icon.png')
         else:

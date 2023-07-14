@@ -130,7 +130,10 @@ class HomePageState extends State<HomePage> {
                         : Container()
                   ],
                 )
-              : const CircularProgressIndicator()),
+              : Container(
+                  alignment: Alignment.center,
+                  child: const CircularProgressIndicator(),
+                )),
     );
   }
 }

@@ -37,6 +37,8 @@ class RequestTagPageState extends State<RequestTagPage> {
 
   @override
   Widget build(BuildContext context) {
+    final GlobalKey checkBoxKey = GlobalKey();
+
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar:
@@ -150,11 +152,23 @@ class RequestTagPageState extends State<RequestTagPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CustomCheckbox(
+                  key: checkBoxKey,
                   togglePACheckedFunction: toggleAttachTag,
                   tickColor: Colors.white,
                   boxColor: Colors.black,
                 ),
-                const Text("If approved, attach tag to my profile")
+                TextButton(
+                  style:const ButtonStyle(padding: MaterialStatePropertyAll(EdgeInsets.zero)),
+                    onPressed: () {
+                      dynamic state = checkBoxKey.currentState;
+                      setState(() {
+                        state.toggle();
+                      });
+                    },
+                    child: Text("If approved, attach tag to my profile",
+                        style: TextStyle(
+                          color: Colors.black,
+                        )))
               ],
             ),
             const Padding(

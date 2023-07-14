@@ -179,7 +179,7 @@ abstract class $AppRouter extends _i21.RootStackRouter {
         routeData: routeData,
         child: _i17.OthersProfilePage(
           key: args.key,
-          data: args.data,
+          username: args.username,
           onDeleteFriendCallBack: args.onDeleteFriendCallBack,
         ),
       );
@@ -672,14 +672,14 @@ class EditProfileRouteArgs {
 class OthersProfileRoute extends _i21.PageRouteInfo<OthersProfileRouteArgs> {
   OthersProfileRoute({
     _i22.Key? key,
-    required dynamic data,
+    required String username,
     dynamic onDeleteFriendCallBack,
     List<_i21.PageRouteInfo>? children,
   }) : super(
           OthersProfileRoute.name,
           args: OthersProfileRouteArgs(
             key: key,
-            data: data,
+            username: username,
             onDeleteFriendCallBack: onDeleteFriendCallBack,
           ),
           initialChildren: children,
@@ -694,19 +694,19 @@ class OthersProfileRoute extends _i21.PageRouteInfo<OthersProfileRouteArgs> {
 class OthersProfileRouteArgs {
   const OthersProfileRouteArgs({
     this.key,
-    required this.data,
+    required this.username,
     this.onDeleteFriendCallBack,
   });
 
   final _i22.Key? key;
 
-  final dynamic data;
+  final String username;
 
   final dynamic onDeleteFriendCallBack;
 
   @override
   String toString() {
-    return 'OthersProfileRouteArgs{key: $key, data: $data, onDeleteFriendCallBack: $onDeleteFriendCallBack}';
+    return 'OthersProfileRouteArgs{key: $key, username: $username, onDeleteFriendCallBack: $onDeleteFriendCallBack}';
   }
 }
 
