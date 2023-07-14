@@ -131,6 +131,23 @@
     gap: 2px;
 }
 
+.post-more {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.post-reply {
+    height: 30px;
+    width: 30px;
+}
+
+.post-reply img {
+    max-height: 100%;
+    max-width: 100%;
+}
+
 .post-content {
     white-space: pre-line;
     text-align: justify;

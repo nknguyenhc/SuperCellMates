@@ -70,7 +70,7 @@
         newPostCard.className = "post-card";
         newPostCard.id = "post-card-" + post.id;
         post.time_posted *= 1000;
-        ReactDOM.render(<Post post={post} myProfile={myProfile} />, newPostCard);
+        ReactDOM.render(<Post post={post} myProfile={myProfile} showReply={!myProfile} />, newPostCard);
         document.querySelector('#profile-posts').appendChild(newPostCard);
     }
 })();
