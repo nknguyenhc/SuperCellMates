@@ -115,10 +115,13 @@ class LoginPageState extends State<LoginPage> {
         },
         userType: LoginUserType.name,
         userValidator: (username) {
+          final validCharacters = RegExp(r'^[a-zA-Z0-9]+$');
           if (username == "" || username == null) {
             return "Username cannot be empty!";
           } else if (username.length > 15) {
             return "Username is too long!";
+          } else if (!validCharacters.hasMatch(username)) {
+            return "Username must be alphanumeric!";
           }
           // TODO: ADD MORE VALIDATIONS
           return null;
