@@ -127,7 +127,7 @@ def register_user(request):
         return "username too long"
     if len(name) > 15:
         return "name too long"
-    if '/' in name:
+    if not username.isalnum():
         return "malicious username"
 
     try:
