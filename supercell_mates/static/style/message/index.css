@@ -250,6 +250,27 @@
     text-decoration: none;
 }
 
+.text-line-content-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.text-line-post-hyperlink {
+    text-decoration: none;
+    color: black;
+    padding: 1px;
+    border-radius: 5px;
+}
+
+.text-line-post-title {
+    background-color: rgb(188, 188, 188);
+}
+
+.text-line-post-content {
+    background-color: rgb(226, 226, 226);
+}
+
 .file-preview {
     position: absolute;
     top: 0px;

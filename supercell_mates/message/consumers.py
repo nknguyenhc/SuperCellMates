@@ -190,12 +190,12 @@ class AbstractMessageConsumer(ABC, AsyncWebsocketConsumer):
         }))
     
 
-    async def add_reply_post(self, event):
+    async def reply_post(self, event):
         """Called in response to a user sending a post reply."""
         await self.send(text_data=dumps({
             "message": event["message"],
             "user": event["user"],
-            "type": "text",
+            "type": "reply_post",
             "id": event["id"],
             "timestamp": event["timestamp"],
             "post": event["post"]

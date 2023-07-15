@@ -12,7 +12,7 @@ from PIL import Image
 from user_profile.views import verify_image
 
 from user_auth.models import UserAuth
-from .models import TextMessage, PrivateChat, FileMessage, PrivateFileMessage, GroupChat, GroupFileMessage
+from .models import TextMessage, PrivateChat, FileMessage, PrivateFileMessage, GroupChat, GroupFileMessage, ReplyPostMessage
 
 
 @login_required
@@ -533,7 +533,7 @@ def message_info(message_obj):
             "profile_link": reverse("user_log:view_profile", args=(message_obj.user.username,)),
             "profile_img_url": reverse("user_profile:get_profile_pic", args=(message_obj.user.username,)),
         },
-        "type": "text" if isinstance(message_obj, TextMessage) else "file" if isinstance(message_obj, FileMessage) else "unknown"
+        "type": "reply_post" if isinstance(message_obj, ReplyPostMessage) else "text" if isinstance(message_obj, TextMessage) else "file" if isinstance(message_obj, FileMessage) else "unknown"
     }
     if result["type"] == "text":
         result["message"] = message_obj.text
@@ -542,26 +542,41 @@ def message_info(message_obj):
             "file_name": message_obj.file_name,
             "is_image": message_obj.is_image
         })
+    elif result["type"] == "reply_post":
+        result.update({
+            "message": message_obj.text,
+            "post": {
+                "id": message_obj.post.id,
+                "title": message_obj.post.title,
+                "content": message_obj.post.content
+            }
+        })
     return result
 
 
-def merge_messages(all_text_messages, all_file_messages):
+def merge_messages(all_text_messages, all_reply_post_messages, all_file_messages):
+    def next_message_timestamp(message_list, i):
+        return message_list[i].timestamp if i < len(message_list) else 1e10
+
     all_messages = []
     text_i = 0
+    post_i = 0
     file_i = 0
-    while text_i < len(all_text_messages) or file_i < len(all_file_messages):
-        if text_i == len(all_text_messages):
+    while text_i < len(all_text_messages) or post_i < len(all_reply_post_messages) or file_i < len(all_file_messages):
+        next_timestamp = min(
+            next_message_timestamp(all_text_messages, text_i), 
+            next_message_timestamp(all_reply_post_messages, post_i), 
+            next_message_timestamp(all_file_messages, file_i)
+        )
+        if next_message_timestamp(all_text_messages, text_i) == next_timestamp:
+            all_messages.append(all_text_messages[text_i])
+            text_i += 1
+        elif next_message_timestamp(all_file_messages, file_i) == next_timestamp:
             all_messages.append(all_file_messages[file_i])
             file_i += 1
-        elif file_i == len(all_file_messages):
-            all_messages.append(all_text_messages[text_i])
-            text_i += 1
-        elif all_text_messages[text_i].timestamp < all_file_messages[file_i].timestamp:
-            all_messages.append(all_text_messages[text_i])
-            text_i += 1
         else:
-            all_messages.append(all_file_messages[file_i])
-            file_i += 1
+            all_messages.append(all_reply_post_messages[post_i])
+            post_i += 1
     return all_messages
 
 
@@ -588,18 +603,18 @@ def start_and_end(request):
 
 def get_texts(chat_obj, start, end):
     all_text_messages = list(chat_obj.text_messages.filter(timestamp__range=(start, end)).all())
+    all_reply_post_messages = list(chat_obj.reply_post_messages.filter(timestamp__range=(start, end)).all())
     all_file_messages = list(chat_obj.file_messages.filter(timestamp__range=(start, end)).all())
-    all_messages = merge_messages(all_text_messages, all_file_messages)
+    all_messages = merge_messages(all_text_messages, all_reply_post_messages, all_file_messages)
     
-    next_last_timestamp = 0
-    next_text_messages = chat_obj.text_messages.filter(timestamp__lt=start)
-    next_file_messages = chat_obj.file_messages.filter(timestamp__lt=start)
-    if next_text_messages.exists():
-        next_last_timestamp = next_text_messages.order_by("timestamp").last().timestamp
-        if next_file_messages.exists():
-            next_last_timestamp = max(next_last_timestamp, next_file_messages.order_by("timestamp").last().timestamp)
-    elif next_file_messages.exists():
-        next_last_timestamp = next_file_messages.order_by("timestamp").last().timestamp
+    next_text_messages = chat_obj.text_messages.filter(timestamp__lt=start).order_by("timestamp")
+    next_file_messages = chat_obj.file_messages.filter(timestamp__lt=start).order_by("timestamp")
+    next_reply_post_messages = chat_obj.reply_post_messages.filter(timestamp__lt=start).order_by("timestamp")
+    next_last_timestamp = max(
+        next_text_messages.last().timestamp if next_text_messages.exists() else 0,
+        next_reply_post_messages.last().timestamp if next_reply_post_messages.exists() else 0,
+        next_file_messages.last().timestamp if next_file_messages.exists() else 0
+    )
     
     return all_messages, next_last_timestamp
 
@@ -613,6 +628,7 @@ def get_group_messages(request, chat_id):
         end: the end time in epoch time
     The returned response contains the following fields:
         messages: a list of dicts representing the info of the messages, each is the result of the message_info function above
+        next_last_timestamp: the end timestamp that the next request should have
     
     Args:
         request (HttpRequest): the request made to this view
@@ -654,6 +670,7 @@ def get_private_messages(request, chat_id):
         end: the end time in epoch time
     The returned response contains the following fields:
         messages: a list of dicts representing info of the messages, each is the result of the message_info function above
+        next_last_timestamp: the end timestamp that the next incoming request should have
 
     Args:
         request (HttpRequest): the request made to this view

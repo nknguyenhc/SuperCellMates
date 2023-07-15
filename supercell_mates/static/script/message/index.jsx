@@ -317,10 +317,18 @@ function ChatPage() {
 
     function sendMessage() {
         if (inputText !== '') {
-            currSocket.send(JSON.stringify({
-                type: "text",
+            const jsonBody = {
                 message: inputText[inputText.length - 1] !== '\n' ? inputText : inputText.slice(0, inputText.length - 1)
-            }));
+            };
+            if (targetPost) {
+                jsonBody.type = "reply_post";
+                jsonBody.post_id = targetPost.id;
+                setTargetPost(null);
+            } else {
+                jsonBody.type = "text";
+            }
+
+            currSocket.send(JSON.stringify(jsonBody));
             setInputText('');
             testAndScrollToBottom();
             setTimeout(() => {
@@ -501,8 +509,8 @@ function ChatPage() {
                                     <img src={targetPost.creator.profile_pic_url} />
                                 </a>
                                 <a href={'/post/display?id=' + targetPost.id} className="chat-target-post-text">
-                                    <h6 className="chat-target-post-title">{targetPost.title.length > 50 ? targetPost.title.slice(50) + ' ...' : targetPost.title}</h6>
-                                    <div className="chat-target-post-content">{targetPost.content.length > 50 ? targetPost.content.slice(50) + ' ...' : targetPost.content}</div>
+                                    <h6 className="chat-target-post-title">{targetPost.title.length > 50 ? targetPost.title.slice(0, 40) + ' ...' : targetPost.title}</h6>
+                                    <div className="chat-target-post-content">{targetPost.content.length > 50 ? targetPost.content.slice(0, 40) + ' ...' : targetPost.content}</div>
                                 </a>
                             </div>
                         }
@@ -586,6 +594,14 @@ function Message({ text, username }) {
                 {
                     text.type === "text" 
                     ? <Text text={text.message} /> 
+                    : text.type === "reply_post"
+                    ? <div className="text-line-content-text">
+                        <a href={"/post/display?id=" + text.post.id} className="text-line-post-hyperlink">
+                            <div className="text-line-post-title">{text.post.title.length > 50 ? text.post.title.slice(0, 40) + ' ...' : text.post.title}</div>
+                            <div className="text-line-post-content">{text.post.content.length > 50 ? text.post.content.slice(0, 40) + ' ...' : text.post.content}</div>
+                        </a>
+                        <Text text={text.message} />
+                    </div>
                     : text.is_image 
                     ? <img className="text-line-img" src={"/messages/image/" + text.id} />
                     : <a href={"/messages/image/" + text.id} target='_blank'>
