@@ -445,6 +445,29 @@ def private_chat_info(request_user_auth, private_chat_object):
 
 
 @login_required
+def get_chat_id(request):
+    """Get chat id between the request user and the target user.
+    Request must contain the following GET parameters:
+        username: the username of the target user
+    
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        HttpResponse: the response with the chat id between the request user and the target user
+    """
+    try:
+        username = request.GET['username']
+        for private_chat in request.user.private_chats.all():
+            if private_chat.users.filter(username=username).exists():
+                return HttpResponse(private_chat.id)
+        return HttpResponse("no chat found")
+    
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("username GET parameter not found")
+
+
+@login_required
 def get_group_chats(request):
     """Get information of all group chats of the current user.
     The information of each group chat is a dictionary returned by the function group_chat_info above.

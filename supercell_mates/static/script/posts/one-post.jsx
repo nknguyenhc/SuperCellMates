@@ -32,6 +32,23 @@ function Post(props) {
         )
     }
 
+    function toReplyPostChat() {
+        fetch('/messages/get_chat_id?username=' + post.creator.username)
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                    return;
+                }
+                response.text().then(text => {
+                    if (text === 'no chat found') {
+                        triggerErrorMessage();
+                    } else {
+                        window.location.assign('/messages/?chatid=' + text + '&post=' + post.id);
+                    }
+                })
+            })
+    }
+
     return (
         <React.Fragment>
             <div className="post-header">
@@ -56,8 +73,8 @@ function Post(props) {
                 <div className="post-more">
                     <div className="post-date">{`${formatNumber(new Date(post.time_posted).getDate(), 2)}/${formatNumber(new Date(post.time_posted).getMonth() + 1, 2)}/${formatNumber(new Date(post.time_posted).getFullYear(), 4)} ${formatNumber(new Date(post.time_posted).getHours(), 2)}:${formatNumber(new Date(post.time_posted).getMinutes(), 2)}`}</div>
                     {
-                        props.showReply
-                        ? <div className="post-reply">
+                        post.can_reply
+                        ? <div className="post-reply" onClick={() => toReplyPostChat()}>
                             <img src="/static/media/reply-icon.png" />
                         </div>
                         : ''

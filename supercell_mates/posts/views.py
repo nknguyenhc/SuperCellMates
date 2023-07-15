@@ -351,7 +351,7 @@ def delete_post(request):
 
 
 
-def parse_post_object(post):
+def parse_post_object(post, user_auth_viewer):
     """Return the information of the post by a dict.
 
     Args:
@@ -399,7 +399,8 @@ def parse_post_object(post):
             "profile_link": reverse("user_log:view_profile", args=(post.creator.user_auth.username,)),
         },
         "time_posted": post.time_posted,
-        "images": images
+        "images": images,
+        "can_reply": post.creator.friend_list.filter(user_auth=user_auth_viewer).exists(),
     }
 
 
@@ -445,7 +446,7 @@ def get_post(request, post_id):
     try:
         post_object = Post.objects.get(id=post_id)
         if has_access(request.user, post_object):
-            post_dict = parse_post_object(post_object)
+            post_dict = parse_post_object(post_object, request.user)
             return JsonResponse(post_dict)
         else:
             return HttpResponseNotFound()
@@ -508,7 +509,7 @@ def get_profile_posts(request, username):
             posts_queryset = posts_queryset.filter(tag=tag)
 
         posts = list(map(
-            lambda post: parse_post_object(post),
+            lambda post: parse_post_object(post, request.user),
             filter(
                 lambda post: has_access(request.user, post),
                 list(posts_queryset.all())
@@ -593,7 +594,7 @@ def get_home_feed(request):
             posts = posts.order_by('-time_posted')
             for post_object in posts:
                 if has_access(request.user, post_object):
-                    result.append(parse_post_object(post_object))
+                    result.append(parse_post_object(post_object, request.user))
                     count += 1
                     if count >= int(request.GET["limit"]):
                         break
