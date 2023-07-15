@@ -126,6 +126,8 @@ def register_user(request):
         return "username too long"
     if len(name) > 15:
         return "name too long"
+    if not username.isalnum():
+        return "malicious username"
 
     try:
         user = UserAuth.objects.create_user(username=username, password=password)
@@ -217,6 +219,8 @@ def change_username(request):
 
         if len(new_username) > 15:
             return HttpResponseBadRequest("name too long")
+        if not new_username.isalnum():
+            return HttpResponseBadRequest("malicious username")
 
         if new_username == '' or password == '':
             return HttpResponseBadRequest("empty username/password")
@@ -379,7 +383,7 @@ def obtain_tag_requests(request):
         tag_requests = list(map(lambda request_obj:{
             "id": request_obj.id,
             "name": request_obj.name,
-            "icon": reverse("user_auth:get_tag_request_icon", args=(request_obj.name,)),
+            "icon": reverse("user_auth:get_tag_request_icon", args=(request_obj.id,)),
             "description": request_obj.description
         }, tag_request_objs))
         return JsonResponse({"tag_requests": tag_requests})
@@ -442,12 +446,12 @@ def admin(request):
         return HttpResponseForbidden()
 
 
-def get_tag_request_icon(request, tag_name):
+def get_tag_request_icon(request, tag_id):
     if request.user.is_staff:
-        if not TagRequest.objects.filter(name=tag_name).exists():
+        if not TagRequest.objects.filter(id=tag_id).exists():
             return HttpResponseNotFound()
         else:
-            icon = TagRequest.objects.get(name=tag_name).image
+            icon = TagRequest.objects.get(id=tag_id).image
             if not icon:
                 return redirect('/static/media/default-tag-icon.png')
             else:
