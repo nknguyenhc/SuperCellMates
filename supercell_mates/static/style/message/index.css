@@ -260,7 +260,8 @@
     text-decoration: none;
     color: black;
     padding: 1px;
-    border-radius: 5px;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 .text-line-post-title {
