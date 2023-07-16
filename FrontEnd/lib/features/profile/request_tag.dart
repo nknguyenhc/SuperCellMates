@@ -96,7 +96,9 @@ class RequestTagPageState extends State<RequestTagPage> {
                 IconButton(
                     onPressed: () async {
                       XFile? img = await imagePicker.pickImage(
-                          source: ImageSource.gallery);
+                          source: ImageSource.gallery,
+                          maxHeight: 600,
+                          maxWidth: 800);
                       if (img == null) return;
                       CroppedFile? croppedImg = await cropSquaredImage(img);
                       if (croppedImg != null) {

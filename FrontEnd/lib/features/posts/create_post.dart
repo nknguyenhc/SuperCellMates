@@ -257,7 +257,8 @@ class CreatePostPageState extends State<CreatePostPage> {
                                 onPressed: () async {
                                   collapseVisibilities();
                                   List<XFile?> imgs =
-                                      await imagePicker.pickMultiImage();
+                                      await imagePicker.pickMultiImage(
+                                          maxHeight: 600, maxWidth: 800);
                                   for (XFile? img in imgs) {
                                     if (img != null) {
                                       if (imageCount >= 9) {

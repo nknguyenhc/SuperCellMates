@@ -257,9 +257,8 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
 
   void _handleImageSelection() async {
     // "send image" function
-    final result = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-    );
+    final result = await ImagePicker()
+        .pickImage(source: ImageSource.gallery, maxHeight: 600, maxWidth: 800);
 
     if (result != null) {
       final croppedImage = await cropImage(result);

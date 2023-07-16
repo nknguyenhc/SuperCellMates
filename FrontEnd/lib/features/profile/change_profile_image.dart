@@ -21,8 +21,8 @@ class ChangeProfileImageButton extends StatelessWidget {
         style: const ButtonStyle(
             backgroundColor: MaterialStatePropertyAll(Colors.blue)),
         onPressed: () async {
-          final XFile? image =
-              await imagePicker.pickImage(source: ImageSource.gallery);
+          final XFile? image = await imagePicker.pickImage(
+              source: ImageSource.gallery, maxHeight: 600, maxWidth: 800);
           if (image == null) return;
           final CroppedFile? croppedImage = await cropSquaredImage(image);
           if (croppedImage != null) {
