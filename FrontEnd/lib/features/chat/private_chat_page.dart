@@ -108,8 +108,11 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                 style: const ButtonStyle(
                     padding: MaterialStatePropertyAll(EdgeInsets.zero)),
                 onPressed: () async {
-                  AutoRouter.of(context).push(
-                      OthersProfileRoute(username: m["user"]["username"]));
+                  AutoRouter.of(context).push(OthersProfileRoute(
+                      username: m["user"]["username"],
+                      onDeleteFriendCallBack: () => setState(() {
+                            inputEnabled = false;
+                          })));
                 },
                 icon: image))
             .then((button) => setState(() =>
@@ -191,7 +194,10 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                         padding: MaterialStatePropertyAll(EdgeInsets.zero)),
                     onPressed: () async {
                       AutoRouter.of(context).push(OthersProfileRoute(
-                          username: messageMap["user"]["username"]));
+                          username: messageMap["user"]["username"],
+                          onDeleteFriendCallBack: () => setState(() {
+                                inputEnabled = false;
+                              })));
                     },
                     icon: image))
                 .then((button) => setState(() =>
@@ -327,6 +333,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
     final dummyButton = PopupMenuButton(
         key: _menuKey,
         iconSize: 0,
+        enabled: inputEnabled,
         offset: Offset.fromDirection(pi * 1.5, 50),
         onCanceled: () {
           FocusManager.instance.primaryFocus?.unfocus();
@@ -421,7 +428,8 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                                 labelText: "Add friend to send messages",
                                 labelStyle: TextStyle(
                                     color: Colors.blueGrey,
-                                    fontWeight: FontWeight.normal),
+                                    fontWeight: FontWeight.normal,
+                                    fontStyle: FontStyle.italic),
                                 border: InputBorder.none,
                                 contentPadding: EdgeInsets.zero,
                                 isCollapsed: true,
@@ -558,8 +566,8 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                   ),
                 ),
                 Positioned(
-                  bottom: 60,
-                  left: 20,
+                  bottom: 24,
+                  left: 25,
                   child: dummyButton,
                 ),
               ]));

@@ -191,7 +191,7 @@ class ProfilePageState extends State<ProfilePage> {
                       onPressed: () {
                         if (selectedTagIndex == -1) {
                           showCustomDialog(context, "Hold on",
-                              "Please select a tag you want to post about!");
+                              "Press the tag icons above, to select one you want to post about!");
                           return;
                         }
                         AutoRouter.of(context).push(CreatePostRoute(

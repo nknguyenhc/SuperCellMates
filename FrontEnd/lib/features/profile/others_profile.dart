@@ -154,7 +154,9 @@ class OthersProfilePageState extends State<OthersProfilePage> {
       stopLoadingDialog(context);
       Future.delayed(Duration(milliseconds: 100)).then((value) {
         if (message == "friend deleted") {
-          widget.onDeleteFriendCallBack();
+          if (widget.onDeleteFriendCallBack != null) {
+            widget.onDeleteFriendCallBack();
+          }
           AutoRouter.of(context).pop().then((value) =>
               showSuccessDialog(context, "Successfully removed friend!"));
         } else {
