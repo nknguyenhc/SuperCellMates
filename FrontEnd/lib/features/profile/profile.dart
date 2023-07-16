@@ -94,11 +94,9 @@ class ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     var tagList = data != null ? data["tags"] : null;
-    // app bar: 80, taglist: 65, divider: 10, selected tag info: 70,
-    // bottom navigation bar: 82, buffer: 25
-    double myPostsHeight = selectedTagIndex == -1
-        ? MediaQuery.of(context).size.height - 252
-        : MediaQuery.of(context).size.height - 312;
+    // app bar: 80, taglist: 65, divider: 10, selected tag info: 50,
+    // bottom navigation bar: 82, buffer: 13
+    double myPostsHeight = MediaQuery.of(context).size.height - 300;
 
     return data != null
         ? Column(
@@ -163,61 +161,53 @@ class ProfilePageState extends State<ProfilePage> {
                   )
                 ]),
               ),
-              selectedTagIndex == -1
-                  ? Container()
-                  : const Divider(
-                      height: 1,
-                      thickness: 0.5,
-                      color: Colors.blue,
-                    ),
-
+              
               // selected tag info, create post button
-              selectedTagIndex == -1
-                  ? Container()
-                  : SizedBox(
-                      height: 60,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text(
-                                "My posts about the tag",
-                                style: TextStyle(fontSize: 14),
-                              ),
-                              Text(
-                                "\"${tagList[selectedTagIndex - 1]["name"]}\"",
-                                style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black),
-                              )
-                            ],
-                          ),
-                          const Padding(padding: EdgeInsets.only(left: 10)),
-                          TextButton(
-                            onPressed: () {
-                              if (selectedTagIndex == -1) {
-                                showCustomDialog(context, "Hold on",
-                                    "Please select a tag you want to post about!");
-                                return;
-                              }
-                              AutoRouter.of(context).push(CreatePostRoute(
-                                  tagName: data["tags"][selectedTagIndex - 1]
-                                      ["name"],
-                                  updateCallBack: loadProfilePosts));
-                            },
-                            child: const Row(children: [
-                              Icon(Icons.post_add, size: 40),
-                              Text(
-                                "New post",
-                              )
-                            ]),
-                          ),
-                        ],
-                      ),
+              SizedBox(
+                height: 50,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "My posts about",
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        Text(
+                          selectedTagIndex == -1
+                              ? "any tag"
+                              : "\"${tagList[selectedTagIndex - 1]["name"]}\"",
+                          style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
+                        )
+                      ],
                     ),
+                    const Padding(padding: EdgeInsets.only(left: 10)),
+                    TextButton(
+                      onPressed: () {
+                        if (selectedTagIndex == -1) {
+                          showCustomDialog(context, "Hold on",
+                              "Please select a tag you want to post about!");
+                          return;
+                        }
+                        AutoRouter.of(context).push(CreatePostRoute(
+                            tagName: data["tags"][selectedTagIndex - 1]["name"],
+                            updateCallBack: loadProfilePosts));
+                      },
+                      child: const Row(children: [
+                        Icon(Icons.post_add, size: 40),
+                        Text(
+                          "New post",
+                        )
+                      ]),
+                    ),
+                  ],
+                ),
+              ),
 
               const Divider(
                 color: Colors.blueGrey,
