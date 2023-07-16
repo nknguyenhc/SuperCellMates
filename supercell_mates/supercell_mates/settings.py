@@ -105,10 +105,10 @@ DATABASES = {
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'matchminer_local', 
+#         'NAME': 'matchminer_local',
 #         'USER': 'postgres',
 #         'PASSWORD': 'NkN1720%hC^',
-#         'HOST': '127.0.0.1', 
+#         'HOST': '127.0.0.1',
 #         'PORT': '9001',
 #     }
 # }
@@ -173,7 +173,7 @@ WHITELISTED_IMAGE_TYPES = {
 
 UPLOAD_FILE_MAX_SIZE = 5242880 # 5 MB
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760 # 10 MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600 # 100 MB
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

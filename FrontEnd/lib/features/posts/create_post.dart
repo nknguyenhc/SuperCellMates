@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -126,7 +127,7 @@ class CreatePostPageState extends State<CreatePostPage> {
       "title": postTitle,
       "content": postContent,
       "tag": widget.tagName,
-      "imgs": postImages,
+      "imgs": jsonEncode(postImages),
       "visibility_async": postVisibility,
     };
 

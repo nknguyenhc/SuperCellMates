@@ -76,9 +76,13 @@ class ChangeUsernamePageState extends State<ChangeUsernamePage> {
                 // Submit button
                 TextButton(
                     onPressed: () {
+                      final validCharacters = RegExp(r'^[a-zA-Z0-9]+$');
                       if (newUsername == "") {
                         showErrorDialog(
                             context, "New username cannot be empty!");
+                      } else if (!validCharacters.hasMatch(newUsername)) {
+                        showErrorDialog(context,
+                            "Username must be alphanumeric characters!");
                       } else if (password.length < 6) {
                         showErrorDialog(context, "Password is too short!");
                       } else {

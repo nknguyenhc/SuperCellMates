@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
+import 'package:supercellmates/features/custom_checkbox.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 
 import '../../http_requests/make_requests.dart';
@@ -16,7 +17,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class LoginPageState extends State<LoginPage> {
-  bool privacyAgreementChecked = false;
+  bool privacyAgreementChecked = CustomCheckbox.ischecked;
 
   // TODO: lock PA action when logging in
 
@@ -115,10 +116,13 @@ class LoginPageState extends State<LoginPage> {
         },
         userType: LoginUserType.name,
         userValidator: (username) {
+          final validCharacters = RegExp(r'^[a-zA-Z0-9]+$');
           if (username == "" || username == null) {
             return "Username cannot be empty!";
           } else if (username.length > 15) {
             return "Username is too long!";
+          } else if (!validCharacters.hasMatch(username)) {
+            return "Username must be alphanumeric!";
           }
           // TODO: ADD MORE VALIDATIONS
           return null;

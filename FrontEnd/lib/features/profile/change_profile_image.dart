@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -25,7 +27,7 @@ class ChangeProfileImageButton extends StatelessWidget {
           final CroppedFile? croppedImage = await cropSquaredImage(image);
           if (croppedImage != null) {
             startUploadingDialog(context, "image");
-            var body = {"img": await croppedImage.readAsBytes()};
+            var body = {"img": jsonEncode(await croppedImage.readAsBytes())};
             final response =
                 await postWithCSRF(EndPoints.setProfileImage.endpoint, body);
             stopLoadingDialog(context);

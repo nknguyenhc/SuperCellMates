@@ -7,10 +7,10 @@ from django.views.decorators.http import require_http_methods
 from django.core.exceptions import ObjectDoesNotExist
 import io
 from django.core.files.images import ImageFile
-from PIL import Image
 from datetime import datetime
+import json
 
-from user_profile.views import verify_image
+from user_profile.views import verify_image, list_to_image_and_verify_async
 
 from user_auth.models import Tag, UserAuth
 from .models import Post, PostImage
@@ -83,24 +83,17 @@ def create_post(request):
 
         # images
         if "imgs" in request.POST:
+            imgs = json.loads(request.POST["imgs"])
             # do not change the method of getting the list of imgs
-            if request.POST["imgs"] == '[]':
-                imgs = []
-            else:
-                imgs = request.POST["imgs"].strip('[[]]').split('], [')
-                if len(imgs) > 9:
-                    return HttpResponseBadRequest("too many images")
-                for (i, img_raw) in enumerate(imgs):
-                    img_bytearray = img_raw.split(", ")
-                    img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
-                    img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
-                    try:
-                        pil_img = Image.open(img)
-                        pil_img.verify()
-                    except (IOError, SyntaxError):
-                        return HttpResponseBadRequest("not image")
-                    img_obj = PostImage(order=i, image=img, post=post)
-                    img_obj.save()
+
+            if len(imgs) > 9:
+                return HttpResponseBadRequest("too many images")
+            for (i, img_uint8list) in enumerate(imgs):
+                img = list_to_image_and_verify_async(img_uint8list, request.user.username)
+                if img == "not image":
+                    return HttpResponseBadRequest("not image")
+                img_obj = PostImage(order=i, image=img, post=post)
+                img_obj.save()
         else:
             imgs = request.FILES.getlist("imgs")
             if len(imgs) > 9:
@@ -210,27 +203,19 @@ def edit_post(request, post_id):
         post.tag_visible = tag_visible
         post.public_visible = public_visible
         post.time_posted = datetime.now().timestamp()
-        print(datetime.now().timestamp())
         
         # images
         for img in post.images.all():
             img.delete()
         if "imgs" in request.POST:
-            if request.POST["imgs"] == '[]':
-                imgs = []
-            else:
-                imgs = request.POST["imgs"].strip('[[]]').split('], [')
-                for (i, img_raw) in enumerate(imgs):
-                    img_bytearray = img_raw.split(", ")
-                    img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
-                    img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
-                    try:
-                        pil_img = Image.open(img)
-                        pil_img.verify()
-                    except (IOError, SyntaxError):
-                        return HttpResponseBadRequest("not image")
-                    img_obj = PostImage(order=i, image=img, post=post)
-                    img_obj.save()
+            imgs = json.loads(request.POST["imgs"])
+
+            for i, img_uint8list in enumerate(imgs):
+                img = list_to_image_and_verify_async(img_uint8list, request.user.username)
+                if img == "not image":
+                    return HttpResponseBadRequest("not image")
+                img_obj = PostImage(order=i, image=img, post=post)
+                img_obj.save()
         else:
             imgs = request.FILES.getlist("imgs")
             for (i, img) in enumerate(imgs):

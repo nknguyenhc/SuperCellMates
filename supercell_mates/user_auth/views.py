@@ -10,9 +10,10 @@ from django.utils.http import url_has_allowed_host_and_scheme as is_safe_url
 from django.views.decorators.http import require_http_methods
 import io
 from django.core.files.images import ImageFile
-from PIL import Image
+import magic
+import json
 
-from user_profile.views import verify_image
+from user_profile.views import verify_image, list_to_image_and_verify_async
 
 from .models import UserAuth, Tag, TagRequest, AdminApplication
 from user_profile.models import UserProfile
@@ -58,7 +59,7 @@ def login_async(request):
                     user_profile_obj.save()
                     user_log_obj = UserLog(user_auth=user, user_profile=user_profile_obj)
                     user_log_obj.save()
-                
+
                 return HttpResponse("logged in")
             else:
                 return HttpResponse("wrong username or password")
@@ -97,10 +98,10 @@ def login_user(request):
                     })
             except MultiValueDictKeyError:
                 return HttpResponseBadRequest("request body is missing username or password")
-    
+
         elif request.method == 'GET':
             return render(request, "user_auth/login.html")
-    
+
     else:
         return redirect(reverse("user_auth:home"))
 
@@ -121,7 +122,7 @@ def register_user(request):
     name = request.POST["name"]
     if username == '' or password == '' or name == '':
         return "username/password or name is empty"
-    
+
     if len(username) > 15:
         return "username too long"
     if len(name) > 15:
@@ -149,7 +150,7 @@ def register_async(request):
             return (HttpResponse if register_feedback == "account created" else HttpResponseBadRequest)(register_feedback)
         except MultiValueDictKeyError:
             return HttpResponseBadRequest("request body is missing name, username or password")
-    
+
     else:
         return HttpResponseBadRequest("you are already logged in")
 
@@ -169,7 +170,7 @@ def register(request):
 
         elif request.method == 'GET':
             return render(request, "user_auth/register.html")
-    
+
     else:
         return redirect(reverse("user_auth:home"))
 
@@ -192,7 +193,7 @@ def settings(request):
 
     Args:
         request (HttpRequest): the request made to this view
-    
+
     Returns:
         HttpResponse: the template for adjusting settings
     """
@@ -208,7 +209,7 @@ def change_username(request):
 
     Args:
         request (HttpRequest): the request made to this view
-    
+
     Returns:
         HttpResponse: the feedback of the process, if there is a frontend error, return status code 4xx
     """
@@ -235,7 +236,7 @@ def change_username(request):
             return HttpResponse("Username changed")
         else:
             return HttpResponse("Password is incorrect")
-    
+
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body does not contain an important key")
 
@@ -247,10 +248,10 @@ def change_password(request):
     The body of the request must contain the following fields:
         old_password: the old password of the user, to verify that the user is actually making the request
         new_password: the new password to change to
-    
+
     Args:
         request (HttpRequest): the request made to this view
-    
+
     Returns:
         HttpResponse: the feedback of the process, if there is a frontend error, return status code 4xx
     """
@@ -267,7 +268,7 @@ def change_password(request):
             return HttpResponse("Password changed")
         else:
             return HttpResponse("Old password is incorrect")
-    
+
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body does not contain an important key")
 
@@ -277,7 +278,7 @@ def duplicate_tag_exists(tag_name):
 
     Args:
         tag_name (str): the tag name to check against db
-    
+
     Returns:
         bool: whether there already exists a similar tag/tag request, True if it is so, False otherwise
     """
@@ -287,7 +288,7 @@ def duplicate_tag_exists(tag_name):
         if len(db_tag_name) != len(tag_name):
             return False
         return db_tag_name.lower() == tag_name
-    
+
     return any(list(map(
         lambda tag: same_tag(tag.name),
         list(Tag.objects.all())
@@ -326,7 +327,7 @@ def add_tag_admin(request):
             return HttpResponseNotAllowed(["POST"])
     else:
         return HttpResponseForbidden()
-    
+
 
 def new_tag_admin(request):
     if request.user.is_staff:
@@ -351,7 +352,7 @@ def new_tag_admin(request):
                     tag = Tag(name=tag_name)
                 tag.save()
                 return HttpResponse("Tag added")
-            
+
             except MultiValueDictKeyError:
                 return HttpResponseBadRequest("request body is missing an important key")
         else:
@@ -403,24 +404,19 @@ def add_tag_request(request):
             return HttpResponseBadRequest("description too long")
         if duplicate_tag_exists(tag_name):
             return HttpResponse("tag already present/requested")
-        
+
         has_img = False
         if "img" in request.POST:
             has_img = True
-            img_bytearray = request.POST["img"].strip("[]").split(", ")
-            img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
-            img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
-            try:
-                pil_img = Image.open(img)
-                pil_img.verify()
-            except (IOError, SyntaxError):
+            img = list_to_image_and_verify_async(json.loads(request.POST["img"]), request.user.username)
+            if img == "not image":
                 return HttpResponseBadRequest("not image")
         elif "img" in request.FILES:
             has_img = True
             img = request.FILES["img"]
             if not verify_image(img):
                 return HttpResponseBadRequest("not image")
-    
+
         if request.POST["attach"] == "true":
             if has_img:
                 tag_request = TagRequest(name=tag_name, image=img, description=description, requester=request.user.user_profile)
@@ -434,7 +430,7 @@ def add_tag_request(request):
 
         tag_request.save()
         return HttpResponse("Successfully added tag request")
-    
+
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request is missing an important key")
 
@@ -456,7 +452,7 @@ def get_tag_request_icon(request, tag_id):
                 return redirect('/static/media/default-tag-icon.png')
             else:
                 return FileResponse(icon)
-    
+
     else:
         return HttpResponseForbidden()
 

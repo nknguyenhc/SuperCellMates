@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -23,7 +25,7 @@ class RequestTagPageState extends State<RequestTagPage> {
   String tagName = "";
   CroppedFile? tagIcon;
   String tagDescription = "";
-  bool attachTag = false;
+  bool attachTag = CustomCheckbox.ischecked;
 
   void setIcon(CroppedFile icon) {
     setState(() {
@@ -158,7 +160,8 @@ class RequestTagPageState extends State<RequestTagPage> {
                   boxColor: Colors.black,
                 ),
                 TextButton(
-                  style:const ButtonStyle(padding: MaterialStatePropertyAll(EdgeInsets.zero)),
+                    style: const ButtonStyle(
+                        padding: MaterialStatePropertyAll(EdgeInsets.zero)),
                     onPressed: () {
                       dynamic state = checkBoxKey.currentState;
                       setState(() {
@@ -196,7 +199,8 @@ class RequestTagPageState extends State<RequestTagPage> {
                               : {
                                   "tag": tagName,
                                   "description": tagDescription,
-                                  "img": await tagIcon!.readAsBytes(),
+                                  "img":
+                                      jsonEncode(await tagIcon!.readAsBytes()),
                                   "attach": attachTag
                                 };
                           dynamic response = await postWithCSRF(
