@@ -138,13 +138,13 @@
     gap: 10px;
 }
 
-.post-reply {
+.post-link {
     height: 30px;
     width: 30px;
     cursor: pointer;
 }
 
-.post-reply img {
+.post-link img {
     max-height: 100%;
     max-width: 100%;
 }

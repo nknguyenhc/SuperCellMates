@@ -74,11 +74,14 @@ function Post(props) {
                     <div className="post-date">{`${formatNumber(new Date(post.time_posted).getDate(), 2)}/${formatNumber(new Date(post.time_posted).getMonth() + 1, 2)}/${formatNumber(new Date(post.time_posted).getFullYear(), 4)} ${formatNumber(new Date(post.time_posted).getHours(), 2)}:${formatNumber(new Date(post.time_posted).getMinutes(), 2)}`}</div>
                     {
                         post.can_reply
-                        ? <div className="post-reply" onClick={() => toReplyPostChat()}>
+                        ? <div className="post-link" onClick={() => toReplyPostChat()}>
                             <img src="/static/media/reply-icon.png" />
                         </div>
                         : ''
                     }
+                    <a href={"/post/display?id=" + post.id} className="post-link">
+                        <img src="/static/media/hyperlink-icon.png" />
+                    </a>
                 </div>
             </div>
             <h4 className='mb-2'>{post.title}</h4>
