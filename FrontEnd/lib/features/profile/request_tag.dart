@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:supercellmates/config/config.dart';
 import 'package:supercellmates/features/custom_checkbox.dart';
 import 'dart:io';
 
@@ -28,8 +30,22 @@ class RequestTagPageState extends State<RequestTagPage> {
   bool attachTag = CustomCheckbox.ischecked;
 
   void setIcon(CroppedFile icon) {
-    setState(() {
-      tagIcon = icon;
+    icon.readAsBytes().then((bytes) {
+      if (bytes.length > GetIt.I<Config>().totalUploadLimit) {
+        showCustomDialog(
+            context,
+            "Image too large",
+            "Your image is larger than 3MB after compression.\n" +
+                "Please try again with smaller images.\n\n" +
+                "On behalf of our weak server, we apologise for your inconvenience -_-");
+        return "image too large";
+      }
+    }).then((value) {
+      if (value != "image too large") {
+        setState(() {
+          tagIcon = icon;
+        });
+      }
     });
   }
 
@@ -191,7 +207,6 @@ class RequestTagPageState extends State<RequestTagPage> {
                             context, "Are you sure to request for this tag?",
                             () async {
                           startUploadingDialog(context, "data");
-                          print(attachTag);
                           dynamic body = tagIcon == null
                               ? {
                                   "tag": tagName,
