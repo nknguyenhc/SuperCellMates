@@ -166,7 +166,7 @@ class EditPostPageState extends State<EditPostPage> {
       "visibility_async": postVisibility,
     };
 
-dynamic r = await postWithCSRF(
+    dynamic r = await postWithCSRF(
         EndPoints.editPost.endpoint + widget.oldPostData["id"], body);
 
     stopLoadingDialog(context);
@@ -388,26 +388,33 @@ dynamic r = await postWithCSRF(
                     ),
                   ],
                 ),
+
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 5),
+                ),
+
+// Tag name indicator
+
+                Row(
+                  children: [
+                    const Padding(padding: EdgeInsets.only(left: 25)),
+                    Text(
+                      "#${widget.tagName}",
+                      style: const TextStyle(fontSize: 16, color: Colors.pink),
+                    ),
+                  ],
+                )
               ]),
 
               // Bottom Bar
               Positioned(
-                bottom: 20,
+                bottom: 15,
                 child: SizedBox(
                   height: 30,
                   width: MediaQuery.of(context).size.width,
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Tag name indicator
-                        Text(
-                          "Tag: \"${widget.tagName}\"",
-                          style: const TextStyle(
-                            fontSize: 14,
-                          ),
-                        ),
-                        const Padding(padding: EdgeInsets.only(left: 20)),
-
                         // Visibility button
                         TextButton(
                             onPressed: () {
@@ -445,8 +452,7 @@ dynamic r = await postWithCSRF(
               showVisibilites
                   ? Positioned(
                       bottom: 60,
-                      right: 30,
-                      top: MediaQuery.of(context).size.height - 290,
+                      left: MediaQuery.of(context).size.width / 2 - 90,
                       child: SizedBox(
                           child: Container(
                               alignment: Alignment.bottomCenter,

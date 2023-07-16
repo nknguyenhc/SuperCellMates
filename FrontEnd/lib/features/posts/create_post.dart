@@ -169,207 +169,224 @@ class CreatePostPageState extends State<CreatePostPage> {
             alignment: Alignment.center,
             child: Stack(children: [
               // column contains the body of this page
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                // post title
-                Row(
-                  children: [
-                    const Padding(padding: EdgeInsets.all(10)),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width - 150,
-                      child: TextField(
-                        maxLength: 100,
-                        onTap: collapseVisibilities,
-                        onTapOutside: (e) =>
-                            FocusManager.instance.primaryFocus?.unfocus(),
-                        decoration: const InputDecoration(
-                            isDense: true,
-                            contentPadding: EdgeInsets.fromLTRB(8, 0, 0, 1),
-                            counterText: "",
-                            hintText: "Post title",
-                            hintStyle:
-                                TextStyle(color: Colors.grey, fontSize: 18)),
-                        style: const TextStyle(
-                          fontSize: 18,
-                        ),
-                        onChanged: (input) {
-                          postTitle = input;
-                        },
-                      ),
-                    )
-                  ],
-                ),
-
-                const Padding(
-                  padding: EdgeInsets.all(10),
-                ),
-
-                // Post content
-                Row(
-                  children: [
-                    const Padding(padding: EdgeInsets.all(10)),
-                    SizedBox(
-                        width: MediaQuery.of(context).size.width - 40,
-                        height: MediaQuery.of(context).size.height - 575,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // post title
+                  Row(
+                    children: [
+                      const Padding(padding: EdgeInsets.all(10)),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width - 150,
                         child: TextField(
-                          maxLength: 2000,
+                          maxLength: 100,
                           onTap: collapseVisibilities,
                           onTapOutside: (e) =>
                               FocusManager.instance.primaryFocus?.unfocus(),
                           decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              contentPadding: EdgeInsets.fromLTRB(8, 15, 0, 0),
+                              isDense: true,
+                              contentPadding: EdgeInsets.fromLTRB(8, 0, 0, 1),
                               counterText: "",
-                              hintText: "Post content",
+                              hintText: "Post title",
                               hintStyle:
-                                  TextStyle(color: Colors.grey, fontSize: 14)),
-                          style: const TextStyle(fontSize: 16),
-                          maxLines: 10,
-                          onChanged: (input) {
-                            postContent = input;
-                          },
-                        ))
-                  ],
-                ),
-
-                const Padding(
-                  padding: EdgeInsets.all(10),
-                ),
-
-                // Post images
-                Row(
-                  children: [
-                    const Padding(padding: EdgeInsets.only(left: 20)),
-                    Container(
-                      width: MediaQuery.of(context).size.width - 40,
-                      height: previewImageWidth * 3 + 60,
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.grey,
-                            width: 1,
+                                  TextStyle(color: Colors.grey, fontSize: 18)),
+                          style: const TextStyle(
+                            fontSize: 18,
                           ),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(3))),
-                      child: Column(children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            TextButton(
-                                onPressed: () async {
-                                  collapseVisibilities();
-                                  List<XFile?> imgs =
-                                      await imagePicker.pickMultiImage(
-                                          maxHeight: 600, maxWidth: 800);
-                                  for (XFile? img in imgs) {
-                                    if (img != null) {
-                                      if (imageCount >= 9) {
-                                        showCustomDialog(
-                                            context,
-                                            "Too many images",
-                                            "Please only pick up to 9 images");
-                                        return;
-                                      }
-                                      setImage(imageCount, img);
-                                    }
-                                  }
-                                },
-                                child: const Row(
-                                  children: [
-                                    Icon(
-                                      Icons.photo_library,
-                                      size: 35,
-                                    ),
-                                    Padding(padding: EdgeInsets.only(left: 10)),
-                                    Text(
-                                      "Pick up to 9 images",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
-                                )),
-                            const Padding(padding: EdgeInsets.only(right: 20)),
-                          ],
+                          onChanged: (input) {
+                            postTitle = input;
+                          },
                         ),
-                        SizedBox(
-                            width: MediaQuery.of(context).size.width - 100,
-                            height: previewImageWidth * 3,
-                            child: GridView.builder(
-                              itemCount: 9,
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      mainAxisSpacing: 10,
-                                      crossAxisSpacing: 10),
-                              itemBuilder: (context, imageIndex) {
-                                return imageIndex < imageCount
-                                    ? IconButton(
-                                        splashColor: Colors.transparent,
-                                        highlightColor: Colors.transparent,
-                                        padding: EdgeInsets.zero,
-                                        onPressed: () {
-                                          collapseVisibilities();
-                                          AutoRouter.of(context)
-                                              .push(MultiplePhotosViewer(
-                                                  listOfPhotoBytes: postImages,
-                                                  initialIndex: imageIndex,
-                                                  actionFunction: (currIndex) {
-                                                    return [
-                                                      IconButton(
-                                                        onPressed: () {
-                                                          showConfirmationDialog(
-                                                              context,
-                                                              "Are you sure to remove this image?",
-                                                              () {
-                                                            removeImage(
-                                                                currIndex);
-                                                            AutoRouter.of(
-                                                                    context)
-                                                                .pop();
-                                                          });
-                                                        },
-                                                        icon:
-                                                            Icon(Icons.delete),
-                                                      )
-                                                    ];
-                                                  }));
-                                        },
-                                        icon: imagesPreview[imageIndex] ??
-                                            SizedBox(
-                                              width: previewImageWidth,
-                                              height: previewImageWidth,
-                                            ),
-                                      )
-                                    : SizedBox(
-                                        width: previewImageWidth,
-                                        height: previewImageWidth,
-                                      );
-                              },
-                            ))
-                      ]),
-                    ),
-                  ],
-                ),
-              ]),
+                      )
+                    ],
+                  ),
+
+                  const Padding(
+                    padding: EdgeInsets.all(10),
+                  ),
+
+                  // Post content
+                  Row(
+                    children: [
+                      const Padding(padding: EdgeInsets.all(10)),
+                      SizedBox(
+                          width: MediaQuery.of(context).size.width - 40,
+                          height: MediaQuery.of(context).size.height - 575,
+                          child: TextField(
+                            maxLength: 2000,
+                            onTap: collapseVisibilities,
+                            onTapOutside: (e) =>
+                                FocusManager.instance.primaryFocus?.unfocus(),
+                            decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                contentPadding:
+                                    EdgeInsets.fromLTRB(8, 15, 0, 0),
+                                counterText: "",
+                                hintText: "Post content",
+                                hintStyle: TextStyle(
+                                    color: Colors.grey, fontSize: 14)),
+                            style: const TextStyle(fontSize: 16),
+                            maxLines: 10,
+                            onChanged: (input) {
+                              postContent = input;
+                            },
+                          ))
+                    ],
+                  ),
+
+                  const Padding(
+                    padding: EdgeInsets.all(10),
+                  ),
+
+                  // Post images
+                  Row(
+                    children: [
+                      const Padding(padding: EdgeInsets.only(left: 20)),
+                      Container(
+                        width: MediaQuery.of(context).size.width - 40,
+                        height: previewImageWidth * 3 + 60,
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.grey,
+                              width: 1,
+                            ),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(3))),
+                        child: Column(children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              TextButton(
+                                  onPressed: () async {
+                                    collapseVisibilities();
+                                    List<XFile?> imgs =
+                                        await imagePicker.pickMultiImage(
+                                            maxHeight: 600, maxWidth: 800);
+                                    for (XFile? img in imgs) {
+                                      if (img != null) {
+                                        if (imageCount >= 9) {
+                                          showCustomDialog(
+                                              context,
+                                              "Too many images",
+                                              "Please only pick up to 9 images");
+                                          return;
+                                        }
+                                        setImage(imageCount, img);
+                                      }
+                                    }
+                                  },
+                                  child: const Row(
+                                    children: [
+                                      Icon(
+                                        Icons.photo_library,
+                                        size: 35,
+                                      ),
+                                      Padding(
+                                          padding: EdgeInsets.only(left: 10)),
+                                      Text(
+                                        "Pick up to 9 images",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  )),
+                              const Padding(
+                                  padding: EdgeInsets.only(right: 20)),
+                            ],
+                          ),
+                          SizedBox(
+                              width: MediaQuery.of(context).size.width - 100,
+                              height: previewImageWidth * 3,
+                              child: GridView.builder(
+                                itemCount: 9,
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 3,
+                                        mainAxisSpacing: 10,
+                                        crossAxisSpacing: 10),
+                                itemBuilder: (context, imageIndex) {
+                                  return imageIndex < imageCount
+                                      ? IconButton(
+                                          splashColor: Colors.transparent,
+                                          highlightColor: Colors.transparent,
+                                          padding: EdgeInsets.zero,
+                                          onPressed: () {
+                                            collapseVisibilities();
+                                            AutoRouter.of(context).push(
+                                                MultiplePhotosViewer(
+                                                    listOfPhotoBytes:
+                                                        postImages,
+                                                    initialIndex: imageIndex,
+                                                    actionFunction:
+                                                        (currIndex) {
+                                                      return [
+                                                        IconButton(
+                                                          onPressed: () {
+                                                            showConfirmationDialog(
+                                                                context,
+                                                                "Are you sure to remove this image?",
+                                                                () {
+                                                              removeImage(
+                                                                  currIndex);
+                                                              AutoRouter.of(
+                                                                      context)
+                                                                  .pop();
+                                                            });
+                                                          },
+                                                          icon: Icon(
+                                                              Icons.delete),
+                                                        )
+                                                      ];
+                                                    }));
+                                          },
+                                          icon: imagesPreview[imageIndex] ??
+                                              SizedBox(
+                                                width: previewImageWidth,
+                                                height: previewImageWidth,
+                                              ),
+                                        )
+                                      : SizedBox(
+                                          width: previewImageWidth,
+                                          height: previewImageWidth,
+                                        );
+                                },
+                              ))
+                        ]),
+                      ),
+                    ],
+                  ),
+
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 5),
+                  ),
+
+                  Row(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(left: 25),
+                      ),
+                      // Tag name indicator
+                      Text(
+                        "#${widget.tagName}",
+                        style:
+                            const TextStyle(fontSize: 16, color: Colors.pink),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
 
               // Bottom Bar
               Positioned(
-                bottom: 20,
+                bottom: 15,
                 child: SizedBox(
                   height: 30,
                   width: MediaQuery.of(context).size.width,
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Tag name indicator
-                        Text(
-                          "Tag: \"${widget.tagName}\"",
-                          style: const TextStyle(
-                            fontSize: 14,
-                          ),
-                        ),
-                        const Padding(padding: EdgeInsets.only(left: 20)),
-
                         // Visibility button
                         TextButton(
                             onPressed: () {
@@ -407,9 +424,9 @@ class CreatePostPageState extends State<CreatePostPage> {
               showVisibilites
                   ? Positioned(
                       bottom: 60,
-                      right: 30,
-                      top: MediaQuery.of(context).size.height - 290,
-                      child: SizedBox(
+                      left: MediaQuery.of(context).size.width / 2 - 90,
+                      child: Container(
+                          alignment: Alignment.center,
                           child: Container(
                               alignment: Alignment.bottomCenter,
                               width: 180,
