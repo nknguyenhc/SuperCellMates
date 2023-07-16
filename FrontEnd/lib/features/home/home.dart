@@ -117,7 +117,6 @@ class HomePageState extends State<HomePage> {
                   alignment: Alignment.center,
                   children: [
                     PostListView(
-                      key: UniqueKey(),
                       postList: homeFeed,
                       isInProfile: false,
                       isMyPost: false,
