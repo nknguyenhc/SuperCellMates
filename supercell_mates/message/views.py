@@ -603,16 +603,16 @@ def start_and_end(request):
 
 def get_texts(chat_obj, start, end):
     all_text_messages = list(chat_obj.text_messages.filter(timestamp__range=(start, end)).all())
-    all_reply_post_messages = list(chat_obj.reply_post_messages.filter(timestamp__range=(start, end)).all())
+    all_reply_post_messages = list(chat_obj.reply_post_messages.filter(timestamp__range=(start, end)).all()) if isinstance(chat_obj, PrivateChat) else []
     all_file_messages = list(chat_obj.file_messages.filter(timestamp__range=(start, end)).all())
     all_messages = merge_messages(all_text_messages, all_reply_post_messages, all_file_messages)
     
     next_text_messages = chat_obj.text_messages.filter(timestamp__lt=start).order_by("timestamp")
     next_file_messages = chat_obj.file_messages.filter(timestamp__lt=start).order_by("timestamp")
-    next_reply_post_messages = chat_obj.reply_post_messages.filter(timestamp__lt=start).order_by("timestamp")
+    next_reply_post_messages = chat_obj.reply_post_messages.filter(timestamp__lt=start).order_by("timestamp") if isinstance(chat_obj, PrivateChat) else None
     next_last_timestamp = max(
         next_text_messages.last().timestamp if next_text_messages.exists() else 0,
-        next_reply_post_messages.last().timestamp if next_reply_post_messages.exists() else 0,
+        0 if next_reply_post_messages is None else next_reply_post_messages.last().timestamp if next_reply_post_messages.exists() else 0,
         next_file_messages.last().timestamp if next_file_messages.exists() else 0
     )
     

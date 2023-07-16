@@ -269,3 +269,7 @@ class GroupMessageConsumer(AbstractMessageConsumer):
     def get_file_message(self, message_id):
         file_message = GroupFileMessage.objects.get(id=message_id)
         return self.parse_file_message(file_message)
+    
+
+    def add_reply_post(self, message, post_id):
+        pass
