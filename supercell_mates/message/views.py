@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate
 from django.utils.datastructures import MultiValueDictKeyError
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import ensure_csrf_cookie
 from datetime import datetime
 from django.core.files.base import ContentFile
 from PIL import Image
@@ -446,6 +447,7 @@ def private_chat_info(request_user_auth, private_chat_object):
 
 
 @login_required
+@ensure_csrf_cookie
 def get_group_chats(request):
     """Get information of all group chats of the current user.
     The information of each group chat is a dictionary returned by the function group_chat_info above.
@@ -469,6 +471,7 @@ def get_group_chats(request):
 
 
 @login_required
+@ensure_csrf_cookie
 def get_private_chats(request):
     """Get information of all private chats of the current user.
     The information of each private chat is a dictionary returned by the function private_chat_info above.

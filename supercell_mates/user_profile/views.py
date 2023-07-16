@@ -11,6 +11,7 @@ from user_auth.models import UserAuth, Tag
 import io
 from django.core.files.images import ImageFile
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import ensure_csrf_cookie
 # import magic
 from django.conf import settings
 from PIL import Image
@@ -108,6 +109,7 @@ def index(request):
     return render(request, 'user_profile/index.html', index_context(request.user))
 
 @login_required
+@ensure_csrf_cookie
 def index_async(request):
     """Returns the context to be used in front-end of mobile app, in the form of a json.
     The dictionary of context is obtained using the index_context function above.

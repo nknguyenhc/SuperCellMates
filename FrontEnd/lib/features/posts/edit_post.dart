@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:supercellmates/config/config.dart';
 import 'dart:math';
 
 import 'package:supercellmates/features/dialogs.dart';
@@ -144,6 +147,20 @@ class EditPostPageState extends State<EditPostPage> {
     } else if (postContent == "") {
       showCustomDialog(context, "Oops", "Post content cannot be empty");
       return;
+    } else {
+      int totalImageBytes = 0;
+      for (Uint8List img in postImages) {
+        totalImageBytes += img.length;
+      }
+      if (totalImageBytes > GetIt.I<Config>().totalUploadLimit) {
+        showCustomDialog(
+            context,
+            "Images are too large",
+            "Your images, after compression, have a total size larger than 3MB.\n" +
+                "Please try again with smaller images.\n\n" +
+                "On behalf of our weak server, we apologise for your inconvenience -_-");
+        return;
+      }
     }
 
     startUploadingDialog(context, "post");
@@ -161,7 +178,7 @@ class EditPostPageState extends State<EditPostPage> {
     Map<String, dynamic> body = {
       "title": postTitle,
       "content": postContent,
-      "imgs": postImages,
+      "imgs": jsonEncode(postImages),
       "visibility_async": postVisibility,
     };
 
@@ -387,26 +404,33 @@ class EditPostPageState extends State<EditPostPage> {
                     ),
                   ],
                 ),
+
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 5),
+                ),
+
+// Tag name indicator
+
+                Row(
+                  children: [
+                    const Padding(padding: EdgeInsets.only(left: 25)),
+                    Text(
+                      "#${widget.tagName}",
+                      style: const TextStyle(fontSize: 16, color: Colors.pink),
+                    ),
+                  ],
+                )
               ]),
 
               // Bottom Bar
               Positioned(
-                bottom: 20,
+                bottom: 15,
                 child: SizedBox(
                   height: 30,
                   width: MediaQuery.of(context).size.width,
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Tag name indicator
-                        Text(
-                          "Tag: \"${widget.tagName}\"",
-                          style: const TextStyle(
-                            fontSize: 14,
-                          ),
-                        ),
-                        const Padding(padding: EdgeInsets.only(left: 20)),
-
                         // Visibility button
                         TextButton(
                             onPressed: () {
@@ -444,8 +468,7 @@ class EditPostPageState extends State<EditPostPage> {
               showVisibilites
                   ? Positioned(
                       bottom: 60,
-                      right: 30,
-                      top: MediaQuery.of(context).size.height - 290,
+                      left: MediaQuery.of(context).size.width / 2 - 90,
                       child: SizedBox(
                           child: Container(
                               alignment: Alignment.bottomCenter,
