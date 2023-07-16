@@ -10,6 +10,7 @@ from datetime import datetime
 from django.core.files.base import ContentFile
 from PIL import Image
 from user_profile.views import verify_image
+import json
 
 from user_auth.models import UserAuth
 from .models import TextMessage, PrivateChat, FileMessage, PrivateFileMessage, GroupChat, GroupFileMessage
@@ -688,8 +689,7 @@ def upload_file(request):
         is_image = True
 
         if "file" in request.POST:
-            file_bytearray = request.POST["file"].strip("[]").split(", ")
-            file_bytearray = bytearray(list(map(lambda x: int(x.strip()), file_bytearray)))
+            file_bytearray = bytearray(json.loads(request.POST["file"]))
             file_uploaded = ContentFile(file_bytearray, name=request.POST["file_name"])
             try:
                 pil_img = Image.open(file_uploaded)

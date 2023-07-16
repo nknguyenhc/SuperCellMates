@@ -22,9 +22,12 @@ Future<dynamic> postWithCSRF(String postEndPoint, dynamic postBody) async {
     // Do the POST request with the CSRF token
     dynamic r2;
     try {
-      r2 = await Requests.post(postURL, body: postBody, headers: {
-        "X-CSRFToken": csrfToken,
-      });
+      r2 = await Requests.post(postURL,
+          body: postBody,
+          headers: {
+            "X-CSRFToken": csrfToken,
+          },
+          timeoutSeconds: 30);
       if (r2.headers['set-cookie'] != null) {
         getCookieFromString(r2.headers['set-cookie'], "sessionid", 10);
       }

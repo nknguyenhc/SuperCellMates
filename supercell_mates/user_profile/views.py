@@ -14,6 +14,7 @@ from django.views.decorators.http import require_http_methods
 # import magic
 from django.conf import settings
 from PIL import Image
+import json
 
 from user_auth.models import Tag, UserAuth
 from user_log.models import FriendRequest
@@ -289,6 +290,17 @@ def verify_image(img):
     return True
 
 
+def list_to_image_and_verify_async(uint8list, name):
+    img_bytearray = bytearray(uint8list)
+    img = ImageFile(io.BytesIO(img_bytearray), name=name)
+    try:
+        pil_img = Image.open(img)
+        pil_img.verify()
+    except (IOError, SyntaxError):
+        return "not image"
+    return img
+
+
 @login_required
 @require_http_methods(["POST"])
 def set_profile_image(request):
@@ -307,13 +319,8 @@ def set_profile_image(request):
     try:
         user_profile_obj = request.user.user_profile
         if "img" in request.POST:
-            img_bytearray = request.POST["img"].strip("[]").split(", ")
-            img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
-            img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
-            try:
-                pil_img = Image.open(img)
-                pil_img.verify()
-            except (IOError, SyntaxError):
+            img = list_to_image_and_verify_async(json.loads(request.POST["img"]), request.user.username)
+            if img == "not image":
                 return HttpResponseBadRequest("not image")
             user_profile_obj.profile_pic = img
             user_profile_obj.save()
