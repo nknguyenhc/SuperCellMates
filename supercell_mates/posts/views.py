@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.datastructures import MultiValueDictKeyError
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseNotFound, FileResponse
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.core.exceptions import ObjectDoesNotExist
 import io
 from django.core.files.images import ImageFile
@@ -516,6 +517,7 @@ def get_profile_posts(request, username):
         return HttpResponseBadRequest("time requested is invalid epoch time")
 
 @login_required
+@ensure_csrf_cookie
 def get_home_feed(request):
     """Return the posts accessible in a user's home feed, excluding their own posts
 

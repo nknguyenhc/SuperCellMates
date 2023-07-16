@@ -7,16 +7,25 @@ Future<dynamic> postWithCSRF(String postEndPoint, dynamic postBody) async {
   String getURL = _composeURL("/async");
   String postURL = _composeURL(postEndPoint);
 
-  dynamic r1;
-  try {
-    r1 = await Requests.get(getURL);
-  } catch (e) {
-    return "Connection error";
-  }
+  String csrfToken = "";
 
-  // retrieve the CSRF token from the response of the GET request
-  String csrfToken =
-      getCookieFromString(r1.headers['set-cookie'], "csrftoken", 10);
+  await Requests.getStoredCookies(GetIt.I<Config>().restBaseURL)
+      .then((cookieJar) => cookieJar.delegate)
+      .then((cookieMap) async {
+    if (cookieMap["csrftoken"] == null) {
+      // get CSRF token from /async, if not yet obtained
+      try {
+        dynamic r1 = await Requests.get(getURL);
+        csrfToken =
+            getCookieFromString(r1.headers['set-cookie'], "csrftoken", 10);
+      } catch (e) {
+        return "Connection error";
+      }
+    } else {
+      // load the stored CSRF token
+      csrfToken = cookieMap["csrftoken"]!.value;
+    }
+  });
 
   if (csrfToken != "") {
     // Do the POST request with the CSRF token
@@ -55,7 +64,11 @@ Future<dynamic> getRequest(String getEndPoint, dynamic query) async {
   dynamic r1;
 
   try {
-    r1 = await Requests.get(_composeURL(getEndPoint), queryParameters: query);
+    r1 = await Requests.get(_composeURL(getEndPoint),
+        queryParameters: query, persistCookies: true);
+    if (r1.headers['set-cookie'] != null) {
+      getCookieFromString(r1.headers['set-cookie'], "csrftoken", 10);
+    }
   } catch (e) {
     return "Connection error";
   }

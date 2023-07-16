@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -161,11 +162,11 @@ class EditPostPageState extends State<EditPostPage> {
     Map<String, dynamic> body = {
       "title": postTitle,
       "content": postContent,
-      "imgs": postImages,
+      "imgs": jsonEncode(postImages),
       "visibility_async": postVisibility,
     };
 
-    dynamic r = await postWithCSRF(
+dynamic r = await postWithCSRF(
         EndPoints.editPost.endpoint + widget.oldPostData["id"], body);
 
     stopLoadingDialog(context);
