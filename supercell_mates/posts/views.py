@@ -477,8 +477,12 @@ def get_profile_posts(request, username):
     """
 
     try:
-        start_time = float(request.GET["start"])
-        end_time = float(request.GET["end"])
+        if "start" in request.GET:
+            start_time = float(request.GET["start"])
+            end_time = float(request.GET["end"])
+        else:
+            start_time = datetime.now().timestamp() - 3600 * 24
+            end_time = datetime.now().timestamp()
         user_log_obj = UserAuth.objects.get(username=username).user_log
 
         posts_queryset = user_log_obj.posts.filter(time_posted__range=(start_time, end_time)).order_by('-time_posted')
@@ -507,7 +511,7 @@ def get_profile_posts(request, username):
         })
     
     except MultiValueDictKeyError:
-        return HttpResponseBadRequest("start or end date not found in GET parameter")
+        return HttpResponseBadRequest("start date provided but end date not found in GET parameter")
     except ObjectDoesNotExist:
         return HttpResponseNotFound("user with the username not found / tag with requested tag not found")
     except ValueError:
