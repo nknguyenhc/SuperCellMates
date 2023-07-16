@@ -27,6 +27,10 @@ def testing(request):
     return render(request, 'documentation/testing.html')
 
 
+def developer_board(request):
+    return render(request, 'developer-board/index.html')
+
+
 def about(request):
     return render(request, "documentation/about.html")
 
