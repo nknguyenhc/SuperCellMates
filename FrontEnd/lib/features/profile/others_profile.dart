@@ -356,6 +356,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
               width: MediaQuery.of(context).size.width,
               child: profilePostsLoaded
                   ? PostListView(
+                      key: UniqueKey(),
                       postList: profilePosts,
                       isInProfile: true,
                       isMyPost: false,

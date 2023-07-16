@@ -161,7 +161,7 @@ class ProfilePageState extends State<ProfilePage> {
                   )
                 ]),
               ),
-              
+
               // selected tag info, create post button
               SizedBox(
                 height: 50,
@@ -237,6 +237,7 @@ class ProfilePageState extends State<ProfilePage> {
                       width: MediaQuery.of(context).size.width,
                       child: profilePostsLoaded
                           ? PostListView(
+                              key: UniqueKey(),
                               postList: profilePosts,
                               isInProfile: true,
                               isMyPost: true,
