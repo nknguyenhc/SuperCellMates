@@ -257,9 +257,8 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
 
   void _handleImageSelection() async {
     // "send image" function
-    final result = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-    );
+    final result = await ImagePicker()
+        .pickImage(source: ImageSource.gallery, maxHeight: 600, maxWidth: 800);
 
     if (result != null) {
       final croppedImage = await cropImage(result);
@@ -269,7 +268,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
 
         dynamic body = {
           "chat_id": widget.chatInfo["id"],
-          "file": bytes,
+          "file": jsonEncode(bytes),
           "file_name": result.name,
         };
 
@@ -302,7 +301,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
       Uint8List fileBytes = await File(result.paths[0]!).readAsBytes();
       dynamic body = {
         "chat_id": widget.chatInfo["id"],
-        "file": fileBytes,
+        "file": jsonEncode(fileBytes),
         "file_name": result.files[0].name,
       };
       String response = await postWithCSRF(EndPoints.uploadFile.endpoint, body);

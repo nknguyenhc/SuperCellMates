@@ -89,10 +89,10 @@ WSGI_APPLICATION = 'supercell_mates.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'matchminer_local', 
+        'NAME': 'matchminer_local',
         'USER': 'postgres',
         'PASSWORD': 'NkN1720%hC^',
-        'HOST': '127.0.0.1', 
+        'HOST': '127.0.0.1',
         'PORT': '9001',
     }
 }

@@ -10,10 +10,9 @@ from django.utils.http import url_has_allowed_host_and_scheme as is_safe_url
 from django.views.decorators.http import require_http_methods
 import io
 from django.core.files.images import ImageFile
-import magic
-from PIL import Image
+import json
 
-from user_profile.views import verify_image
+from user_profile.views import verify_image, list_to_image_and_verify_async
 
 from .models import UserAuth, Tag, TagRequest, AdminApplication
 from user_profile.models import UserProfile
@@ -127,7 +126,7 @@ def register_user(request):
         return "username too long"
     if len(name) > 15:
         return "name too long"
-    if '/' in name:
+    if not username.isalnum():
         return "malicious username"
 
     try:
@@ -220,6 +219,8 @@ def change_username(request):
 
         if len(new_username) > 15:
             return HttpResponseBadRequest("name too long")
+        if not new_username.isalnum():
+            return HttpResponseBadRequest("malicious username")
 
         if new_username == '' or password == '':
             return HttpResponseBadRequest("empty username/password")
@@ -406,13 +407,8 @@ def add_tag_request(request):
         has_img = False
         if "img" in request.POST:
             has_img = True
-            img_bytearray = request.POST["img"].strip("[]").split(", ")
-            img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
-            img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
-            try:
-                pil_img = Image.open(img)
-                pil_img.verify()
-            except (IOError, SyntaxError):
+            img = list_to_image_and_verify_async(json.loads(request.POST["img"]), request.user.username)
+            if img == "not image":
                 return HttpResponseBadRequest("not image")
         elif "img" in request.FILES:
             has_img = True

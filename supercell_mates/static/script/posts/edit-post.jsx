@@ -13,7 +13,7 @@ function EditPost(props) {
     const [allImgsLoaded, setAllImgsLoaded] = React.useState(false);
     const postId = props.postId;
     const [deleteMessage, setDeleteMessage] = React.useState('');
-    const isLoading = React.useRef(false);
+    const isLoading = React.useRef(true);
     const setIsLoading = (newValue) => isLoading.current = newValue;
 
     React.useEffect(() => {
@@ -44,6 +44,7 @@ function EditPost(props) {
                             setNumOfImgsToLoad(response.images.length);
                             if (response.images.length === 0) {
                                 setAllImgsLoaded(true);
+                                setIsLoading(false);
                             }
                         });
                 }
@@ -67,6 +68,7 @@ function EditPost(props) {
                         setImgs([...imgs, file]);
                         if (imgs.length === numOfImgsToLoad - 1) {
                             setAllImgsLoaded(true);
+                            setIsLoading(false);
                         }
                     });
             });

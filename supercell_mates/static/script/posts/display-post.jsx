@@ -1,18 +1,17 @@
 (() => {
     const username = document.querySelector("#profile-id").innerHTML.slice(1);
     let allPostsLoaded = true;
-    const oneDayTime = 1000 * 24 * 60 * 60;
-    const now = new Date();
-    const yest = new Date(new Date().getTime() - oneDayTime);
-    let currDate = yest;
+    const oneDayTime = 24 * 3600;
+    let currDate;
 
-    fetch(`/post/posts/${username}?start=${yest.getTime() / 1000}&end=${now.getTime() / 1000}`)
+    fetch(`/post/posts/${username}`)
         .then(response => {
             if (response.status !== 200) {
                 triggerErrorMessage();
             } else {
                 response.json()
                     .then(response => {
+                        currDate = response.next;
                         response.posts.forEach(post => {
                             addNewPostCard(post, response.myProfile);
                         });
@@ -45,8 +44,7 @@
     })
     
     function loadMorePosts() {
-        const prevDate = new Date(currDate.getTime() - oneDayTime);
-        fetch(`/post/posts/${username}?start=${prevDate.getTime() / 1000}&end=${currDate.getTime() / 1000}${tag === '' ? '' : `&tag=${tag}`}`)
+        fetch(`/post/posts/${username}?start=${currDate - oneDayTime}&end=${currDate}${tag === '' ? '' : `&tag=${tag}`}`)
             .then(response => {
                 if (response.status !== 200) {
                     triggerErrorMessage();
@@ -54,7 +52,7 @@
                     response.json()
                         .then(response => {
                             if (response.next !== 0) {
-                                currDate = new Date(response.next * 1000);
+                                currDate = response.next;
                             }
                             response.posts.forEach(post => {
                                 addNewPostCard(post, response.myProfile);
