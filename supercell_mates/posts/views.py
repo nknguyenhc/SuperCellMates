@@ -514,7 +514,7 @@ def get_profile_posts(request, username):
             )
         ))
 
-        older_posts = user_log_obj.posts.filter(time_posted__lt=start_time)
+        older_posts = user_log_obj.posts.filter(time_posted__lt=start_time).order_by("-time_posted")
         next_last_timestamp = 0
         if older_posts.exists():
             next_last_timestamp = older_posts.first().time_posted
