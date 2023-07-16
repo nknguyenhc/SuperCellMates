@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:supercellmates/config/config.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 
 import 'package:supercellmates/functions/crop_image.dart';
@@ -24,10 +27,22 @@ class ChangeProfileImageButton extends StatelessWidget {
           final XFile? image = await imagePicker.pickImage(
               source: ImageSource.gallery, maxHeight: 600, maxWidth: 800);
           if (image == null) return;
+
           final CroppedFile? croppedImage = await cropSquaredImage(image);
           if (croppedImage != null) {
+            Uint8List bytes = await croppedImage.readAsBytes();
+            if (bytes.length > GetIt.I<Config>().totalUploadLimit) {
+              showCustomDialog(
+                  context,
+                  "Image too large",
+                  "Your image is larger than 3MB after compression.\n" +
+                      "Please try again with smaller images.\n\n" +
+                      "On behalf of our weak server, we apologise for your inconvenience -_-");
+              return;
+            }
+
             startUploadingDialog(context, "image");
-            var body = {"img": jsonEncode(await croppedImage.readAsBytes())};
+            var body = {"img": jsonEncode(bytes)};
             final response =
                 await postWithCSRF(EndPoints.setProfileImage.endpoint, body);
             stopLoadingDialog(context);

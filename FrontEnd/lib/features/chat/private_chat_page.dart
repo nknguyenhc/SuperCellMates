@@ -269,9 +269,19 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
     if (result != null) {
       final croppedImage = await cropImage(result);
       if (croppedImage != null) {
-        startUploadingDialog(context, "image");
         final bytes = await croppedImage.readAsBytes();
 
+        if (bytes.length > GetIt.I<Config>().totalUploadLimit) {
+          showCustomDialog(
+              context,
+              "Image too large",
+              "Your image is larger than 3MB after compression.\n" +
+                  "Please try again with smaller images.\n\n" +
+                  "On behalf of our weak server, we apologise for your inconvenience -_-");
+          return;
+        }
+
+        startUploadingDialog(context, "image");
         dynamic body = {
           "chat_id": widget.chatInfo["id"],
           "file": jsonEncode(bytes),
@@ -303,8 +313,19 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
     );
 
     if (result != null && result.files.single.path != null) {
-      startUploadingDialog(context, "file");
       Uint8List fileBytes = await File(result.paths[0]!).readAsBytes();
+      if (fileBytes.length > GetIt.I<Config>().totalUploadLimit) {
+        showCustomDialog(
+            context,
+            "File too large",
+            "Your file is larger than 3MB.\n" +
+                "Please try again with smaller files.\n\n" +
+                "On behalf of our weak server, we apologise for your inconvenience -_-");
+        stopLoadingDialog(context);
+        return;
+      }
+
+      startUploadingDialog(context, "file");
       dynamic body = {
         "chat_id": widget.chatInfo["id"],
         "file": jsonEncode(fileBytes),
@@ -334,7 +355,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
         key: _menuKey,
         iconSize: 0,
         enabled: inputEnabled,
-        offset: Offset.fromDirection(pi * 1.5, 50),
+        offset: Offset.fromDirection(pi * 1.4, 95),
         onCanceled: () {
           FocusManager.instance.primaryFocus?.unfocus();
         },

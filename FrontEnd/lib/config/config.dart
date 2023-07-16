@@ -7,6 +7,8 @@ abstract class Config {
 
   String get wsBaseURL;
 
+  int get totalUploadLimit;
+
   // /// Time limit (ms) for making connections (uploading)
   // int get connectTimeout;
 
