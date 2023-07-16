@@ -6,10 +6,10 @@ class ProdConfig extends Config {
 
   /// Your local server
   @override
-  String get restBaseURL => "http://matchminer.pythonanywhere.com";
+  String get restBaseURL => "https://matchminer-d5ebcada4488.herokuapp.com";
 
   @override
-  String get wsBaseURL => "ws://matchminer.pythonanywhere.com/ws";
+  String get wsBaseURL => "wss://matchminer-d5ebcada4488.herokuapp.com/ws";
 
   @override
   int get totalUploadLimit => 3000000; // 3MB
