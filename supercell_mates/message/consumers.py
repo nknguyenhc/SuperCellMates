@@ -64,7 +64,7 @@ class AbstractMessageConsumer(ABC, AsyncWebsocketConsumer):
             "id": reply_post_message.post.id,
             "title": reply_post_message.post.title,
             "content": reply_post_message.post.content,
-        })
+        } if reply_post_message.post else None)
 
 
     @abstractmethod

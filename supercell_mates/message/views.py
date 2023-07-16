@@ -549,7 +549,7 @@ def message_info(message_obj):
                 "id": message_obj.post.id,
                 "title": message_obj.post.title,
                 "content": message_obj.post.content
-            }
+            } if message_obj.post else None
         })
     return result
 

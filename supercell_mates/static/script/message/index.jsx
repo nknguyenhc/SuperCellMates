@@ -596,10 +596,10 @@ function Message({ text, username }) {
                     ? <Text text={text.message} /> 
                     : text.type === "reply_post"
                     ? <div className="text-line-content-text">
-                        <a href={"/post/display?id=" + text.post.id} className="text-line-post-hyperlink">
+                        {text.post !== null ? <a href={"/post/display?id=" + text.post.id} className="text-line-post-hyperlink">
                             <div className="text-line-post-title">{text.post.title.length > 50 ? text.post.title.slice(0, 40) + ' ...' : text.post.title}</div>
                             <div className="text-line-post-content">{text.post.content.length > 50 ? text.post.content.slice(0, 40) + ' ...' : text.post.content}</div>
-                        </a>
+                        </a> : <div className="fst-italic">This post has been deleted</div>}
                         <Text text={text.message} />
                     </div>
                     : text.is_image 
