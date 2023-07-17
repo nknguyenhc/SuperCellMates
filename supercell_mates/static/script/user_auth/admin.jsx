@@ -90,8 +90,7 @@ function AddTags() {
     const isLoading = React.useRef(false);
     const setIsLoading = (newValue) => isLoading.current = newValue;
     
-    function addTag(event) {
-        event.preventDefault();
+    function addTag() {
         if (tagName === '') {
             setEmptyErrorMessageTriggered(true);
             return;
@@ -113,6 +112,7 @@ function AddTags() {
                         addTagAdminButton.current.click();
                         setTagName('');
                         setImgFile(null);
+                        setImagePreview('');
                         fileInput.current.files = null;
                         setEmptyErrorMessageTriggered(false);
                     } else {
@@ -131,18 +131,23 @@ function AddTags() {
 
     return (
         <React.Fragment>
-            <form onSubmit={addTag}>
+            <form onSubmit={event => event.preventDefault()}>
                 <div className="m-3">
                     <label htmlFor="tag-input" className="form-label">Tag</label>
                     <input type="text" className="form-control" id="tag-input-admin" autoComplete="off" value={tagName} onChange={event => setTagName(event.target.value.slice(0, 25))} />
                 </div>
-                <div className="m-3" id="new-tag-admin-icon">
+                <div className="m-3 mb-0" id="new-tag-admin-icon">
                     <div>Icon:</div>
                     <div>{imagePreview}</div>
                 </div>
-                <input ref={fileInput} type="file" accept="image/*" className="form-control m-3" onChange={iconUpload} />
+                <div className="ms-3">
+                    <input ref={fileInput} id="tag-icon-file" type="file" accept="image/*" className="form-control m-3 img-input" onChange={iconUpload} />
+                    <button htmlFor="tag-icon-file" onClick={() => fileInput.current.click()} className="add-image-label">
+                        <img src="/static/media/add-image-icon.png" />
+                    </button>
+                </div>
                 <div className="m-3">
-                    <input type="submit" class="btn btn-primary" value="Add Tag" />
+                    <input type="submit" class="btn btn-primary" value="Add Tag" onClick={addTag} />
                 </div>
                 <div className="m-3 alert alert-danger" role="alert" style={{display: emptyErrorMessageTriggered ? "block" : "none"}}>Tag cannot be empty!</div>
             </form>

@@ -335,7 +335,7 @@ def new_tag_admin(request):
                 tag_name = request.POST["tag"]
                 if len(tag_name) > 25:
                     return HttpResponseBadRequest("tag name too long")
-                if TagRequest.objects.filter(name=tag_name).exists() or Tag.objects.filter(name=tag_name).exists():
+                if duplicate_tag_exists(tag_name):
                     return HttpResponse("Tag already exists/Tag request already exists")
 
                 has_img = False
