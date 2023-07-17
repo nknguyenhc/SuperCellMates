@@ -28,6 +28,7 @@ urlpatterns = [
     path('change_password', views.change_password, name="change_password"),
     path('documentation', views.documentation, name='documentation'),
     path('testing', views.testing, name='testing'),
+    path('developer_board', views.developer_board, name='developer_board'),
     path('apply_admin', views.admin_application, name='admin_application'),
     path('manage_admin', views.manage_admin, name='manage_admin'),
     path('get_admin_requests', views.get_admin_requests, name='get_admin_requests'),

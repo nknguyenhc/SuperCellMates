@@ -1,0 +1,24 @@
+{
+    "sections": [
+        {
+            "question": "Is my password safe?",
+            "answer": "We use default django implementation for password storage. You can read up more about django implementation of password storage and authentication `https://docs.djangoproject.com/en/4.2/topics/auth/passwords/`here`. In summary, password is not stored as raw password, but rather the hash and salt of the password. Through multiple rounds of hashing, password can never be recovered. The stored value can be used to check if an input password is correct, but can never be used to derive the actual value of password."
+        },
+        {
+            "question": "Where is the share function?",
+            "answer": "As mentioned in our `/about`readme`, we do not want to turn our platform into a conventional social media platform where likes and shares are metrics of your appearance. Hence, this feature will never be implemented on our platform. However, as many of you wish to forward posts on our platform to others, we allowed viewers of a post to copy URL to the post, which afterwards can be pasted as hyperlinks in other platforms."
+        },
+        {
+            "question": "After sending a friend request to my friend, my friend's profile page should display pending request instead of the add friend button.",
+            "answer": "As mentioned in our `/about`readme`, we do not want our platform to pose further social media pressures onto users. This includes waiting for friend requests to be approved, or seeing your friend requests being rejected. Users therefore can feel free to reject a friend request without the sending knowing or tracking."
+        },
+        {
+            "question": "While creating a post, after attaching a tag to it, I cannot deselect the tag.",
+            "answer": "As mentioned in our `/about`readme`, the tag system is an essential part of our platform. This means that you need tags to explore our platform, and each post must be accompanied by a tag. Essentially, this is an interest-sharing platform which works around the tag system. To highlight compulsory fields better, we have added asterisks at fields that are compulsory."
+        },
+        {
+            "question": "I do not want to go through the trouble of uploading a new icon while suggesting the new tag.",
+            "answer": "Absolutely, you do not have to! Our admin will be able to change the icon attached to a tag. We have made improvements to our UI, currently it is showing that tag name field is compulsory, but icon is optional."
+        }
+    ]
+}
