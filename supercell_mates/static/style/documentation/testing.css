@@ -19,3 +19,14 @@
     resize: none;
     font: revert;
 }
+
+.user-testing-summary-window {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.user-testing-section {
+    display: flex;
+    flex-direction: column;
+}

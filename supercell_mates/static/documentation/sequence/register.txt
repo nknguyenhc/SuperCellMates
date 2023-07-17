@@ -1,0 +1,38 @@
+title Register
+
+actor User
+participant Frontend
+participant Backend
+database Database
+
+User->Frontend:redirect to register
+activate User
+activate Frontend
+Frontend->Backend:request for template
+activate Backend
+Frontend<--Backend:return template
+deactivate Backend
+User<--Frontend:display template
+loop username already exists
+loop details invalid
+User->Frontend:submit details
+User<--Frontend:alert details invalid
+end
+Frontend->Backend:submit details
+activate Backend
+activate Backend
+Backend->Database:create new user
+activate Database
+activate Database
+Backend<--Database:username already exists
+deactivate Database
+Frontend<--Backend:username already exists
+deactivate Backend
+User<--Frontend:username already exists
+end 
+Backend<--Database:user is created
+deactivate Database
+Frontend<--Backend:new template
+deactivate Backend
+User<--Frontend: display new template
+deactivate Frontend

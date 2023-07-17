@@ -18,20 +18,30 @@ function Testing() {
                 "profile",
                 "settings"
             ]
+        },
+        {
+            display: "User Testing",
+            path: "user_testing/",
+            apps: [
+                "summary",
+                "bugs",
+            ]
         }
     ];
     const [displayIndex, setDisplayIndex] = React.useState(-1);
     const [appDisplay, setAppDisplay] = React.useState(-1);
     const [backendViews, setBackendViews] = React.useState([]);
     const [webFrontendViews, setWebFrontendViews] = React.useState([]);
+    const [userTestingViews, setUserTestingViews] = React.useState([]);
     const [backendNotes, setBackendNotes] = React.useState('');
     const [webFrontendNotes, setWebFrontendNotes] = React.useState('');
-    const views = [backendViews, webFrontendViews];
-    const viewSetters = [setBackendViews, setWebFrontendViews];
-    const notes = [backendNotes, webFrontendNotes];
-    const noteSetters = [setBackendNotes, setWebFrontendNotes];
+    const [userTestingNotes, setUserTestingNotes] = React.useState('');
+    const views = [backendViews, webFrontendViews, userTestingViews];
+    const viewSetters = [setBackendViews, setWebFrontendViews, setUserTestingViews];
+    const notes = [backendNotes, webFrontendNotes, userTestingNotes];
+    const noteSetters = [setBackendNotes, setWebFrontendNotes, setUserTestingNotes];
     const viewNotes = displayIndex >= 0 ? notes[displayIndex] : '';
-    const Renderers = [BackendView, WebFrontendView];
+    const Renderers = [BackendView, WebFrontendView, UserTestingView];
     const Renderer = displayIndex >= 0 && displayIndex < structures.length && appDisplay >= 0 && appDisplay < structures[displayIndex].apps.length
         && Renderers[displayIndex];
 
@@ -80,7 +90,7 @@ function Testing() {
             <div id="testing-content" className="pt-3 pb-5">
                 {
                     displayIndex >= 0 && displayIndex < structures.length && appDisplay >= 0 && appDisplay < structures[displayIndex].apps.length
-                    && <Renderer tests={views[displayIndex][appDisplay].tests} />
+                    && <Renderer tests={views[displayIndex][appDisplay].tests} name={views[displayIndex][appDisplay].name} />
                 }
             </div>
         </div>
@@ -155,6 +165,62 @@ function WebFrontendView({ tests }) {
             </tbody>
         </table>
     )
+}
+
+
+function UserTestingView({ tests, name }) {
+    if (name === 'summary') {
+        return (
+            <div className="user-testing-summary-window">
+                {tests.map(section => (
+                    <div className="user-testing-section">
+                        <h5>{section.name}</h5>
+                        <table className="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Question</th>
+                                    <th scope="col">Responses</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {section.questions.map(question => (
+                                    <tr>
+                                        <td>{question.question}</td>
+                                        <td>
+                                            <img src={"/static/testing/user_testing/" + question.img} width="600" />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ))}
+            </div>
+        )
+    } else if (name === 'bugs') {
+        return (
+            <table className="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Issue</th>
+                        <th scope="col">Cause</th>
+                        <th scope="col">Action taken</th>
+                        <th scope="col">Lesson learnt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {tests.map(bug => (
+                        <tr>
+                            <td>{bug.bug}</td>
+                            <td>{bug.cause}</td>
+                            <td>{bug.fix}</td>
+                            <td>{bug.lesson}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        )
+    }
 }
 
 
