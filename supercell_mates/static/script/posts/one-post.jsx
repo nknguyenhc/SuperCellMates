@@ -73,3 +73,47 @@ function Post(props) {
         </React.Fragment>
     );
 }
+
+
+function FilterMessage({ count }) {
+    const filterMessageDiv = React.useRef(null);
+    const [timer, dispatchTimer] = React.useReducer((state, action) => {
+        if (action === 'reset') {
+            return 5;
+        } else if (action === 'countdown') {
+            return state - 1;
+        }
+    }, 5);
+    const timeout = React.useRef(null);
+    const interval = React.useRef(null);
+
+    React.useEffect(() => {
+        function addClasses() {
+            filterMessageDiv.current.classList.add('filter-message-transition');
+            filterMessageDiv.current.classList.add('filter-message-position');
+            filterMessageDiv.current.classList.add('filter-message-fading');
+        }
+        function removeClasses() {
+            filterMessageDiv.current.classList.remove('filter-message-transition');
+            filterMessageDiv.current.classList.remove('filter-message-position');
+            filterMessageDiv.current.classList.remove('filter-message-fading');
+        }
+
+        if (count !== 0) {
+            clearTimeout(timeout.current);
+            clearInterval(interval.current);
+            removeClasses();
+            setTimeout(addClasses, 10);
+            timeout.current = setTimeout(() => {
+                removeClasses();
+                window.location.reload();
+            }, 5000);
+            dispatchTimer('reset');
+            interval.current = setInterval(() => {
+                dispatchTimer('countdown');
+            }, 1000);
+        }
+    }, [count]);
+
+    return <div id="filter-message" ref={filterMessageDiv} class="alert alert-info" role="alert">Filter applied! Reloading in {timer} seconds.</div>
+}

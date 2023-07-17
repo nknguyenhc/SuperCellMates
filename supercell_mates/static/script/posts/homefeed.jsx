@@ -1,17 +1,22 @@
 function HomeFeed() {
-    const sortMethod = React.useRef("time");
-    const isFriendFilter = React.useRef(false);
-    const isTagFilter = React.useRef(false);
+    const [sortMethod, setSortMethod] = React.useState("time");
+    const [isFriendFilter, setIsFriendFilter] = React.useState(
+        getJSONItemFromLocal('isFriendFilter', false)
+    );
+    const [isTagFilter, setIsTagFilter] = React.useState(
+        getJSONItemFromLocal('isTagFilter', false)
+    );
     const isAllPostsLoaded = React.useRef(false);
     const startTimestamp = React.useRef('');
     const postsPerLoad = 10;
     const homeFeedContent = React.useRef(null);
-    const filterMessageDiv = React.useRef(null);
-    const messageTimeout = React.useRef(null);
+    const [isFriendFilterClicked, setIsFriendFilterClicked] = React.useState(false);
+    const [isTagFilterClicked, setIsTagFilterClicked] = React.useState(false);
+    const [count, dispatchCount] = React.useReducer(state => state + 1, 0);
 
-    const setSortMethod = (newSortMethod) => sortMethod.current = newSortMethod;
-    const setIsFriendFilter = (newValue) => isFriendFilter.current = newValue;
-    const setIsTagFilter = (newValue) => isTagFilter.current = newValue;
+    // const setSortMethod = (newSortMethod) => sortMethod.current = newSortMethod;
+    // const setIsFriendFilter = (newValue) => isFriendFilter.current = newValue;
+    // const setIsTagFilter = (newValue) => isTagFilter.current = newValue;
     const setIsAllPostsLoaded = (newValue) => isAllPostsLoaded.current = newValue;
     const setStartTimestamp = (newStarTimestamp) => startTimestamp.current = newStarTimestamp;
 
@@ -42,7 +47,7 @@ function HomeFeed() {
     }, []);
 
     function loadMorePosts() {
-        return fetch(`/post/?friend_filter=${isFriendFilter.current ? 1 : 0}&tag_filter=${isTagFilter.current ? 1 : 0}&sort=${sortMethod.current}&start_timestamp=${startTimestamp.current}&limit=${postsPerLoad}`)
+        return fetch(`/post/?friend_filter=${isFriendFilter ? 1 : 0}&tag_filter=${isTagFilter ? 1 : 0}&sort=${sortMethod}&start_timestamp=${startTimestamp.current}&limit=${postsPerLoad}`)
             .then(response => {
                 if (response.status !== 200) {
                     triggerErrorMessage();
@@ -51,7 +56,6 @@ function HomeFeed() {
                 return response.json().then(response => {
                     response.posts.forEach(post => {
                         post.time_posted *= 1000;
-                        console.log(post.time_posted);
                         const postCard = document.createElement('div');
                         postCard.className = 'post-card';
                         ReactDOM.render(<Post post={post} myProfile={false} />, postCard);
@@ -62,46 +66,34 @@ function HomeFeed() {
             });
     }
 
-    function popFilterMessage() {
-        function addClasses() {
-            filterMessageDiv.current.classList.add('filter-message-transition');
-            filterMessageDiv.current.classList.add('filter-message-position');
-            filterMessageDiv.current.classList.add('filter-message-fading');
-        }
-        function removeClasses() {
-            filterMessageDiv.current.classList.remove('filter-message-transition');
-            filterMessageDiv.current.classList.remove('filter-message-position');
-            filterMessageDiv.current.classList.remove('filter-message-fading');
-        }
-
-        clearTimeout(messageTimeout.current);
-        removeClasses();
-        setTimeout(addClasses, 10);
-        messageTimeout.current = setTimeout(removeClasses, 2000);
-    }
-
     return (
         <React.Fragment>
             <div id="home-feed-content" ref={homeFeedContent}></div>
             <div id="home-feed-filters">
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="friend-filter" onChange={event => {
-                        setIsFriendFilter(event.target.checked);
-                        setIsAllPostsLoaded(false);
-                        popFilterMessage();
+                    <input class="form-check-input" type="checkbox" role="switch" id="friend-filter" checked={isFriendFilter} onChange={event => {
+                        if (!isFriendFilterClicked) {
+                            setIsFriendFilterClicked(true);
+                            setIsFriendFilter(event.target.checked);
+                            dispatchCount();
+                            localStorage.setItem('isFriendFilter', !isFriendFilter);
+                        }
                     }} />
                     <label class="form-check-label" for="friend-filter">My friends only</label>
                 </div>
                 <div className="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="tag-filter" onChange={event => {
-                        setIsTagFilter(event.target.checked);
-                        setIsAllPostsLoaded(false);
-                        popFilterMessage();
+                    <input class="form-check-input" type="checkbox" role="switch" id="tag-filter" checked={isTagFilter} onChange={event => {
+                        if (!isTagFilterClicked) {
+                            setIsTagFilterClicked(true);
+                            setIsTagFilter(event.target.checked);
+                            dispatchCount();
+                            localStorage.setItem('isTagFilter', !isTagFilter);
+                        }
                     }} />
                     <label class="form-check-label" for="tag-filter">My tags only</label>
                 </div>
             </div>
-            <div id="filter-message" ref={filterMessageDiv} class="alert alert-info" role="alert">Filter will be applied when you scroll to the bottom!</div>
+            <FilterMessage count={count} />
         </React.Fragment>
     )
 }
