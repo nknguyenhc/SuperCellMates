@@ -1,0 +1,23 @@
+{
+    "name": "bugs",
+    "tests": [
+        {
+            "bug": "When user deletes a post, an error message might pop up, although the post has actually been deleted, and nothing went wrong.",
+            "cause": "The information of the post might not have fully loaded before the user clicks delete. Upon deleting the post, the post is no longer there, hence information about the post yet to be loaded cannot be found and causes the error to pop up.",
+            "fix": "Allow the user to only delete the post when the post has fully loaded.",
+            "lesson": "This error is caused by slow internet connection, in fact, slow connection to the file storage system. Hence during development, we also test by manually slow down the internet connection to make sure our platform works well regardless of internet connection."
+        },
+        {
+            "bug": "Some posts in the profile page are not rendered.",
+            "cause": "Loading of posts require fetching the posts batch by batch, using the epoch timestamp of the next post given from backend. This means that exact epoch timestamp must be given back to backend for the next posts to be loaded correctly. However, web frontend use Date object to store the time, and convert it back to epoch timestamp to load the next posts. Hence, for example, timestamp of the next post is .430021, but the Date object only store timestamp of .43, causing the post published at .430021 to not be loaded",
+            "fix": "Do away with Date library, and store the timestamp given from backend as a number instead of a Date object.",
+            "lesson": "The Date object in javascript should only be used to render time in frontend, but should not be used to store information used to communicate with backend."
+        },
+        {
+            "bug": "On a beautiful day, admin interface breaks, as current tag requests could not be loaded. Server log shows that the request to obtain tag requests gives error code 500. Refreshing the server still gives the same error code.",
+            "cause": "Upon closer inspection, someone requested the tag with name 'Manga/Anime', which contains a slash. Previously, URLs to load tag icon contains icon name. The server can only recognise URL '/profile/tag/<str:name>' with 3 slashes, but cannot recognise URL '/profile/tag/<str:name with slash>' with 4 slashes",
+            "fix": "Do away with URL pattern containing name, and change it to id, hence removing user-input texts from the URL in the server.",
+            "lesson": "Avoid user-input texts from URL pattern recognition as far as possible. Username is still an essential part of URL patterns, hence we forbid users from having special characters in their usernames and allow only alphanumeric characters."
+        }
+    ]
+}
