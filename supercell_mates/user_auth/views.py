@@ -392,6 +392,44 @@ def obtain_tag_requests(request):
 
 
 @login_required
+def obtain_tags(request):
+    result = list(map(
+        lambda tag: {
+            "name": tag.name,
+            "icon": reverse("user_profile:get_tag_icon", args=(tag.id,)),
+        },
+        list(Tag.objects.all())
+    ))
+    result.sort(key=lambda tag: tag["name"].lower())
+
+    return JsonResponse({
+        "tags": result
+    })
+
+
+def change_tag_icon(request):
+    if request.user.is_staff:
+        if request.method == 'POST':
+            try:
+                tag = Tag.objects.get(name=request.POST["name"])
+                icon = request.FILES['icon']
+                if not verify_image(icon):
+                    return HttpResponseBadRequest("not image")
+                tag.image = icon
+                tag.save()
+                return HttpResponse("icon changed")
+            except MultiValueDictKeyError:
+                return HttpResponseBadRequest("request is missing an important key")
+            except ObjectDoesNotExist:
+                return HttpResponseBadRequest("tag with provided name does not exist")
+        else:
+            return HttpResponseNotAllowed(["POST"])
+    else:
+        return HttpResponseForbidden()
+
+
+
+@login_required
 @require_http_methods(["POST"])
 def add_tag_request(request):
     try:
