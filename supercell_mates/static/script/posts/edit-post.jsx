@@ -296,3 +296,28 @@ function popEditView(postId) {
     editPage.appendChild(newWindow)
     editPage.style.display = "block";
 }
+
+
+function editPostCard(postId) {
+    const oldCard = document.getElementById("post-card-" + postId);
+    fetch('/post/post/' + postId)
+        .then(response => {
+            if (response.status !== 200) {
+                triggerErrorMessage();
+            } else {
+                response.json()
+                    .then(post => {
+                        post.time_posted *= 1000;
+                        ReactDOM.render(<Post post={post} myProfile={true} />, oldCard);
+                    });
+            }
+        });
+}
+
+
+function deletePostCard(postId) {
+    const editPage = document.querySelector("#edit-post");
+    document.getElementById("post-card-" + postId).remove();
+    Array.from(editPage.children).forEach(child => editPage.removeChild(child));
+    editPage.style.display = "none";
+}
