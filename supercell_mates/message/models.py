@@ -42,6 +42,12 @@ class PrivateTextMessage(TextMessage):
     user = models.ForeignKey('user_auth.UserAuth', on_delete=models.CASCADE, related_name='private_text_messages')
 
 
+class ReplyPostMessage(TextMessage):
+    chat = models.ForeignKey(PrivateChat, on_delete=models.CASCADE, related_name='reply_post_messages')
+    post = models.ForeignKey('posts.Post', on_delete=models.SET_NULL, related_name='replies', null=True)
+    user = models.ForeignKey('user_auth.UserAuth', on_delete=models.CASCADE, related_name='reply_post_messages')
+
+
 class GroupTextMessage(TextMessage):
     chat = models.ForeignKey(GroupChat, on_delete=models.CASCADE, related_name='text_messages')
     user = models.ForeignKey('user_auth.UserAuth', on_delete=models.CASCADE, related_name='group_text_messages')
