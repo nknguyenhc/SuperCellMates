@@ -25,8 +25,9 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: EditPostRoute.page),
         AutoRoute(page: SinglePhotoViewer.page),
         AutoRoute(page: MultiplePhotosViewer.page),
-        AutoRoute(page: PrivateChatRoute.page),
-        AutoRoute(page: GroupChatRoute.page),
+        AutoRoute(page: ChatRoomRoute.page),
         AutoRoute(page: CreateGroupChatRoute.page),
+        AutoRoute(page: GroupChatSettingsRoute.page),
+        AutoRoute(page: GroupChatInviteFriendRoute.page),
       ];
 }

@@ -34,6 +34,56 @@ void showConfirmationDialog(
       });
 }
 
+void showConfirmationDialogWithInput(BuildContext context, String message,
+    String hint, dynamic confirmationCallback) {
+  showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        String input = "";
+        return AlertDialog(
+          title: const Text("Confirmation"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text(message),
+                  ],
+                ),
+              ),
+              const Padding(padding: EdgeInsets.only(top: 20)),
+              TextField(
+                obscureText: true,
+                decoration: InputDecoration(
+                    hintText: hint,
+                    isDense: true,
+                    contentPadding: const EdgeInsets.only(
+                      bottom: 5,
+                    )),
+                onChanged: (value) => input = value,
+              )
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('No'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Yes'),
+              onPressed: () {
+                confirmationCallback(input);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      });
+}
+
 void showSuccessDialog(BuildContext context, String message) {
   showDialog<void>(
       context: context,

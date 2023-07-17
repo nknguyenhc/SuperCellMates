@@ -19,6 +19,7 @@ enum EndPoints {
   viewFriendRequests,
   addFriendRequest,
   search,
+  searchFriend,
   viewProfile,
   addFriend,
   deleteFriend,
@@ -31,10 +32,20 @@ enum EndPoints {
   getHomeFeed,
 
   getPrivateChats,
+  getGroupChats,
   getPrivateMessages,
   getGroupMessages,
   uploadFile,
-  getImage
+  getImage,
+  // isAdmin,
+  // isCreator,
+  getMembers,
+  // getAdmins,
+  addMember,
+  removeUser,
+  removeAdmin,
+  addAdmin,
+  assignLeader,
 
 }
 
@@ -58,6 +69,7 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.viewFriendRequests: "/user/friend_requests_async",
     EndPoints.addFriendRequest: "/user/add_friend_request",
     EndPoints.search: "/user/search", // TODO: broader search and remove '/user'
+    EndPoints.searchFriend: "/user/search_friend",
     EndPoints.viewProfile: "/user/profile_async",
     EndPoints.addFriend: "/user/add_friend",
     EndPoints.deleteFriend: "/user/delete_friend",
@@ -67,10 +79,20 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.deletePost: "/post/delete",
     EndPoints.getHomeFeed: "/post/",
     EndPoints.getPrivateChats: "/messages/get_private_chats",
+    EndPoints.getGroupChats: "/messages/get_group_chats",
     EndPoints.getPrivateMessages: "/messages/get_private_messages/",
     EndPoints.getGroupMessages: "/messages/get_group_messages/",
     EndPoints.uploadFile: "/messages/upload_file",
-    EndPoints.getImage: "/messages/image/"
+    EndPoints.getImage: "/messages/image/",
+    // EndPoints.isAdmin: "/messages/is_admin",
+    // EndPoints.isCreator: "/messages/is_creator",
+    EndPoints.getMembers: "/messages/get_members",
+    // EndPoints.getAdmins: "/messages/get_admins",
+    EndPoints.addMember: "/messages/add_member",
+    EndPoints.removeUser: "/messages/remove_user",
+    EndPoints.removeAdmin: "/messages/remove_admin",
+    EndPoints.addAdmin: "/messages/add_admin",
+    EndPoints.assignLeader: "/messages/assign_leader",
     
 
   };

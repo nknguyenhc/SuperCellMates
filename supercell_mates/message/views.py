@@ -94,6 +94,7 @@ def get_members(request):
             lambda user: {
                 "name": user.user_profile.name,
                 "username": user.username,
+                "role": get_user_role(chat_id, user.username),
                 "profile_link": reverse("user_log:view_profile", args=(user.username,)),
                 "profile_pic_url": reverse("user_profile:get_profile_pic", args=(user.username,)),
             },
@@ -109,6 +110,15 @@ def get_members(request):
         return HttpResponseBadRequest("chat id not found in GET parameters")
     except ObjectDoesNotExist:
         return HttpResponseBadRequest("invalid chat id")
+
+
+def get_user_role(chat_id, username):
+    if GroupChat.objects.get(id=chat_id).creator.username == username:
+        return "creator"
+    elif GroupChat.objects.get(id=chat_id).admins.filter(username=username).exists():
+        return "admin"
+    else:
+        return "member"
 
 
 @login_required
