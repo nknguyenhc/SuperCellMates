@@ -115,5 +115,5 @@ function FilterMessage({ count }) {
         }
     }, [count]);
 
-    return <div id="filter-message" ref={filterMessageDiv} class="alert alert-info" role="alert">Filter applied! Reloading in {timer} seconds</div>
+    return <div id="filter-message" ref={filterMessageDiv} class="alert alert-info" role="alert">Filter applied! Reloading in {timer} seconds.</div>
 }

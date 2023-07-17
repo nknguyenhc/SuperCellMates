@@ -199,7 +199,7 @@ function EditPost(props) {
             <div className="mb-3">
                 <label htmlFor="post-content" className="form-label">Content</label>
                 <textarea id="post-content" rows="6" className="form-control" value={content} ref={contentInput} onChange={event => {
-                    setContent(event.target.value.slice(0, 2000));
+                    setContent(event.target.value.slice(0, 1950));
                 }}></textarea>
                 <div className="invalid-feedback">Please enter some content</div>
             </div>
