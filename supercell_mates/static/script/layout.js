@@ -43,6 +43,10 @@ function formatNumber(num, numOfDigits) {
     }
 }
 
+function isAlphaNumeric(str) {
+    return /^[A-Za-z0-9]*$/.test(str);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const editPages = document.querySelectorAll(".edit-page");
     editPages.forEach(editPage => editPage.addEventListener("click", event => {
