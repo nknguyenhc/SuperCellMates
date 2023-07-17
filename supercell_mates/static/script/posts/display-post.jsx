@@ -26,21 +26,28 @@
             }
         });
     
-    let tag = '';
+    const profilePageFilters = getJSONItemFromLocal('profilePageFilters', {});
+    const tag = profilePageFilters[username] ? profilePageFilters[username] : '';
     const tagFilters = Array.from(document.querySelectorAll("#nav-tag-list .tag-listing"));
     tagFilters.forEach(tagListing => {
+        const tagInnerText = tagListing.querySelector('.tag-name').innerText;
+        if (tagInnerText === tag) {
+            tagListing.querySelector('label').click();
+        }
         tagListing.addEventListener('click', () => {
-            tag = tagListing.querySelector('.tag-name').innerText;
-            allPostsLoaded = false;
+            const currProfilePageFilters = getJSONItemFromLocal('profilePageFilters', {});
+            currProfilePageFilters[username] = tagInnerText;
+            localStorage.setItem('profilePageFilters', JSON.stringify(currProfilePageFilters));
         });
     });
     const filterClearer = document.querySelector("#nav-clear-filter")
     filterClearer && filterClearer.addEventListener('click', () => {
+        const currProfilePageFilters = getJSONItemFromLocal('profilePageFilters', {});
+        currProfilePageFilters[username] = '';
+        localStorage.setItem('profilePageFilters', JSON.stringify(currProfilePageFilters));
         tagFilters.forEach(tagListing => {
             tagListing.querySelector('input').checked = false;
-            allPostsLoaded = false;
-        })
-        tag = '';
+        });
     })
     
     function loadMorePosts() {

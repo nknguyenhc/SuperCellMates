@@ -30,7 +30,7 @@
 }
 
 .filter-message-transition {
-    transition: transform 0.5s ease-in-out, opacity 2s ease-in-out;
+    transition: transform 0.5s ease-in-out, opacity 5s ease-in-out;
 }
 
 .filter-message-position {

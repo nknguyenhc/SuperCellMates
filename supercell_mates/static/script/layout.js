@@ -43,6 +43,18 @@ function formatNumber(num, numOfDigits) {
     }
 }
 
+function getJSONItemFromLocal(key, defaultValue) {
+    if (localStorage.getItem(key)) {
+        try {
+            return JSON.parse(localStorage.getItem(key));
+        } catch {
+            return defaultValue;
+        }
+    } else {
+        return defaultValue;
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const editPages = document.querySelectorAll(".edit-page");
     editPages.forEach(editPage => editPage.addEventListener("click", event => {
