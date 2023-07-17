@@ -37,7 +37,10 @@ document.addEventListener("DOMContentLoaded", () => {
             addErrMessage("Username is too long", messageDiv, usernameInput, "Username must be 15 characters or less");
         } else if (!usernameUnique) {
             event.preventDefault();
-            addErrMessage("Username cannot be empty", messageDiv, usernameInput, 'Username taken, please enter a different username');
+            addErrMessage("Username is taken, please enter a different username", messageDiv, usernameInput, 'Username is taken');
+        } else if (!isAlphaNumeric(usernameInput.value)) {
+            event.preventDefault();
+            addErrMessage("Username can only contains alphabets (lower and upper case) and numbers", messageDiv, usernameInput, "Username cannot contain special characters")
         } else {
             approve(usernameInput);
         }

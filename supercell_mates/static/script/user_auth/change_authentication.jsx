@@ -13,6 +13,9 @@ function ChangeUsername() {
         } else if (newUsername.length > 15) {
             setErrorMessage('Username must be 15 characters or less');
             return;
+        } else if (!isAlphaNumeric(newUsername)) {
+            setErrorMessage('Username can only contain alphabets (lower and upper case) and numbers');
+            return;
         } else if (password === '') {
             setErrorMessage('Password cannot be empty');
             return;
