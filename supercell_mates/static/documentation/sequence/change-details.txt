@@ -1,0 +1,37 @@
+title Change Username/Password/Name
+
+actor User
+participant Frontend
+participant Backend
+database Database
+
+User->Frontend:request change details
+activate User
+activate Frontend
+User<--Frontend:change details template
+loop invalid current password
+loop invalid new details
+User->Frontend:submit details & current password
+User<--Frontend:alert invalid new details
+end 
+Frontend->Backend:submit details & current password
+activate Backend
+activate Backend
+Backend->Database:validate current password
+activate Database
+activate Database
+Backend<--Database:invalid password
+deactivate Database
+Frontend<--Backend:invalid password
+deactivate Backend
+User<--Frontend:invalid password
+end
+Backend<--Database:valid password
+deactivate Database
+Backend->Database:update details
+activate Database
+Backend<--Database:details updated
+deactivate Database
+Frontend<--Backend:details updated
+deactivate Backend
+User<--Frontend:details updated

@@ -1,0 +1,43 @@
+title Tag Setup
+
+actor User
+participant Frontend
+participant Backend
+database Database
+
+User->Frontend:request setup
+activate User
+activate Frontend
+Frontend->Backend:request setup
+activate Backend
+Frontend<--Backend:return template
+deactivate Backend
+User<--Frontend:display template
+Frontend->Backend:get user's current tags
+Frontend<--Backend:return user's current tags
+User<--Frontend:display user's current tags
+loop user stay on page
+User->Frontend:search for tags
+Frontend->Backend:search for tags
+activate Backend
+Backend->Database:query matching tags
+activate Database
+Backend<--Database:return matching tags
+deactivate Database
+Frontend<--Backend:return matching tags
+deactivate Backend
+User<--Frontend:display matching tags
+loop tag limit reached
+User->Frontend:request add tags
+User<--Frontend:tag limit reached
+end 
+Frontend->Backend:request add tags
+activate Backend
+Backend->Database:add tags
+activate Database
+Backend<--Database:tags added
+deactivate Database
+Frontend<--Backend:tags added
+deactivate Backend
+User<--Frontend:tags added
+end
