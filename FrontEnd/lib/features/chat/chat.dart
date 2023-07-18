@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:supercellmates/features/chat/chat_listview.dart';
 import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
+import 'package:supercellmates/router/router.gr.dart';
 
 class ChatPage extends StatefulWidget {
   ChatPage({Key? key, required this.username}) : super(key: key);
@@ -49,15 +51,31 @@ class ChatPageState extends State<ChatPage> {
     }
     dynamic response = jsonDecode(responseJson);
     setState(() {
-      chatList = index == 0
-          ? response["privates"]
-          : response["groups"];
+      chatList = index == 0 ? response["privates"] : response["groups"];
       dataLoaded = true;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    TextButton createGroupButton = TextButton(
+        onPressed: () {
+          context.router.push(CreateGroupRoute(updateCallBack: () => loadChats(1)));
+        },
+        style: const ButtonStyle(padding: MaterialStatePropertyAll(EdgeInsets.only(top:5))),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add,
+              size: 25,
+            ),
+            Padding(padding: EdgeInsets.only(right: 10)),
+            Text("New group",)
+          ],
+        ));
+
     return Column(children: [
       NavigationBar(
         height: 55,
@@ -106,9 +124,16 @@ class ChatPageState extends State<ChatPage> {
         selectedIndex: navigationBarIndex,
         shadowColor: Colors.grey,
       ),
+      navigationBarIndex == 1 ? 
+      SizedBox(
+        height: 35,
+        child: createGroupButton,
+      ) : Container(),
       SizedBox(
           width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height - 220,
+          height: navigationBarIndex == 0
+              ? MediaQuery.of(context).size.height - 220
+              : MediaQuery.of(context).size.height - 255,
           child: dataLoaded
               ? ChatListView(
                   key: UniqueKey(),

@@ -45,7 +45,10 @@ def create_group_chat(request):
         HttpResponse: the feedback of the process
     """
     try:
-        users = request.POST.getlist('users')
+        if 'users_async' in request.POST:
+            users = json.loads(request.POST["users_async"])
+        else:
+            users = request.POST.getlist('users')
         group_name = request.POST["group_name"]
         groupchat = GroupChat(timestamp=datetime.now().timestamp(), name=group_name, creator=request.user)
         groupchat.save()
