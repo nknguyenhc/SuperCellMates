@@ -1,6 +1,7 @@
 #create-post {
     width: 50vw;
     min-width: 500px;
+    max-width: 700px;
 }
 
 #post-content {
@@ -204,6 +205,8 @@
 
 #display-post {
     width: 70%;
+    min-width: 500px;
+    max-width: 700px;
     padding-bottom: 50px;
     padding-top: 50px;
     margin-left: auto;

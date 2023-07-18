@@ -1,4 +1,4 @@
 We deployed backend and web frontend on Heroku. You are already on our web version!
 On github, a separate branch called 'deploy' was used to configure our project for production on Heroku. This is so that the default 'main' branch can be used for development.
-Android version was release using Firebase. The link can be found `https://appdistribution.firebase.dev/i/f520d9765baf5a95`.
+Android version was released using Firebase. The link can be found `https://appdistribution.firebase.dev/i/f520d9765baf5a95`.
 We have collected useful feedback on our app and are incorporating some of the suggestions into our app. For each feature of the app, users are asked to rate the complexity, importance, visibility and navigability of the feature, with 5 being the most positive and 1 being the most negative. Click on the summary tab to see the results of the survey.

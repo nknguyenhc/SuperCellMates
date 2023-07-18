@@ -86,6 +86,7 @@
 }
 
 #profile-page-content {
-    width: 60vw;
-    min-width: 400px;
+    width: 50vw;
+    min-width: 500px;
+    max-width: 700px;
 }

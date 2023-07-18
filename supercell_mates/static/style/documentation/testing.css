@@ -1,6 +1,8 @@
 #testing-window {
     margin: 0 auto;
     width: 80%;
+    min-width: 800px;
+    max-width: 1200px;
 }
 
 #testing-sections {
