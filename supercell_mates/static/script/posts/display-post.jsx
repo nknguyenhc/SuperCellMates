@@ -68,6 +68,9 @@ function ProfileFeed() {
                         postsDiv.current.appendChild(postCard);
                     });
 
+                    if (response.posts.length === 0 && !isAllPostsLoaded.current) {
+                        return loadMorePosts();
+                    }
                 })
             });
     }
