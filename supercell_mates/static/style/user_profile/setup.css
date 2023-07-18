@@ -62,7 +62,7 @@
     height: 300px;
 }
 
-.new-tag-div {
+.old-tag-div, .new-tag-div {
     display: flex;
     flex-direction: row;
     justify-content: space-between;

@@ -51,7 +51,26 @@
         {
             "setup": "The following API call will change your profile name.",
             "javascript": "fetch('/profile/change_name', postRequestContent({ password: '<your password>', name: '<your new name>' })).then(response => response.text()).then(response => console.log(response))",
-            "expected": "Console notification that your name has been changed."
+            "expected": "Console notification that your name has been changed.",
+            "datePassed": "18/07/2023"
+        },
+        {
+            "setup": "Result of the following API call depends on the last time you removed a tag.",
+            "javascript": "fetch('/profile/can_remove_tag').then(response => response.text()).then(text => console.log(text))",
+            "expected": "Console notification of whether you can change tag. Before the cooldown ends, it is false, after the cooldown ends or if you have never removed tag before, it is false.",
+            "datePassed": "18/07/2023"
+        },
+        {
+            "setup": "Replace the tag with a tag that you do not have.",
+            "javascript": "fetch('/profile/remove_tag', postRequestContent({ tag: '<some tag name>' })).then(response => response.text()).then(text => console.log(text))",
+            "expected": "Response status 400, indicating that the tag does not belong to you. If you have removed tag previously and cooldown has not ended, calling the API above still returns true",
+            "datePassed": "18/07/2023"
+        },
+        {
+            "setup": "Replace the tag with a tag that you have. This API call will remove one of your tags.",
+            "javascript": "fetch('/profile/remove_tag', postRequestContent({ tag: '<tag name>' })).then(response => response.text()).then(text => console.log(text))",
+            "expected": "If called when removal cooldown has ended, console notification that tag has been removed. Upon calling API above to check if can remove tag, it returns false. Reloading your profile page shows that your tag has been removed. If called within cooldown time, response 400 notifying that you cannot remove tag at this time, and no tag is removed from your profile.",
+            "datePassed": "18/07/2023"
         }
     ]
 }

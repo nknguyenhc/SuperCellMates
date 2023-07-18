@@ -7,15 +7,18 @@ function ProfileFeed() {
     const setCurrTimestamp = (newValue) => currTimestamp.current = newValue;
     const postsDiv = React.useRef(null);
     const profilePageFilters = getJSONItemFromLocal('profilePageFilters', {});
-    const tag = profilePageFilters[username] ? profilePageFilters[username] : '';
+    const tag = React.useRef(profilePageFilters[username] ? profilePageFilters[username] : '');
+    const setTag = (newTag) => tag.current = newTag;
     const [count, dispatchCount] = React.useReducer(state => state + 1, 0);
 
     React.useEffect(() => {
         const tagFilters = Array.from(document.querySelectorAll('#nav-tag-list .tag-listing'));
+        let tagStillExists = false;
         tagFilters.forEach(tagListing => {
             const tagInnerText = tagListing.querySelector('.tag-name').innerText;
-            if (tagInnerText === tag) {
+            if (tagInnerText === tag.current) {
                 tagListing.querySelector('label').click();
+                tagStillExists = true;
             }
             tagListing.addEventListener('click', () => {
                 const currProfilePageFilters = getJSONItemFromLocal('profilePageFilters', {});
@@ -24,10 +27,16 @@ function ProfileFeed() {
                 dispatchCount();
             });
         });
+        if (!tagStillExists) {
+            profilePageFilters[username] = '';
+            localStorage.setItem('profilePageFilters', JSON.stringify(profilePageFilters));
+            setTag('');
+        }
         const filterClearer = document.querySelector("#nav-clear-filter");
         filterClearer.addEventListener('click', () => {
             const currProfilePageFilters = getJSONItemFromLocal('profilePageFilters', {});
             currProfilePageFilters[username] = '';
+            localStorage.setItem('profilePageFilters', JSON.stringify(currProfilePageFilters));
             dispatchCount();
             tagFilters.forEach(tagListing => {
                 tagListing.querySelector('input').checked = false;
@@ -35,17 +44,18 @@ function ProfileFeed() {
         });
 
         loadMorePosts().then(() => {
-            window.addEventListener("scroll", () => {
+            setInterval(() => {
+                console.log("interval ...");
                 if (!isAllPostsLoaded.current && document.body.offsetHeight - window.innerHeight - window.scrollY < 100) {
                     setIsAllPostsLoaded(true);
                     loadMorePosts();
                 }
-            })
+            }, 1000);
         })
     }, []);
 
     function loadMorePosts() {
-        return fetch(`/post/posts/${username}?${currTimestamp.current ? `start=${currTimestamp.current - oneDayTime}&end=${currTimestamp.current}` : ''}${tag === '' ? '' : `&tag=${tag}`}`)
+        return fetch(`/post/posts/${username}?${currTimestamp.current ? `start=${currTimestamp.current - oneDayTime}&end=${currTimestamp.current}` : ''}${tag.current === '' ? '' : `&tag=${tag.current}`}`)
             .then(response => {
                 if (response.status !== 200) {
                     triggerErrorMessage();
@@ -67,6 +77,9 @@ function ProfileFeed() {
                         postsDiv.current.appendChild(postCard);
                     });
 
+                    if (response.posts.length === 0 && !isAllPostsLoaded.current) {
+                        return loadMorePosts();
+                    }
                 })
             });
     }

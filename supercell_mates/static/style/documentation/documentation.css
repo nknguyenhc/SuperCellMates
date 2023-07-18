@@ -6,11 +6,15 @@
 }
 
 #documentation-overview-diagram {
-    width: 60vw;
+    width: 40vw;
+    min-width: 400px;
+    max-width: 600px;
 }
 
 #documentation-overview-text {
-    width: 70vw;
+    width: 50vw;
+    min-width: 500px;
+    max-width: 700px;
 }
 
 #documentation {
@@ -26,6 +30,8 @@
     flex-direction: column;
     gap: 30px;
     width: 70vw;
+    min-width: 500px;
+    max-width: 900px;
 }
 
 #documentation-nav {

@@ -70,24 +70,26 @@
                             <a class="nav-link" href="{% url 'user_log:view_friend_requests' %}">Friend Requests</a>
                         </li>
                     {% endif %} 
-                    <li class="nav-item" id="nav-tag-list">
-                        <div id="profile-filter-header">
-                            <div>Filters:</div>
-                            <div class="btn btn-secondary" id="nav-clear-filter">Clear Filters</div>
-                        </div>
-                        {% for tag in tags %} 
-                            <div class="tag-listing">
-                                <input type="radio" class="btn-check" name="options" id="nav-tag-{{ tag.name }}" autocomplete="off">
-                                <label class="tag-button btn btn-outline-info" for="nav-tag-{{ tag.name }}">
-                                    <img src="{{ tag.icon }}">
-                                    <div class="tag-name">{{ tag.name }}</div>
-                                </label>
+                    {% if tags %} 
+                        <li class="nav-item" id="nav-tag-list">
+                            <div id="profile-filter-header">
+                                <div>Filters:</div>
+                                <div class="btn btn-secondary" id="nav-clear-filter">Clear Filters</div>
                             </div>
-                        {% endfor %} 
-                    </li>
+                            {% for tag in tags %} 
+                                <div class="tag-listing">
+                                    <input type="radio" class="btn-check" name="options" id="nav-tag-{{ tag.name }}" autocomplete="off">
+                                    <label class="tag-button btn btn-outline-info" for="nav-tag-{{ tag.name }}">
+                                        <img src="{{ tag.icon }}">
+                                        <div class="tag-name">{{ tag.name }}</div>
+                                    </label>
+                                </div>
+                            {% endfor %} 
+                        </li>
+                    {% endif %} 
                 </ul>
             </div>
-            <div id="profile-page-content" class="ps-5 py-4">
+            <div id="profile-page-content" class="py-4">
                 {% block content %} 
                 {% endblock %} 
             </div>

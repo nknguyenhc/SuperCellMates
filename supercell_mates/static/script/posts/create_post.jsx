@@ -114,7 +114,6 @@ function CreatePost() {
                 .then(response => {
                     setIsLoading(false);
                     if (response.status !== 200) {
-                        response.text().then(text => console.log(text));
                         triggerErrorMessage();
                     } else {
                         postCreateButton.current.click();

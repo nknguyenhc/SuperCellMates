@@ -46,6 +46,16 @@
             "datePassed": "04/07/2023"
         },
         {
+            "instruction": "Navigate to setup page by either pressing 'Edit Profile' button in profile page or 'Edit Profile' button in setup page. Remove a tag you have by clicking the cross besides the tag.",
+            "expected": "Tag is removed. Upon redirecting to profile page, the tag is no longer there. The option to remove another tag you have is also no longer there.",
+            "datePassed": "18/07/2023"
+        },
+        {
+            "instruction": "Navigate to setup page by either pressing 'Edit Profile' button in profile page or 'Edit Profile' button in setup page, within the tag removal cooldown period (1 week).",
+            "expected": "There is no tag removal option for tags you have.",
+            "datePassed": "18/07/2023"
+        },
+        {
             "instruction": "Navigate to setup page by either pressing 'Edit Profile' button in profile page or 'Edit Profile' button in setup page. Attempt to add tags to more than 4 tags.",
             "expected": "Limit cannot be exceeded, the page notifies the user of the limit.",
             "datePassed": "04/07/2023"

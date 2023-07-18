@@ -13,16 +13,6 @@
 {% endblock %} 
 
 {% block content %} 
-    <div id="profile-tags">
-        {% for tag in tags %} 
-            <div class="tag">
-                <button class="tag-button btn btn-outline-info">
-                    <img src="{{ tag.icon }}">
-                    <div>{{ tag.name }}</div>
-                </button>
-            </div>
-        {% endfor %} 
-    </div>
     <div id="edit-post" class="edit-page" style="display: none"></div>
     <div id="profile-posts-container"></div>
     <button id="post-edit-button" style="display: none" type="button" data-bs-toggle="modal" data-bs-target="#post-edit-message"></button>

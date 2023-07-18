@@ -1,6 +1,7 @@
 #create-post {
     width: 50vw;
     min-width: 500px;
+    max-width: 700px;
 }
 
 #post-content {
@@ -150,7 +151,7 @@
 }
 
 .post-content {
-    white-space: pre-line;
+    white-space: pre-wrap;
     text-align: justify;
 }
 
@@ -161,26 +162,28 @@
 }
 
 .post-images img {
-    max-height: 100%;
-    max-width: 100%;
-    margin-top: 15vw;
-    margin-left: 25vw;
-    transform: translate(-50%, -50%);
+    max-height: 85%;
+    max-width: 80%;
+    margin: auto;
 }
 
 .carousel {
-    width: 50vw;
-    height: 30vw;
+    width: 30vw;
+    height: 20vw;
 }
 
 .carousel-item {
-    width: 50vw;
-    height: 30vw;
+    width: 30vw;
+    height: 20vw;
 }
 
 .carousel-inner {
-    width: 50vw;
-    height: 30vw;
+    width: 30vw;
+    height: 20vw;
+}
+
+.carousel-control-prev, .carousel-control-next {
+    height: 85%;
 }
 
 #filter-message {
@@ -204,6 +207,8 @@
 
 #display-post {
     width: 70%;
+    min-width: 500px;
+    max-width: 700px;
     padding-bottom: 50px;
     padding-top: 50px;
     margin-left: auto;
