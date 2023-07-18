@@ -21,22 +21,3 @@
     left: 20px;
     width: 20vw;
 }
-
-#filter-message {
-    position: fixed;
-    top: 100px;
-    right: -20vw;
-    width: 20vw;
-}
-
-.filter-message-transition {
-    transition: transform 0.5s ease-in-out, opacity 2s ease-in-out;
-}
-
-.filter-message-position {
-    transform: translateX(-23vw);
-}
-
-.filter-message-fading {
-    opacity: 0;
-}

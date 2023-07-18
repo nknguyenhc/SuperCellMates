@@ -6,7 +6,9 @@ from datetime import datetime
 from channels.generic.websocket import AsyncWebsocketConsumer
 from abc import ABC, abstractmethod
 
-from .models import PrivateChat, GroupChat, PrivateTextMessage, GroupTextMessage, PrivateFileMessage, GroupFileMessage
+from .models import PrivateChat, GroupChat, PrivateTextMessage, GroupTextMessage, PrivateFileMessage, GroupFileMessage, ReplyPostMessage
+from posts.models import Post
+from posts.views import has_access
 
 
 class AbstractMessageConsumer(ABC, AsyncWebsocketConsumer):
@@ -52,6 +54,17 @@ class AbstractMessageConsumer(ABC, AsyncWebsocketConsumer):
         self.chat_object.timestamp = datetime.now().timestamp()
         self.chat_object.save()
         return (text_message.id, text_message.timestamp)
+    
+
+    def parse_reply_post_message(self, reply_post_message):
+        reply_post_message.save()
+        self.chat_object.timestamp = datetime.now().timestamp()
+        self.chat_object.save()
+        return (reply_post_message.id, reply_post_message.timestamp, {
+            "id": reply_post_message.post.id,
+            "title": reply_post_message.post.title,
+            "content": reply_post_message.post.content,
+        } if reply_post_message.post else None)
 
 
     @abstractmethod
@@ -65,6 +78,18 @@ class AbstractMessageConsumer(ABC, AsyncWebsocketConsumer):
             "timestamp": file_message.timestamp,
             "is_image": file_message.is_image,
         }
+    
+
+    @database_sync_to_async
+    def can_reply_post(self, post_id):
+        if Post.objects.filter(id=post_id).exists():
+            return has_access(self.user, Post.objects.get(id=post_id)) # check if the post belongs to the other user as well
+        return False
+    
+
+    @abstractmethod
+    def add_reply_post(self, message, post_id):
+        pass
     
 
     async def connect(self):
@@ -122,6 +147,24 @@ class AbstractMessageConsumer(ABC, AsyncWebsocketConsumer):
                         "user": self.user_info
                     })
                     await self.channel_layer.group_send(self.chat_name, message)
+            
+
+            elif text_data_json["type"] == "reply_post":
+                if isinstance(self, PrivateMessageConsumer) and "message" in text_data_json.keys() and "post_id" in text_data_json.keys():
+                    message = text_data_json["message"]
+                    post_id = text_data_json["post_id"]
+                    if len(message) <= 700 and await self.can_reply_post(post_id):
+                        text_id, timestamp, post = await self.add_reply_post(message, post_id)
+                        await self.channel_layer.group_send(
+                            self.chat_name, {
+                                "type": "reply_post",
+                                "message": message,
+                                "post": post,
+                                "user": self.user_info,
+                                "id": text_id,
+                                "timestamp": timestamp
+                            }
+                        )
 
 
     async def chat_message(self, event):
@@ -144,6 +187,18 @@ class AbstractMessageConsumer(ABC, AsyncWebsocketConsumer):
             "id": event["id"],
             "timestamp": event["timestamp"],
             "is_image": event["is_image"]
+        }))
+    
+
+    async def reply_post(self, event):
+        """Called in response to a user sending a post reply."""
+        await self.send(text_data=dumps({
+            "message": event["message"],
+            "user": event["user"],
+            "type": "reply_post",
+            "id": event["id"],
+            "timestamp": event["timestamp"],
+            "post": event["post"]
         }))
 
 
@@ -177,6 +232,12 @@ class PrivateMessageConsumer(AbstractMessageConsumer):
     def get_file_message(self, message_id):
         file_message = PrivateFileMessage.objects.get(id=message_id)
         return self.parse_file_message(file_message)
+    
+
+    @database_sync_to_async
+    def add_reply_post(self, message, post_id):
+        reply_post_message = ReplyPostMessage(timestamp=datetime.now().timestamp(), user=self.user, chat=self.chat_object, text=message, post=Post.objects.get(id=post_id))
+        return self.parse_reply_post_message(reply_post_message)
 
 
 class GroupMessageConsumer(AbstractMessageConsumer):
@@ -208,3 +269,7 @@ class GroupMessageConsumer(AbstractMessageConsumer):
     def get_file_message(self, message_id):
         file_message = GroupFileMessage.objects.get(id=message_id)
         return self.parse_file_message(file_message)
+    
+
+    def add_reply_post(self, message, post_id):
+        pass

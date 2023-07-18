@@ -199,7 +199,7 @@ function EditPost(props) {
             <div className="mb-3">
                 <label htmlFor="post-content" className="form-label">Content</label>
                 <textarea id="post-content" rows="6" className="form-control" value={content} ref={contentInput} onChange={event => {
-                    setContent(event.target.value.slice(0, 2000));
+                    setContent(event.target.value.slice(0, 1950));
                 }}></textarea>
                 <div className="invalid-feedback">Please enter some content</div>
             </div>
@@ -295,4 +295,29 @@ function popEditView(postId) {
     ReactDOM.render(<EditPost postId={postId}/>, newWindow);
     editPage.appendChild(newWindow)
     editPage.style.display = "block";
+}
+
+
+function editPostCard(postId) {
+    const oldCard = document.getElementById("post-card-" + postId);
+    fetch('/post/post/' + postId)
+        .then(response => {
+            if (response.status !== 200) {
+                triggerErrorMessage();
+            } else {
+                response.json()
+                    .then(post => {
+                        post.time_posted *= 1000;
+                        ReactDOM.render(<Post post={post} myProfile={true} />, oldCard);
+                    });
+            }
+        });
+}
+
+
+function deletePostCard(postId) {
+    const editPage = document.querySelector("#edit-post");
+    document.getElementById("post-card-" + postId).remove();
+    Array.from(editPage.children).forEach(child => editPage.removeChild(child));
+    editPage.style.display = "none";
 }

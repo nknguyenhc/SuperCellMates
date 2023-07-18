@@ -27,6 +27,10 @@ def testing(request):
     return render(request, 'documentation/testing.html')
 
 
+def developer_board(request):
+    return render(request, 'developer-board/index.html')
+
+
 def about(request):
     return render(request, "documentation/about.html")
 
@@ -335,7 +339,7 @@ def new_tag_admin(request):
                 tag_name = request.POST["tag"]
                 if len(tag_name) > 25:
                     return HttpResponseBadRequest("tag name too long")
-                if TagRequest.objects.filter(name=tag_name).exists() or Tag.objects.filter(name=tag_name).exists():
+                if duplicate_tag_exists(tag_name):
                     return HttpResponse("Tag already exists/Tag request already exists")
 
                 has_img = False
@@ -389,6 +393,44 @@ def obtain_tag_requests(request):
         return JsonResponse({"tag_requests": tag_requests})
     else:
         return HttpResponseForbidden()
+
+
+@login_required
+def obtain_tags(request):
+    result = list(map(
+        lambda tag: {
+            "name": tag.name,
+            "icon": reverse("user_profile:get_tag_icon", args=(tag.id,)),
+        },
+        list(Tag.objects.all())
+    ))
+    result.sort(key=lambda tag: tag["name"].lower())
+
+    return JsonResponse({
+        "tags": result
+    })
+
+
+def change_tag_icon(request):
+    if request.user.is_staff:
+        if request.method == 'POST':
+            try:
+                tag = Tag.objects.get(name=request.POST["name"])
+                icon = request.FILES['icon']
+                if not verify_image(icon):
+                    return HttpResponseBadRequest("not image")
+                tag.image = icon
+                tag.save()
+                return HttpResponse("icon changed")
+            except MultiValueDictKeyError:
+                return HttpResponseBadRequest("request is missing an important key")
+            except ObjectDoesNotExist:
+                return HttpResponseBadRequest("tag with provided name does not exist")
+        else:
+            return HttpResponseNotAllowed(["POST"])
+    else:
+        return HttpResponseForbidden()
+
 
 
 @login_required

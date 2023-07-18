@@ -1,0 +1,38 @@
+title Login
+
+actor User
+participant Frontend
+participant Backend
+database Database
+
+User->Frontend:redirect to login
+activate User
+activate Frontend
+Frontend->Backend:request for template
+activate Backend
+Frontend<--Backend:return template
+deactivate Backend
+User<--Frontend:display template
+loop wrong credentials
+loop invalid details
+User->Frontend:submit details
+User<--Frontend:alert details invalid
+end
+Frontend->Backend:submit details
+activate Backend
+activate Backend
+Backend->Database:submit credentials
+activate Database
+activate Database
+Backend<--Database:wrong credentials
+deactivate Database
+Frontend<--Backend:wrong credentials
+deactivate Backend
+User<--Frontend:alert wrong credentials
+end
+Backend<--Database:correct credentials
+deactivate Database
+Frontend<--Backend:new template
+deactivate Backend
+User<--Frontend:display new template
+deactivate Frontend

@@ -102,7 +102,6 @@ function CreatePost() {
                 break;
         }
 
-        console.log(isLoading);
         if (!isLoading.current) {
             setIsLoading(true);
             fetch('/post/create_post', postRequestContent({

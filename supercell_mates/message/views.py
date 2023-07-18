@@ -14,7 +14,7 @@ from user_profile.views import verify_image
 import json
 
 from user_auth.models import UserAuth
-from .models import TextMessage, PrivateChat, FileMessage, PrivateFileMessage, GroupChat, GroupFileMessage
+from .models import TextMessage, PrivateChat, FileMessage, PrivateFileMessage, GroupChat, GroupFileMessage, ReplyPostMessage
 
 
 @login_required
@@ -94,6 +94,7 @@ def get_members(request):
             lambda user: {
                 "name": user.user_profile.name,
                 "username": user.username,
+                "role": get_user_role(chat_id, user.username),
                 "profile_link": reverse("user_log:view_profile", args=(user.username,)),
                 "profile_pic_url": reverse("user_profile:get_profile_pic", args=(user.username,)),
             },
@@ -109,6 +110,15 @@ def get_members(request):
         return HttpResponseBadRequest("chat id not found in GET parameters")
     except ObjectDoesNotExist:
         return HttpResponseBadRequest("invalid chat id")
+
+
+def get_user_role(chat_id, username):
+    if GroupChat.objects.get(id=chat_id).creator.username == username:
+        return "creator"
+    elif GroupChat.objects.get(id=chat_id).admins.filter(username=username).exists():
+        return "admin"
+    else:
+        return "member"
 
 
 @login_required
@@ -448,6 +458,29 @@ def private_chat_info(request_user_auth, private_chat_object):
 
 @login_required
 @ensure_csrf_cookie
+def get_chat_id(request):
+    """Get chat id between the request user and the target user.
+    Request must contain the following GET parameters:
+        username: the username of the target user
+    
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        HttpResponse: the response with the chat id between the request user and the target user
+    """
+    try:
+        username = request.GET['username']
+        for private_chat in request.user.private_chats.all():
+            if private_chat.users.filter(username=username).exists():
+                return HttpResponse(private_chat.id)
+        return HttpResponse("no chat found")
+    
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("username GET parameter not found")
+
+
+@login_required
 def get_group_chats(request):
     """Get information of all group chats of the current user.
     The information of each group chat is a dictionary returned by the function group_chat_info above.
@@ -514,7 +547,7 @@ def message_info(message_obj):
             "profile_link": reverse("user_log:view_profile", args=(message_obj.user.username,)),
             "profile_img_url": reverse("user_profile:get_profile_pic", args=(message_obj.user.username,)),
         },
-        "type": "text" if isinstance(message_obj, TextMessage) else "file" if isinstance(message_obj, FileMessage) else "unknown"
+        "type": "reply_post" if isinstance(message_obj, ReplyPostMessage) else "text" if isinstance(message_obj, TextMessage) else "file" if isinstance(message_obj, FileMessage) else "unknown"
     }
     if result["type"] == "text":
         result["message"] = message_obj.text
@@ -523,26 +556,41 @@ def message_info(message_obj):
             "file_name": message_obj.file_name,
             "is_image": message_obj.is_image
         })
+    elif result["type"] == "reply_post":
+        result.update({
+            "message": message_obj.text,
+            "post": {
+                "id": message_obj.post.id,
+                "title": message_obj.post.title,
+                "content": message_obj.post.content
+            } if message_obj.post else None
+        })
     return result
 
 
-def merge_messages(all_text_messages, all_file_messages):
+def merge_messages(all_text_messages, all_reply_post_messages, all_file_messages):
+    def next_message_timestamp(message_list, i):
+        return message_list[i].timestamp if i < len(message_list) else 1e10
+
     all_messages = []
     text_i = 0
+    post_i = 0
     file_i = 0
-    while text_i < len(all_text_messages) or file_i < len(all_file_messages):
-        if text_i == len(all_text_messages):
+    while text_i < len(all_text_messages) or post_i < len(all_reply_post_messages) or file_i < len(all_file_messages):
+        next_timestamp = min(
+            next_message_timestamp(all_text_messages, text_i), 
+            next_message_timestamp(all_reply_post_messages, post_i), 
+            next_message_timestamp(all_file_messages, file_i)
+        )
+        if next_message_timestamp(all_text_messages, text_i) == next_timestamp:
+            all_messages.append(all_text_messages[text_i])
+            text_i += 1
+        elif next_message_timestamp(all_file_messages, file_i) == next_timestamp:
             all_messages.append(all_file_messages[file_i])
             file_i += 1
-        elif file_i == len(all_file_messages):
-            all_messages.append(all_text_messages[text_i])
-            text_i += 1
-        elif all_text_messages[text_i].timestamp < all_file_messages[file_i].timestamp:
-            all_messages.append(all_text_messages[text_i])
-            text_i += 1
         else:
-            all_messages.append(all_file_messages[file_i])
-            file_i += 1
+            all_messages.append(all_reply_post_messages[post_i])
+            post_i += 1
     return all_messages
 
 
@@ -569,18 +617,18 @@ def start_and_end(request):
 
 def get_texts(chat_obj, start, end):
     all_text_messages = list(chat_obj.text_messages.filter(timestamp__range=(start, end)).all())
+    all_reply_post_messages = list(chat_obj.reply_post_messages.filter(timestamp__range=(start, end)).all()) if isinstance(chat_obj, PrivateChat) else []
     all_file_messages = list(chat_obj.file_messages.filter(timestamp__range=(start, end)).all())
-    all_messages = merge_messages(all_text_messages, all_file_messages)
+    all_messages = merge_messages(all_text_messages, all_reply_post_messages, all_file_messages)
     
-    next_last_timestamp = 0
-    next_text_messages = chat_obj.text_messages.filter(timestamp__lt=start)
-    next_file_messages = chat_obj.file_messages.filter(timestamp__lt=start)
-    if next_text_messages.exists():
-        next_last_timestamp = next_text_messages.order_by("timestamp").last().timestamp
-        if next_file_messages.exists():
-            next_last_timestamp = max(next_last_timestamp, next_file_messages.order_by("timestamp").last().timestamp)
-    elif next_file_messages.exists():
-        next_last_timestamp = next_file_messages.order_by("timestamp").last().timestamp
+    next_text_messages = chat_obj.text_messages.filter(timestamp__lt=start).order_by("timestamp")
+    next_file_messages = chat_obj.file_messages.filter(timestamp__lt=start).order_by("timestamp")
+    next_reply_post_messages = chat_obj.reply_post_messages.filter(timestamp__lt=start).order_by("timestamp") if isinstance(chat_obj, PrivateChat) else None
+    next_last_timestamp = max(
+        next_text_messages.last().timestamp if next_text_messages.exists() else 0,
+        0 if next_reply_post_messages is None else next_reply_post_messages.last().timestamp if next_reply_post_messages.exists() else 0,
+        next_file_messages.last().timestamp if next_file_messages.exists() else 0
+    )
     
     return all_messages, next_last_timestamp
 
@@ -594,6 +642,7 @@ def get_group_messages(request, chat_id):
         end: the end time in epoch time
     The returned response contains the following fields:
         messages: a list of dicts representing the info of the messages, each is the result of the message_info function above
+        next_last_timestamp: the end timestamp that the next request should have
     
     Args:
         request (HttpRequest): the request made to this view
@@ -635,6 +684,7 @@ def get_private_messages(request, chat_id):
         end: the end time in epoch time
     The returned response contains the following fields:
         messages: a list of dicts representing info of the messages, each is the result of the message_info function above
+        next_last_timestamp: the end timestamp that the next incoming request should have
 
     Args:
         request (HttpRequest): the request made to this view

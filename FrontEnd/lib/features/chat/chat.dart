@@ -38,24 +38,22 @@ class ChatPageState extends State<ChatPage> {
   void loadChats(int index) async {
     dataLoaded = false;
     dynamic responseJson;
-    if (index == 1) {
-      setState(() {
-        chatList = {};
-        dataLoaded = true;
-        return;
-      });
-    } else {
-      responseJson = await getRequest(EndPoints.getPrivateChats.endpoint, null);
-      if (responseJson == "Connection error") {
-        showErrorDialog(context, responseJson);
-        return;
-      }
-      dynamic response = jsonDecode(responseJson);
-      setState(() {
-        chatList = index == 0 ? response["privates"] : response["groups"];
-        dataLoaded = true;
-      });
+    responseJson = await getRequest(
+        index == 0
+            ? EndPoints.getPrivateChats.endpoint
+            : EndPoints.getGroupChats.endpoint,
+        null);
+    if (responseJson == "Connection error") {
+      showErrorDialog(context, responseJson);
+      return;
     }
+    dynamic response = jsonDecode(responseJson);
+    setState(() {
+      chatList = index == 0
+          ? response["privates"]
+          : response["groups"];
+      dataLoaded = true;
+    });
   }
 
   @override
@@ -108,32 +106,20 @@ class ChatPageState extends State<ChatPage> {
         selectedIndex: navigationBarIndex,
         shadowColor: Colors.grey,
       ),
-      navigationBarIndex == 0
-          ? SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height - 220,
-              child: dataLoaded
-                  ? ChatListView(
-                      username: widget.username,
-                      chatList: chatList,
-                      isPrivate: navigationBarIndex == 0,
-                    )
-                  : Container(
-                      alignment: Alignment.center,
-                      child: const CircularProgressIndicator(),
-                    ))
-          : Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                  Padding(
-                      padding: EdgeInsets.only(
-                          top: MediaQuery.of(context).size.height / 2 - 150)),
-                  const Text(
-                    "Group chat is under construction on mobile version\n\nYou can try it out in our web version!",
-                    textAlign: TextAlign.center,
-                  ),
-                ]),
+      SizedBox(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height - 220,
+          child: dataLoaded
+              ? ChatListView(
+                  key: UniqueKey(),
+                  username: widget.username,
+                  chatList: chatList,
+                  isPrivate: navigationBarIndex == 0,
+                )
+              : Container(
+                  alignment: Alignment.center,
+                  child: const CircularProgressIndicator(),
+                ))
     ]);
   }
 }

@@ -27,6 +27,7 @@ function ChatPage() {
     const [showAddPeopleForm, setShowAddPeopleForm] = React.useState(false);
     const isLoading = React.useRef(false);
     const setIsLoading = (newValue) => isLoading.current = newValue;
+    const [targetPost, setTargetPost] = React.useState(null);
 
     React.useEffect(() => {
         fetch('/messages/get_private_chats')
@@ -73,6 +74,7 @@ function ChatPage() {
                         });
                 }
             });
+        
         fetch('/messages/get_group_chats')
             .then(response => {
                 if (response.status !== 200) {
@@ -115,6 +117,23 @@ function ChatPage() {
                         });
                 }
             });
+        
+        const postQueries = window.location.search
+            .slice(1)
+            .split('&')
+            .map(eqn => eqn.split("="))
+            .filter(pair => pair[0] === "post")
+        if (postQueries.length > 0) {
+            const postId = postQueries[0][1];
+            fetch('/post/post/' + postId)
+                .then(response => {
+                    if (response.status === 200) {
+                        response.json().then(post => setTargetPost(post));
+                    } else if (response.status !== 404) {
+                        triggerErrorMessage();
+                    }
+                });
+        }
     }, []);
 
     React.useEffect(() => {
@@ -298,10 +317,18 @@ function ChatPage() {
 
     function sendMessage() {
         if (inputText !== '') {
-            currSocket.send(JSON.stringify({
-                type: "text",
+            const jsonBody = {
                 message: inputText[inputText.length - 1] !== '\n' ? inputText : inputText.slice(0, inputText.length - 1)
-            }));
+            };
+            if (targetPost) {
+                jsonBody.type = "reply_post";
+                jsonBody.post_id = targetPost.id;
+                setTargetPost(null);
+            } else {
+                jsonBody.type = "text";
+            }
+
+            currSocket.send(JSON.stringify(jsonBody));
             setInputText('');
             testAndScrollToBottom();
             setTimeout(() => {
@@ -475,50 +502,63 @@ function ChatPage() {
                 }
                 {
                     chatSelected && !isChatDisabled && !showAddPeopleForm
-                    ? <div id="chat-input" className="p-2">
-                        <div id="chat-more-input" onMouseEnter={() => hoverMenu()} onMouseLeave={() => blurMenu()}>
-                            <div id="chat-more-menu" style={{
-                                display: moreMenuDisplay ? "" : "none"
-                            }}>
-                                <div className="chat-more-option">
-                                    {
-                                        isPrivateChatsSelected || <label onClick={openAddPeopleForm}>
-                                            <img src="/static/media/add-person-icon.png" />
-                                        </label>
-                                    }
-                                    <label htmlFor="chat-file-upload" onClick={() => {
-                                        if (currSocket.readyState === 1) {
-                                            fileUpload.current.click();
-                                        }
-                                    }}>
-                                        <img src="/static/media/docs-icon.png" />
-                                    </label>
-                                    <input type="file" ref={fileUpload} onChange={() => uploadFile(isPrivateChatsSelected)} />
-                                </div>
-                                <div className="chat-more-option"></div>
+                    ? <div id="chat-bottom">
+                        {
+                            targetPost && <div className="chat-target-post">
+                                <a href={targetPost.creator.profile_link} className="chat-target-post-creator">
+                                    <img src={targetPost.creator.profile_pic_url} />
+                                </a>
+                                <a href={'/post/display?id=' + targetPost.id} className="chat-target-post-text">
+                                    <h6 className="chat-target-post-title">{targetPost.title.length > 50 ? targetPost.title.slice(0, 40) + ' ...' : targetPost.title}</h6>
+                                    <div className="chat-target-post-content">{targetPost.content.length > 50 ? targetPost.content.slice(0, 40) + ' ...' : targetPost.content}</div>
+                                </a>
                             </div>
-                            <img src="/static/media/plus-icon.png" />
+                        }
+                        <div id="chat-input" className="p-2">
+                            <div id="chat-more-input" onMouseEnter={() => hoverMenu()} onMouseLeave={() => blurMenu()}>
+                                <div id="chat-more-menu" style={{
+                                    display: moreMenuDisplay ? "" : "none"
+                                }}>
+                                    <div className="chat-more-option">
+                                        {
+                                            isPrivateChatsSelected || <label onClick={openAddPeopleForm}>
+                                                <img src="/static/media/add-person-icon.png" />
+                                            </label>
+                                        }
+                                        <label htmlFor="chat-file-upload" onClick={() => {
+                                            if (currSocket.readyState === 1) {
+                                                fileUpload.current.click();
+                                            }
+                                        }}>
+                                            <img src="/static/media/docs-icon.png" />
+                                        </label>
+                                        <input type="file" ref={fileUpload} onChange={() => uploadFile(isPrivateChatsSelected)} />
+                                    </div>
+                                    <div className="chat-more-option"></div>
+                                </div>
+                                <img src="/static/media/plus-icon.png" />
+                            </div>
+                            <div id="chat-text-input-div">
+                                <textarea id="chat-text-input" rows={1} className="form-control" value={inputText}
+                                onInput={changeInputText}
+                                onKeyUp={event => {
+                                    changeInputText(event);
+                                    if (!isHoldingShift && event.key === "Enter") {
+                                        sendMessage();
+                                    } else if (event.key === "Shift") {
+                                        setIsHoldingShift(false);
+                                    }
+                                }}
+                                onKeyDown={event => {
+                                    if (event.key === "Shift") {
+                                        setIsHoldingShift(true);
+                                    }
+                                }}
+                                ref={inputField} />
+                                <div className={"chat-text-char-count " + (inputText.length === 700 ? "text-danger" : "text-primary")}>{inputText.length}/700</div>
+                            </div>
+                            <button className="btn btn-outline-primary chat-input-send-button" onClick={() => sendMessage()}>Send</button>
                         </div>
-                        <div id="chat-text-input-div">
-                            <textarea id="chat-text-input" rows={1} className="form-control" value={inputText}
-                            onInput={changeInputText}
-                            onKeyUp={event => {
-                                changeInputText(event);
-                                if (!isHoldingShift && event.key === "Enter") {
-                                    sendMessage();
-                                } else if (event.key === "Shift") {
-                                    setIsHoldingShift(false);
-                                }
-                            }}
-                            onKeyDown={event => {
-                                if (event.key === "Shift") {
-                                    setIsHoldingShift(true);
-                                }
-                            }}
-                            ref={inputField} />
-                            <div className={"chat-text-char-count " + (inputText.length === 700 ? "text-danger" : "text-primary")}>{inputText.length}/700</div>
-                        </div>
-                        <button className="btn btn-outline-primary chat-input-send-button" onClick={() => sendMessage()}>Send</button>
                     </div>
                     : isChatDisabled
                     ? <div className="message-disabled text-secondary fst-italic">You can no longer send message in this chat</div>
@@ -547,15 +587,28 @@ function Message({ text, username }) {
             <a className="text-line-user-img" href={text.user.profile_link}>
                 <img src={text.user.profile_img_url} />
             </a>
-            <div className="text-line-content p-1 border border-primary">{
-                text.type === "text" 
-                ? <Text text={text.message} /> 
-                : text.is_image 
-                ? <img className="text-line-img" src={"/messages/image/" + text.id} />
-                : <a href={"/messages/image/" + text.id} target='_blank'>
-                    {text.file_name}
-                </a>
-            }</div>
+            <div className="text-line-content p-1 border border-primary" style={{
+                alignItems: text.user.username === username ? "end" : "start"
+            }}>
+                <a href={text.user.profile_link} className="text-line-content-username">{text.user.username}</a>
+                {
+                    text.type === "text" 
+                    ? <Text text={text.message} /> 
+                    : text.type === "reply_post"
+                    ? <div className="text-line-content-text">
+                        {text.post !== null ? <a href={"/post/display?id=" + text.post.id} className="text-line-post-hyperlink">
+                            <div className="text-line-post-title">{text.post.title.length > 50 ? text.post.title.slice(0, 40) + ' ...' : text.post.title}</div>
+                            <div className="text-line-post-content">{text.post.content.length > 50 ? text.post.content.slice(0, 40) + ' ...' : text.post.content}</div>
+                        </a> : <div className="fst-italic">This post has been deleted</div>}
+                        <Text text={text.message} />
+                    </div>
+                    : text.is_image 
+                    ? <img className="text-line-img" src={"/messages/image/" + text.id} />
+                    : <a href={"/messages/image/" + text.id} target='_blank'>
+                        {text.file_name}
+                    </a>
+                }
+            </div>
             <div className="text-timestamp text-secondary" style={{
                 display: isHovering ? '' : 'none'
             }}>{timestampToTime(text.timestamp)}</div>

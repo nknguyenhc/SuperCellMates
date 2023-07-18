@@ -32,6 +32,23 @@ function Post(props) {
         )
     }
 
+    function toReplyPostChat() {
+        fetch('/messages/get_chat_id?username=' + post.creator.username)
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                    return;
+                }
+                response.text().then(text => {
+                    if (text === 'no chat found') {
+                        triggerErrorMessage();
+                    } else {
+                        window.location.assign('/messages/?chatid=' + text + '&post=' + post.id);
+                    }
+                })
+            })
+    }
+
     return (
         <React.Fragment>
             <div className="post-header">
@@ -53,7 +70,19 @@ function Post(props) {
                         : ''
                     }
                 </div>
-                <div className="post-date">{`${formatNumber(new Date(post.time_posted).getDate(), 2)}/${formatNumber(new Date(post.time_posted).getMonth() + 1, 2)}/${formatNumber(new Date(post.time_posted).getFullYear(), 4)} ${formatNumber(new Date(post.time_posted).getHours(), 2)}:${formatNumber(new Date(post.time_posted).getMinutes(), 2)}`}</div>
+                <div className="post-more">
+                    <div className="post-date">{`${formatNumber(new Date(post.time_posted).getDate(), 2)}/${formatNumber(new Date(post.time_posted).getMonth() + 1, 2)}/${formatNumber(new Date(post.time_posted).getFullYear(), 4)} ${formatNumber(new Date(post.time_posted).getHours(), 2)}:${formatNumber(new Date(post.time_posted).getMinutes(), 2)}`}</div>
+                    {
+                        post.can_reply
+                        ? <div className="post-link" onClick={() => toReplyPostChat()}>
+                            <img src="/static/media/reply-icon.png" />
+                        </div>
+                        : ''
+                    }
+                    <a href={"/post/display?id=" + post.id} className="post-link">
+                        <img src="/static/media/hyperlink-icon.png" />
+                    </a>
+                </div>
             </div>
             <h4 className='mb-2'>{post.title}</h4>
             <div className="post-tag mb-2">
@@ -72,4 +101,48 @@ function Post(props) {
             </div>
         </React.Fragment>
     );
+}
+
+
+function FilterMessage({ count }) {
+    const filterMessageDiv = React.useRef(null);
+    const [timer, dispatchTimer] = React.useReducer((state, action) => {
+        if (action === 'reset') {
+            return 5;
+        } else if (action === 'countdown') {
+            return state - 1;
+        }
+    }, 5);
+    const timeout = React.useRef(null);
+    const interval = React.useRef(null);
+
+    React.useEffect(() => {
+        function addClasses() {
+            filterMessageDiv.current.classList.add('filter-message-transition');
+            filterMessageDiv.current.classList.add('filter-message-position');
+            filterMessageDiv.current.classList.add('filter-message-fading');
+        }
+        function removeClasses() {
+            filterMessageDiv.current.classList.remove('filter-message-transition');
+            filterMessageDiv.current.classList.remove('filter-message-position');
+            filterMessageDiv.current.classList.remove('filter-message-fading');
+        }
+
+        if (count !== 0) {
+            clearTimeout(timeout.current);
+            clearInterval(interval.current);
+            removeClasses();
+            setTimeout(addClasses, 10);
+            timeout.current = setTimeout(() => {
+                removeClasses();
+                window.location.reload();
+            }, 5000);
+            dispatchTimer('reset');
+            interval.current = setInterval(() => {
+                dispatchTimer('countdown');
+            }, 1000);
+        }
+    }, [count]);
+
+    return <div id="filter-message" ref={filterMessageDiv} class="alert alert-info" role="alert">Filter applied! Reloading in {timer} seconds.</div>
 }

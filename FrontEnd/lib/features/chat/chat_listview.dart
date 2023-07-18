@@ -39,10 +39,9 @@ class ChatListViewState extends State<ChatListView> {
   }
 
   void loadImage(index) async {
-    chatIcons[index] = widget.isPrivate
-        ? await getRawImageData(
-            widget.chatList[index]["user"]["profile_img_url"])
-        : null; // group rep image
+    chatIcons[index] = await getRawImageData(widget.isPrivate
+        ? widget.chatList[index]["user"]["profile_img_url"]
+        : widget.chatList[index]["img"]);
     setState(() {
       dataLoaded[index] = true;
     });
@@ -53,16 +52,23 @@ class ChatListViewState extends State<ChatListView> {
     ListView list = ListView.builder(
         itemCount: count,
         itemBuilder: (context, index) {
-          String name = widget.chatList[index]["user"]["name"];
+          String name = widget.isPrivate
+              ? widget.chatList[index]["user"]["name"]
+              : widget.chatList[index]["name"];
           return Column(
             children: [
               TextButton(
                 onPressed: () async {
                   widget.isPrivate
-                      ? context.router.push(PrivateChatRoute(
+                      ? context.router.push(ChatRoomRoute(
                           username: widget.username,
-                          chatInfo: widget.chatList[index]))
-                      : context.router.push(GroupChatRoute());
+                          chatInfo: widget.chatList[index],
+                          isPrivate: true))
+                      : context.router.push(ChatRoomRoute(
+                          username: widget.username,
+                          chatInfo: widget.chatList[index],
+                          isPrivate: false,
+                        ));
                 },
                 child: Row(children: [
                   SizedBox(

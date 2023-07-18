@@ -131,6 +131,24 @@
     gap: 2px;
 }
 
+.post-more {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.post-link {
+    height: 30px;
+    width: 30px;
+    cursor: pointer;
+}
+
+.post-link img {
+    max-height: 100%;
+    max-width: 100%;
+}
+
 .post-content {
     white-space: pre-line;
     text-align: justify;
@@ -163,4 +181,31 @@
 .carousel-inner {
     width: 50vw;
     height: 30vw;
+}
+
+#filter-message {
+    position: fixed;
+    top: 100px;
+    right: -20vw;
+    width: 20vw;
+}
+
+.filter-message-transition {
+    transition: transform 0.5s ease-in-out, opacity 5s ease-in-out;
+}
+
+.filter-message-position {
+    transform: translateX(-23vw);
+}
+
+.filter-message-fading {
+    opacity: 0;
+}
+
+#display-post {
+    width: 70%;
+    padding-bottom: 50px;
+    padding-top: 50px;
+    margin-left: auto;
+    margin-right: auto;
 }

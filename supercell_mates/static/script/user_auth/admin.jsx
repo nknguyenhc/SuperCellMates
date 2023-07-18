@@ -79,6 +79,7 @@ function ManageTags() {
     );
 }
 
+
 function AddTags() {
     const addTagAdminButton = React.useRef(null);
     const [tagName, setTagName] = React.useState('');
@@ -90,8 +91,7 @@ function AddTags() {
     const isLoading = React.useRef(false);
     const setIsLoading = (newValue) => isLoading.current = newValue;
     
-    function addTag(event) {
-        event.preventDefault();
+    function addTag() {
         if (tagName === '') {
             setEmptyErrorMessageTriggered(true);
             return;
@@ -113,6 +113,7 @@ function AddTags() {
                         addTagAdminButton.current.click();
                         setTagName('');
                         setImgFile(null);
+                        setImagePreview('');
                         fileInput.current.files = null;
                         setEmptyErrorMessageTriggered(false);
                     } else {
@@ -131,18 +132,23 @@ function AddTags() {
 
     return (
         <React.Fragment>
-            <form onSubmit={addTag}>
+            <form onSubmit={event => event.preventDefault()}>
                 <div className="m-3">
                     <label htmlFor="tag-input" className="form-label">Tag</label>
                     <input type="text" className="form-control" id="tag-input-admin" autoComplete="off" value={tagName} onChange={event => setTagName(event.target.value.slice(0, 25))} />
                 </div>
-                <div className="m-3" id="new-tag-admin-icon">
+                <div className="m-3 mb-0" id="new-tag-admin-icon">
                     <div>Icon:</div>
                     <div>{imagePreview}</div>
                 </div>
-                <input ref={fileInput} type="file" accept="image/*" className="form-control m-3" onChange={iconUpload} />
+                <div className="ms-3">
+                    <input ref={fileInput} id="tag-icon-file" type="file" accept="image/*" className="form-control m-3 img-input" onChange={iconUpload} />
+                    <button onClick={() => fileInput.current.click()} className="add-image-label">
+                        <img src="/static/media/add-image-icon.png" />
+                    </button>
+                </div>
                 <div className="m-3">
-                    <input type="submit" class="btn btn-primary" value="Add Tag" />
+                    <input type="submit" class="btn btn-primary" value="Add Tag" onClick={addTag} />
                 </div>
                 <div className="m-3 alert alert-danger" role="alert" style={{display: emptyErrorMessageTriggered ? "block" : "none"}}>Tag cannot be empty!</div>
             </form>
@@ -154,8 +160,7 @@ function AddTags() {
                             <h1 class="modal-title fs-5" id="add-tag-admin-label">Message</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">{adminMessage}
-                        </div>
+                        <div class="modal-body">{adminMessage}</div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
@@ -166,6 +171,93 @@ function AddTags() {
     )
 }
 
+
+function ChangeTagIcon() {
+    const [tags, setTags] = React.useState([]);
+    const [selected, setSelected] = React.useState(-1);
+    const fileInput = React.useRef(null);
+    const [imgFile, setImgFile] = React.useState(null);
+    const changeIconAdminButton = React.useRef(null);
+    const [isError, setIsError] = React.useState(false);
+
+    React.useEffect(() => {
+        refreshTags();
+    }, []);
+
+    function refreshTags() {
+        fetch('/obtain_tags')
+            .then(response => response.json())
+            .then(response => {
+                setTags(response.tags);
+            });
+    }
+
+    function updateIcon() {
+        if (!imgFile) {
+            setIsError(true);
+            return;
+        }
+        setIsError(false);
+        fetch('/change_tag_icon', postRequestContent({
+            name: tags[selected].name,
+            icon: imgFile
+        })).then(response => {
+            if (response.status !== 200) {
+                triggerErrorMessage();
+                return;
+            } else {
+                changeIconAdminButton.current.click();
+                refreshTags();
+                setSelected(-1);
+            }
+        })
+    }
+
+    return (
+        <React.Fragment>
+            <div id='change-tag-icon-window'>
+                {tags.map((tag, i) => (
+                    <div className={"tag-button btn " + (i === selected ? "btn-info" : "btn-outline-info")} onClick={() => {
+                        setSelected(i);
+                        setImgFile(null);
+                    }}>{tag.name}</div>
+                ))}
+            </div>
+            {selected !== -1 && <div id="icon-display-window" className="border border-info">
+                <img src={tags[selected].icon} />
+                <div>
+                    New Icon:
+                    <input ref={fileInput} type="file" className="img-input" accept="image/*" onChange={event => {
+                        setImgFile(event.target.files[0]);
+                    }} />
+                    <button onClick={() => fileInput.current.click()} className="add-image-label">
+                        <img src="/static/media/add-image-icon.png" />
+                    </button>
+                </div>
+                {imgFile && <img src={URL.createObjectURL(imgFile)} />}
+                <button className="btn btn-success" onClick={updateIcon}>Update Icon</button>
+                {isError && <div className="alert alert-danger" role="alert">You have not set the new icon</div>}
+                <button ref={changeIconAdminButton} style={{display: 'none'}} type="button" data-bs-toggle="modal" data-bs-target="#change-icon-admin-message"></button>
+                <div class="modal fade" id="change-icon-admin-message" tabindex="-1" aria-labelledby="change-icon-admin-label" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="change-icon-admin-label">Message</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">Icon changed.</div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>}
+        </React.Fragment>
+    );
+}
+
+
 function Page() {
     const [pageState, setPageState] = React.useState(0);
 
@@ -174,10 +266,13 @@ function Page() {
             <div id="admin-side-nav" className="sticky-top border-end">
                 <ul className="nav flex-column">
                     <li className="nav-item">
-                        <a className="nav-link" href="javascript:void(0)" id="manage-tag-requests" onClick={() => setPageState(0)}>Manage Tag Requests</a>
+                        <a className="nav-link" href="javascript:void(0)" onClick={() => setPageState(0)}>Manage Tag Requests</a>
                     </li>
                     <li className="nav-item">
-                        <a className="nav-link" href="javascript:void(0)" id="manage-tag-requests" onClick={() => setPageState(1)}>Add Tags</a>
+                        <a className="nav-link" href="javascript:void(0)" onClick={() => setPageState(1)}>Add Tags</a>
+                    </li>
+                    <li className="nav-item">
+                        <a className="nav-link" href="javascript:void(0)" onClick={() => setPageState(2)}>Change Tag Icon</a>
                     </li>
                 </ul>
             </div>
@@ -188,8 +283,9 @@ function Page() {
         <React.Fragment>
             <AdminSideNav />
             <div id="admin-content" className="ps-3">
-                <div id="manage-tags" className="admin-content" style={{display: pageState === 0 ? 'block' : 'none'}}><ManageTags /></div>
-                <div id="add-tags" className="admin-content" style={{display: pageState === 1 ? 'block' : 'none'}}><AddTags /></div>
+                <div id="manage-tags" className="admin-content" style={{display: pageState === 0 ? '' : 'none'}}><ManageTags /></div>
+                <div id="add-tags" className="admin-content" style={{display: pageState === 1 ? '' : 'none'}}><AddTags /></div>
+                <div id="change-tag-icon" className="admin-content" style={{display: pageState === 2 ? '' : 'none'}}><ChangeTagIcon /></div>
             </div>
         </React.Fragment>
     );

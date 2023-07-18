@@ -130,6 +130,124 @@ class UserListViewState extends State<UserListView> {
   }
 }
 
+class UserListViewWithCustomOnPressed extends StatefulWidget {
+  const UserListViewWithCustomOnPressed(
+      {Key? key,
+      required this.userList,
+      required this.updateCallBack,
+      required this.onPressed})
+      : super(key: key);
+
+  final dynamic userList;
+  final dynamic updateCallBack;
+  final dynamic onPressed;
+
+  @override
+  State<UserListViewWithCustomOnPressed> createState() =>
+      UserListViewWithCustomOnPressedState();
+}
+
+class UserListViewWithCustomOnPressedState
+    extends State<UserListViewWithCustomOnPressed> {
+  int count = 0;
+  var dataLoaded = [];
+  var profileImages = [];
+
+  @override
+  void initState() {
+    super.initState();
+    count = widget.userList.length;
+    dataLoaded = List<bool>.filled(count, false, growable: true);
+    profileImages =
+        List<Uint8List>.filled(count, Uint8List.fromList([]), growable: true);
+    for (int i = 0; i < count; i++) {
+      loadImage(i);
+    }
+  }
+
+  void loadImage(index) async {
+    profileImages[index] =
+        await getRawImageData(widget.userList[index]["profile_pic_url"]);
+    setState(() {
+      dataLoaded[index] = true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ListView list = ListView.builder(
+        itemCount: count,
+        itemBuilder: (context, index) {
+          String name = widget.userList[index]["name"];
+          String username = widget.userList[index]["username"];
+          return Column(
+            children: [
+              TextButton(
+                onPressed: () => widget.onPressed(widget.userList[index]),
+                child: Row(children: [
+                  SizedBox(
+                      height: 45,
+                      width: 45,
+                      child: IconButton(
+                        onPressed: () {
+                          AutoRouter.of(context).push(SinglePhotoViewer(
+                              photoBytes: profileImages[index], actions: []));
+                        },
+                        icon: dataLoaded[index]
+                            ? Image.memory(profileImages[index])
+                            : const CircularProgressIndicator(),
+                        iconSize: 45,
+                        padding: EdgeInsets.zero,
+                      )),
+                  const Padding(padding: EdgeInsets.all(5)),
+                  Column(
+                    children: [
+                      const Padding(padding: EdgeInsets.only(left: 2)),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width - 80,
+                        child: Text(
+                          name,
+                          style: const TextStyle(
+                              color: Colors.black, fontSize: 17),
+                        ),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width - 80,
+                        child: Text(username,
+                            style: const TextStyle(
+                              color: Colors.blueGrey,
+                              fontSize: 14,
+                            )),
+                      ),
+                      const Padding(padding: EdgeInsets.all(2)),
+                    ],
+                  )
+                ]),
+              ),
+              const Divider(
+                height: 1,
+                color: Colors.grey,
+                indent: 10,
+                endIndent: 10,
+              )
+            ],
+          );
+        });
+    return count > 0
+        ? list
+        : const Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "No friends yet.\n\nClick on other users' profile to send friend requests!",
+                textAlign: TextAlign.center,
+              ),
+              Padding(padding: EdgeInsets.only(bottom: 80))
+            ],
+          );
+  }
+}
+
 class FriendRequestListView extends StatefulWidget {
   const FriendRequestListView(
       {Key? key, required this.friendRequestList, required this.updateCallBack})
