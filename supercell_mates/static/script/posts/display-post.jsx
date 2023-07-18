@@ -28,6 +28,7 @@ function ProfileFeed() {
         filterClearer.addEventListener('click', () => {
             const currProfilePageFilters = getJSONItemFromLocal('profilePageFilters', {});
             currProfilePageFilters[username] = '';
+            localStorage.setItem('profilePageFilters', JSON.stringify(currProfilePageFilters));
             dispatchCount();
             tagFilters.forEach(tagListing => {
                 tagListing.querySelector('input').checked = false;
