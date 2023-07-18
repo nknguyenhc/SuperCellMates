@@ -7,3 +7,4 @@ class UserProfile(models.Model):
     tagList = models.ManyToManyField("user_auth.Tag", related_name="user_profiles")
     profile_pic = models.ImageField(upload_to="profile/img/", blank=True)
     tag_count_limit = models.IntegerField(default=4)
+    remove_tag_timestamp = models.FloatField(default=0)
