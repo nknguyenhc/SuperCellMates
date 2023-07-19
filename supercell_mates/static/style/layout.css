@@ -63,3 +63,13 @@
 .img-input {
     display: none;
 }
+
+#search-box-placeholder {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#search-box-placeholder p {
+    margin-bottom: 0;
+}

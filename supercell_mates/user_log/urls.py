@@ -13,6 +13,7 @@ urlpatterns = [
     path('friend_requests_async', views.view_friend_requests_async, name="view_friend_requests_async"),
     path('add_friend', views.add_friend, name="add_friend"),
     path('search', views.search, name="search"),
+    path('search_username', views.search_username, name="search_username"),
     path('search_friend', views.search_friend, name='search_friend'),
     path('delete_friend', views.delete_friend, name="delete_friend"),
 ]

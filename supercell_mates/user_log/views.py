@@ -257,7 +257,7 @@ def add_friend(request):
         return HttpResponseBadRequest("user with the requested username does not exist")
 
 
-def find_users(search_param, my_username):
+def find_users(search_param, my_username, by_username_only):
     """Return the list of users with the search parameter excluding the user with my_username.
     Match is based on whether the username of each user contains the search parameter.
 
@@ -284,7 +284,7 @@ def find_users(search_param, my_username):
             "profile_link": reverse("user_log:view_profile", args=(user.username,)),
         }),
         filter(
-            lambda user: search_param in user.username.lower() and user.username != my_username,
+            lambda user: (search_param in user.username.lower() or (search_param in user.user_profile.name.lower() if not by_username_only else False)) and user.username != my_username,
             list(UserAuth.objects.all())
         )
     ))
@@ -296,7 +296,7 @@ def find_users(search_param, my_username):
 def search(request):
     """Return the json response with the results of the search.
     The request must contain GET parameter of "username", which is the search parameter.
-    The search returns users whose usernames contain the search parameter.
+    The search returns users whose usernames or names contain the search parameter.
     The returned json contains the following fields:
         users: the list of users returned by find_users method above, with excluded user being the current user
     
@@ -311,9 +311,36 @@ def search(request):
 
     try:
         search_param = request.GET["username"]
-        if type(search_param) != str:
-            return HttpResponseBadRequest("username GET parameter malformed")
-        users = find_users(search_param, request.user.username)
+        # if type(search_param) != str:
+        #     return HttpResponseBadRequest("username GET parameter malformed")
+        if search_param == '':
+            return HttpResponseBadRequest("search param is empty string")
+        users = find_users(search_param, request.user.username, False)
+        return JsonResponse({
+            "users": users
+        })
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("no username (GET) parameter found in the request")
+
+
+@login_required
+def search_username(request):
+    """Return the json response with the results of the search.
+    Input and output are exactly of the same format as search view.
+    However, returned results only contains those that usernames match. Names are not considered.
+
+    Args:
+        request (HttpRequest): the request made to this view
+    
+    Returns:
+        JsonResponse/HttpResponse: the result of the search
+    """
+
+    try:
+        search_param = request.GET["username"]
+        if search_param == '':
+            return HttpResponseBadRequest("search param is empty string")
+        users = find_users(search_param, request.user.username, True)
         return JsonResponse({
             "users": users
         })
