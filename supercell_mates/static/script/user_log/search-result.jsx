@@ -1,6 +1,9 @@
 function PlaceHolder() {
     return (
-        <div id="search-box-placeholder" class='text-body-tertiary'>Type and search for user ...</div>
+        <div id="search-box-placeholder" class='text-body-tertiary'>
+            <p>Type and search for user ...</p>
+            <p>Tip: add '@' in front to search by username</p>
+        </div>
     )
 }
 

@@ -203,7 +203,6 @@ def edit_post(request, post_id):
         post.friend_visible = friend_visible
         post.tag_visible = tag_visible
         post.public_visible = public_visible
-        post.time_posted = datetime.now().timestamp()
         
         # images
         for img in post.images.all():
@@ -565,8 +564,8 @@ def get_home_feed(request):
     try:
         posts = Post.objects
 
-        # Exclude user's own posts, and apply filters
-        posts = posts.exclude(creator=request.user.user_log)
+        # apply filters
+        # posts = posts.exclude(creator=request.user.user_log)
         if request.GET["friend_filter"] == '1':
             friend_list = request.user.user_log.friend_list.all()
             posts = posts.filter(creator__in=friend_list)

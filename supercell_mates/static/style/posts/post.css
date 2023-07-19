@@ -78,7 +78,7 @@
     flex-direction: row;
     gap: 30px;
     flex-wrap: wrap;
-    overflow: scroll;
+    overflow: auto;
     height: 220px;
 }
 

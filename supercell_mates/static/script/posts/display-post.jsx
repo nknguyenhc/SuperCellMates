@@ -1,5 +1,5 @@
 function ProfileFeed() {
-    const username = document.querySelector("#profile-id").innerText.slice(1);
+    const username = document.querySelector("#profile-id").innerText;
     const isAllPostsLoaded = React.useRef(false);
     const setIsAllPostsLoaded = (newValue) => isAllPostsLoaded.current = newValue;
     const oneDayTime = 24 * 3600;
@@ -45,7 +45,6 @@ function ProfileFeed() {
 
         loadMorePosts().then(() => {
             setInterval(() => {
-                console.log("interval ...");
                 if (!isAllPostsLoaded.current && document.body.offsetHeight - window.innerHeight - window.scrollY < 100) {
                     setIsAllPostsLoaded(true);
                     loadMorePosts();
