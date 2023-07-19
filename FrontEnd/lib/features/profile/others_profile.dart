@@ -293,7 +293,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
               ),
             ],
           ),
-          Container(padding: const EdgeInsets.all(5)),
+          const Padding(padding: EdgeInsets.only(right: 5)),
         ],
       ),
       body: Column(

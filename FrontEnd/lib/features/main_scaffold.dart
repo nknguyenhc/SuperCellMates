@@ -21,6 +21,8 @@ class MainScaffold extends StatefulWidget {
 }
 
 class MainScaffoldState extends State<MainScaffold> {
+  List<bool> homeFilterSelected = [true, false, false, false];
+
   @override
   void initState() {
     dataLoaded = false;
@@ -48,7 +50,9 @@ class MainScaffoldState extends State<MainScaffold> {
     appbars = <AppBar>[
       HomeAppBar(data: {
         "isAdmin": profileMap["is_admin"],
-      }, updateCallBack: updateHomePageBody),
+      }, updateCallBack: updateHomePageBody,
+      isFilterSelected: homeFilterSelected,
+      onDispose: (dynamic list) => homeFilterSelected = list,),
       ChatAppBar(),
       ProfileAppBar(
         profileMap: profileMap,

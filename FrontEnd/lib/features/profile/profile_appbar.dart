@@ -101,7 +101,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
             ),
           ],
         ),
-        const Padding(padding: EdgeInsets.all(2)),
+        const Padding(padding: EdgeInsets.only(right: 2)),
         Column(
           children: [
             const Padding(padding: EdgeInsets.all(3)),
@@ -126,7 +126,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
             ),
           ],
         ),
-        Container(padding: const EdgeInsets.all(10)),
+        const Padding(padding: EdgeInsets.only(right: 5))
       ],
     );
   }
