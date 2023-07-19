@@ -1,4 +1,5 @@
 import "dart:typed_data";
+import "dart:math";
 import "package:auto_route/auto_route.dart";
 import "package:flutter/material.dart";
 
@@ -41,6 +42,7 @@ class PostListViewState extends State<PostListView> {
   List<Uint8List> profileImages = [];
   List<List<Uint8List>?> postImagesRaw = [];
   List<dynamic> timePosted = [];
+  List<bool> seeMore = [];
 
   final _controller = ScrollController();
 
@@ -52,6 +54,7 @@ class PostListViewState extends State<PostListView> {
     profileImages = List.filled(count, Uint8List.fromList([]), growable: true);
     postImagesRaw = List.filled(count, null, growable: true);
     timePosted = List.filled(count, null, growable: true);
+    seeMore = List.filled(count, false, growable: true);
     for (int i = 0; i < count; i++) {
       loadImages(i);
       loadTime(i);
@@ -82,6 +85,7 @@ class PostListViewState extends State<PostListView> {
       profileImages.add(Uint8List.fromList([]));
       postImagesRaw.add(null);
       timePosted.add(null);
+      seeMore.add(false);
       loadImages(i);
       loadTime(i);
     }
@@ -110,6 +114,34 @@ class PostListViewState extends State<PostListView> {
 
   @override
   Widget build(BuildContext context) {
+    TextButton seeMoreSection(int index) {
+      return TextButton(
+          onPressed: () => setState(() => seeMore[index] = true),
+          child: Row(
+            children: [
+              Transform.rotate(
+                angle: pi / 2,
+                child: Icon(Icons.arrow_right),
+              ),
+              Text("See more")
+            ],
+          ));
+    }
+
+    TextButton seeLessSection(int index) {
+      return TextButton(
+          onPressed: () => setState(() => seeMore[index] = false),
+          child: Row(
+            children: [
+              Transform.rotate(
+                angle: pi / 2 * 3,
+                child: Icon(Icons.arrow_right),
+              ),
+              Text("See less")
+            ],
+          ));
+    }
+
     ListView list = ListView.builder(
         controller: _controller,
         itemCount: count,
@@ -197,27 +229,51 @@ class PostListViewState extends State<PostListView> {
                           ],
                         ),
                         const Padding(padding: EdgeInsets.only(top: 5)),
-                        Row(
+                        // content
+                        Column(
                           children: [
-                            const Padding(padding: EdgeInsets.only(left: 10)),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width - 40,
-                              child: Text(
-                                content,
-                                style: const TextStyle(fontSize: 14),
-                              ),
-                            )
+                            Row(
+                              children: [
+                                const Padding(
+                                    padding: EdgeInsets.only(left: 10)),
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width - 40,
+                                  child: Text(
+                                    content.length > 200 && !seeMore[index]
+                                        ? content.substring(0, 200)
+                                        : content,
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                )
+                              ],
+                            ),
+                            content.length > 200 && !seeMore[index]
+                                ? SizedBox(
+                                    height: 40,
+                                    child: seeMoreSection(index),
+                                  )
+                                : content.length > 200 && seeMore[index]
+                                    ? SizedBox(
+                                        height: 40,
+                                        child: seeLessSection(index),
+                                      )
+                                    : Container()
                           ],
                         ),
-                        const Padding(padding: EdgeInsets.only(top: 10)),
+                        content.length > 200
+                            ? Container()
+                            : const Padding(padding: EdgeInsets.only(top: 10)),
                         // images
                         dataLoaded[index]
                             ? images!.isEmpty
                                 ? Container()
                                 : Column(
                                     children: [
-                                      const Padding(
-                                          padding: EdgeInsets.only(top: 10)),
+                                      content.length > 200
+                                          ? Container()
+                                          : const Padding(
+                                              padding:
+                                                  EdgeInsets.only(top: 10)),
                                       images.length < 5
                                           ? SizedBox(
                                               width: MediaQuery.of(context)
