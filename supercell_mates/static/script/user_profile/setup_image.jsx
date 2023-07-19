@@ -57,8 +57,7 @@ function SetupImage() {
                     } else {
                         popSetupMessage("Profile image updated successfully!");
                         imgPreviewPage.current.style.display = 'none';
-                        const content = profileImgContainer.current.innerHTML;
-                        profileImgContainer.current.innerHTML = content;
+                        profileImgContainer.current.setHTML(profileImgContainer.current.innerHTML);
                     }
                 });
         }

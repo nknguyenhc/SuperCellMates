@@ -178,14 +178,14 @@ function SetupTags() {
                     setShowRemoveAlert(false);
                 }}>Update Tags</button>
             </div>
-            {showAlert && <div className="alert alert-info mt-3" role="alert">
+            {showAlert && <div className="ms-4 action-alert alert alert-info mt-3" role="alert">
                 <div>Your account can only have 4 tags, and you will not be able to change tags for 1 week if you delete one of your tags. Are you sure to proceed?</div>
                 <div className="setup-tags-confirmation-buttons mt-3">
                     <button className="btn btn-primary" onClick={submitTags}>Yes</button>
                     <button className="btn btn-secondary" onClick={() => setShowAlert(false)}>No</button>
                 </div>
             </div>}
-            {showRemoveAlert && <div className="alert alert-danger mt-3" role="alert">
+            {showRemoveAlert && <div className="ms-4 action-alert alert alert-danger mt-3" role="alert">
                 <div>You are attempting to delete tag: {tagToBeRemoved.name}. You will not be able to delete another tag within the next one week upon deleting a tag. Are you sure to proceed?</div>
                 <div className="setup-tags-confirmation-buttons mt-3">
                     <button className="btn btn-primary" onClick={removeTag}>Yes</button>
