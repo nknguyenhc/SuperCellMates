@@ -38,7 +38,7 @@
                 },
                 {
                     "details": "Change name",
-                    "progress": "Done on web, to do on mobile"
+                    "progress": "Done"
                 },
                 {
                     "details": "View others’ profile page, showing relevant visible fields and posts with view permission",
@@ -80,7 +80,7 @@
                 },
                 {
                     "details": "Change tag, with cooldown time",
-                    "progress": "To do"
+                    "progress": "Done"
                 },
                 {
                     "details": "User tag number limit according to achievement level",
@@ -198,15 +198,15 @@
                 },
                 {
                     "details": "Group chat creation and users & admins settings",
-                    "progress": "Done on web, to do on mobile"
+                    "progress": "Done"
                 },
                 {
                     "details": "Group chat messaging",
-                    "progress": "Done on web, to do on mobile"
+                    "progress": "Done"
                 },
                 {
                     "details": "Send files through group chat",
-                    "progress": "Done on web, to do on mobile"
+                    "progress": "Done"
                 },
                 {
                     "details": "Group chat representative image",
@@ -249,7 +249,7 @@
             "rows": [
                 {
                     "details": "Change basic info: name, username and password",
-                    "progress": "Done on web, changing name to do on mobile"
+                    "progress": "Done"
                 },
                 {
                     "details": "Display customisation",
