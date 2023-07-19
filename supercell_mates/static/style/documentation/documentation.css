@@ -1,3 +1,9 @@
+#documentation-title {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
 #documentation-overview {
     display: flex;
     flex-direction: column;
@@ -25,13 +31,53 @@
     align-items: center;
 }
 
+.documentation-section {
+    width: 70vw;
+    min-width: 500px;
+    max-width: 900px;
+}
+
+#documentation-sequence {
+    padding-top: 40px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#sequence-window {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+#sequence-nav {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.sequence-nav-btn {
+    flex-shrink: 0;
+}
+
+#sequence-display {
+    width: 120%;
+    margin-left: -10%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#sequence-display img {
+    max-width: 100%;
+}
+
 #documentation-window {
     display: flex;
     flex-direction: column;
     gap: 30px;
-    width: 70vw;
-    min-width: 500px;
-    max-width: 900px;
 }
 
 #documentation-nav {
@@ -49,7 +95,6 @@
 
 #documentation-side-nav {
     overflow: auto;
-    width: 15vw;
     flex-shrink: 0;
 }
 

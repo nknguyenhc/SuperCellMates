@@ -1,0 +1,19 @@
+{
+    "tests": [
+        {
+            "instruction": "Fill in title, content, set visibility, tag, optionally some image, and press create post.",
+            "expected": "A new post is created. Upon reloading home page/navigating to profile page, the new post is present.",
+            "datePassed": "19/07/2023"
+        },
+        {
+            "instruction": "Scroll down.",
+            "expected": "Older posts are loaded, all posts that are visible to the current users should be loaded upon scrolling to the very bottom, and no posts that the current user does not have access should be loaded.",
+            "datePassed": "19/07/2023"
+        },
+        {
+            "instruction": "Toggle 'my friends only' or 'my tags only'.",
+            "expected": "Home feed is reloaded, and the posts displayed are filtered according to the filters applied. All posts that are visible under the filters should be loaded, and posts that are not visible to the current user should not be loaded.",
+            "datePassed": "19/07/2023"
+        }
+    ]
+}

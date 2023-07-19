@@ -11,6 +11,47 @@ function DocumentationInteractive() {
     const chapterRenderers = [Backend, Database, WebFrontend, MobileFrontend];
     const defaultDetails = <div className="text-body-tertiary p-3">Select a chapter to start viewing documentation ...</div>;
 
+    const siteApps = [
+        "user_auth",
+        "user_profile",
+        "user_log",
+        "posts",
+        "messages",
+    ]
+    const structures = [
+        {
+            name: "Backend",
+            path: "backend",
+            apps: siteApps
+        },
+        {
+            name: "Databases",
+            path: "databases",
+            apps: siteApps
+        },
+        {
+            name: "Web Frontend",
+            path: "web_frontend",
+            apps: [
+                "logged_out",
+                "home",
+                "layout",
+                "profile",
+                "settings",
+                "admin",
+            ]
+        },
+        {
+            name: "Mobile Frontend",
+            path: "mobile_frontend",
+            apps: [
+                "authentication",
+                "home",
+                "profile",
+            ]
+        }
+    ];
+
     React.useEffect(() => {
         setDetails(defaultDetails);
         structures.forEach((structure, i) => {
@@ -46,7 +87,8 @@ function DocumentationInteractive() {
     }
 
     return (
-        <div id="documentation-window">
+        <div id="documentation-window" className="documentation-section">
+            <h5 className="documentation-section-header">API endpoints, database and frontend details</h5>
             <div id="documentation-nav">
                 {
                     structures.map((structure, i) => (
