@@ -48,6 +48,21 @@
                     "path": "/profile/set_profile_image",
                     "trigger": "User presses their profile image to enter edit profile page, and then presses \"change profile image\" button",
                     "purpose": "To allow users to upload and crop an image of their choice, and set as their profile image"
+                },
+                {
+                    "path": "/profile/change_name",
+                    "trigger": "User presses \"change name\" button in edit profile page",
+                    "purpose": "To allow users to change their display name if they would like to. They need to authenticate with their password."
+                },
+                {
+                    "path": "/change_username",
+                    "trigger": "User presses \"change username\" button in edit profile page",
+                    "purpose": "To allow users to change their username if they would like to. They need to authenticate with their password."
+                },
+                {
+                    "path": "/change_password",
+                    "trigger": "User presses \"change password\" button in edit profile page",
+                    "purpose": "To allow users to change their password. They need to authenticate with their old password."
                 }
             ],
             "navigations": []
@@ -91,7 +106,12 @@
                 {
                     "path": "/profile/obtain_tags",
                     "trigger": "User presses the add button next to the tags in profile page, or \"My tags\" button in My tags page",
-                    "purpose": "To show clearly the list of tags claimed by the user, and allow users to inspect tag icons and (in a future implementation) descriptions"
+                    "purpose": "To show clearly the list of tags claimed by the user, and allow users to inspect tag icons."
+                },
+                {
+                    "path": "/profile/remove_tags",
+                    "trigger": "In My tags page, user presses remove button on a tag icon",
+                    "purpose": "To allow users to remove unwanted tags if necessary. They will not be allowed to do so again in 7 days."
                 }
             ],
             "navigations": ["Add tags page"]
