@@ -24,6 +24,7 @@ class AddTagPageState extends State<AddTagPage> {
   bool dataLoaded = false;
   var tagCount = 0;
   var tagLimit = 0;
+  bool canRemoveTag = false;
   int navigationBarIndex = 0;
   Widget? searchTagsResult = const Column(
     mainAxisAlignment: MainAxisAlignment.center,
@@ -56,6 +57,16 @@ class AddTagPageState extends State<AddTagPage> {
       tagLimit = response["tag_count_limit"];
       tagCount = myTagsList.length;
     });
+    dynamic canRemoveTagResponse =
+        await getRequest(EndPoints.canRemoveTag.endpoint, null);
+    if (canRemoveTagResponse == "true") {
+      setState(() => canRemoveTag = true);
+    } else if (canRemoveTagResponse == "false") {
+      setState(() => canRemoveTag = false);
+    } else {
+      showErrorDialog(context, canRemoveTagResponse);
+      return;
+    }
     dataLoaded = true;
   }
 
@@ -178,7 +189,15 @@ class AddTagPageState extends State<AddTagPage> {
                   : MediaQuery.of(context).size.height - 220,
               child: dataLoaded
                   ? navigationBarIndex == 0
-                      ? TagListView(tagList: myTagsList, isAddTag: false)
+                      ? TagListView(
+                          tagList: myTagsList,
+                          isAddTag: false,
+                          canRemoveTag: canRemoveTag,
+                          onAddCallBack: () {
+                            obtainMyTagsList();
+                            widget.updateCallBack();
+                          },
+                        )
                       : searchTagsResult
                   : Container(
                       alignment: Alignment.center,

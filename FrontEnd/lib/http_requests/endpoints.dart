@@ -10,6 +10,8 @@ enum EndPoints {
   addTags,
   obtainTags,
   searchTags,
+  canRemoveTag,
+  removeTag,
   setProfileImage,
   changeUsername, 
   changePassword,
@@ -89,7 +91,8 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.removeAdmin: "/messages/remove_admin",
     EndPoints.addAdmin: "/messages/add_admin",
     EndPoints.assignLeader: "/messages/assign_leader",
-    
+    EndPoints.canRemoveTag: "/profile/can_remove_tag",
+    EndPoints.removeTag: "/profile/remove_tag",    
 
   };
 
