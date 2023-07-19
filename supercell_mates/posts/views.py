@@ -565,8 +565,8 @@ def get_home_feed(request):
     try:
         posts = Post.objects
 
-        # Exclude user's own posts, and apply filters
-        posts = posts.exclude(creator=request.user.user_log)
+        # apply filters
+        # posts = posts.exclude(creator=request.user.user_log)
         if request.GET["friend_filter"] == '1':
             friend_list = request.user.user_log.friend_list.all()
             posts = posts.filter(creator__in=friend_list)
