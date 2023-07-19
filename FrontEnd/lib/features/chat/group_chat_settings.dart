@@ -166,10 +166,16 @@ class GroupChatSettingsPageState extends State<GroupChatSettingsPage> {
                         : Container()
                   ],
                 ),
-                Text(
-                  admins[index]["name"],
-                  style: const TextStyle(
-                      color: Colors.blue, fontWeight: FontWeight.bold),
+                Container(
+                  alignment: Alignment.center,
+                  width: MediaQuery.of(context).size.width / 5,
+                  child: Text(
+                    admins[index]["name"],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        color: Colors.blue, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
             );
@@ -260,21 +266,27 @@ class GroupChatSettingsPageState extends State<GroupChatSettingsPage> {
                               : Container()
                         ],
                       ),
-                Text(
-                  index == members.length ? "" : members[index]["name"],
-                  style: index == members.length
-                      ? const TextStyle()
-                      : TextStyle(
-                          color: members[index]["role"] == "creator"
-                              ? Colors.pink
-                              : members[index]["role"] == "admin"
-                                  ? Colors.blue
-                                  : Colors.black,
-                          fontWeight: members[index]["role"] == "creator" ||
-                                  members[index]["role"] == "admin"
-                              ? FontWeight.bold
-                              : FontWeight.normal),
-                ),
+                Container(
+                  alignment: Alignment.center,
+                  width: MediaQuery.of(context).size.width / 5,
+                  child: Text(
+                    index == members.length ? "" : members[index]["name"],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: index == members.length
+                        ? const TextStyle()
+                        : TextStyle(
+                            color: members[index]["role"] == "creator"
+                                ? Colors.pink
+                                : members[index]["role"] == "admin"
+                                    ? Colors.blue
+                                    : Colors.black,
+                            fontWeight: members[index]["role"] == "creator" ||
+                                    members[index]["role"] == "admin"
+                                ? FontWeight.bold
+                                : FontWeight.normal),
+                  ),
+                )
               ],
             );
           }
