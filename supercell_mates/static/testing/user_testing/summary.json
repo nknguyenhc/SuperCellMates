@@ -3,7 +3,7 @@
     "tests": [
         {
             "suggestion": "Various UI-UX improvement such as display width, page organisation.",
-            "response": "Most are accepted and are implemented."
+            "response": "Most are accepted and are implemented. Some are being implemented."
         },
         {
             "suggestion": "Filter is not working.",
@@ -15,7 +15,7 @@
         },
         {
             "suggestion": "Pending friend request when friend request sent instead of default add friend button.",
-            "response": "Rejected. See developer board."
+            "response": "Rejected. We do not want users to track their outgoing friend requests."
         },
         {
             "suggestion": "Search user by name.",

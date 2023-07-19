@@ -6,7 +6,8 @@ function Testing() {
             apps: [
                 "user_auth",
                 "user_profile",
-                "user_log"
+                "user_log",
+                "posts"
             ]
         },
         {
@@ -16,7 +17,8 @@ function Testing() {
                 "logged_out",
                 "layout",
                 "profile",
-                "settings"
+                "settings",
+                "home"
             ]
         },
         {
@@ -72,7 +74,8 @@ function Testing() {
 
     return (
         <div id="testing-window" className="p-4">
-            <div id="testing-sections">
+            <h3 id="testing-title">Testing</h3>
+            <div id="testing-sections" className="pt-3">
                 {
                     structures.map((structure, i) => (
                         <button className={"btn " + (i === displayIndex ? "btn-primary" : "btn-outline-primary")} onClick={() => newSection(i)}>{structure.display}</button>

@@ -55,7 +55,7 @@
     flex-direction: row;
     gap: 10px;
     width: 100%;
-    overflow: auto;
+    flex-wrap: wrap;
 }
 
 .sequence-nav-btn {
@@ -95,7 +95,6 @@
 
 #documentation-side-nav {
     overflow: auto;
-    width: 10vw;
     flex-shrink: 0;
 }
 

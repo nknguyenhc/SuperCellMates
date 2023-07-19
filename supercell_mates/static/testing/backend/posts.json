@@ -1,0 +1,64 @@
+{
+    "tests": [
+        {
+            "setup": "The following API will create a new post for you. Enter the first line of code, then second line for the number of times as many images as you want (up to 9), and then third line. For visibility, the logic is as follow: if public, put 'public' in the value list, otherwise put 'friends' or 'tag' to add the respective constraints to visibility.",
+            "javascript": "imgs = [];\n\nimg = document.createElement('input'); img.type = 'file'; img.onchange = () => imgs.push(img.files[0]); img.click();\n\nfetch('post/create_post', postRequestContent({ title: '<your title>', content: '<your content>', visibility: <list of visibility>, tag: '<a real tag name>', imgs: imgs })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "A new post is created with the correct corresponding fields.",
+            "datePassed": "19/07/2023"
+        },
+        {
+            "setup": "Use the API to obtain profile posts or home feed to get id of at least 1 post to conduct this test.",
+            "javascript": "fetch('post/post/<post id>').then(response => response.json()).then(response => console.log(response))",
+            "expected": "The information of the post with the given id.",
+            "datePassed": "19/07/2023"
+        },
+        {
+            "setup": "NIL",
+            "javascript": "fetch('post/posts/<username>').then(response => response.json()).then(response => console.log(response))",
+            "expected": "Posts made by the user within the last 1 day, the timestamp of the latest post made before 1 day ago, and whether you are loading posts of your own account.",
+            "datePassed": "19/07/2023"
+        },
+        {
+            "setup": "NIL",
+            "javascript": "fetch('post/posts/<username>?start=<epoch start time>&end=<epoch end time>').then(response => response.json()).then(response => console.log(response))",
+            "expected": "Posts made by the user within the specified time period, the timestamp of the latest post made before the start time, and whether you are loading posts of your own account.",
+            "datePassed": "19/07/2023"
+        },
+        {
+            "setup": "NIL",
+            "javascript": "fetch('post/posts/<username>?tag=<tag name>').then(response => response.json()).then(response => console.log(response))",
+            "expected": "Posts made by the user within the last 1 day that have the specified tag, the timestamp of the latest post before 1 day ago with the specified tag before 1 day ago, and whether you are loading posts of your own account.",
+            "datePassed": "19/07/2023"
+        },
+        {
+            "setup": "NIL",
+            "javascript": "fetch('post/posts/<username>?start=<start time>&end=<end time>&tag=<tag name>').then(response => response.json()).then(response => console.log(response))",
+            "expected": "Posts made by the suer within the specified time period that have the specified tag, the timestamp of the latest post that has the tag and is before the start time given, and whether you are loading posts of your own account.",
+            "datePassed": "19/07/2023"
+        },
+        {
+            "setup": "Use the API to obtain profile posts or home feed to get post info of at least 1 post. You may paste the URLs in the 'images' array given in the returned JSON to the URL bar for viewing.",
+            "javascript": "NIL",
+            "expected": "An image of attached to a post",
+            "datePassed": "19/07/2023"
+        },
+        {
+            "setup": "The following API will edit one of your posts. Get an id of one of your posts by running the API call to get your profile posts. Run the first line of code, then second line for as many images as you want to appear in the post (note that the old images will be deleted), then the third line. For logic on visibility, see above in API for creating post.",
+            "javascript": "imgs = [];\n\nimg = document.createElement('input'); img.type = 'file'; img.onchange = () => imgs.push(img.files[0]); img.click();\n\nfetch('post/post/edit/<post id>', postRequestContent({ title: '<new title>', content: '<new content>', visibility: <visibility list>, imgs: imgs})).then(response => response.text()).then(response => console.log(response))",
+            "expected": "The post is updated with the correct new fields.",
+            "datePassed": "19/07/2023"
+        },
+        {
+            "setup": "The following API will delete one of your posts. Prepare the post id of your post you want to delete by calling API to get some of your profile posts.",
+            "javascript": "fetch('post/delete', postRequestContent({ post_id: '<your post id>' })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "The post is deleted. Redirecting to your profile page to verify that your post is no longer loaded there.",
+            "datePassed": "19/07/2023"
+        },
+        {
+            "setup": "For friend filter, put 1 if include posts by your friends only, 0 otherwise. For tag filter, put 1 if include posts by those of the same tag as yours only, 0 otherwise. Leave start_timestamp empty",
+            "javascript": "fetch('/post?friend_filter=<0 or 1>&tag_filter=<0 or 1>&sort=time&limit=<number of posts to load>&start_timestamp=<start timestamp in epoch>').then(response => response.json()).then(response => console.log(response))",
+            "expected": "Posts to be loaded in home feed that are published before start_timestamp provided, up to the number posts you requested.",
+            "datePassed": "19/07/2023"
+        }
+    ]
+}

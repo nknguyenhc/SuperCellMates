@@ -119,6 +119,11 @@
             "instruction": "Navigate to another user's profile page by searching for the user's username on the top navigation bar, and click on the user. This user must be your friend, and must have posted using a tag that you have.",
             "expected": "You can view all posts that are set to public and friends, and posts under a tag that you have and that require people to have the same tag.",
             "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to another user's profile page by searching for the user's username on the top navigation bar, and click on the user. Click on one of the tags, or clear filters.",
+            "expected": "The page reloads, and the posts loaded are only of the tag that the user clicks, or all posts if the user clicks clear filters. Only posts under the filter that the user has access to will be loaded.",
+            "datePassed": "19/07/2023"
         }
     ]
 }
