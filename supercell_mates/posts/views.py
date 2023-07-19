@@ -203,7 +203,6 @@ def edit_post(request, post_id):
         post.friend_visible = friend_visible
         post.tag_visible = tag_visible
         post.public_visible = public_visible
-        post.time_posted = datetime.now().timestamp()
         
         # images
         for img in post.images.all():
