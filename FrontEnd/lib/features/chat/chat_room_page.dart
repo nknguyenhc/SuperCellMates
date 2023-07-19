@@ -472,54 +472,89 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           future: p0.metadata!["futureImageData"],
           builder: (_, snap) {
             if (snap.hasData) {
-              return p0.metadata!["is_image"]
-                  ? IconButton(
-                      constraints: BoxConstraints(
-                          maxWidth: MediaQuery.of(context).size.width * 0.7,
-                          maxHeight: MediaQuery.of(context).size.height * 0.3),
-                      onPressed: () => context.router.push(SinglePhotoViewer(
-                          photoBytes: snap.data! as Uint8List, actions: [])),
-                      icon: Image.memory(snap.data! as Uint8List,
-                          fit: BoxFit.contain),
-                      padding: EdgeInsets.zero,
-                    )
-                  : TextButton(
-                      onPressed: () {
-                        int dotIndex = p0.metadata!["name"].lastIndexOf('.');
-                        String fileName = dotIndex == -1
-                            ? p0.metadata!["name"]
-                            : p0.metadata!["name"].substring(0, dotIndex);
-                        String extension = dotIndex == -1
-                            ? ""
-                            : p0.metadata!["name"].substring(dotIndex + 1);
-                        FileSaver.instance.saveAs(
-                            name: fileName,
-                            bytes: snap.data! as Uint8List,
-                            ext: extension,
-                            mimeType: MimeType.other);
-                      },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.file_present,
-                            size: 20,
-                          ),
-                          const Padding(padding: EdgeInsets.only(right: 5)),
-                          Container(
+              return Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      p0.author.id == widget.username
+                          ? const SizedBox(width: 0,)
+                          : Text(
+                              p0.author.firstName!,
+                              style:
+                                  const TextStyle(color: Colors.indigoAccent),
+                            ),
+                      p0.author.id == widget.username
+                          ? const SizedBox(width: 0,)
+                          : const Padding(padding: EdgeInsets.only(bottom: 5)),
+                      p0.metadata!["is_image"]
+                          ? ClipRRect(
+                            borderRadius: const BorderRadius.all(Radius.circular(10)),
+                            child:
+                          IconButton(
                               constraints: BoxConstraints(
                                   maxWidth:
-                                      MediaQuery.of(context).size.width * 0.5),
-                              child: Text(
-                                p0.metadata!["name"],
-                                style: const TextStyle(
-                                    color: Colors.indigo,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    decoration: TextDecoration.underline),
-                              )),
-                        ],
-                      ));
+                                      MediaQuery.of(context).size.width * 0.7,
+                                  maxHeight:
+                                      MediaQuery.of(context).size.height * 0.3),
+                              onPressed: () => context.router.push(
+                                  SinglePhotoViewer(
+                                      photoBytes: snap.data! as Uint8List,
+                                      actions: [])),
+                              icon: Image.memory(snap.data! as Uint8List,
+                                  fit: BoxFit.contain),
+                              padding: EdgeInsets.zero,
+                            )
+                          ) 
+                          
+
+                          : TextButton(
+                              onPressed: () {
+                                int dotIndex =
+                                    p0.metadata!["name"].lastIndexOf('.');
+                                String fileName = dotIndex == -1
+                                    ? p0.metadata!["name"]
+                                    : p0.metadata!["name"]
+                                        .substring(0, dotIndex);
+                                String extension = dotIndex == -1
+                                    ? ""
+                                    : p0.metadata!["name"]
+                                        .substring(dotIndex + 1);
+                                FileSaver.instance.saveAs(
+                                    name: fileName,
+                                    bytes: snap.data! as Uint8List,
+                                    ext: extension,
+                                    mimeType: MimeType.other);
+                              },
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.file_present,
+                                    size: 20,
+                                  ),
+                                  const Padding(
+                                      padding: EdgeInsets.only(right: 5)),
+                                  Container(
+                                      constraints: BoxConstraints(
+                                          maxWidth: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.5),
+                                      child: Text(
+                                        p0.metadata!["name"],
+                                        style: const TextStyle(
+                                            color: Colors.indigo,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            decoration:
+                                                TextDecoration.underline),
+                                      )),
+                                ],
+                              ))
+                    ],
+                  ));
             }
             return const CircularProgressIndicator();
           });
@@ -563,7 +598,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                             ? enabledInputDecoration
                             : disabledInputDecoration,
                         primaryColor: Colors.blue,
-                        secondaryColor: Colors.pinkAccent,
+                        //secondaryColor: Colors.pinkAccent,
                         inputBackgroundColor: Colors.white,
                         inputMargin: inputMargin,
                         inputPadding: const EdgeInsets.all(15),
@@ -577,11 +612,14 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                     dateHeaderThreshold: 5 * 60 * 1000, // 5 minutes
 
                     showUserAvatars: true,
-                    showUserNames: false,
+                    showUserNames: widget.isPrivate ? false : true,
 
                     avatarBuilder: avatarBuilder,
 
-                    nameBuilder: (p0) => Text(p0.firstName ?? ""),
+                    nameBuilder: (p0) => Text(
+                      p0.firstName ?? "",
+                      style: const TextStyle(color: Colors.indigoAccent),
+                    ),
 
                     customMessageBuilder: customMessageBuilder,
 
