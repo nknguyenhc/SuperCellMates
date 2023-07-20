@@ -65,6 +65,7 @@ class HomeAppBarState extends State<HomeAppBar> {
     if (isFilterAtIndexChanged) {
       widget.updateCallBack(HomePage(
         key: UniqueKey(),
+        username: widget.data["username"],
         sort: widget.isFilterSelected[0]
             ? "time"
             : widget.isFilterSelected[1]
@@ -97,7 +98,7 @@ class HomeAppBarState extends State<HomeAppBar> {
           );
         }
       },
-      searchHintText: "Search for usernames...",
+      searchHintText: "Search by name, @username...",
       leading: IconButton(
         onPressed: () {
           AutoRouter.of(context).push(const SettingsRoute());
