@@ -360,6 +360,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                       username: "", // treates as not original poster
                       isInSomeProfile: true,
                       updateCallBack: loadProfilePosts,
+                      refreshable: false,
                       scrollAtTopEvent: () {},
                       scrollAtBottomEvent: () {},
                     )

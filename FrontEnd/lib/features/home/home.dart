@@ -53,6 +53,17 @@ class HomePageState extends State<HomePage> {
     getHomeFeed();
   }
 
+  Future<void> refresh() async {
+    homeFeed = [];
+    homeFeedLoaded = false;
+    mayHaveMore = true;
+    isLoadingMore = true;
+    nextStartTime = "";
+    nextStartID = "";
+    nextStartMatchingIndex = "5";
+    getHomeFeed();
+  }
+
   void getHomeFeed() async {
     if (!mayHaveMore) {
       return;
@@ -126,8 +137,9 @@ class HomePageState extends State<HomePage> {
                       postList: homeFeed,
                       isInSomeProfile: false,
                       username: widget.username,
-                      updateCallBack: () {},
-                      scrollAtTopEvent: () {},
+                      updateCallBack: refresh,
+                      refreshable: true,
+                      scrollAtTopEvent: refresh,
                       scrollAtBottomEvent: getHomeFeed,
                     ),
                     isLoadingMore

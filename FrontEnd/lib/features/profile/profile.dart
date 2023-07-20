@@ -242,6 +242,7 @@ class ProfilePageState extends State<ProfilePage> {
                               isInSomeProfile: true,
                               username: data["user_profile"]["username"],
                               updateCallBack: loadProfilePosts,
+                              refreshable: false,
                               scrollAtTopEvent: () {},
                               scrollAtBottomEvent: () {},
                             )

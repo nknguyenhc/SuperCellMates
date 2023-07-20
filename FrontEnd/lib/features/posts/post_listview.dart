@@ -18,6 +18,8 @@ class PostListView extends StatefulWidget {
     required this.username,
     required this.isInSomeProfile,
     required this.updateCallBack,
+    required this.refreshable, // if true, RefreshIndicator<Listview> will be returned
+    // if refreshable, scrollAtTopEvent should be Future<void>
     required this.scrollAtTopEvent,
     required this.scrollAtBottomEvent,
   }) : super(key: key);
@@ -28,6 +30,7 @@ class PostListView extends StatefulWidget {
   // prerssing the profile should not route to profile page
   final bool isInSomeProfile;
   final dynamic updateCallBack;
+  final bool refreshable;
   final dynamic scrollAtTopEvent;
   final dynamic scrollAtBottomEvent;
 
@@ -62,9 +65,7 @@ class PostListViewState extends State<PostListView> {
     _controller.addListener(() {
       if (_controller.position.atEdge) {
         bool isTop = _controller.position.pixels == 0;
-        if (isTop) {
-          widget.scrollAtTopEvent();
-        } else {
+        if (!isTop) {
           widget.scrollAtBottomEvent();
         }
       }
@@ -535,7 +536,10 @@ class PostListViewState extends State<PostListView> {
                                       ? FontAwesome5.tag
                                       : FontAwesome5.user_tag,
                           color: Colors.blueGrey,
-                          size: visibility == "public" || visibility == "friends" ? 18 : 13)),
+                          size:
+                              visibility == "public" || visibility == "friends"
+                                  ? 18
+                                  : 13)),
                 ],
               ),
             ),
@@ -551,6 +555,12 @@ class PostListViewState extends State<PostListView> {
             )
           ]);
         });
-    return list;
+    return widget.refreshable
+        ? RefreshIndicator(
+            onRefresh: widget.scrollAtTopEvent,
+            displacement: 20,
+            child: list,
+          )
+        : list;
   }
 }
