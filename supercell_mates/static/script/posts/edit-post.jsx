@@ -13,10 +13,11 @@ function EditPost(props) {
     const [allImgsLoaded, setAllImgsLoaded] = React.useState(false);
     const postId = props.postId;
     const [deleteMessage, setDeleteMessage] = React.useState('');
-    const isLoading = React.useRef(true);
-    const setIsLoading = (newValue) => isLoading.current = newValue;
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [isEditSending, setIsEditSending] = React.useState(false);
 
     React.useEffect(() => {
+        displayLoader();
         fetch('/post/post/' + postId)
             .then(response => {
                 if (response.status !== 200) {
@@ -45,6 +46,7 @@ function EditPost(props) {
                             if (response.images.length === 0) {
                                 setAllImgsLoaded(true);
                                 setIsLoading(false);
+                                hideLoader();
                             }
                         });
                 }
@@ -69,6 +71,7 @@ function EditPost(props) {
                         if (imgs.length === numOfImgsToLoad - 1) {
                             setAllImgsLoaded(true);
                             setIsLoading(false);
+                            hideLoader();
                         }
                     });
             });
@@ -136,8 +139,10 @@ function EditPost(props) {
                 break;
         }
 
-        if (!isLoading.current) {
+        if (!isLoading) {
             setIsLoading(true);
+            displayLoader();
+            setIsEditSending(true);
             fetch('/post/post/edit/' + postId, postRequestContent({
                 title: title,
                 content: content,
@@ -146,6 +151,8 @@ function EditPost(props) {
             }))
                 .then(response => {
                     setIsLoading(false);
+                    hideLoader();
+                    setIsEditSending(false);
                     if (response.status !== 200) {
                         triggerErrorMessage();
                     } else {
@@ -170,13 +177,15 @@ function EditPost(props) {
     }
 
     function deletePost() {
-        if (!isLoading.current) {
+        if (!isLoading) {
             setIsLoading(true);
+            displayLoader();
             fetch('/post/delete', postRequestContent({
                 post_id: postId
             }))
                 .then(response => {
                     setIsLoading(false);
+                    hideLoader();
                     if (response.status !== 200) {
                         triggerErrorMessage();
                     } else {
@@ -266,7 +275,8 @@ function EditPost(props) {
                     <button type="button" className="btn btn-danger btn-sm" onClick={() => popDeleteMessage()}>Delete Post</button>
                 </div>
                 <div id="post-submit-button">
-                    <button type="button" className="btn btn-primary" onClick={submitPost}>Edit Post</button>
+                    <span className="spinner-border text-warning" role="status" style={{display: isEditSending ? 'block' : 'none'}} />
+                    <button type="button" className="btn btn-primary" onClick={submitPost} disabled={isEditSending}>Edit Post</button>
                 </div>
             </div>
             {

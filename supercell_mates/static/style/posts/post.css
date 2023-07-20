@@ -42,12 +42,14 @@
     flex-direction: row;
     gap: 10px;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 #post-submit-button {
     display: flex;
-    flex-direction: column;
-    align-items: end;
+    flex-direction: row;
+    justify-content: end;
+    gap: 15px;
 }
 
 #post-choose-images {
@@ -231,4 +233,8 @@
     padding-top: 50px;
     margin-left: auto;
     margin-right: auto;
+}
+
+#post-loader {
+    margin-left: 49%;
 }

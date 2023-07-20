@@ -29,10 +29,12 @@ function HomeFeed() {
                 setIsAllPostsLoaded(true);
             }
             isLoading = false;
+            document.querySelector("#post-loader").style.display = 'none';
         });
         const scrollCallBack = () => {
             if (!isLoading && !isAllPostsLoaded.current && document.body.offsetHeight - window.innerHeight - window.scrollY < 100) {
                 isLoading = true;
+                document.querySelector("#post-loader").style.display = '';
                 loadMorePosts().then(newTimestamp => {
                     if (newTimestamp !== 0) {
                         setStartTimestamp(newTimestamp);
@@ -40,6 +42,7 @@ function HomeFeed() {
                         setIsAllPostsLoaded(true);
                     }
                     isLoading = false;
+                    document.querySelector("#post-loader").style.display = 'none';
                 });
             }
         };
@@ -69,6 +72,7 @@ function HomeFeed() {
     return (
         <React.Fragment>
             <div id="home-feed-content" ref={homeFeedContent}></div>
+            <span className="spinner-border text-info" id="post-loader" role="status" />
             <div id="home-feed-filters">
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" role="switch" id="friend-filter" checked={isFriendFilter} onChange={event => {

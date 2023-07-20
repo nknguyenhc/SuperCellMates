@@ -10,6 +10,7 @@ function ProfileFeed() {
     const tag = React.useRef(profilePageFilters[username] ? profilePageFilters[username] : '');
     const setTag = (newTag) => tag.current = newTag;
     const [count, dispatchCount] = React.useReducer(state => state + 1, 0);
+    const [isLoading, setIsLoading] = React.useState(false);
 
     React.useEffect(() => {
         const tagFilters = Array.from(document.querySelectorAll('#nav-tag-list .tag-listing'));
@@ -54,8 +55,10 @@ function ProfileFeed() {
     }, []);
 
     function loadMorePosts() {
+        setIsLoading(true);
         return fetch(`/post/posts/${username}?${currTimestamp.current ? `start=${currTimestamp.current - oneDayTime}&end=${currTimestamp.current}` : ''}${tag.current === '' ? '' : `&tag=${tag.current}`}`)
             .then(response => {
+                setIsLoading(false);
                 if (response.status !== 200) {
                     triggerErrorMessage();
                     return;
@@ -86,6 +89,7 @@ function ProfileFeed() {
     return (
         <React.Fragment>
             <div ref={postsDiv} id="profile-posts"></div>
+            <span className="spinner-border text-info" id="post-loader" role="status" style={{display: isLoading ? '' : 'none'}} />
             <FilterMessage count={count} />
         </React.Fragment>
     );

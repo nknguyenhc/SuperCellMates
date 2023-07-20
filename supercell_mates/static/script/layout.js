@@ -81,6 +81,19 @@ const bottomMessageManager = {
     }
 }
 
+function displayLoader() {
+    document.querySelector("#loader").style.cssText = `
+        z-index: 100000;
+        background: rgba(0, 0, 0, 0.2);
+    `;
+    document.querySelector("#loader .loading-icon").style.display = 'block';
+}
+
+function hideLoader() {
+    document.querySelector("#loader").style.cssText = '';
+    document.querySelector("#loader .loading-icon").style.display = '';
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const editPages = document.querySelectorAll(".edit-page");
     editPages.forEach(editPage => editPage.addEventListener("click", event => {
