@@ -107,11 +107,44 @@
         },
         {
             "path": "/user/search",
-            "description": "Returns search results of users.",
+            "description": "Returns users with name or username containing the search phrase.",
             "getParams": [
                 {
                     "name": "username",
-                    "description": "The search phrase, which all the returned results will contain as substring"
+                    "description": "The search phrase, with matched users having name or username containing it as substring"
+                }
+            ],
+            "postParams": [],
+            "return": {
+                "users": [
+                    {
+                        "name": "<user 1 name>",
+                        "username": "<user 1 username>",
+                        "profile_pic_url": "<URL to profile pic of user 1>",
+                        "profile_link": "<URL to profile of user 1>"
+                    },
+                    {
+                        "name": "<user 2 name>",
+                        "username": "<user 2 username>",
+                        "profile_pic_url": "<URL to profile pic of user 2>",
+                        "profile_link": "<URL to profile of user 2>"
+                    },
+                    {
+                        "name": "<user 3 name>",
+                        "username": "<user 3 username>",
+                        "profile_pic_url": "<URL to profile pic of user 3>",
+                        "profile_link": "<URL to profile of user 3>"
+                    }
+                ]
+            }
+        },
+        {
+            "path": "/user/search_username",
+            "description": "Returns users with username containing the search phrase. Called when user specifies the first search character to be '@'.",
+            "getParams": [
+                {
+                    "name": "username",
+                    "description": "The search phrase, with matched users having username containing it as substring"
                 }
             ],
             "postParams": [],

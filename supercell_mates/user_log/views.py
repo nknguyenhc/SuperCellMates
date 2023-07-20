@@ -259,11 +259,12 @@ def add_friend(request):
 
 def find_users(search_param, my_username, by_username_only):
     """Return the list of users with the search parameter excluding the user with my_username.
-    Match is based on whether the username of each user contains the search parameter.
+    Match is based on whether the username or name of each user contains the search parameter.
 
     Args:
         search_param (str): the search parameter
         my_username (str): the username of the user to be excluded from search results
+        by_username_only (bool): if True, users will only be matched if their username contains the search parameter
     
     Returns:
         list(dict): a list of users that matches the search conditions, each represented by a dictionary.
