@@ -8,6 +8,7 @@ import "package:supercellmates/http_requests/make_requests.dart";
 import "package:supercellmates/router/router.gr.dart";
 import "package:supercellmates/http_requests/endpoints.dart";
 import "package:supercellmates/features/dialogs.dart";
+import "package:fluttericon/font_awesome5_icons.dart";
 import 'package:intl/intl.dart';
 
 class PostListView extends StatefulWidget {
@@ -111,6 +112,18 @@ class PostListViewState extends State<PostListView> {
         (widget.postList[index]["time_posted"] * 1000000).toInt());
   }
 
+  String parseVisibility(bool public, bool friend, bool tag) {
+    if (public) {
+      return "public";
+    } else if (friend && tag) {
+      return "friends with same tag";
+    } else if (friend) {
+      return "friends";
+    } else {
+      return "people with same tag";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     TextButton seeMoreSection(int index) {
@@ -150,12 +163,18 @@ class PostListViewState extends State<PostListView> {
           String username = widget.postList[index]["creator"]["username"];
           String title = widget.postList[index]["title"];
           String content = widget.postList[index]["content"];
+          String visibility = parseVisibility(
+              widget.postList[index]["public_visible"],
+              widget.postList[index]["friend_visible"],
+              widget.postList[index]["tag_visible"]);
           List<Uint8List>? images =
               dataLoaded[index] ? postImagesRaw[index] : null;
           return Column(children: [
             // post creator info header
             TextButton(
-              onPressed: widget.isInSomeProfile || widget.username == widget.postList[index]["creator"]["username"]
+              onPressed: widget.isInSomeProfile ||
+                      widget.username ==
+                          widget.postList[index]["creator"]["username"]
                   ? () {}
                   : () async {
                       FocusManager.instance.primaryFocus?.unfocus();
@@ -421,7 +440,9 @@ class PostListViewState extends State<PostListView> {
                       style: const TextStyle(color: Colors.pink),
                     ),
                   ),
-                  dataLoaded[index] && widget.username == widget.postList[index]["creator"]["username"]
+                  dataLoaded[index] &&
+                          widget.username ==
+                              widget.postList[index]["creator"]["username"]
                       ? SizedBox(
                           width: MediaQuery.of(context).size.width,
                           child: Row(
@@ -488,10 +509,10 @@ class PostListViewState extends State<PostListView> {
                       : Container()
                 ])),
 
-            // post time
+            // post time & visibility
             SizedBox(
               width: MediaQuery.of(context).size.width,
-              height: 25,
+              height: 20,
               child: Row(
                 children: [
                   const Padding(padding: EdgeInsets.only(left: 30)),
@@ -499,6 +520,22 @@ class PostListViewState extends State<PostListView> {
                     DateFormat('yyyy-MM-dd HH:mm').format(timePosted[index]),
                     style: const TextStyle(color: Colors.blueGrey),
                   ),
+                  const Padding(padding: EdgeInsets.only(left: 10)),
+                  Tooltip(
+                      message: visibility,
+                      triggerMode: TooltipTriggerMode.tap,
+                      preferBelow: false,
+                      verticalOffset: 12,
+                      child: Icon(
+                          visibility == "public"
+                              ? Icons.public
+                              : visibility == "friends"
+                                  ? Icons.people_sharp
+                                  : visibility == "people with same tag"
+                                      ? FontAwesome5.tag
+                                      : FontAwesome5.user_tag,
+                          color: Colors.blueGrey,
+                          size: visibility == "public" || visibility == "friends" ? 18 : 13)),
                 ],
               ),
             ),
