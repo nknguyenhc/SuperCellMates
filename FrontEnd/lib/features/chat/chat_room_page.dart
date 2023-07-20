@@ -479,36 +479,38 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       p0.author.id == widget.username
-                          ? const SizedBox(width: 0,)
+                          ? const SizedBox(
+                              width: 0,
+                            )
                           : Text(
                               p0.author.firstName!,
                               style:
                                   const TextStyle(color: Colors.indigoAccent),
                             ),
                       p0.author.id == widget.username
-                          ? const SizedBox(width: 0,)
+                          ? const SizedBox(
+                              width: 0,
+                            )
                           : const Padding(padding: EdgeInsets.only(bottom: 5)),
                       p0.metadata!["is_image"]
                           ? ClipRRect(
-                            borderRadius: const BorderRadius.all(Radius.circular(10)),
-                            child:
-                          IconButton(
-                              constraints: BoxConstraints(
-                                  maxWidth:
-                                      MediaQuery.of(context).size.width * 0.7,
-                                  maxHeight:
-                                      MediaQuery.of(context).size.height * 0.3),
-                              onPressed: () => context.router.push(
-                                  SinglePhotoViewer(
-                                      photoBytes: snap.data! as Uint8List,
-                                      actions: [])),
-                              icon: Image.memory(snap.data! as Uint8List,
-                                  fit: BoxFit.contain),
-                              padding: EdgeInsets.zero,
-                            )
-                          ) 
-                          
-
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
+                              child: IconButton(
+                                constraints: BoxConstraints(
+                                    maxWidth:
+                                        MediaQuery.of(context).size.width * 0.7,
+                                    maxHeight:
+                                        MediaQuery.of(context).size.height *
+                                            0.3),
+                                onPressed: () => context.router.push(
+                                    SinglePhotoViewer(
+                                        photoBytes: snap.data! as Uint8List,
+                                        actions: [])),
+                                icon: Image.memory(snap.data! as Uint8List,
+                                    fit: BoxFit.contain),
+                                padding: EdgeInsets.zero,
+                              ))
                           : TextButton(
                               onPressed: () {
                                 int dotIndex =

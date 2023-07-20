@@ -174,8 +174,8 @@ class OthersProfilePageState extends State<OthersProfilePage> {
         title: Row(
           children: [
             SizedBox(
-              height: 50,
-              width: 50,
+              height: 45,
+              width: 45,
               child: IconButton(
                 padding: EdgeInsets.zero,
                 icon: profileImageLoaded
@@ -185,14 +185,14 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                   AutoRouter.of(context).push(
                       SinglePhotoViewer(photoBytes: profileImage, actions: []));
                 },
-                iconSize: 50,
+                iconSize: 45,
               ),
             ),
             const Padding(padding: EdgeInsets.all(5)),
             Column(children: [
               SizedBox(
                 height: 25,
-                width: 130,
+                width: MediaQuery.of(context).size.width - 225,
                 child: Text(
                   profileData["user_profile"]["name"],
                   style: const TextStyle(
@@ -201,12 +201,11 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                   ),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.only(left: 1),
+              SizedBox(
                 height: 20,
-                width: 130,
+                width: MediaQuery.of(context).size.width - 225,
                 child: Text(
-                  profileData["user_profile"]["username"],
+                  "@${profileData["user_profile"]["username"]}",
                   style: const TextStyle(fontSize: 14, color: Colors.blueGrey),
                 ),
               ),
@@ -217,7 +216,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
           profileData["is_friend"]
               ? Column(
                   children: [
-                    const Padding(padding: EdgeInsets.all(3)),
+                    const Padding(padding: EdgeInsets.only(top:4)),
                     SizedBox(
                       height: 40,
                       child: IconButton(
@@ -244,7 +243,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                 )
               : Column(
                   children: [
-                    const Padding(padding: EdgeInsets.all(3)),
+                    const Padding(padding: EdgeInsets.only(top:4)),
                     SizedBox(
                       height: 40,
                       child: IconButton(
@@ -271,7 +270,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                 ),
           Column(
             children: [
-              const Padding(padding: EdgeInsets.all(3)),
+              const Padding(padding: EdgeInsets.only(top:4)),
               SizedBox(
                 height: 40,
                 child: IconButton(
@@ -358,8 +357,8 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                   ? PostListView(
                       key: UniqueKey(),
                       postList: profilePosts,
-                      isInProfile: true,
-                      isMyPost: false,
+                      username: "", // treates as not original poster
+                      isInSomeProfile: true,
                       updateCallBack: loadProfilePosts,
                       scrollAtTopEvent: () {},
                       scrollAtBottomEvent: () {},

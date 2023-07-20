@@ -21,6 +21,7 @@ enum EndPoints {
   viewFriendRequests,
   addFriendRequest,
   search,
+  searchUsername,
   searchFriend,
   viewProfile,
   addFriend,
@@ -68,7 +69,8 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.viewFriends: "/user/friends_async",
     EndPoints.viewFriendRequests: "/user/friend_requests_async",
     EndPoints.addFriendRequest: "/user/add_friend_request",
-    EndPoints.search: "/user/search", // TODO: broader search and remove '/user'
+    EndPoints.search: "/user/search",
+    EndPoints.searchUsername: "/user/search_username",
     EndPoints.searchFriend: "/user/search_friend",
     EndPoints.viewProfile: "/user/profile_async",
     EndPoints.addFriend: "/user/add_friend",
