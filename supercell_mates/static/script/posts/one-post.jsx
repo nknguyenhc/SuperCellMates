@@ -4,7 +4,9 @@ function Post(props) {
     const shortLimit = 500;
     const [iconName, setIconName] = React.useState(null);
     const [visibility, setVisibility] = React.useState(null);
-    const tooltip = React.useRef(null);
+    const visTooltip = React.useRef(null);
+    const replyTooltip = React.useRef(null);
+    const linkTooltip = React.useRef(null);
 
     function PostImages() {
         return (
@@ -40,27 +42,36 @@ function Post(props) {
     React.useEffect(() => {
         if (post.public_visible) {
             setIconName('public-icon.png');
-            setVisibility('Public');
+            setVisibility('public');
         } else if (post.friend_visible) {
             if (post.tag_visible) {
                 setIconName('friend-tag-icon.png');
-                setVisibility('Friends with same tag');
+                setVisibility('friends with same tag');
             } else {
                 setIconName('friend-icon.png');
-                setVisibility('Friends');
+                setVisibility('friends');
             }
         } else {
             setIconName('tag-icon.png');
-            setVisibility('People with same tag');
+            setVisibility('people with same tag');
         }
     }, []);
 
     React.useEffect(() => {
-        if (tooltip.current) {
-            new bootstrap.Tooltip(tooltip.current);
+        const tooltips = [];
+        if (visTooltip.current) {
+            tooltips.push(new bootstrap.Tooltip(visTooltip.current));
         }
-        console.log(tooltip.current);
-    }, [tooltip.current]);
+        if (replyTooltip.current) {
+            tooltips.push(new bootstrap.Tooltip(replyTooltip.current));
+        }
+        if (linkTooltip.current) {
+            tooltips.push(new bootstrap.Tooltip(linkTooltip.current));
+        }
+        return () => {
+            tooltips.forEach(t => t.dispose());
+        };
+    }, [visTooltip.current]);
 
     function toReplyPostChat() {
         fetch('/messages/get_chat_id?username=' + post.creator.username)
@@ -101,20 +112,23 @@ function Post(props) {
                     }
                 </div>
                 <div className="post-more">
-                    <div ref={tooltip} className="post-link" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title={visibility}>
+                    <div ref={visTooltip} className="post-link" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title={visibility}>
                         {iconName && visibility &&<img src={"/static/media/" + iconName} />}
                     </div>
                     <div className="post-date">{`${formatNumber(new Date(post.time_posted).getDate(), 2)}/${formatNumber(new Date(post.time_posted).getMonth() + 1, 2)}/${formatNumber(new Date(post.time_posted).getFullYear(), 4)} ${formatNumber(new Date(post.time_posted).getHours(), 2)}:${formatNumber(new Date(post.time_posted).getMinutes(), 2)}`}</div>
                     {
                         post.can_reply
-                        ? <div className="post-link" onClick={() => toReplyPostChat()}>
+                        ? <div ref={replyTooltip} className="post-link" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Reply in chat" onClick={() => toReplyPostChat()}>
                             <img src="/static/media/reply-icon.png" />
                         </div>
                         : ''
                     }
-                    <a href={"/post/display?id=" + post.id} className="post-link">
+                    <div ref={linkTooltip} className="post-link" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Copy link" onClick={() => {
+                        navigator.clipboard.writeText(window.location.host + "/post/display?id=" + post.id);
+                        bottomMessageManager.popMessage('Link copied to clipboard!');
+                    }}>
                         <img src="/static/media/hyperlink-icon.png" />
-                    </a>
+                    </div>
                 </div>
             </div>
             <h4 className='mb-2'>{post.title}</h4>

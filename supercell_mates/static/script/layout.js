@@ -59,6 +59,28 @@ function getJSONItemFromLocal(key, defaultValue) {
     }
 }
 
+const bottomMessageManager = {
+    currTimeout: null,
+    popMessage: (message) => {
+        function backToOriginal() {
+            messageDiv.classList.remove('bottom-popup-transition');
+            messageDiv.classList.remove('bottom-popup-in');
+        }
+
+        const messageDiv = document.querySelector("#bottom-popup");
+        messageDiv.innerText = message;
+        backToOriginal();
+        clearTimeout(this.currTimeout);
+        setTimeout(() => {
+            messageDiv.classList.add('bottom-popup-transition');
+            messageDiv.classList.add('bottom-popup-in');
+            this.currTimeout = setTimeout(() => {
+                backToOriginal();
+            }, 5000);
+        }, 50);
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const editPages = document.querySelectorAll(".edit-page");
     editPages.forEach(editPage => editPage.addEventListener("click", event => {
