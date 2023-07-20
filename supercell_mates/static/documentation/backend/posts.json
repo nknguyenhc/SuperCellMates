@@ -160,38 +160,6 @@
             "return": "<success status 200, or status 4xx if the request is invalid>"
         },
         {
-            "path": "/post/post/photo/add",
-            "description": "Add a photo to the given post. Only the author can add a photo to his/her post",
-            "getParams": [],
-            "postParams": [
-                {
-                    "name": "post_id",
-                    "description": "The id of the post to target"
-                },
-                {
-                    "name": "img",
-                    "description": "The image to add to the post"
-                }
-            ],
-            "return": "<success status 200, or status 4xx if the request is invalid>"
-        },
-        {
-            "path": "/post/post/photo/delete",
-            "description": "Delete a post photo from the database. Only the author of the post can perform this action",
-            "getParams": [],
-            "postParams": [
-                {
-                    "name": "post_id",
-                    "description": "The id of the post to target"
-                },
-                {
-                    "name": "pic_id",
-                    "description": "The id of the post image to remove"
-                }
-            ],
-            "return": "<success status 200, or status 4xx if the request is invalid>"
-        },
-        {
             "path": "/post/delete",
             "description": "Delete a post. Only the author of the post can perform this action.",
             "getParams": [],

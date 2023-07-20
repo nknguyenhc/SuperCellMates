@@ -154,6 +154,25 @@
                 }
             ],
             "return": "'Authentication fails' or 'Name changed'"
+        },
+        {
+            "path": "/profile/can_remove_tag",
+            "description": "Check if the current user is allowed to remove tags. Users are disallowed to remove tags for 7 days upon removing one.",
+            "getParams": [],
+            "postParams": [],
+            "return": "\"true\" or \"false\""
+        },
+                {
+            "path": "/profile/remove_tag",
+            "description": "Remove a tag from user's profile if they are allowed to. A cooldown of 7 days will be applied upon removal.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "tag",
+                    "description": "Name of the tag to remove"
+                }
+            ],
+            "return": "<success status 200, or status 4xx if request is invalid>"
         }
     ]
 }
