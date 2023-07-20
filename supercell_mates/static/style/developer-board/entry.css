@@ -1,0 +1,9 @@
+#text-body-inner {
+    padding-top: 50px;
+    margin: auto;
+    width: 400px;
+}
+
+#text-body-inner * {
+    max-width: 100%;
+}

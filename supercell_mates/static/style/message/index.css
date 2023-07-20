@@ -295,8 +295,12 @@
 }
 
 .img-preview {
-    max-height: 24vw;
-    max-width: 24vw;
+    height: 24vw;
+    width: 36vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .img-preview img {
