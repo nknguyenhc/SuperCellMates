@@ -21,3 +21,9 @@
 .change-details-form {
     margin-top: 20px;
 }
+
+.change-details-submit {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}

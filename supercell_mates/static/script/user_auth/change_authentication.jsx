@@ -2,8 +2,7 @@ function ChangeUsername() {
     const [newUsername, setNewUsername] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [errorMessage, setErrorMessage] = React.useState('');
-    const isLoading = React.useRef(false);
-    const setIsLoading = (newValue) => isLoading.current = newValue;
+    const [isLoading, setIsLoading] = React.useState(false);
 
     function submitForm(event) {
         event.preventDefault();
@@ -21,7 +20,7 @@ function ChangeUsername() {
             return;
         }
 
-        if (!isLoading.current) {
+        if (!isLoading) {
             setIsLoading(true);
             fetch('/change_username', postRequestContent({
                 new_username: newUsername,
@@ -63,8 +62,9 @@ function ChangeUsername() {
                         setErrorMessage('');
                     }} />
                 </div>
-                <div className="mb-3">
-                    <input type="submit" value="Change Username" className="btn btn-primary" />
+                <div className="mb-3 change-details-submit">
+                    <input type="submit" value="Change Username" className="btn btn-primary" disabled={isLoading} />
+                    <span className="spinner-border text-warning" style={{display: isLoading ? '' : 'none'}} />
                 </div>
             </form>
             {
@@ -83,8 +83,7 @@ function ChangePassword() {
     const [newPassword, setNewPassword] = React.useState('');
     const [confirmNewPassword, setConfirmNewPassword] = React.useState('');
     const [errorMessage, setErrorMessage] = React.useState('');
-    const isLoading = React.useRef(false);
-    const setIsLoading = (newValue) => isLoading.current = newValue;
+    const [isLoading, setIsLoading] = React.useState(false);
 
     function submitForm(event) {
         event.preventDefault();
@@ -99,7 +98,7 @@ function ChangePassword() {
             return;
         }
 
-        if (!isLoading.current) {
+        if (!isLoading) {
             setIsLoading(true);
             fetch('/change_password', postRequestContent({
                 old_password: oldPassword,
@@ -145,8 +144,9 @@ function ChangePassword() {
                         setErrorMessage('');
                     }} />
                 </div>
-                <div className="mb-3">
-                    <input type="submit" value="Update Password" className="btn btn-primary" />
+                <div className="mb-3 change-details-submit">
+                    <input type="submit" value="Update Password" className="btn btn-primary" disabled={isLoading} />
+                    <span className="spinner-border text-warning" style={{display: isLoading ? '' : 'none'}} />
                 </div>
             </form>
             {
@@ -164,8 +164,7 @@ function ChangeName() {
     const [newName, setNewName] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [errorMessage, setErrorMessage] = React.useState('');
-    const isLoading = React.useRef(false);
-    const setIsLoading = (newValue) => isLoading.current = newValue;
+    const [isLoading, setIsLoading] = React.useState(false);
 
     function submitForm(event) {
         event.preventDefault();
@@ -180,7 +179,7 @@ function ChangeName() {
             return;
         }
 
-        if (!isLoading.current) {
+        if (!isLoading) {
             setIsLoading(false);
             fetch('/profile/change_name', postRequestContent({
                 name: newName,
@@ -222,8 +221,9 @@ function ChangeName() {
                         setErrorMessage('');
                     }} />
                 </div>
-                <div className="mb-3">
-                    <input type="submit" value="Change Name" className="btn btn-primary" />
+                <div className="mb-3 change-details-submit">
+                    <input type="submit" value="Change Name" className="btn btn-primary" disabled={isLoading} />
+                    <span className="spinner-border text-warning" style={{display: isLoading ? '' : 'none'}} />
                 </div>
             </form>
             {
