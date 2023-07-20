@@ -73,6 +73,14 @@
     border-radius: 5px;
 }
 
+#edit-close-btn {
+    float: right;
+}
+
+#edit-first-div {
+    margin-top: 20px;
+}
+
 #edit-post-images-preview {
     display: flex;
     flex-direction: row;
@@ -140,8 +148,8 @@
 }
 
 .post-link {
-    height: 30px;
-    width: 30px;
+    height: 25px;
+    width: 25px;
     cursor: pointer;
 }
 

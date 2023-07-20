@@ -189,7 +189,8 @@ function EditPost(props) {
 
     return (
         <React.Fragment>
-            <div className="mb-3">
+            <button type="button" id="edit-close-btn" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => document.querySelector("#edit-post").style.display = 'none'} />
+            <div className="mb-3" id="edit-first-div">
                 <label htmlFor="post-title" className="form-label">Title</label>
                 <input type="text" id="post-title" className="form-control" value={title} autoComplete="off" ref={titleInput} onChange={event => {
                     setTitle(event.target.value.slice(0, 100));
