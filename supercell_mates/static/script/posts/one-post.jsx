@@ -1,5 +1,7 @@
 function Post(props) {
     const post = props.post;
+    const [isShowMore, setIsShowMore] = React.useState(false);
+    const shortLimit = 500;
 
     function PostImages() {
         return (
@@ -91,7 +93,21 @@ function Post(props) {
                     <div>{post.tag.name}</div>
                 </div>
             </div>
-            <div className="post-content mb-2">{post.content}</div>
+            <div className="post-content mb-2">
+                {
+                    post.content.length > shortLimit
+                    ? isShowMore
+                        ? <div>
+                            {post.content + '\n'}
+                            <a href="javascript:void(0)" onClick={() => setIsShowMore(false)}>See Less</a>
+                        </div>
+                        : <div>
+                            {post.content.slice(0, shortLimit) + ' ... '}
+                            <a href="javascript:void(0)" onClick={() => setIsShowMore(true)}>See More</a>
+                        </div>
+                    : post.content
+                }
+            </div>
             <div className="post-images mb-2">
                 {
                     post.images.length === 0

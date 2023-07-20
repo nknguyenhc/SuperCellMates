@@ -15,6 +15,18 @@ function CreatePost() {
     const username = document.querySelector("#welcome-message").innerHTML.split("@")[1];
     const isLoading = React.useRef(false);
     const setIsLoading = (newValue) => isLoading.current = newValue;
+    const postCreateModal = React.useRef(null);
+
+    React.useEffect(() => {
+        if (postCreateModal.current) {
+            const observer = new MutationObserver(() => {
+                if (!postCreateModal.current.classList.contains('show')) {
+                    window.location.reload();
+                }
+            });
+            observer.observe(postCreateModal.current, { attributes: true });
+        }
+    }, [postCreateModal.current]);
 
     React.useEffect(() => {
         fetch('/profile/user_tags/' + username)
@@ -156,15 +168,15 @@ function CreatePost() {
                 <div className="visibility-indicator">
                     <img src="/static/media/eye-icon.png" />
                 </div>
-                <div class="btn-group" ref={visibilityInput}>
-                    <button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <div className="btn-group" ref={visibilityInput}>
+                    <button type="button" className="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                         {visibility}
                     </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="javascript:void(0)" onClick={() => setVisibility("Public")}>Public</a></li>
-                        <li><a class="dropdown-item" href="javascript:void(0)" onClick={() => setVisibility("People with same tag")}>People with same tag</a></li>
-                        <li><a class="dropdown-item" href="javascript:void(0)" onClick={() => setVisibility("Friends")}>Friends</a></li>
-                        <li><a class="dropdown-item" href="javascript:void(0)" onClick={() => setVisibility("Friends with same tag")}>Friends with same tag</a></li>
+                    <ul className="dropdown-menu">
+                        <li><a className="dropdown-item" href="javascript:void(0)" onClick={() => setVisibility("Public")}>Public</a></li>
+                        <li><a className="dropdown-item" href="javascript:void(0)" onClick={() => setVisibility("People with same tag")}>People with same tag</a></li>
+                        <li><a className="dropdown-item" href="javascript:void(0)" onClick={() => setVisibility("Friends")}>Friends</a></li>
+                        <li><a className="dropdown-item" href="javascript:void(0)" onClick={() => setVisibility("Friends with same tag")}>Friends with same tag</a></li>
                     </ul>
                 </div>
                 <div className="invalid-feedback">Please select visibility</div>
@@ -179,8 +191,8 @@ function CreatePost() {
                         </div>
                         : userTags.map(tag => (
                             <React.Fragment>
-                                <input type="radio" class="btn-check" name="options" id={"post-tag-" + tag.name} autocomplete="off" />
-                                <label class="tag-button btn btn-outline-info" for={"post-tag-" + tag.name} onClick={() => {
+                                <input type="radio" className="btn-check" name="options" id={"post-tag-" + tag.name} autocomplete="off" />
+                                <label className="tag-button btn btn-outline-info" for={"post-tag-" + tag.name} onClick={() => {
                                     setTag(tag);
                                 }}>
                                     <img src={tag.icon} />
@@ -192,13 +204,13 @@ function CreatePost() {
                 </div>
                 <div className="invalid-feedback">Please choose a tag to post</div>
             </div>
-            <div class="mt-3">
+            <div className="mt-3">
                 <div>Images &#40;max file size: 5MB, limit: 9&#41;</div>
                 <button className="post-choose-img-label add-image-label" onClick={() => imagesInput.current.click()}>
                     <img src="/static/media/add-image-icon.png" />
                 </button>
                 <div>
-                    <input ref={imagesInput} class="form-control img-input" accept="image/*" type="file" multiple onChange={() => {
+                    <input ref={imagesInput} className="form-control img-input" accept="image/*" type="file" multiple onChange={() => {
                         const files = Array.from(imagesInput.current.files);
                         if (imgs.length + files.length > 9) {
                             alert("9 images only please!");
@@ -216,7 +228,7 @@ function CreatePost() {
                         <div className="post-image-preview-div">
                             <img src={URL.createObjectURL(imgFile)} />
                             <div className="post-image-preview-close">
-                                <button type="button" class="btn-close" aria-label="Close" onClick={() => removeImage(i)} />
+                                <button type="button" className="btn-close" aria-label="Close" onClick={() => removeImage(i)} />
                             </div>
                         </div>
                     )))
@@ -238,16 +250,16 @@ function CreatePost() {
                 : <div className="mt-3 alert alert-danger" role="alert">{errorMessage}</div>
             }
             <button id="post-create-button" style={{display: 'none'}} ref={postCreateButton} type="button" data-bs-toggle="modal" data-bs-target="#post-create-message"></button>
-            <div class="modal fade" id="post-create-message" tabindex="-1" aria-labelledby="post-create-label" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="post-create-label">Message</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div ref={postCreateModal} className="modal fade" id="post-create-message" tabindex="-1" aria-labelledby="post-create-label" aria-hidden="true">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h1 className="modal-title fs-5" id="post-create-label">Message</h1>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">Post created!</div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <div className="modal-body">Post created!</div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>

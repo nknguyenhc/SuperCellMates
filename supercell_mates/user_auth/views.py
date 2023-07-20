@@ -11,6 +11,7 @@ from django.views.decorators.http import require_http_methods
 import io
 from django.core.files.images import ImageFile
 import json
+from django.conf import settings as conf_settings
 
 from user_profile.views import verify_image, list_to_image_and_verify_async
 
@@ -29,6 +30,14 @@ def testing(request):
 
 def developer_board(request):
     return render(request, 'developer-board/index.html')
+
+
+def test(request):
+    return render(request, 'developer-board/text.html')
+
+
+def test2(request):
+    return HttpResponse(conf_settings.K)
 
 
 def about(request):
