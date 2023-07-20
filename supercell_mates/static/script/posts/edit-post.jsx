@@ -191,14 +191,14 @@ function EditPost(props) {
         <React.Fragment>
             <button type="button" id="edit-close-btn" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => document.querySelector("#edit-post").style.display = 'none'} />
             <div className="mb-3" id="edit-first-div">
-                <label htmlFor="post-title" className="form-label">Title</label>
+                <label htmlFor="post-title" className="form-label">Title <strong className="asterisk">*</strong></label>
                 <input type="text" id="post-title" className="form-control" value={title} autoComplete="off" ref={titleInput} onChange={event => {
                     setTitle(event.target.value.slice(0, 100));
                 }} />
                 <div className="invalid-feedback">Please enter a title</div>
             </div>
             <div className="mb-3">
-                <label htmlFor="post-content" className="form-label">Content</label>
+                <label htmlFor="post-content" className="form-label">Content <strong className="asterisk">*</strong></label>
                 <textarea id="post-content" rows="6" className="form-control" value={content} ref={contentInput} onChange={event => {
                     setContent(event.target.value.slice(0, 1950));
                 }}></textarea>
@@ -207,6 +207,7 @@ function EditPost(props) {
             <div className="mb-3 visibility-section">
                 <div className="visibility-indicator">
                     <img src="/static/media/eye-icon.png" />
+                    <strong className="asterisk">*</strong>
                 </div>
                 <div class="btn-group">
                     <button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">

@@ -151,14 +151,14 @@ function CreatePost() {
     return (
         <form onSubmit={event => event.preventDefault()} className="needs-validation" noValidate>
             <div className="mb-3">
-                <label htmlFor="post-title" className="form-label">Title</label>
+                <label htmlFor="post-title" className="form-label">Title <strong className="asterisk">*</strong></label>
                 <input type="text" id="post-title" className="form-control" ref={titleInput} value={title} autoComplete="off" onChange={event => {
                     setTitle(event.target.value.slice(0, 100));
                 }} />
                 <div className="invalid-feedback">Please enter a title</div>
             </div>
             <div className="mb-3">
-                <label htmlFor="post-content" className="form-label">Content</label>
+                <label htmlFor="post-content" className="form-label">Content <strong className="asterisk">*</strong></label>
                 <textarea id="post-content" rows="8" className="form-control" ref={contentInput} value={content} onChange={event => {
                     setContent(event.target.value.slice(0, 1950));
                 }}></textarea>
@@ -167,6 +167,7 @@ function CreatePost() {
             <div className="mb-3 visibility-section">
                 <div className="visibility-indicator">
                     <img src="/static/media/eye-icon.png" />
+                    <strong className="asterisk">*</strong>
                 </div>
                 <div className="btn-group" ref={visibilityInput}>
                     <button type="button" className="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -183,6 +184,7 @@ function CreatePost() {
             </div>
             <div className="mt-3">
                 <div ref={tagInput} id="post-choose-tag">
+                    <div>Tag <strong className="asterisk">*</strong></div>
                     {
                         userTags.length === 0
                         ? <div className="text-danger">

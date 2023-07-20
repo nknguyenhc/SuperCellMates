@@ -101,11 +101,12 @@ function AddTag() {
                 }
             }}>
                 <div className="tag-request-form-label">
-                    <label className="form-label">Tag</label>
+                    <label className="form-label">Request Tag</label>
                     <button type="button" class="btn-close" aria-label="Close" onClick={() => document.querySelector('#add_tag').style.display = 'none'}></button>
                 </div>
                 <form autocomplete="off" className='needs-validation'>
                     <div>
+                        <label className="form-label">Tag name <strong className="asterisk">*</strong></label>
                         <input className="form-control" type="text" name="tag" placeholder="Name" value={tag} ref={tagInput} onChange={event => {
                             setTag(event.target.value.slice(0, 25));
                         }} />

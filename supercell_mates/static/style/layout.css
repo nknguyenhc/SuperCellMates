@@ -73,3 +73,7 @@
 #search-box-placeholder p {
     margin-bottom: 0;
 }
+
+.asterisk {
+    color: rgb(241, 36, 36);
+}

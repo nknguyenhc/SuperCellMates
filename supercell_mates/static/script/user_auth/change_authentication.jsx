@@ -50,14 +50,14 @@ function ChangeUsername() {
             <button type="button" class="change-details-close btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => document.querySelector("#change-username-page").style.display = 'none'} />
             <form className="change-details-form" onSubmit={submitForm}>
                 <div className="mb-3">
-                    <label htmlFor="new-username" className="form-label">New Username</label>
+                    <label htmlFor="new-username" className="form-label">New Username <strong className="asterisk">*</strong></label>
                     <input type="text" id="new-username" class="form-control" autocomplete="off" onChange={event => {
                         setNewUsername(event.target.value);
                         setErrorMessage('');
                     }} />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="password" className="form-label">Confirm Password</label>
+                    <label htmlFor="password" className="form-label">Confirm Password <strong className="asterisk">*</strong></label>
                     <input type="password" id="password" class="form-control" onChange={event => {
                         setPassword(event.target.value);
                         setErrorMessage('');
@@ -128,18 +128,18 @@ function ChangePassword() {
             <button type="button" class="change-details-close btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => document.querySelector("#change-password-page").style.display = 'none'} />
             <form className="change-details-form" onSubmit={submitForm}>
                 <div className="mb-3">
-                    <label htmlFor="old-password" className="form-label">Old Password</label>
+                    <label htmlFor="old-password" className="form-label">Old Password <strong className="asterisk">*</strong></label>
                     <input type="password" id="old-password" class="form-control" onChange={event => setOldPassword(event.target.value)} />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="new-password" className="form-label">New Password</label>
+                    <label htmlFor="new-password" className="form-label">New Password <strong className="asterisk">*</strong></label>
                     <input type="password" id="new-password" class="form-control" onChange={event => {
                         setNewPassword(event.target.value);
                         setErrorMessage('')
                     }} />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="confirm-new-password" className="form-label">Confirm New Password</label>
+                    <label htmlFor="confirm-new-password" className="form-label">Confirm New Password <strong className="asterisk">*</strong></label>
                     <input type="password" id="confirm-new-password" class="form-control" onChange={event => {
                         setConfirmNewPassword(event.target.value);
                         setErrorMessage('');
@@ -209,14 +209,14 @@ function ChangeName() {
             <button type="button" class="change-details-close btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => document.querySelector("#change-name-page").style.display = 'none'} />
             <form className="change-details-form" onSubmit={submitForm}>
                 <div className="mb-3">
-                    <label htmlFor="new-name" className="form-label">New Name</label>
+                    <label htmlFor="new-name" className="form-label">New Name <strong className="asterisk">*</strong></label>
                     <input type="text" id="new-name" className="form-control" autoComplete="off" onChange={event => {
                         setNewName(event.target.value);
                         setErrorMessage('');
                     }} />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="password" className="form-label">Confirm Password</label>
+                    <label htmlFor="password" className="form-label">Confirm Password <strong className="asterisk">*</strong></label>
                     <input type="password" id="password" className="form-control" onChange={event => {
                         setPassword(event.target.value);
                         setErrorMessage('');
