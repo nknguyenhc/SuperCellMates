@@ -77,3 +77,7 @@
 .asterisk {
     color: rgb(241, 36, 36);
 }
+
+.loading-icon {
+    display: none;
+}
