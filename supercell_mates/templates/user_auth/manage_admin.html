@@ -37,6 +37,10 @@
 
             React.useEffect(resetData, []);
 
+            React.useEffect(() => {
+                document.querySelector("#nav-manage-admin").classList.add('bg-info')
+            }, []);
+
             function resetData() {
                 fetch('/get_admin_requests')
                     .then(response => response.json())

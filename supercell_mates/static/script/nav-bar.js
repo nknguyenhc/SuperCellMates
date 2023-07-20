@@ -18,3 +18,16 @@ if (requestTagLink !== null) {
         document.querySelector("#nav-settings").classList.add('bg-info');
     }
 })();
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (document.querySelector("#nav-home") !== null) {
+        new bootstrap.Tooltip(document.querySelector("#nav-home"));
+        new bootstrap.Tooltip(document.querySelector("#nav-profile"));
+        new bootstrap.Tooltip(document.querySelector("#nav-request-tag"));
+        new bootstrap.Tooltip(document.querySelector("#nav-message"));
+        new bootstrap.Tooltip(document.querySelector("#nav-settings"));
+        if (document.querySelector("#nav-admin")) {
+            new bootstrap.Tooltip(document.querySelector("#nav-admin"));
+        }
+    }
+});
