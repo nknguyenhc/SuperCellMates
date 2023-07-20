@@ -2,6 +2,9 @@ function Post(props) {
     const post = props.post;
     const [isShowMore, setIsShowMore] = React.useState(false);
     const shortLimit = 500;
+    const [iconName, setIconName] = React.useState(null);
+    const [visibility, setVisibility] = React.useState(null);
+    const tooltip = React.useRef(null);
 
     function PostImages() {
         return (
@@ -34,6 +37,31 @@ function Post(props) {
         )
     }
 
+    React.useEffect(() => {
+        if (post.public_visible) {
+            setIconName('public-icon.png');
+            setVisibility('Public');
+        } else if (post.friend_visible) {
+            if (post.tag_visible) {
+                setIconName('friend-tag-icon.png');
+                setVisibility('Friends with same tag');
+            } else {
+                setIconName('friend-icon.png');
+                setVisibility('Friends');
+            }
+        } else {
+            setIconName('tag-icon.png');
+            setVisibility('People with same tag');
+        }
+    }, []);
+
+    React.useEffect(() => {
+        if (tooltip.current) {
+            new bootstrap.Tooltip(tooltip.current);
+        }
+        console.log(tooltip.current);
+    }, [tooltip.current]);
+
     function toReplyPostChat() {
         fetch('/messages/get_chat_id?username=' + post.creator.username)
             .then(response => {
@@ -59,8 +87,8 @@ function Post(props) {
                         <img src={post.creator.profile_pic_url} />
                     </div>
                     <div className="post-creator-text-info">
-                        <div className="post-creator-name">{post.creator.name}</div>
-                        <a className="post-creator-username" href={post.creator.profile_link}>@{post.creator.username}</a>
+                        <strong className="post-creator-name">{post.creator.name}</strong>
+                        <a className="post-creator-username" href={post.creator.profile_link}>{post.creator.username}</a>
                     </div>
                     {
                         props.myProfile
@@ -73,6 +101,9 @@ function Post(props) {
                     }
                 </div>
                 <div className="post-more">
+                    <div ref={tooltip} className="post-link" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title={visibility}>
+                        {iconName && visibility &&<img src={"/static/media/" + iconName} />}
+                    </div>
                     <div className="post-date">{`${formatNumber(new Date(post.time_posted).getDate(), 2)}/${formatNumber(new Date(post.time_posted).getMonth() + 1, 2)}/${formatNumber(new Date(post.time_posted).getFullYear(), 4)} ${formatNumber(new Date(post.time_posted).getHours(), 2)}:${formatNumber(new Date(post.time_posted).getMinutes(), 2)}`}</div>
                     {
                         post.can_reply

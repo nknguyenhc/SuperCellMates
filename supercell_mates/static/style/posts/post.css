@@ -73,6 +73,14 @@
     border-radius: 5px;
 }
 
+#edit-close-btn {
+    float: right;
+}
+
+#edit-first-div {
+    margin-top: 20px;
+}
+
 #edit-post-images-preview {
     display: flex;
     flex-direction: row;
