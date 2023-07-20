@@ -5,7 +5,6 @@ function AddTag() {
     const [holding, setHolding] = React.useState(false);
     const [initialPosition, setInitialPosition] = React.useState();
     const [position, setPosition] = React.useState({
-        zIndex: 9999,
         top: "100px",
         left: "50px"
     });
@@ -17,8 +16,7 @@ function AddTag() {
     const imageInput = React.useRef(null);
     const [description, setDescription] = React.useState('');
     const [attach, setAttach] = React.useState(false);
-    const isLoading = React.useRef(false);
-    const setIsLoading = (newValue) => isLoading.current = newValue;
+    const [isLoading, setIsLoading] = React.useState(false);
 
     function image() {
         return (
@@ -43,10 +41,12 @@ function AddTag() {
         if (imagePreview !== undefined) {
             requestBody.img = imageInput.current.files[0]
         }
-        if (!isLoading.current) {
+        if (!isLoading) {
             setIsLoading(true);
             fetch('/add_tag_request', postRequestContent(requestBody))
                 .then(async response => {
+                    setIsLoading(false);
+                    mouseUp();
                     if (response.status !== 200) {
                         setIsLoading(false);
                         triggerErrorMessage();
@@ -65,12 +65,9 @@ function AddTag() {
         setErrMessage("");
     }
 
-    function pixelToNumber(pixelStr) {
-        let i = 0;
-        while (!isNaN(pixelStr[i])) {
-            i += 1;
-        }
-        return Number(pixelStr.slice(0, i));
+    function mouseUp() {
+        setHolding(false);
+        document.body.style.userSelect = 'auto';
     }
 
     return (
@@ -84,17 +81,13 @@ function AddTag() {
                     x: event.pageX,
                     y: event.pageY
                 });
-            }} onMouseUp={() => {
-                setHolding(false);
-                document.body.style.userSelect = 'auto';
                 setLastPosition({
-                    x: pixelToNumber(position.left),
-                    y: pixelToNumber(position.top)
-                })
-            }} onMouseMove={event => {
+                    x: Number(position.left.slice(0, -2)),
+                    y: Number(position.top.slice(0, -2))
+                });
+            }} onMouseUp={() => mouseUp()} onMouseMove={event => {
                 if (holding) {
                     setPosition({
-                        ...position,
                         top: `${lastPosition.y + event.pageY - initialPosition.y}px`,
                         left: `${lastPosition.x + event.pageX - initialPosition.x}px`
                     });
@@ -135,8 +128,9 @@ function AddTag() {
                         <input className="form-check-input" type="checkbox" value="" id="attach-tag-option" onChange={event => setAttach(event.target.checked)} />
                         <label className="form-check-label" for="attach-tag-option">Attach this tag to me once approved</label>
                     </div>
-                    <div className="mt-3">
-                        <input type="submit" value="Request" className="btn btn-primary" onClick={submitForm}></input>
+                    <div className="mt-3" id="tag-request-submit-div">
+                        <span className="spinner-border text-warning" style={{display: isLoading ? '' : 'none'}} />
+                        <button type="submit" className="btn btn-primary" onClick={submitForm} disabled={isLoading}>Request</button>
                     </div>
                 </form>
                 <div class="alert alert-danger" role='alert' style={{
