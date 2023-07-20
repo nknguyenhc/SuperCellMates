@@ -1,14 +1,13 @@
 <div id="navbar-container" class="sticky-top">
     <nav class="navbar navbar-expand bg-body-tertiary">
-        <div class="container-fluid">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="navbar-collapse d-flex justify-content-between" id="navbarSupportedContent">
+        <div class="container-fluid navbar-container">
+            <div class="navbar-collapse justify-content-between" id="navbarSupportedContent">
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %} 
-                        <li class="nav-item">
-                            <a href="{% url 'user_auth:home' %}" class="nav-link">Home</a>
+                        <li class="nav-item" id="nav-home">
+                            <a href="{% url 'user_auth:home' %}" class="nav-link">
+                                <img src="/static/media/nav-bar/home.png">
+                            </a>
                         </li>
                     {% endif %} 
                     {% if not user.is_authenticated %} 
@@ -23,32 +22,44 @@
                     {% endif %} 
                     {% if user.is_authenticated %} 
                         <li class="nav-item">
-                            <a href="javascript:void(0)" class="nav-link" id="request-tag-link">Request Tag</a>
+                            <a href="javascript:void(0)" class="nav-link" id="request-tag-link">
+                                <img src="/static/media/nav-bar/request-tag.png">
+                            </a>
                         </li>
                     {% endif %} 
                     {% if user.is_authenticated %} 
-                        <li class="nav-item">
-                            <a href="{% url 'user_profile:index' %}" class="nav-link">Your Profile</a>
+                        <li class="nav-item" id="nav-profile">
+                            <a href="{% url 'user_profile:index' %}" class="nav-link">
+                                <img src="/static/media/nav-bar/profile.png">
+                            </a>
                         </li>
                     {% endif %} 
                     {% if user.is_authenticated %} 
-                        <li class="nav-item">
-                            <a href="{% url 'message:index' %}" class="nav-link">Messages</a>
+                        <li class="nav-item" id="nav-message">
+                            <a href="{% url 'message:index' %}" class="nav-link">
+                                <img src="/static/media/nav-bar/message.png">
+                            </a>
                         </li>
                     {% endif %} 
                     {% if user.is_staff %} 
-                        <li class="nav-item">
-                            <a href="{% url 'user_auth:admin' %}" class="nav-link">Admin</a>
+                        <li class="nav-item" id="nav-admin">
+                            <a href="{% url 'user_auth:admin' %}" class="nav-link">
+                                <img src="/static/media/nav-bar/admin.png">
+                            </a>
                         </li>
                     {% endif %} 
                     {% if user.is_superuser %} 
                         <li class="nav-item">
-                            <a href="{% url 'user_auth:manage_admin' %}" class="nav-link">Manage Admins</a>
+                            <a href="{% url 'user_auth:manage_admin' %}" class="nav-link">
+                                <img src="/static/media/nav-bar/manage-admin.png">
+                            </a>
                         </li>
                     {% endif %} 
                     {% if user.is_authenticated %} 
-                        <li class="nav-item">
-                            <a href="{% url 'user_auth:settings' %}" class="nav-link">Settings</a>
+                        <li class="nav-item" id="nav-settings">
+                            <a href="{% url 'user_auth:settings' %}" class="nav-link">
+                                <img src="/static/media/nav-bar/settings.png">
+                            </a>
                         </li>
                     {% endif %} 
                 </ul>
