@@ -7,9 +7,15 @@ import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key, this.sort, this.friendFilter, this.tagFilter})
+  const HomePage(
+      {Key? key,
+      required this.username,
+      this.sort,
+      this.friendFilter,
+      this.tagFilter})
       : super(key: key);
 
+  final String username;
   final String? sort;
   final String? friendFilter;
   final String? tagFilter;
@@ -118,8 +124,8 @@ class HomePageState extends State<HomePage> {
                   children: [
                     PostListView(
                       postList: homeFeed,
-                      isInProfile: false,
-                      isMyPost: false,
+                      isInSomeProfile: false,
+                      username: widget.username,
                       updateCallBack: () {},
                       scrollAtTopEvent: () {},
                       scrollAtBottomEvent: getHomeFeed,

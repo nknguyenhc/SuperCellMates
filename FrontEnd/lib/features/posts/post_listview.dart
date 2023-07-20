@@ -14,20 +14,18 @@ class PostListView extends StatefulWidget {
   const PostListView({
     Key? key,
     required this.postList,
-    required this.isInProfile,
-    required this.isMyPost,
+    required this.username,
+    required this.isInSomeProfile,
     required this.updateCallBack,
     required this.scrollAtTopEvent,
     required this.scrollAtBottomEvent,
   }) : super(key: key);
 
   final dynamic postList;
+  final String username;
   // if the posts are displayed in someone's profile,
-  // the user icon should not route to user's profile page
-  final bool isInProfile;
-  // if the posts belong to the user themselves,
-  // the user should be able to edit the post
-  final bool isMyPost;
+  // prerssing the profile should not route to profile page
+  final bool isInSomeProfile;
   final dynamic updateCallBack;
   final dynamic scrollAtTopEvent;
   final dynamic scrollAtBottomEvent;
@@ -43,6 +41,7 @@ class PostListViewState extends State<PostListView> {
   List<List<Uint8List>?> postImagesRaw = [];
   List<dynamic> timePosted = [];
   List<bool> seeMore = [];
+  final int seeMoreThreshold = 500;
 
   final _controller = ScrollController();
 
@@ -156,7 +155,7 @@ class PostListViewState extends State<PostListView> {
           return Column(children: [
             // post creator info header
             TextButton(
-              onPressed: widget.isInProfile
+              onPressed: widget.isInSomeProfile || widget.username == widget.postList[index]["creator"]["username"]
                   ? () {}
                   : () async {
                       FocusManager.instance.primaryFocus?.unfocus();
@@ -194,7 +193,7 @@ class PostListViewState extends State<PostListView> {
                     ),
                     SizedBox(
                       width: MediaQuery.of(context).size.width - 85,
-                      child: Text(username,
+                      child: Text("@$username",
                           style: const TextStyle(
                             color: Colors.blueGrey,
                             fontSize: 12,
@@ -239,20 +238,22 @@ class PostListViewState extends State<PostListView> {
                                 SizedBox(
                                   width: MediaQuery.of(context).size.width - 40,
                                   child: Text(
-                                    content.length > 200 && !seeMore[index]
-                                        ? content.substring(0, 200)
+                                    content.length > seeMoreThreshold &&
+                                            !seeMore[index]
+                                        ? content.substring(0, seeMoreThreshold)
                                         : content,
                                     style: const TextStyle(fontSize: 14),
                                   ),
                                 )
                               ],
                             ),
-                            content.length > 200 && !seeMore[index]
+                            content.length > seeMoreThreshold && !seeMore[index]
                                 ? SizedBox(
                                     height: 40,
                                     child: seeMoreSection(index),
                                   )
-                                : content.length > 200 && seeMore[index]
+                                : content.length > seeMoreThreshold &&
+                                        seeMore[index]
                                     ? SizedBox(
                                         height: 40,
                                         child: seeLessSection(index),
@@ -420,7 +421,7 @@ class PostListViewState extends State<PostListView> {
                       style: const TextStyle(color: Colors.pink),
                     ),
                   ),
-                  widget.isMyPost && dataLoaded[index]
+                  dataLoaded[index] && widget.username == widget.postList[index]["creator"]["username"]
                       ? SizedBox(
                           width: MediaQuery.of(context).size.width,
                           child: Row(

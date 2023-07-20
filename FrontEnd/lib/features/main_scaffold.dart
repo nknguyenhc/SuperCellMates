@@ -50,6 +50,7 @@ class MainScaffoldState extends State<MainScaffold> {
     appbars = <AppBar>[
       HomeAppBar(data: {
         "isAdmin": profileMap["is_admin"],
+        "username": profileMap["user_profile"]["username"],
       }, updateCallBack: updateHomePageBody,
       isFilterSelected: homeFilterSelected,
       onDispose: (dynamic list) => homeFilterSelected = list,),
@@ -61,7 +62,7 @@ class MainScaffoldState extends State<MainScaffold> {
     ];
 
     pages = [
-      HomePage(key: UniqueKey()),
+      HomePage(username: profileMap["user_profile"]["username"], key: UniqueKey()),
       ChatPage(username: profileMap["user_profile"]["username"]),
       ProfilePage(
         updateCallBack: getProfileMap,
@@ -76,6 +77,7 @@ class MainScaffoldState extends State<MainScaffold> {
       pages[0] = body ??
           HomePage(
             key: UniqueKey(),
+            username: profileMap["user_profile"]["username"],
           );
     });
   }

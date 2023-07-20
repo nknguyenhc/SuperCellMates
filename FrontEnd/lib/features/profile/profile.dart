@@ -239,8 +239,8 @@ class ProfilePageState extends State<ProfilePage> {
                           ? PostListView(
                               key: UniqueKey(),
                               postList: profilePosts,
-                              isInProfile: true,
-                              isMyPost: true,
+                              isInSomeProfile: true,
+                              username: data["user_profile"]["username"],
                               updateCallBack: loadProfilePosts,
                               scrollAtTopEvent: () {},
                               scrollAtBottomEvent: () {},

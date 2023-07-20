@@ -6,11 +6,20 @@ import 'package:supercellmates/http_requests/make_requests.dart';
 import 'package:supercellmates/features/friends/user_listview.dart';
 import 'package:supercellmates/features/profile/tag_listview.dart';
 
-Future<Widget> searchUser(BuildContext context, input) async {
-  dynamic query = {"username": input};
-  dynamic userListJson = await getRequest(EndPoints.search.endpoint, query);
+Future<Widget> searchUser(BuildContext context, String input) async {
+  if (input == "") {
+    return Container();
+  }
+
+  String searchEndpoint = input[0] == '@'
+      ? EndPoints.searchUsername.endpoint
+      : EndPoints.search.endpoint;
+  dynamic query = {"username": input[0] == '@' ? input.substring(1) : input};
+
+  dynamic userListJson = await getRequest(searchEndpoint, query);
   if (userListJson == "Connection error") {
     showErrorDialog(context, userListJson);
+    // TODO: replace all error handling with status code, then display this error in container, not error dialog
     return Container();
   }
   dynamic userList = jsonDecode(userListJson)["users"];
