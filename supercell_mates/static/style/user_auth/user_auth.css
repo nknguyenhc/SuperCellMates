@@ -15,3 +15,9 @@
     position: absolute;
     top: 100%;
 }
+
+.auth-submit {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}

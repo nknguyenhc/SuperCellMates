@@ -73,3 +73,24 @@
 #search-box-placeholder p {
     margin-bottom: 0;
 }
+
+.asterisk {
+    color: rgb(241, 36, 36);
+}
+
+.loading-icon {
+    display: none;
+}
+
+#loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}

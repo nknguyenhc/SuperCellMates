@@ -2,6 +2,13 @@
     width: 50vw;
     min-width: 500px;
     max-width: 700px;
+    border: lightgrey solid 1px;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+#create-post:hover {
+    border: black solid 1px;
 }
 
 #post-content {
@@ -11,7 +18,7 @@
 .visibility-section {
     display: flex;
     flex-direction: row;
-    gap: 20px;
+    gap: 30px;
 }
 
 .visibility-section button {
@@ -21,6 +28,9 @@
 .visibility-indicator {
     height: 30px;
     width: 30px;
+    display: flex;
+    flex-direction: row;
+    gap: 7px;
 }
 
 .visibility-indicator img {
@@ -32,12 +42,14 @@
     flex-direction: row;
     gap: 10px;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 #post-submit-button {
     display: flex;
-    flex-direction: column;
-    align-items: end;
+    flex-direction: row;
+    justify-content: end;
+    gap: 15px;
 }
 
 #post-choose-images {
@@ -221,4 +233,8 @@
     padding-top: 50px;
     margin-left: auto;
     margin-right: auto;
+}
+
+#post-loader {
+    margin-left: 49%;
 }

@@ -71,7 +71,7 @@ function Post(props) {
         return () => {
             tooltips.forEach(t => t.dispose());
         };
-    }, [visTooltip.current]);
+    }, [visTooltip.current, replyTooltip.current, linkTooltip.current]);
 
     function toReplyPostChat() {
         fetch('/messages/get_chat_id?username=' + post.creator.username)
