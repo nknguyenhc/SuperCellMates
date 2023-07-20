@@ -47,7 +47,8 @@ function ChangeUsername() {
 
     return (
         <React.Fragment>
-            <form onSubmit={submitForm}>
+            <button type="button" class="change-details-close btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => document.querySelector("#change-username-page").style.display = 'none'} />
+            <form className="change-details-form" onSubmit={submitForm}>
                 <div className="mb-3">
                     <label htmlFor="new-username" className="form-label">New Username</label>
                     <input type="text" id="new-username" class="form-control" autocomplete="off" onChange={event => {
@@ -124,7 +125,8 @@ function ChangePassword() {
 
     return (
         <React.Fragment>
-            <form onSubmit={submitForm}>
+            <button type="button" class="change-details-close btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => document.querySelector("#change-password-page").style.display = 'none'} />
+            <form className="change-details-form" onSubmit={submitForm}>
                 <div className="mb-3">
                     <label htmlFor="old-password" className="form-label">Old Password</label>
                     <input type="password" id="old-password" class="form-control" onChange={event => setOldPassword(event.target.value)} />
@@ -204,7 +206,8 @@ function ChangeName() {
 
     return (
         <React.Fragment>
-            <form onSubmit={submitForm}>
+            <button type="button" class="change-details-close btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => document.querySelector("#change-name-page").style.display = 'none'} />
+            <form className="change-details-form" onSubmit={submitForm}>
                 <div className="mb-3">
                     <label htmlFor="new-name" className="form-label">New Name</label>
                     <input type="text" id="new-name" className="form-control" autoComplete="off" onChange={event => {
