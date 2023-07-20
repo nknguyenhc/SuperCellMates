@@ -27,6 +27,7 @@ function ChatPage() {
     const [showAddPeopleForm, setShowAddPeopleForm] = React.useState(false);
     const isLoading = React.useRef(false);
     const setIsLoading = (newValue) => isLoading.current = newValue;
+    const [isConnectingWs, setIsConnectingWs] = React.useState(false);
     const [targetPost, setTargetPost] = React.useState(null);
 
     React.useEffect(() => {
@@ -230,6 +231,8 @@ function ChatPage() {
         if (currInterval !== null) {
             clearInterval(currInterval);
         }
+
+        setIsConnectingWs(false);
         
         loadMessagesUntilFound(chatid, new Date().getTime() / 1000, [], isPrivate)
             .then(result => {
@@ -238,6 +241,8 @@ function ChatPage() {
                     messageLog.current.scrollTo(0, messageLog.current.scrollHeight);
                 }, 300);
 
+                setIsConnectingWs(true);
+
                 const chatSocket = new WebSocket(
                     'ws://'
                     + window.location.host
@@ -245,6 +250,10 @@ function ChatPage() {
                     + chatid
                     + '/'
                 );
+
+                chatSocket.onopen = () => {
+                    setIsConnectingWs(false);
+                };
                 
                 chatSocket.onmessage = (e) => {
                     const data = JSON.parse(e.data);
@@ -567,6 +576,9 @@ function ChatPage() {
                 <div className="file-preview" style={{
                     display: showFilePreview ? '' : 'none',
                 }} onClick={clickExitPreview}>{filePreview}</div>
+                {isConnectingWs && <div id="message-loader">
+                    <span className="spinner-grow text-warning" />
+                </div>}
             </div>
         </div>
     )
