@@ -7,6 +7,10 @@
     height: 25px;
 }
 
+.layout-nav-item:hover {
+    background-color: lightgrey;
+}
+
 .navbar-nav {
     gap: 3vw;
 }

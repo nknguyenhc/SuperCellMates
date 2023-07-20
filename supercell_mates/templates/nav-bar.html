@@ -4,50 +4,50 @@
             <div class="navbar-collapse justify-content-between" id="navbarSupportedContent">
                 <ul class="navbar-nav">
                     {% if not user.is_authenticated %} 
-                        <li class="nav-item">
+                        <li class="nav-item layout-nav-item">
                             <a href="{% url 'user_auth:login' %}" class="nav-link">Login</a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item layout-nav-item">
                             <a href="{% url 'user_auth:register' %}" class="nav-link">Register</a>
                         </li>
                     {% else %} 
-                        <li class="nav-item" id="nav-home" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="home">
+                        <li class="nav-item layout-nav-item" id="nav-home" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="home">
                             <a href="{% url 'user_auth:home' %}" class="nav-link">
                                 <img src="/static/media/nav-bar/home.png">
                             </a>
                         </li>
-                        <li class="nav-item" id="nav-request-tag" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="request tag">
+                        <li class="nav-item layout-nav-item" id="nav-request-tag" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="request tag">
                             <a href="javascript:void(0)" class="nav-link" id="request-tag-link">
                                 <img src="/static/media/nav-bar/request-tag.png">
                             </a>
                         </li>
-                        <li class="nav-item" id="nav-profile" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="profile">
+                        <li class="nav-item layout-nav-item" id="nav-profile" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="profile">
                             <a href="{% url 'user_profile:index' %}" class="nav-link">
                                 <img src="/static/media/nav-bar/profile.png">
                             </a>
                         </li>
-                        <li class="nav-item" id="nav-message" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="message">
+                        <li class="nav-item layout-nav-item" id="nav-message" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="message">
                             <a href="{% url 'message:index' %}" class="nav-link">
                                 <img src="/static/media/nav-bar/message.png">
                             </a>
                         </li>
                     {% endif %} 
                     {% if user.is_staff %} 
-                        <li class="nav-item" id="nav-admin" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="admin">
+                        <li class="nav-item layout-nav-item" id="nav-admin" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="admin">
                             <a href="{% url 'user_auth:admin' %}" class="nav-link">
                                 <img src="/static/media/nav-bar/admin.png">
                             </a>
                         </li>
                     {% endif %} 
                     {% if user.is_superuser %} 
-                        <li class="nav-item" id="nav-manage-admin" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="manage-admin">
+                        <li class="nav-item layout-nav-item" id="nav-manage-admin" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="manage-admin">
                             <a href="{% url 'user_auth:manage_admin' %}" class="nav-link">
                                 <img src="/static/media/nav-bar/manage-admin.png">
                             </a>
                         </li>
                     {% endif %} 
                     {% if user.is_authenticated %} 
-                        <li class="nav-item" id="nav-settings" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="settings">
+                        <li class="nav-item layout-nav-item" id="nav-settings" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="settings">
                             <a href="{% url 'user_auth:settings' %}" class="nav-link">
                                 <img src="/static/media/nav-bar/settings.png">
                             </a>
