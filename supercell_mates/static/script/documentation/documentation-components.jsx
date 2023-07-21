@@ -6,7 +6,7 @@ function Backend({ docBody }) {
                 <input className="backend-documentation-path form-control" value={docBody.path} />
             </div>
             <div className="backend-documentation-description">{docBody.description}</div>
-             {
+            {
                 docBody.getParams.length > 0 &&
                 <div className="backend-documentation-section">
                     <div className="backend-documentation-section-header">GET parameters</div>
@@ -28,9 +28,7 @@ function Backend({ docBody }) {
                     <div className="backend-documentation-section-header">POST body parameters</div>
                     <div className="backend-documentation-section-body">
                         {
-                            docBody.postParams.length === 0
-                            ? <div className="fst-italic">No POST parameter to display</div>
-                            : docBody.postParams.map(param => (
+                            docBody.postParams.map(param => (
                                 <div className="backend-documentation-line">
                                     <div className="backend-documentation-line-name border ps-2">{param.name}</div>
                                     <div className="backend-documentation-line-description border ps-2">{param.description}</div>

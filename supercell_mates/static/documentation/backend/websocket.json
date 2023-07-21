@@ -1,0 +1,91 @@
+{
+    "consumers": [
+        {
+            "path": "/ws/message/<str:room_name>",
+            "description": "Connect to a private chat between requester and one (and only one) other user",
+            "permission": "User is in PrivateChat, users in private chat are still friend"
+        },
+        {
+            "path": "/ws/group/<str:room_name>",
+            "description": "Connect to a group chat",
+            "permission": "User is in GroupChat"
+        }
+    ],
+    "receive": [
+        {
+            "input": {
+                "type": "text",
+                "message": "<text message>"
+            },
+            "response": "chat_message"
+        },
+        {
+            "input": {
+                "type": "file",
+                "message_id": "<the id of the file message in db>"
+            },
+            "response": "file_message"
+        },
+        {
+            "input": {
+                "type": "reply_post",
+                "message": "<text message>",
+                "post_id": "<the id of the post>"
+            },
+            "response": "reply_post"
+        }
+    ],
+    "responses": [
+        {
+            "name": "chat_message",
+            "json": {
+                "type": "text",
+                "message": "<text message>",
+                "user": {
+                    "name": "<name of sender>",
+                    "username": "<username of sender>",
+                    "profile_link": "<URL to profile page of sender>",
+                    "profile_img_url": "<URL to profile image of sender>"
+                },
+                "id": "<id of message in db>",
+                "timestamp": "<timestamp of the message>"
+            }
+        },
+        {
+            "name": "file_message",
+            "json": {
+                "type": "file",
+                "file_name": "<name of file>",
+                "user": {
+                    "name": "<name of sender>",
+                    "username": "<username of sender>",
+                    "profile_link": "<URL to profile page of sender>",
+                    "profile_img_url":"<URL to profile image of sender>"
+                },
+                "id": "<id of message in db>",
+                "timestamp": "<timestamp of the message>",
+                "is_image": "<whether the file sent was analysed to be image>"
+            }
+        },
+        {
+            "name": "reply_post",
+            "json": {
+                "type": "file",
+                "message": "<text message>",
+                "user": {
+                    "name": "<name of sender>",
+                    "username": "<username of sender>",
+                    "profile_link": "<URL to profile page of sender>",
+                    "profile_img_url": "<URL to profile image of sender>"
+                },
+                "id": "<id of message in db>",
+                "timestamp": "<timestamp of the message>",
+                "post": {
+                    "id": "<id of post>",
+                    "title": "<title of post>",
+                    "content": "<content of post>"
+                }
+            }
+        }
+    ]
+}

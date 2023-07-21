@@ -7,7 +7,7 @@ function Testing() {
                 "user_auth",
                 "user_profile",
                 "user_log",
-                "posts"
+                "posts",
             ]
         },
         {
@@ -18,7 +18,8 @@ function Testing() {
                 "layout",
                 "profile",
                 "settings",
-                "home"
+                "home",
+                "messages",
             ]
         },
         {

@@ -1,2 +1,3 @@
 By default, only logged in users can access our infrastructure. You must log in to conduct the tests, unless stated otherwise.
 Trivial test cases are included in logged_out section but omitted everywhere else. Trivial test cases include blank input fields, which is pure frontend and does not involve communication with backend.
+For websocket, our redis host on Heroku is slightly unstable. Hence first attempt to connect may fail. You may need to refresh one time to successfully connect.

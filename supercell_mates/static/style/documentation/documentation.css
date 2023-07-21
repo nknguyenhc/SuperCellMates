@@ -25,7 +25,7 @@
 
 #documentation {
     padding-top: 40px;
-    padding-bottom: 80px;
+    padding-bottom: 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -35,6 +35,9 @@
     width: 70vw;
     min-width: 500px;
     max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 #documentation-sequence {
@@ -42,12 +45,6 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
-}
-
-#sequence-window {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
 }
 
 #sequence-nav {
@@ -72,12 +69,6 @@
 
 #sequence-display img {
     max-width: 100%;
-}
-
-#documentation-window {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
 }
 
 #documentation-nav {
@@ -145,6 +136,10 @@
 
 .backend-documentation-path-label {
     flex-shrink: 0;
+}
+
+.backend-documentation-section-header {
+    font-weight: bold;
 }
 
 .backend-documentation-section-body {
@@ -233,4 +228,32 @@
 
 .mobile-api-path {
     width: 50%;
+}
+
+#websocket {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding-bottom: 80px;
+}
+
+#websocket-nav {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}
+
+#websocket-details {
+    border-radius: 10px;
+    padding: 10px;
+    height: 60vh;
+    overflow: auto;
+}
+
+#websocket-details > * {
+    max-width: 100%;
+}
+
+.websocket-table-element {
+    white-space: pre-wrap;
 }
