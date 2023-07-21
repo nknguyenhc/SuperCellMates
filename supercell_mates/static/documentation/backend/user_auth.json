@@ -138,6 +138,48 @@
             ]
         },
         {
+            "path": "/obtain_tags",
+            "description": "Obtain the current available tags.",
+            "getParams": [],
+            "postParams": [],
+            "return": [
+                {
+                    "id": "<id of tag 1>",
+                    "name": "<name of tag 1>",
+                    "icon": "<URL to icon of tag 1>",
+                    "description": "<description of tag 1>"
+                },
+                {
+                    "id": "<id of tag 2>",
+                    "name": "<name of tag 2>",
+                    "icon": "<URL to icon of tag 2>",
+                    "description": "<description of tag 2>"
+                },
+                {
+                    "id": "<id of tag 3>",
+                    "name": "<name of tag 3>",
+                    "icon": "<URL to icon of tag 3>",
+                    "description": "<description of tag 3>"
+                }
+            ]
+        },
+        {
+            "path": "/change_tag_icon",
+            "description": "Change the icon of a current tag. You need to be admin to access this API.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "name",
+                    "description": "Name of the tag to change icon"
+                },
+                {
+                    "name": "icon",
+                    "description": "The new icon to change to"
+                }
+            ],
+            "return": "<success or fail status 200, or status 4xx if the request is invalid>"
+        },
+        {
             "path": "/new_tag_admin",
             "description": "Add a new tag as an admin. This bypasses the requirement of having an active tag request with the same name. You must be an admin to access this API.",
             "getParams": [],
@@ -154,8 +196,8 @@
             "return": "<success status 200, or status 4xx if the request is invalid>"
         },
         {
-            "path": "/tag_request/<str:tag_name>",
-            "description": "Returns the icon of the tag with the given name, as an image",
+            "path": "/tag_request/<str:tag_id>",
+            "description": "Returns the icon of the tag with the given id, as an image. You must be admin to access this view.",
             "getParams": [],
             "postParams": [],
             "return": "<the icon of the tag>"

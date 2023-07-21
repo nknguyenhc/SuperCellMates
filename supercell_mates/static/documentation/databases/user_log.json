@@ -18,11 +18,6 @@
                     "name": "friend_list",
                     "type": "ManyToManyField(self)",
                     "description": "The list of friends"
-                },
-                {
-                    "name": "last_login",
-                    "type": "TimeField",
-                    "description": "Not yet implemented"
                 }
             ]
         },

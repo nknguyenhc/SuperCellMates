@@ -19,7 +19,11 @@ function DocumentationSequence() {
                 ))}
             </div>
             <div id="sequence-display">
-                {index !== -1 && <img src={"/static/documentation/sequence/" + diagrams[index].replaceAll(' ', '-') + ".png"} />}
+                {
+                    index !== -1 
+                    ? <img src={"/static/documentation/sequence/" + diagrams[index].replaceAll(' ', '-') + ".png"} />
+                    : <div className="text-body-tertiary">Select a feature to start viewing diagrams</div>
+                }
             </div>
         </div>
     );

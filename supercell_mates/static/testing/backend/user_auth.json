@@ -83,6 +83,12 @@
             "javascript": "fetch('/change_password', postRequestContent({ old_password: '<your old password>', new_password: '<your new password>' })).then(response => response.text()).then(response => console.log(response))",
             "expected": "Console notification that password has been changed. Log out and log in again to verify.",
             "datePassed": "10/07/2023"
+        },
+        {
+            "setup": "NIL",
+            "javascript": "fetch('/obtain_tags').then(response => response.json()).then(response => console.log(response))",
+            "expected": "An array of all current available tags, with name and link to icon of the tag.",
+            "datePassed": "21/07/2023"
         }
     ]
 }

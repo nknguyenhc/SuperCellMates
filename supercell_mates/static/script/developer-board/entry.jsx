@@ -41,8 +41,8 @@ function Entry() {
 
     return (
         <div id="text-body-inner">
-            <div className="mb-3">Enter the correct passphrase, and I will give you the key</div>
-            <input type="text" className="form-control mb-3" onChange={event => setInp(event.target.value)} />
+            <div className="mb-3">The key hidden somewhere in this page. Can you find it?</div>
+            <input type="text" className="form-control mb-3" placeholder="Enter the correct passphrase to view the key" autoFocus onChange={event => setInp(event.target.value)} />
             <div className="btn btn-primary mb-3" onClick={checkPass}>Submit</div>
             <div className="alert alert-danger mb-3" role="alert"style={{display: err ? 'block': 'none'}}>Wrong passphrase</div>
             {showKey && <div>{key}</div>}

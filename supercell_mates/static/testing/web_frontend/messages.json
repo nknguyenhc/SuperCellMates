@@ -1,0 +1,79 @@
+{
+    "tests": [
+        {
+            "instruction": "Redirect to the chat page by clicking on the chat icon on menu bar.",
+            "expected": "Chat page is rendered. All chats should be loaded, under respective 'private' and 'group' tabs",
+            "datePassed": "21/07/2023"
+        },
+        {
+            "instruction": "Click open one of the chats.",
+            "expected": "Some of the latest messages are loaded.",
+            "datePassed": "21/07/2023"
+        },
+        {
+            "instruction": "Click open one of the chats and scroll up.",
+            "expected": "Older messages are loaded as user scrolls up.",
+            "datePassed": "21/07/2023"
+        },
+        {
+            "instruction": "Click open one of the chats, type a message, and click send or press Enter (without holding Shift).",
+            "expected": "A new message is sent to the chat. The chat log reflects the latest message, and the other user's browser also reflects the message.",
+            "datePassed": "21/07/2023"
+        },
+        {
+            "instruction": "Hover over plus icon, click document icon, choose an image with extension .png or .jpg, and click send.",
+            "expected": "A new message with image is sent to the chat. The chat log reflects the latest message with image, and the other user's browser also reflects the message.",
+            "datePassed": "21/07/2023"
+        },
+        {
+            "instruction": "Hover over the plus icon, click document icon, choose a file that is not an image, and click send.",
+            "expected": "A new message with file name is sent to the chat. The chat log reflects the latest message, and the other user's browser also reflects the message. Clicking on the filename downloads the file or opens the file in another tab.",
+            "datePassed": "21/07/2023"
+        },
+        {
+            "instruction": "Click open a chat, then copy the URL. Close the browser, then reopen the browser and key in the URL from clipboard.",
+            "expected": "The message interface is rendered, with the same chat opened.",
+            "datePassed": "21/07/2023"
+        },
+        {
+            "instruction": "Copy the URL of a chat you do not belong to (e.g. private chat between two other friends of yours)",
+            "expected": "The message interface is rendered, but no chat is opened.",
+            "datePassed": "21/07/2023"
+        },
+        {
+            "instruction": "Click on creating a new group chat under groups tab, fill in the details, add people, and click create.",
+            "expected": "A new group chat is created with the users added. Chat log for the group chat is automatically opened.",
+            "datePassed": "21/07/2023"
+        },
+        {
+            "instruction": "Click open a group chat, and click on human icon to open the manage tab. Find and add your friend to the group chat.",
+            "expected": "The new friend is added to the group chat, and the group chat appears as one of the chats under the page",
+            "datePassed": "21/07/2023"
+        },
+        {
+            "instruction": "(You need to be admin of a group chat to conduct this test) Click open a group chat, and click on human icon to open the manage tab. As admin of the group chat, click assign another user as admin.",
+            "expected": "Target user is assigned as admin. The target user can access chat admin interface in the same chat.",
+            "datePassed": "21/07/2023"
+        },
+        {
+            "instruction": "(You need to be admin of a group chat to conduct this test) Click open a group chat, and click on human icon to open the manage tab. As admin of the group chat, click remove another user from chat.",
+            "expected": "Target user is removed from the chat. The target user can no longer see the group chat in his message window.",
+            "datePassed": "21/07/2023"
+        },
+        {
+            "instruction": "(You need to be creator of a group chat to conduct this test) Click open a group chat, and click on human icon to open the manage tab. As creator of the group chat, click remove admin on one of the admin.",
+            "expected": "Target user is no longer admin. Upon opening the manage group chat interface, the user can longer access admin functionalities (remove another user, assign another user as admin)",
+            "datePassed": "21/07/2023"
+        },
+        {
+            "instruction": "(You need to be creator of a group chat to conduct this test) Click open a group chat, and click on human icon to open the manage tab. As creator of the group chat, click the button to assign another admin as leader of group chat. Key in a wrong password to confirm.",
+            "expected": "Group chat leadership is not transferred. The other user still cannot access leader's functionalities (remove admin and assign leader), and you can still access the functionalities.",
+            "datePassed": "21/07/2023"
+        },
+        {
+            "instruction": "(You need to be creator of a group chat to conduct this test) Click open a group chat, and click on human icon to open the manage tab. As creator of the group chat, click the button to assign another admin as leader of group chat. Key in your correct password to confirm.",
+            "expected": "Group chat leadership is transferred to the target user. You will no longer be able to access leader's functionalities (remove admin and assign leader), and the target user can access the functionalities.",
+            "datePassed": "21/07/2023"
+        }
+    ]
+}

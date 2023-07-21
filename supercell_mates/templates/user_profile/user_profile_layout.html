@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="/static/style/user_profile/user_profile_layout.css">
 {% endblock %} 
 
+{% block script %} 
+    <script src="/static/script/user_profile/layout.js"></script>
+{% endblock %} 
+
 {% block body %} 
     <div id="profile-page">
         <div id="profile-top" class="border-bottom p-4">
@@ -61,12 +65,10 @@
             <div id="profile-side-nav" class="sticky-top p-3 border-end">
                 <ul class="nav flex-column">
                     {% if my_profile %} 
-                        <li class="nav-item">
+                        <li class="nav-item profile-nav-item" id="friends-nav">
                             <a class="nav-link" href="{% url 'user_log:view_friends' %}">Friends</a>
                         </li>
-                    {% endif %} 
-                    {% if my_profile %} 
-                        <li class="nav-item">
+                        <li class="nav-item profile-nav-item" id="friend-requests-nav">
                             <a class="nav-link" href="{% url 'user_log:view_friend_requests' %}">Friend Requests</a>
                         </li>
                     {% endif %} 

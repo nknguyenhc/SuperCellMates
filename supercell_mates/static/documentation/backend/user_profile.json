@@ -111,7 +111,7 @@
             }
         },
         {
-            "path": "/profile/tag/<str:tagname>",
+            "path": "/profile/tag/<str:tag_id>",
             "description": "Obtain the icon of the tag",
             "getParams": [],
             "postParams": [],

@@ -25,24 +25,30 @@
     border-radius: 20px;
     border-width: 1px;
     background-color: white;
-    width: 40vw;
+    width: 140%;
     padding-left: 2vw;
     padding-right: 2vw;
     padding-top: 2vh;
     padding-bottom: 2vh;
     min-height: 10vh;
-    position: fixed;
-    top: 60px;
-    right: 20px;
-    z-index: 1;
+    position: absolute;
+    top: 50px;
+    right: -5%;
+    z-index: 2;
     max-height: 50vh;
     overflow: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+#search-result-box::-webkit-scrollbar {
+    display: none;
 }
 
 .search-result-listing {
     display: flex;
     flex-direction: row;
-    width: 36vw;
+    width: 100%;
     justify-content: space-between;
     align-items: center;
 }
