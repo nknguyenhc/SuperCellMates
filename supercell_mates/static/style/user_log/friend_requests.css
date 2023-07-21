@@ -1,6 +1,6 @@
 .friend-request {
     display: flex;
-    width: 60vw;
+    width: 80%;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;

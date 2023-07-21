@@ -55,10 +55,13 @@
                     {% endif %} 
                 </ul>
                 {% if user.is_authenticated %} 
-                    <form autocomplete='off' id='search-form' class="d-flex" role="search">
-                        <input id='search-input' class="form-control me-2" type="search" name="username" placeholder="Find user" aria-label="Search">
-                        <button class="btn btn-outline-primary" type="submit">Search</button>
-                    </form>
+                    <div class="position-relative">
+                        <form autocomplete='off' id='search-form' class="d-flex" role="search">
+                            <input id='search-input' class="form-control me-2" type="search" name="username" placeholder="Find user" aria-label="Search">
+                            <button class="btn btn-outline-primary" type="submit">Search</button>
+                        </form>
+                        <div id="search-result-box" style="display: none"></div>
+                    </div>
                 {% endif %} 
             </div>
         </div>
@@ -66,6 +69,5 @@
 </div>
 <link rel="stylesheet" href="/static/style/nav-bar.css">
 <script src="/static/script/nav-bar.js"></script>
-<div id="search-result-box" style="display: none"></div>
 <script type='text/babel' src="/static/script/user_log/search-result.jsx"></script>
 <script src="/static/script/user_log/search-bar.js"></script>
