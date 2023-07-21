@@ -60,6 +60,12 @@
     border: 1px solid;
     border-radius: 10px;
     height: 300px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+#search-tag-result-window::-webkit-scrollbar {
+    display: none;
 }
 
 .old-tag-div, .new-tag-div {

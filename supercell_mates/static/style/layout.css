@@ -46,6 +46,12 @@
     transform: translateX(-50%);
     background-color: white;
     border-radius: 5px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.edit-window::-webkit-scrollbar {
+    display: none;
 }
 
 .add-image-label {

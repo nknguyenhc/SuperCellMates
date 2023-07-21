@@ -366,6 +366,7 @@
     z-index: 1;
     width: 30vw;
     min-height: 70px;
+    max-height: 200px;
     border: solid;
     border-width: 1px;
     border-color: black;
@@ -375,6 +376,13 @@
     flex-direction: column;
     justify-content: center;
     gap: 10px;
+    overflow: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.find-friend-result-box::-webkit-scrollbar {
+    display: none;
 }
 
 .find-friend-result-box-loader {

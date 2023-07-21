@@ -8,7 +8,7 @@ if (requestTagLink !== null) {
 (() => {
     if (window.location.pathname === '/') {
         document.querySelector("#nav-home").classList.add('bg-info');
-    } else if (window.location.pathname.startsWith('/profile')) {
+    } else if (window.location.pathname.startsWith('/profile') || location.pathname === '/user/friends' || location.pathname === '/user/friend_requests') {
         document.querySelector("#nav-profile").classList.add('bg-info');
     } else if (window.location.pathname.startsWith('/messages')) {
         document.querySelector("#nav-message").classList.add('bg-info');
