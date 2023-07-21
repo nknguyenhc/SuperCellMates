@@ -1,5 +1,5 @@
 #chat-page {
-    height: calc(100vh - 56px);
+    height: calc(100vh - 60px);
     width: 100vw;
     display: flex;
     flex-direction: row;
@@ -9,7 +9,7 @@
 
 #chat-window {
     height: 70vh;
-    width: 70vw;
+    width: fit-content;
     display: flex;
     flex-direction: row;
     gap: 10px;
@@ -18,6 +18,7 @@
 #chat-selector {
     height: 100%;
     width: 24vw;
+    max-width: 360px;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
@@ -89,6 +90,7 @@
 #chat-log {
     height: 100%;
     width: 46vw;
+    max-width: 700px;
     flex-grow: 1;
     border-radius: 10px;
     display: flex;
@@ -308,7 +310,7 @@
     max-width: 100%;
 }
 
-#message-loader {
+.message-loader {
     z-index: 4;
     position: absolute;
     top: 0px;
@@ -355,6 +357,20 @@
     flex-direction: column;
     justify-content: center;
     gap: 10px;
+}
+
+.find-friend-result-box-loader {
+    z-index: 3;
+    background: rgba(0, 0, 0, 0.2);
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    border-radius: 10px;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .search-friend-listing {
@@ -414,6 +430,7 @@
     display: flex;
     flex-direction: row;
     justify-content: end;
+    gap: 15px;
 }
 
 .add-people-form {
@@ -433,7 +450,8 @@
 }
 
 .user-display {
-    height: 30vh;
+    height: fit-content;
+    max-height: min(50vh, 500px);
     overflow: auto;
     border: solid;
     border-width: 1px;

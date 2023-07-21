@@ -232,7 +232,7 @@ function ChatPage() {
             clearInterval(currInterval);
         }
 
-        setIsConnectingWs(false);
+        setIsConnectingWs(true);
         
         loadMessagesUntilFound(chatid, new Date().getTime() / 1000, [], isPrivate)
             .then(result => {
@@ -240,8 +240,6 @@ function ChatPage() {
                 setTimeout(() => {
                     messageLog.current.scrollTo(0, messageLog.current.scrollHeight);
                 }, 300);
-
-                setIsConnectingWs(true);
 
                 const chatSocket = new WebSocket(
                     'ws://'
@@ -576,7 +574,7 @@ function ChatPage() {
                 <div className="file-preview" style={{
                     display: showFilePreview ? '' : 'none',
                 }} onClick={clickExitPreview}>{filePreview}</div>
-                {isConnectingWs && <div id="message-loader">
+                {isConnectingWs && <div className="message-loader">
                     <span className="spinner-grow text-warning" />
                 </div>}
             </div>
@@ -658,8 +656,9 @@ function NewGroupChatForm({ isDisplay, createGroupChatListing }) {
     const [searchFriends, setSearchFriends] = React.useState([]);
     const [addedFriends, dispatchAddedFriends] = React.useReducer(addFriendReducer, []);
     const [error, setError] = React.useState('');
-    const isLoading = React.useRef(false);
-    const setIsLoading = (newValue) => isLoading.current = newValue;
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [isFriendListLoading, setIsFriendListLoading] = React.useState(false);
+    const [isFormSubmitting, setIsFormSubmitting] = React.useState(false);
 
     React.useEffect(() => {
         document.addEventListener('click', event => {
@@ -685,11 +684,22 @@ function NewGroupChatForm({ isDisplay, createGroupChatListing }) {
     }
 
     function searchFriend() {
-        fetch('/user/search_friend?username=' + searchParam)
-            .then(response => response.json())
-            .then(response => {
-                setSearchFriends(response.users.filter(friend => !isAlreadyAdded(friend)));
-            });
+        if (!isLoading) {
+            setIsLoading(true);
+            setIsFriendListLoading(true);
+            fetch('/user/search_friend?username=' + searchParam)
+                .then(response => {
+                    setIsLoading(false);
+                    setIsFriendListLoading(false);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                        return;
+                    }
+                    response.json().then(response => {
+                        setSearchFriends(response.users.filter(friend => !isAlreadyAdded(friend)));
+                    })
+                });
+        }
     }
 
     function submitForm() {
@@ -706,14 +716,16 @@ function NewGroupChatForm({ isDisplay, createGroupChatListing }) {
             setError('');
         }
         
-        if (!isLoading.current) {
+        if (!isLoading) {
             setIsLoading(true);
+            setIsFormSubmitting(true);
             fetch('/messages/create_group_chat', postRequestContent({
                 group_name: groupName,
                 users: addedFriends.map(friend => friend.username)
             }))
                 .then(response => {
                     setIsLoading(false);
+                    setIsFormSubmitting(false);
                     if (response.status !== 200) {
                         triggerErrorMessage();
                     } else {
@@ -772,10 +784,14 @@ function NewGroupChatForm({ isDisplay, createGroupChatListing }) {
                                 </div>
                             ))
                         }
+                        {isFriendListLoading && <div className="loading-icon find-friend-result-box-loader">
+                            <span className="spinner-grow text-warning" />
+                        </div>}
                     </div>
                 </div>
                 <div className="group-chat-submit mt-4 mx-2">
-                    <button className="btn btn-success" onClick={submitForm}>Create</button>
+                    {isFormSubmitting && <span className="spinner-border text-warning" />}
+                    <button className="btn btn-success" onClick={submitForm} disabled={isLoading}>Create</button>
                 </div>
                 {
                     error !== '' && <div className="alert alert-danger mt-3">{error}</div>
@@ -791,15 +807,17 @@ function AddPeopleForm({ chatId, myUsername }) {
     const [showResultBox, setShowResultBox] = React.useState(false);
     const [searchFriends, setSearchFriends] = React.useState([]);
     const [currentMembers, setCurrentMembers] = React.useState([]);
+    const currentAdmins = React.useMemo(
+        () => currentMembers.filter(member => member.role === 'admin' || member.role === 'creator'),
+        [currentMembers]
+    );
     const inputDiv = React.useRef(null);
     const [showAddMessage, setShowAddMessage] = React.useState(false);
     const [currFriend, setCurrFriend] = React.useState('');
     const [addedFriends, dispatchAddedFriends] = React.useReducer(addFriendReducer, []);
-    const [isAdmin, setIsAdmin] = React.useState(false);
-    const [isCreator, setIsCreator] = React.useState(false);
-    const [currentAdmins, setCurrentAdmins] = React.useState([]);
-    const isLoading = React.useRef(false);
-    const setIsLoading = (newValue) => isLoading.current = newValue;
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [isFriendListLoading, setIsFriendListLoading] = React.useState(false);
+    const [myRole, setMyRole] = React.useState('member');
 
     function addFriendReducer(state, friend) {
         return [...state, friend];
@@ -817,58 +835,42 @@ function AddPeopleForm({ chatId, myUsername }) {
         getCurrentMembers();
     }, []);
 
-    React.useEffect(() => {
-        fetch('/messages/is_admin?chatid=' + chatId)
-            .then(response => response.text())
-            .then(response => {
-                if (response === 'yes') {
-                    setIsAdmin(true);
-                    getCurrentAdmins();
-                }
-            })
-            .catch(err => {
-                triggerErrorMessage();
-            });
-        fetch('/messages/is_creator?chatid=' + chatId)
-            .then(response => response.text())
-            .then(response => {
-                if (response === 'yes') {
-                    setIsCreator(true);
-                }
-            })
-            .catch(err => {
-                triggerErrorMessage();
-            });
-    }, []);
-
     function getCurrentMembers() {
-        fetch('/messages/get_members?chatid=' + chatId)
-            .then(response => response.json())
+        return fetch('/messages/get_members?chatid=' + chatId)
             .then(response => {
-                setCurrentMembers(response.users);
+                setIsLoading(false);
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                    return;
+                }
+                return response.json().then(response => {
+                    setCurrentMembers(response.users);
+                    response.users.forEach(user => {
+                        if (user.username === myUsername) {
+                            setMyRole(user.role);
+                        }
+                    })
+                });
             })
-            .catch(err => {
-                triggerErrorMessage();
-            })
-    }
-
-    function getCurrentAdmins() {
-        fetch('/messages/get_admins?chatid=' + chatId)
-            .then(response => response.json())
-            .then(response => {
-                setCurrentAdmins(response.users);
-            })
-            .catch(err => {
-                triggerErrorMessage();
-            });
     }
 
     function searchFriend() {
-        fetch('/user/search_friend?username=' + searchParam)
-            .then(response => response.json())
-            .then(response => {
-                setSearchFriends(response.users);
-            });
+        if (!isLoading) {
+            setIsLoading(true);
+            setIsFriendListLoading(true);
+            fetch('/user/search_friend?username=' + searchParam)
+                .then(response => {
+                    setIsLoading(false);
+                    setIsFriendListLoading(false);
+                    if (response.status !== 200) {
+                        triggerErrorMessage();
+                        return;
+                    }
+                    response.json().then(response => {
+                        setSearchFriends(response.users);
+                    });
+                });
+        }
     }
 
     function popAddMessage(friend) {
@@ -876,85 +878,88 @@ function AddPeopleForm({ chatId, myUsername }) {
         setShowAddMessage(true);
     }
 
-    function addFriend(friend) {
-        if (!isLoading.current) {
+    const addFriend = React.useCallback((friend) => {
+        if (!isLoading) {
             setIsLoading(true);
-            fetch('/messages/add_member', postRequestContent({
+            return fetch('/messages/add_member', postRequestContent({
                 username: currFriend.username,
                 chat_id: chatId,
             }))
                 .then(response => {
-                    setIsLoading(false);
                     if (response.status !== 200) {
                         triggerErrorMessage();
-                    } else {
-                        dispatchAddedFriends(friend);
-                        setShowAddMessage(false);
-                        getCurrentMembers();
+                        return;
                     }
+                    dispatchAddedFriends(friend);
+                    setShowAddMessage(false);
+                    return getCurrentMembers();
                 });
+        } else {
+            return new Promise(resolve => resolve());
         }
-    }
+    }, [isLoading, currFriend]);
 
-    function removeUser(username) {
-        if (!isLoading.current) {
+    const removeUser = React.useCallback((username) => {
+        if (!isLoading) {
             setIsLoading(true);
-            fetch('/messages/remove_user', postRequestContent({
+            return fetch('/messages/remove_user', postRequestContent({
                 chatid: chatId,
                 username: username
             }))
                 .then(response => {
-                    setIsLoading(false);
                     if (response.status !== 200) {
                         triggerErrorMessage();
-                    } else {
-                        getCurrentMembers();
-                        getCurrentAdmins();
+                        return;
                     }
+                    return getCurrentMembers();
                 });
+        } else {
+            return new Promise(resolve => resolve());
         }
-    }
+    }, [isLoading]);
 
-    function addAdmin(username) {
-        if (!isLoading.current) {
+    const addAdmin = React.useCallback((username) => {
+        if (!isLoading) {
             setIsLoading(true);
-            fetch('/messages/add_admin', postRequestContent({
+            return fetch('/messages/add_admin', postRequestContent({
                 chatid: chatId,
                 username: username
             }))
                 .then(response => {
-                    setIsLoading(false);
                     if (response.status !== 200) {
                         triggerErrorMessage();
-                    } else {
-                        getCurrentAdmins();
+                        return;
                     }
+                    return getCurrentMembers();
                 });
+        } else {
+            return new Promise(resolve => resolve());
         }
-    }
+    }, [isLoading]);
 
-    function removeAdmin(username) {
-        if (!isLoading.current) {
+    const removeAdmin = React.useCallback((username) => {
+        if (!isLoading) {
             setIsLoading(true);
-            fetch('/messages/remove_admin', postRequestContent({
+            return fetch('/messages/remove_admin', postRequestContent({
                 chatid: chatId,
                 username: username
             }))
                 .then(response => {
-                    setIsLoading(false);
                     if (response.status !== 200) {
                         triggerErrorMessage();
-                    } else {
-                        getCurrentAdmins();
+                        return;
                     }
+                    return getCurrentMembers();
                 });
+        } else {
+            return new Promise(resolve => resolve());
         }
-    }
+    }, [isLoading]);
 
-    function assignLeader(username, currPassword, setAuthErr) {
-        if (!isLoading.current) {
+    const assignLeader = React.useCallback((username, currPassword, setAuthErr) => {
+        if (!isLoading) {
             setIsLoading(true);
-            fetch('/messages/assign_leader', postRequestContent({
+            return fetch('/messages/assign_leader', postRequestContent({
                 chatid: chatId,
                 username: username,
                 password: currPassword
@@ -963,110 +968,20 @@ function AddPeopleForm({ chatId, myUsername }) {
                     setIsLoading(false);
                     if (response.status !== 200) {
                         triggerErrorMessage();
-                    } else {
-                        response.text().then(text => {
-                            if (text === 'ok') {
-                                setIsCreator(false);
-                            } else {
-                                setAuthErr("Authentication failed");
-                            }
-                        });
+                        return;
                     }
-                });
-        }
-    }
-
-    function UserTable({ users, privilegedUsers, removeAction, addAction, removeBtnText, addBtnText, removeCaption, addCaption }) {
-        return (
-            <div className="user-display mt-3 p-2">
-                <table className="table border-primary">
-                    <thead>
-                        <tr>
-                            <th scope="col" style={{ width: "50%" }}>Username</th>
-                            <th scope="col" style={{ width: "50%" }}>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            users.map(member => (
-                                <TableRow 
-                                    username={member.username} 
-                                    isPrivileged={privilegedUsers.map(admin => admin.username).includes(member.username)} 
-                                    removeAction={removeAction}
-                                    addAction={addAction}
-                                    removeBtnText={removeBtnText}
-                                    addBtnText={addBtnText}
-                                    removeCaption={removeCaption}
-                                    addCaption={addCaption}
-                                />
-                            ))
+                    return response.text().then(text => {
+                        if (text === 'ok') {
+                            setMyRole('admin');
+                        } else {
+                            setAuthErr("Authentication failed");
                         }
-                    </tbody>
-                </table>
-            </div>
-        )
-    }
-
-    function TableRow({ username, isPrivileged, removeAction, addAction, removeBtnText, addBtnText, removeCaption, addCaption }) {
-        const [showMessage, setShowMessage] = React.useState(false);
-        const [showAddMessage, setShowAddMessage] = React.useState(false);
-        const [password, setPassword] = React.useState('');
-        const [authErr, setAuthErr] = React.useState('')
-
-        return (
-            <tr>
-                <td className="table-element">{username}</td>
-                <td className="table-element">
-                    {
-                        username !== myUsername && 
-                        <React.Fragment>
-                            <div className="action-buttons">
-                                <button className="btn btn-danger" onClick={() => {
-                                    setShowMessage(true);
-                                    setShowAddMessage(false);
-                                }}>{removeBtnText}</button>
-                                {
-                                    isPrivileged || <button className="btn btn-primary" onClick={() => {
-                                        setShowAddMessage(true);
-                                        setShowMessage(false);
-                                    }}>{addBtnText}</button>
-                                }
-                            </div>
-                            {
-                                showMessage && <div className="user-action-message">
-                                    <div className="user-action-message-text">{removeCaption}</div>
-                                    <div className="user-action-buttons">
-                                        <button className="btn btn-primary" onClick={() => removeAction(username)}>Confirm</button>
-                                        <button className="btn btn-secondary" onClick={() => setShowMessage(false)}>Cancel</button>
-                                    </div>
-                                </div>
-                            }
-                            {
-                                showAddMessage && <div className="user-action-message">
-                                    <div className="user-action-message-text">{addCaption}</div>
-                                    {
-                                        addAction === assignLeader &&
-                                        <div className="user-action-confirmation">
-                                            <div className="user-action-confirmation-label">Type your password to confirm:</div>
-                                            <input type="password" className="form-control" onChange={event => setPassword(event.target.value)} />
-                                        </div>
-                                    }
-                                    <div className="user-action-buttons">
-                                        <button className="btn btn-primary" onClick={() => addAction === assignLeader ? addAction(username, password, setAuthErr) : addAction(username)}>Confirm</button>
-                                        <button className="btn btn-secondary" onClick={() => setShowAddMessage(false)}>Cancel</button>
-                                    </div>
-                                    {
-                                        authErr !== '' &&
-                                        <div className="alert alert-danger mt-3">{authErr}</div>
-                                    }
-                                </div>
-                            }
-                        </React.Fragment>
-                    }
-                </td>
-            </tr>
-        )
-    }
+                    });
+                });
+        } else {
+            return new Promise(resolve => resolve());
+        }
+    }, [isLoading]);
 
     return (
         <div className="add-people-form p-3">
@@ -1097,6 +1012,9 @@ function AddPeopleForm({ chatId, myUsername }) {
                             </div>
                         ))
                     }
+                    {isFriendListLoading && <div className="loading-icon find-friend-result-box-loader">
+                        <span className="spinner-grow text-warning" />
+                    </div>}
                 </div>
             </div>
             {
@@ -1118,38 +1036,145 @@ function AddPeopleForm({ chatId, myUsername }) {
                     ))
                 }
             </div>
-            {
-                isAdmin && 
-                <React.Fragment>
-                    <div className="remove-user-label mt-3">Members</div>
-                    <UserTable 
-                        users={currentMembers}
-                        privilegedUsers={currentAdmins}
-                        removeAction={removeUser}
-                        addAction={addAdmin}
-                        removeBtnText={"Remove"}
-                        addBtnText={"Assign as admin"}
-                        removeCaption={"Remove this user from this chat?"}
-                        addCaption={"Assign this user as admin?"}
-                    />
-                </React.Fragment>
-            }
-            {
-                isCreator && <React.Fragment>
-                    <div className="remove-user-label mt-3">Admins</div>
-                    <UserTable 
-                        users={currentAdmins}
-                        privilegedUsers={[]}
-                        removeAction={removeAdmin}
-                        addAction={assignLeader}
-                        removeBtnText={"Remove admin"}
-                        addBtnText={"Assign as leader"}
-                        removeCaption={"Remove this user from admin list?"}
-                        addCaption={"Assign this user as leader?\nNote: you will lose privileges as leader"}
-                    />
-                </React.Fragment>
-            }
+            <div className="remove-user-label mt-3">Members</div>
+            <UserTable 
+                users={currentMembers}
+                variant={"members"}
+                removeAction={removeUser}
+                addAction={addAdmin}
+                removeBtnText={"Remove"}
+                addBtnText={"Assign as admin"}
+                removeCaption={"Remove this user from this chat?"}
+                addCaption={"Assign this user as admin?"}
+                myRole={myRole}
+                myUsername={myUsername}
+            />
+            <div className="remove-user-label mt-3">Admins</div>
+            <UserTable 
+                users={currentAdmins}
+                variant={"admins"}
+                removeAction={removeAdmin}
+                addAction={assignLeader}
+                removeBtnText={"Remove admin"}
+                addBtnText={"Assign as leader"}
+                removeCaption={"Remove this user from admin list?"}
+                addCaption={"Assign this user as leader?\nNote: you will lose privileges as leader"}
+                myRole={myRole}
+                myUsername={myUsername}
+            />
+            {isLoading && !isFriendListLoading && <div className="message-loader">
+                <span className="spinner-grow text-warning" />
+            </div>}
         </div>
+    )
+}
+
+
+function UserTable({ users, myUsername, variant, removeAction, addAction, removeBtnText, addBtnText, removeCaption, addCaption, myRole }) {
+    return (
+        <div className="user-display mt-3 p-2">
+            <table className="table border-primary">
+                <thead>
+                    <tr>
+                        <th scope="col" style={{ width: "50%" }}>Username</th>
+                        <th scope="col" style={{ width: "50%" }}>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {
+                        users.map(member => (
+                            <TableRow 
+                                username={member.username} 
+                                profileLink={member.profile_link}
+                                showRemove={
+                                    variant === 'members'
+                                    ? (member.role === 'member' && myRole !== 'member') || (member.role === 'admin' && myRole === 'creator')
+                                    : myRole === 'creator'
+                                }
+                                showAdd={
+                                    variant === 'members'
+                                    ? member.role === 'member' && myRole !== 'member'
+                                    : myRole === 'creator'
+                                }
+                                removeAction={removeAction}
+                                addAction={addAction}
+                                removeBtnText={removeBtnText}
+                                addBtnText={addBtnText}
+                                removeCaption={removeCaption}
+                                addCaption={addCaption}
+                                variant={variant}
+                                myUsername={myUsername}
+                            />
+                        ))
+                    }
+                </tbody>
+            </table>
+        </div>
+    )
+}
+
+
+function TableRow({ username, profileLink, myUsername, showRemove, showAdd, removeAction, addAction, removeBtnText, addBtnText, removeCaption, addCaption, variant }) {
+    const [showRemoveMessage, setShowRemoveMessage] = React.useState(false);
+    const [showAddMessage, setShowAddMessage] = React.useState(false);
+    const [password, setPassword] = React.useState('');
+    const [authErr, setAuthErr] = React.useState('')
+
+    return (
+        <tr>
+            <td className="table-element">
+                <a href={profileLink}>{username}</a>
+            </td>
+            <td className="table-element">
+                {
+                    username !== myUsername && 
+                    <React.Fragment>
+                        <div className="action-buttons">
+                            {showRemove && <button className="btn btn-danger" onClick={() => {
+                                setShowRemoveMessage(true);
+                                setShowAddMessage(false);
+                            }}>{removeBtnText}</button>}
+                            {showAdd && <button className="btn btn-primary" onClick={() => {
+                                setShowAddMessage(true);
+                                setShowRemoveMessage(false);
+                            }}>{addBtnText}</button>}
+                        </div>
+                        {
+                            showRemoveMessage && <div className="user-action-message">
+                                <div className="user-action-message-text">{removeCaption}</div>
+                                <div className="user-action-buttons">
+                                    <button className="btn btn-primary" onClick={() => removeAction(username).then(() => setShowRemoveMessage(false))}>Confirm</button>
+                                    <button className="btn btn-secondary" onClick={() => setShowRemoveMessage(false)}>Cancel</button>
+                                </div>
+                            </div>
+                        }
+                        {
+                            showAddMessage && <div className="user-action-message">
+                                <div className="user-action-message-text">{addCaption}</div>
+                                {
+                                    variant === 'admins' &&
+                                    <div className="user-action-confirmation">
+                                        <div className="user-action-confirmation-label">Type your password to confirm:</div>
+                                        <input type="password" className="form-control" onChange={event => setPassword(event.target.value)} />
+                                    </div>
+                                }
+                                <div className="user-action-buttons">
+                                    <button className="btn btn-primary" onClick={() => {
+                                        (variant === 'admins' ? addAction(username, password, setAuthErr) : addAction(username))
+                                            .then(() => setShowAddMessage(false));
+                                    }}>Confirm</button>
+                                    <button className="btn btn-secondary" onClick={() => setShowAddMessage(false)}>Cancel</button>
+                                </div>
+                                {
+                                    authErr !== '' &&
+                                    <div className="alert alert-danger mt-3">{authErr}</div>
+                                }
+                            </div>
+                        }
+                    </React.Fragment>
+                }
+            </td>
+        </tr>
     )
 }
 
