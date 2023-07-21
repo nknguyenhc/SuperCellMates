@@ -46,6 +46,12 @@
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
     overflow-y: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+#chat-list::-webkit-scrollbar {
+    display: none;
 }
 
 .chat-listing {
@@ -102,6 +108,12 @@
     flex-grow: 1;
     overflow-y: auto;
     scroll-behavior: smooth;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+#chat-messages::-webkit-scrollbar {
+    display: none;
 }
 
 #chat-messages-container {
@@ -324,6 +336,12 @@
     border-radius: 10px;
 }
 
+#add-people-form-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
 .file-upload-buttons {
     width: 30vw;
     display: flex;
@@ -436,6 +454,12 @@
 .add-people-form {
     overflow: auto;
     height: 100%;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.add-people-form::-webkit-scrollbar {
+    display: none;
 }
 
 .add-friend-actions {
@@ -456,6 +480,12 @@
     border: solid;
     border-width: 1px;
     border-radius: 7px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.user-display::-webkit-scrollbar {
+    display: none;
 }
 
 .table-element {

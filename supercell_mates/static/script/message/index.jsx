@@ -577,6 +577,7 @@ function ChatPage() {
                 {isConnectingWs && <div className="message-loader">
                     <span className="spinner-grow text-warning" />
                 </div>}
+                {showAddPeopleForm && <button className="btn-close" id="add-people-form-close-btn" onClick={() => setShowAddPeopleForm(false)} />}
             </div>
         </div>
     )
