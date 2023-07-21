@@ -19,9 +19,25 @@
                     "path": "/post",
                     "trigger": "On first load and when the user scrolls down to the bottom",
                     "purpose": "Load the next posts for display"
+                },
+                {
+                    "path": "/message/get_chat_id",
+                    "trigger": "When the user clicks on reply in chat icon",
+                    "purpose": "To find the chat id between the person and the friend, and redirect the user to the correct URL for the user to reply to the person through private chat"
                 }
             ],
-            "redirects": []
+            "redirects": [
+                {
+                    "path": "/message",
+                    "description": "The chat window between the current user and the creator of the post",
+                    "where": "At reply post button at each post"
+                },
+                {
+                    "path": "/post/display",
+                    "description": "The link to display one individual post",
+                    "where": "At the copy link button at each post"
+                }
+            ]
         }
     ]
 }

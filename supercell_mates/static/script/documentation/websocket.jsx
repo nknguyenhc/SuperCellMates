@@ -17,7 +17,9 @@ function WebSocketDocumentation() {
             <h5 className="documentation-section-header">Web socket endpoints</h5>
             <div className="alert alert-info" role="alert">
                 {
-                    text.split('\n').map(line => <p>{line}</p>)
+                    text.split('\n').map(line => (
+                        <p dangerouslySetInnerHTML={{__html: line.split('`').map((string, i) => i % 2 === 0 ? string : `<a href=${string}>here</a>`).join('')}}></p>
+                    ))
                 }
             </div>
             <div id="websocket-nav">
