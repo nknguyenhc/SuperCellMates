@@ -1,5 +1,5 @@
 #chat-page {
-    height: calc(100vh - 56px);
+    height: calc(100vh - 60px);
     width: 100vw;
     display: flex;
     flex-direction: row;
@@ -9,7 +9,7 @@
 
 #chat-window {
     height: 70vh;
-    width: 70vw;
+    width: fit-content;
     display: flex;
     flex-direction: row;
     gap: 10px;
@@ -18,6 +18,7 @@
 #chat-selector {
     height: 100%;
     width: 24vw;
+    max-width: 360px;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
@@ -45,6 +46,12 @@
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
     overflow-y: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+#chat-list::-webkit-scrollbar {
+    display: none;
 }
 
 .chat-listing {
@@ -89,6 +96,7 @@
 #chat-log {
     height: 100%;
     width: 46vw;
+    max-width: 700px;
     flex-grow: 1;
     border-radius: 10px;
     display: flex;
@@ -100,6 +108,12 @@
     flex-grow: 1;
     overflow-y: auto;
     scroll-behavior: smooth;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+#chat-messages::-webkit-scrollbar {
+    display: none;
 }
 
 #chat-messages-container {
@@ -308,7 +322,7 @@
     max-width: 100%;
 }
 
-#message-loader {
+.message-loader {
     z-index: 4;
     position: absolute;
     top: 0px;
@@ -320,6 +334,12 @@
     align-items: center;
     background-color: rgba(0, 0, 0, 0.2);
     border-radius: 10px;
+}
+
+#add-people-form-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
 }
 
 .file-upload-buttons {
@@ -355,6 +375,20 @@
     flex-direction: column;
     justify-content: center;
     gap: 10px;
+}
+
+.find-friend-result-box-loader {
+    z-index: 3;
+    background: rgba(0, 0, 0, 0.2);
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    border-radius: 10px;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .search-friend-listing {
@@ -414,11 +448,18 @@
     display: flex;
     flex-direction: row;
     justify-content: end;
+    gap: 15px;
 }
 
 .add-people-form {
     overflow: auto;
     height: 100%;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.add-people-form::-webkit-scrollbar {
+    display: none;
 }
 
 .add-friend-actions {
@@ -433,11 +474,18 @@
 }
 
 .user-display {
-    height: 30vh;
+    height: fit-content;
+    max-height: min(50vh, 500px);
     overflow: auto;
     border: solid;
     border-width: 1px;
     border-radius: 7px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.user-display::-webkit-scrollbar {
+    display: none;
 }
 
 .table-element {

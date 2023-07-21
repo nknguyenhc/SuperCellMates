@@ -161,34 +161,34 @@ def add_member(request):
         return HttpResponseBadRequest("user with provided username not found / chat with provided chatid not found")
 
 
-@login_required
-def is_admin(request):
-    """Determine if the current user is admin of a given chat, id given in GET parameters.
-    GET parameters:
-        chatid: the chat id to check
-    """
-    try:
-        chat_id = request.GET["chatid"]
-        return HttpResponse("yes" if GroupChat.objects.get(id=chat_id).admins.filter(username=request.user.username).exists() else "no")
-    except MultiValueDictKeyError:
-        return HttpResponseBadRequest("chatid GET parameter not found")
-    except ObjectDoesNotExist:
-        return HttpResponseBadRequest("chat with provided chatid not found")
+# @login_required
+# def is_admin(request):
+#     """Determine if the current user is admin of a given chat, id given in GET parameters.
+#     GET parameters:
+#         chatid: the chat id to check
+#     """
+#     try:
+#         chat_id = request.GET["chatid"]
+#         return HttpResponse("yes" if GroupChat.objects.get(id=chat_id).admins.filter(username=request.user.username).exists() else "no")
+#     except MultiValueDictKeyError:
+#         return HttpResponseBadRequest("chatid GET parameter not found")
+#     except ObjectDoesNotExist:
+#         return HttpResponseBadRequest("chat with provided chatid not found")
 
 
-@login_required
-def is_creator(request):
-    """Determine if the current user is the creator of a given chat, id given in GET parameters.
-    GET parameters:
-        chatid: the chat id to check
-    """
-    try:
-        chat_id = request.GET["chatid"]
-        return HttpResponse("yes" if GroupChat.objects.get(id=chat_id).creator == request.user else "no")
-    except MultiValueDictKeyError:
-        return HttpResponseBadRequest("chatid GET parameter not found")
-    except ObjectDoesNotExist:
-        return HttpResponseBadRequest("chat with provided chatid not found")
+# @login_required
+# def is_creator(request):
+#     """Determine if the current user is the creator of a given chat, id given in GET parameters.
+#     GET parameters:
+#         chatid: the chat id to check
+#     """
+#     try:
+#         chat_id = request.GET["chatid"]
+#         return HttpResponse("yes" if GroupChat.objects.get(id=chat_id).creator == request.user else "no")
+#     except MultiValueDictKeyError:
+#         return HttpResponseBadRequest("chatid GET parameter not found")
+#     except ObjectDoesNotExist:
+#         return HttpResponseBadRequest("chat with provided chatid not found")
 
 
 @login_required
@@ -223,47 +223,47 @@ def remove_user(request):
         return HttpResponseBadRequest("chat with provided chat id not found / user with provided username not found")
 
 
-@login_required
-def get_admins(request):
-    """Get the members in the chatid provided in the GET request
-    The current user must be a member of the group chat to view the members.
-    The request URL must contain the following GET parameter:
-        chatid: the id of the chat to get the members.
+# @login_required
+# def get_admins(request):
+#     """Get the members in the chatid provided in the GET request
+#     The current user must be a member of the group chat to view the members.
+#     The request URL must contain the following GET parameter:
+#         chatid: the id of the chat to get the members.
     
-    The returned JSON response contains the following fields:
-        members: the list of members of the current chat, with the following fields:
-            name: the name of the member
-            username: the username of the member
-            profile_link: the link to the profile of the member
-            profile_pic_url: the URL to the profile picture of the member
-    """
+#     The returned JSON response contains the following fields:
+#         members: the list of members of the current chat, with the following fields:
+#             name: the name of the member
+#             username: the username of the member
+#             profile_link: the link to the profile of the member
+#             profile_pic_url: the URL to the profile picture of the member
+#     """
 
-    try:
-        chat_id = request.GET["chatid"]
+#     try:
+#         chat_id = request.GET["chatid"]
 
-        chat = GroupChat.objects.get(id=chat_id)
-        if not chat.admins.filter(username=request.user.username).exists():
-            return HttpResponseBadRequest("you are not an admin of this chat")
+#         chat = GroupChat.objects.get(id=chat_id)
+#         if not chat.admins.filter(username=request.user.username).exists():
+#             return HttpResponseBadRequest("you are not an admin of this chat")
         
-        users = list(map(
-            lambda user: {
-                "name": user.user_profile.name,
-                "username": user.username,
-                "profile_link": reverse("user_log:view_profile", args=(user.username,)),
-                "profile_pic_url": reverse("user_profile:get_profile_pic", args=(user.username,)),
-            },
-            list(chat.admins.all())
-        ))
-        users.sort(key=lambda user: user["username"].lower())
+#         users = list(map(
+#             lambda user: {
+#                 "name": user.user_profile.name,
+#                 "username": user.username,
+#                 "profile_link": reverse("user_log:view_profile", args=(user.username,)),
+#                 "profile_pic_url": reverse("user_profile:get_profile_pic", args=(user.username,)),
+#             },
+#             list(chat.admins.all())
+#         ))
+#         users.sort(key=lambda user: user["username"].lower())
         
-        return JsonResponse({
-            "users": users
-        })
+#         return JsonResponse({
+#             "users": users
+#         })
 
-    except MultiValueDictKeyError:
-        return HttpResponseBadRequest("chatid GET parameter not found")
-    except ObjectDoesNotExist:
-        return HttpResponseBadRequest("chat with provided chatid not found")
+#     except MultiValueDictKeyError:
+#         return HttpResponseBadRequest("chatid GET parameter not found")
+#     except ObjectDoesNotExist:
+#         return HttpResponseBadRequest("chat with provided chatid not found")
 
 
 @login_required

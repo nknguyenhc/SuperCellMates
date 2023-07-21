@@ -59,63 +59,6 @@
             }
         },
         {
-            "path": "/messages/is_admin",
-            "description": "Check if the request user is admin of the chat with the given chat id",
-            "getParams": [
-                {
-                    "name": "chatid",
-                    "description": "The chat id to check admin privilege"
-                }
-            ],
-            "postParams": [],
-            "return": "'yes' or 'no'"
-        },
-        {
-            "path": "/messages/is_creator",
-            "description": "Check if the request user is creator (leader) of the chat with the given chat id",
-            "getParams": [
-                {
-                    "name": "chatid",
-                    "description": "The chat id to check leader privilege"
-                }
-            ],
-            "postParams": [],
-            "return": "'yes' or 'no'"
-        },
-        {
-            "path": "/messages/get_admins",
-            "description": "Get the list of admin of a given group chat. You must be admin of the group chat to access this view.",
-            "getParams": [
-                {
-                    "name": "chatid",
-                    "description": "The chat id of the group chat to obtain list of admin from"
-                }
-            ],
-            "postParams": [],
-            "return": {
-                "users": [
-                    {
-                        "name": "<name of admin 1>",
-                        "username": "<username of admin 1>",
-                        "profile_link": "<URL to profile page of admin 1>",
-                        "profile_pic_url": "<URL to profile picture of admin 1>"
-                    },
-                    {
-                        "name": "<name of admin 2>",
-                        "username": "<username of admin 2>",
-                        "profile_link": "<URL to profile page of admin 2>",
-                        "profile_pic_url": "<URL to profile picture of admin 2>"
-                    },
-                    {
-                        "name": "<name of admin 3>",
-                        "username": "<username of admin 3>",
-                        "profile_link": "<URL to profile page of admin 3>",
-                        "profile_pic_url": "<URL to profile picture of admin 3>"
-                    }
-                ]
-            }
-        },
-        {
             "path": "/messages/add_member",
             "description": "Add a friend into the group chat with the given id. The request user must be in the chat, and the target user must be friend with the request user.",
             "getParams": [],
