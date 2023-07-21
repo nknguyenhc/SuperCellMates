@@ -28,6 +28,11 @@
                     "name": "tag_count_limit",
                     "type": "IntegerField",
                     "description": "The maximum number of tags that this user can have"
+                },
+                {
+                    "name": "remove_tag_timestamp",
+                    "type": "FloatField",
+                    "description": "The timestamp of the last time the user removed a tag, 0 if the user has never removed a tag"
                 }
             ]
         }

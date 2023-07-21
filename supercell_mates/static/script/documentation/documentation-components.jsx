@@ -41,7 +41,7 @@ function Backend({ docBody }) {
             <div className="backend-documentation-section">
                 <div className="backend-documentation-section-header">Return</div>
                 <div className="backend-documentation-section-body">
-                    <textarea rows={5} value={JSON.stringify(docBody.return, '', 4)} className="form-control backend-documentation-return-value" />
+                    <textarea rows={5} value={typeof(docBody.return) === 'object' ? JSON.stringify(docBody.return, '', 4) : docBody.return} className="form-control backend-documentation-return-value" />
                 </div>
             </div>
         </div>

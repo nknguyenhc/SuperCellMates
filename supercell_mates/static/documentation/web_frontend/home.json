@@ -3,7 +3,7 @@
     "views": [
         {
             "path": "/",
-            "description": "Home page of this website. User can post, and (in a future implementation) scroll through others' posts.",
+            "description": "Home page of this website. User can post, and scroll through others' posts.",
             "APIs": [
                 {
                     "path": "/profile/user_tags",
@@ -14,6 +14,11 @@
                     "path": "/post/create_post",
                     "trigger": "When the user press the button to create a new post",
                     "purpose": "Create a new post and save it in the database"
+                },
+                {
+                    "path": "/post",
+                    "trigger": "On first load and when the user scrolls down to the bottom",
+                    "purpose": "Load the next posts for display"
                 }
             ],
             "redirects": []

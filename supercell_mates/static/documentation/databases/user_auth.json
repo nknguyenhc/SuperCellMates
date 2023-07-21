@@ -33,6 +33,11 @@
                     "name": "description",
                     "type": "TextField",
                     "description": "The description of what the tag is about"
+                },
+                {
+                    "name": "requester",
+                    "type": "ForeignKey(UserProfile)",
+                    "description": "The user that requested this tag, available only if the person opts to attach this tag to him/herself upon approval"
                 }
             ]
         },
@@ -48,6 +53,16 @@
                     "name": "image",
                     "type": "ImageField",
                     "description": "The representative image of the tag"
+                }
+            ]
+        },
+        {
+            "name": "Admin Application",
+            "fields": [
+                {
+                    "name": "user",
+                    "type": "ForeignKey(UserAuth)",
+                    "description": "The person that made this admin application"
                 }
             ]
         }

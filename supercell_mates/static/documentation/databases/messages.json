@@ -37,12 +37,27 @@
                 {
                     "name": "users",
                     "type": "ManyToManyField(UserAuth)",
-                    "description": "The group users that belong to this chat"
+                    "description": "The list of users that belong to this chat"
                 },
                 {
                     "name": "rep_img",
                     "type": "ImageField",
                     "description": "The representative image of the chat"
+                },
+                {
+                    "name": "name",
+                    "type": "CharField",
+                    "description": "The name of the group chat"
+                },
+                {
+                    "name": "admins",
+                    "type": "ManyToManyField(UserAuth)",
+                    "description": "The list of admins of this chat"
+                },
+                {
+                    "name": "creator",
+                    "type": "ForeignKey(UserAuth)",
+                    "description": "The user that created this chat / leader of this chat"
                 }
             ]
         },
@@ -73,6 +88,41 @@
                     "name": "user",
                     "type": "ForeignKey(UserAuth)",
                     "description": "The user that sent out this message"
+                }
+            ]
+        },
+        {
+            "name": "Reply Post Message",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "CharField",
+                    "description": "The id of the message"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "DateTimeField",
+                    "description": "The time that the message was created"
+                },
+                {
+                    "name": "text",
+                    "type": "TextField",
+                    "description": "The text content of the message"
+                },
+                {
+                    "name": "chat",
+                    "type": "ForeignKey(PrivateChat)",
+                    "description": "The private chat that this message belongs to"
+                },
+                {
+                    "name": "user",
+                    "type": "ForeignKey(UserAuth)",
+                    "description": "The user that sent out this message"
+                },
+                {
+                    "name": "post",
+                    "type": "ForeignKey(Post)",
+                    "description": "The post that this reply post message is referencing"
                 }
             ]
         },

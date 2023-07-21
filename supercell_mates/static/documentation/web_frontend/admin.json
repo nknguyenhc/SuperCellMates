@@ -24,6 +24,16 @@
                     "path": "/new_tag_admin",
                     "trigger": "When the admin manually creates a tag",
                     "purpose": "To add a tag bypassing the requirement of a tag request. Admins should refrain from creating tags using this method as it does not (yet) support image attachment to the new tag"
+                },
+                {
+                    "path": "/obtain_tags",
+                    "trigger": "When the admin loads the change tag icon page",
+                    "purpose": "To load all the currently available tags for the admin to select from and change tag icon"
+                },
+                {
+                    "path": "/change_tag_icon",
+                    "trigger": "When the admin clicks on confirming changing tag icon",
+                    "purpose": "To change icon of a tag or add icon to a tag"
                 }
             ],
             "redirects": []
