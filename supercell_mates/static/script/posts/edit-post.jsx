@@ -13,10 +13,11 @@ function EditPost(props) {
     const [allImgsLoaded, setAllImgsLoaded] = React.useState(false);
     const postId = props.postId;
     const [deleteMessage, setDeleteMessage] = React.useState('');
-    const isLoading = React.useRef(true);
-    const setIsLoading = (newValue) => isLoading.current = newValue;
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [isEditSending, setIsEditSending] = React.useState(false);
 
     React.useEffect(() => {
+        displayLoader();
         fetch('/post/post/' + postId)
             .then(response => {
                 if (response.status !== 200) {
@@ -45,6 +46,7 @@ function EditPost(props) {
                             if (response.images.length === 0) {
                                 setAllImgsLoaded(true);
                                 setIsLoading(false);
+                                hideLoader();
                             }
                         });
                 }
@@ -69,6 +71,7 @@ function EditPost(props) {
                         if (imgs.length === numOfImgsToLoad - 1) {
                             setAllImgsLoaded(true);
                             setIsLoading(false);
+                            hideLoader();
                         }
                     });
             });
@@ -136,8 +139,10 @@ function EditPost(props) {
                 break;
         }
 
-        if (!isLoading.current) {
+        if (!isLoading) {
             setIsLoading(true);
+            displayLoader();
+            setIsEditSending(true);
             fetch('/post/post/edit/' + postId, postRequestContent({
                 title: title,
                 content: content,
@@ -146,6 +151,8 @@ function EditPost(props) {
             }))
                 .then(response => {
                     setIsLoading(false);
+                    hideLoader();
+                    setIsEditSending(false);
                     if (response.status !== 200) {
                         triggerErrorMessage();
                     } else {
@@ -170,13 +177,15 @@ function EditPost(props) {
     }
 
     function deletePost() {
-        if (!isLoading.current) {
+        if (!isLoading) {
             setIsLoading(true);
+            displayLoader();
             fetch('/post/delete', postRequestContent({
                 post_id: postId
             }))
                 .then(response => {
                     setIsLoading(false);
+                    hideLoader();
                     if (response.status !== 200) {
                         triggerErrorMessage();
                     } else {
@@ -189,15 +198,16 @@ function EditPost(props) {
 
     return (
         <React.Fragment>
-            <div className="mb-3">
-                <label htmlFor="post-title" className="form-label">Title</label>
+            <button type="button" id="edit-close-btn" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => document.querySelector("#edit-post").style.display = 'none'} />
+            <div className="mb-3" id="edit-first-div">
+                <label htmlFor="post-title" className="form-label">Title <strong className="asterisk">*</strong></label>
                 <input type="text" id="post-title" className="form-control" value={title} autoComplete="off" ref={titleInput} onChange={event => {
                     setTitle(event.target.value.slice(0, 100));
                 }} />
                 <div className="invalid-feedback">Please enter a title</div>
             </div>
             <div className="mb-3">
-                <label htmlFor="post-content" className="form-label">Content</label>
+                <label htmlFor="post-content" className="form-label">Content <strong className="asterisk">*</strong></label>
                 <textarea id="post-content" rows="6" className="form-control" value={content} ref={contentInput} onChange={event => {
                     setContent(event.target.value.slice(0, 1950));
                 }}></textarea>
@@ -206,6 +216,7 @@ function EditPost(props) {
             <div className="mb-3 visibility-section">
                 <div className="visibility-indicator">
                     <img src="/static/media/eye-icon.png" />
+                    <strong className="asterisk">*</strong>
                 </div>
                 <div class="btn-group">
                     <button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -264,7 +275,8 @@ function EditPost(props) {
                     <button type="button" className="btn btn-danger btn-sm" onClick={() => popDeleteMessage()}>Delete Post</button>
                 </div>
                 <div id="post-submit-button">
-                    <button type="button" className="btn btn-primary" onClick={submitPost}>Edit Post</button>
+                    <span className="spinner-border text-warning" role="status" style={{display: isEditSending ? 'block' : 'none'}} />
+                    <button type="button" className="btn btn-primary" onClick={submitPost} disabled={isEditSending}>Edit Post</button>
                 </div>
             </div>
             {

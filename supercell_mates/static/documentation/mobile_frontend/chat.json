@@ -1,0 +1,120 @@
+{
+    "name": "chat",
+    "views": [
+        {
+            "route": "Private chat page",
+            "description": "Display the user's private chat rooms.",
+            "APIs": [
+                {
+                    "path": "/messages/get_private_chats",
+                    "trigger": "User navigates to chat page, or presses \"Private\" button in group chat page.",
+                    "purpose": "To display a list of buttons that open private chats accessible to the user. Each chat room will have the same icon and name as the user's friend."
+                }
+            ],
+            "navigations": ["Chat room page", "Group chat page"]
+        },
+        {
+            "route": "Group chat page",
+            "description": "Display the user's group chat rooms.",
+            "APIs": [
+                {
+                    "path": "/messages/get_group_chats",
+                    "trigger": "User presses \"Group\" button in private chat page.",
+                    "purpose": "To display a list of buttons that open group chats accessible to the user. Each chat room will have a customisable representative image and name."
+                }
+            ],
+            "navigations": ["Chat room page", "Private chat page", "Create group page"]
+        },
+        {
+            "route": "Create group page",
+            "description": "Create a new group chat.",
+            "APIs": [
+                {
+                    "path": "/messages/create_group_chat",
+                    "trigger": "User presses \"New group\" button in group chat page.",
+                    "purpose": "To allow users to create a new group chat with customisable name and invite friends, to facilitate interest-sharing."
+                },
+                {
+                    "path": "/user/search_friend",
+                    "trigger": "User presses search button in group chat page, and enters a search string",
+                    "purpose": "To allow users to search other users among their friends, and invite to the group chat upon creation"
+                }
+            ],
+            "navigations": []
+        },
+        {
+            "route": "Chat room page",
+            "description": "Private and group chat rooms.",
+            "APIs": [
+                {
+                    "path": "/ws/message/<str:room_name>/",
+                    "trigger": "User enters a private chat room",
+                    "purpose": "To initiate websocket connection to the server, for user to engage in instant messaging with another user"
+                },
+                {
+                    "path": "ws/group/<str:room_name>/",
+                    "trigger": "User enters a group chat room",
+                    "purpose": "To initiate websocket connection to the server, for user to engage in instant messaging with group members"
+                },
+                {
+                    "path": "/messages/get_private_messages/<str:chat_id>",
+                    "trigger": "User enters a private chat room, or, inside one, scrolls down to load more",
+                    "purpose": "To retrieve and display old messages in the private chat, for users to see and interact with"
+                },
+                {
+                    "path": "/messages/get_group_messages/<str:chat_id>",
+                    "trigger": "User enters a group chat room, or, inside one, scrolls down to load more",
+                    "purpose": "To retrieve and display old messages in the group chat, for users to see and interact with"
+                },
+                {
+                    "path": "/messages/image/<str:message_id>",
+                    "trigger": "User loads old messages in a chat room",
+                    "purpose": "To retrieve and display images and files previously sent in the private or group chat."
+                },
+                {
+                    "path": "/messages/upload_file",
+                    "trigger": "User presses attachment button and selects either \"send file\" or \"send image\"",
+                    "purpose": "To allow users to upload files and images, and send to other users in the chat room."
+                }
+            ],
+            "navigations": ["Group chat settings page"]
+        },
+        {
+            "route": "Group chat settings page",
+            "description": "Functions regarding user, admin and other group settings",
+            "APIs": [
+                {
+                    "path": "/messages/get_members",
+                    "trigger": "User presses the top-right settings icon in group chat, and enters group chat settings page",
+                    "purpose": "To retrieve a list of user information in the group along with their corresponding roles, and display the users in the group chat settings page"
+                },
+                {
+                    "path": "/messages/add_member",
+                    "trigger": "User presses the add icon at the tail of the user icons, search among friends, and then select a friend",
+                    "purpose": "To allow users to invite friends who are not in the group chat, to become new members of the chat"
+                },
+                {
+                    "path": "/messages/remove_user",
+                    "trigger": "Admin selects \"Remove user\" button and presses remove button on a member's icon.",
+                    "purpose": "To allow group admins and creator to remove members from the group chat, if they would like to."
+                },
+                {
+                    "path": "/messages/add_admin",
+                    "trigger": "Creator selects \"Assign admin\" button and presses add button on a member's icon.",
+                    "purpose": "To allow group creator to assign members as group admins, and grant them admin privileges to manage the chat together."
+                },
+                {
+                    "path": "/messages/remove_admin",
+                    "trigger": "Creator selects \"Remove admin\" button and presses remove button on an admin's icon.",
+                    "purpose": "To allow group creator to retract admin privileges from a previously assigned admin, if they would like to."
+                },
+                {
+                    "path": "/messages/assign_leader",
+                    "trigger": "Creator selects \"Assign new leader\" button and presses star button on an admin's icon.",
+                    "purpose": "To allow group creator to transfer creator privileges to another admin, and become an admin of the group."
+                }
+            ],
+            "navigations": []
+        }
+    ]
+}

@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
   auto_route: ^7.1.0
 
   requests: ^4.7.0
@@ -59,6 +60,8 @@ dependencies:
   flutter_chat_types: ^3.6.1
 
   intl: ^0.18.1
+
+  fluttericon: ^2.0.0
 
 
   # The following adds the Cupertino Icons font to your application.

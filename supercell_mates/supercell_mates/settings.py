@@ -137,6 +137,7 @@ AUTHENTICATION_BACKENDS = (
 
 AUTH_USER_MODEL = 'user_auth.UserAuth'
 
+K = os.environ.get('K')
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/

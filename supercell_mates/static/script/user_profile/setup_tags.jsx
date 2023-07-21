@@ -11,6 +11,9 @@ function SetupTags() {
     const [searchDone, setSearchDone] = React.useState(false);
     const isLoading = React.useRef(false);
     const setIsLoading = (newValue) => isLoading.current = newValue;
+    const [canRemoveTag, setCanRemoveTag] = React.useState(false);
+    const [showRemoveAlert, setShowRemoveAlert] = React.useState(false);
+    const [tagToBeRemoved, setTagToBeRemoved] = React.useState('');
 
     React.useEffect(() => {
         fetch('/profile/obtain_tags')
@@ -25,6 +28,17 @@ function SetupTags() {
                         });
                 }
             });
+        
+        fetch('/profile/can_remove_tag')
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                    return;
+                }
+                response.text().then(text => {
+                    setCanRemoveTag(text === 'true');
+                })
+            })
     }, []);
 
     React.useEffect(() => {
@@ -87,6 +101,21 @@ function SetupTags() {
         setToBeSubmitted(toBeSubmitted.filter((_, i) => i !== index));
     }
 
+    function removeTag() {
+        fetch('/profile/remove_tag', postRequestContent({
+            tag: tagToBeRemoved.name
+        })).then(response => {
+            if (response.status !== 200) {
+                triggerErrorMessage();
+                return;
+            }
+            popSetupMessage('Tag removed');
+            setTags(tags.filter(tag => tag !== tagToBeRemoved));
+            setShowRemoveAlert(false);
+            setCanRemoveTag(false);
+        })
+    }
+
     return (
         <React.Fragment>
             <div id="add-tag-page">
@@ -94,9 +123,16 @@ function SetupTags() {
                     <div className="add-tag-section-title py-3">Your Current Tags</div>
                     <div className="add-tag-section-body ps-2">
                         {tags.map(tag => (
-                            <div className="tag-button btn btn-outline-info">
-                                <img src={tag.icon} />
-                                <div>{tag.name}</div>
+                            <div className="old-tag-div">
+                                <div className="tag-button btn btn-outline-info">
+                                    <img src={tag.icon} />
+                                    <div>{tag.name}</div>
+                                </div>
+                                {canRemoveTag && <button type="button" className="btn-close" aria-label="Close" onClick={() => {
+                                    setTagToBeRemoved(tag);
+                                    setShowRemoveAlert(true);
+                                    setShowAlert(false);
+                                }} />}
                             </div>
                         ))}
                     </div>
@@ -110,7 +146,7 @@ function SetupTags() {
                                     <img src={tag.icon} />
                                     <div>{tag.name}</div>
                                 </div>
-                                <button type="button" class="btn-close" aria-label="Close" onClick={() => removeNewTag(index)}></button>
+                                <button type="button" class="btn-close" aria-label="Close" onClick={() => removeNewTag(index)} />
                             </div>
                         ))}
                     </div>
@@ -137,15 +173,25 @@ function SetupTags() {
                 </div>
             </div>
             <div className="ps-4 pt-3">
-                <button class="btn btn-success" value="Add Tags" onClick={() => setShowAlert(true)}>Update Tags</button>
+                <button class="btn btn-success" value="Add Tags" onClick={() => {
+                    setShowAlert(true);
+                    setShowRemoveAlert(false);
+                }}>Update Tags</button>
             </div>
-            <div className="alert alert-info mt-3" role="alert" style={{display: showAlert ? '' : 'none'}}>
+            {showAlert && <div className="ms-4 action-alert alert alert-info mt-3" role="alert">
                 <div>Your account can only have 4 tags, and you will not be able to change tags for 1 week if you delete one of your tags. Are you sure to proceed?</div>
                 <div className="setup-tags-confirmation-buttons mt-3">
                     <button className="btn btn-primary" onClick={submitTags}>Yes</button>
                     <button className="btn btn-secondary" onClick={() => setShowAlert(false)}>No</button>
                 </div>
-            </div>
+            </div>}
+            {showRemoveAlert && <div className="ms-4 action-alert alert alert-danger mt-3" role="alert">
+                <div>You are attempting to delete tag: {tagToBeRemoved.name}. You will not be able to delete another tag within the next one week upon deleting a tag. Are you sure to proceed?</div>
+                <div className="setup-tags-confirmation-buttons mt-3">
+                    <button className="btn btn-primary" onClick={removeTag}>Yes</button>
+                    <button className="btn btn-secondary" onClick={() => setShowRemoveAlert(false)}>No</button>
+                </div>
+            </div>}
             <button ref={addTagMessageButton} style={{display: 'none'}} id="add-tag-message-button" type="button" data-bs-toggle="modal" data-bs-target="#add-tag-message"></button>
             <div className="modal fade" id="add-tag-message" tabindex="-1" aria-labelledby="add-tag-label" aria-hidden="true">
                 <div className="modal-dialog">
@@ -154,8 +200,7 @@ function SetupTags() {
                             <h1 className="modal-title fs-5" id="add-tag-label">Message</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div className="modal-body">You have reached your maximum tag count limit.
-                        </div>
+                        <div className="modal-body">You have reached your maximum tag count limit.</div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>

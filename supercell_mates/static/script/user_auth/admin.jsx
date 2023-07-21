@@ -179,6 +179,8 @@ function ChangeTagIcon() {
     const [imgFile, setImgFile] = React.useState(null);
     const changeIconAdminButton = React.useRef(null);
     const [isError, setIsError] = React.useState(false);
+    const [isBg, setIsBg] = React.useState(false);
+    const [scrollY, setScrollY] = React.useState(0);
 
     React.useEffect(() => {
         refreshTags();
@@ -220,11 +222,16 @@ function ChangeTagIcon() {
                     <div className={"tag-button btn " + (i === selected ? "btn-info" : "btn-outline-info")} onClick={() => {
                         setSelected(i);
                         setImgFile(null);
+                        setScrollY(window.scrollY);
                     }}>{tag.name}</div>
                 ))}
             </div>
-            {selected !== -1 && <div id="icon-display-window" className="border border-info">
+            {selected !== -1 && <div id="icon-display-window" className={"border border-info" + (isBg ? " bg-info" : "")} style={{marginTop: `${scrollY}px`}}>
                 <img src={tags[selected].icon} />
+                <div className="form-check">
+                    <input type="checkbox" id="check-bg" className="form-check-input" onChange={event => setIsBg(event.target.checked)} />
+                    <label htmlFor="check-bg" className="form-check-label">Test background</label>
+                </div>
                 <div>
                     New Icon:
                     <input ref={fileInput} type="file" className="img-input" accept="image/*" onChange={event => {

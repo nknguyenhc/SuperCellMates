@@ -37,39 +37,26 @@
                     {
                         "name": "<name of user 1>",
                         "username": "<username of user 1>",
+                        "role": "<role of user 1, either \"creator\", \"admin\" or \"member\">",
                         "profile_link": "<URL to profile of user 1>",
                         "profile_pic_url": "<URL to the profile picture of user 1>"
                     },
                     {
                         "name": "<name of user 2>",
                         "username": "<username of user 2>",
+                        "role": "<role of user 1, either \"creator\", \"admin\" or \"member\">",
                         "profile_link": "<URL to profile of user 2>",
                         "profile_pic_url": "<URL to the profile picture of user 2>"
                     },
                     {
                         "name": "<name of user 3>",
                         "username": "<username of user 3>",
+                        "role": "<role of user 1, either \"creator\", \"admin\" or \"member\">",
                         "profile_link": "<URL to profile of user 3>",
                         "profile_pic_url": "<URL to the profile picture of user 3>"
                     }
                 ]
             }
-        },
-        {
-            "path": "/messages/add_member",
-            "description": "Add a friend into the group chat with the given id. The request user must be in the chat, and the target user must be friend with the request user.",
-            "getParams": [],
-            "postParams": [
-                {
-                    "name": "username",
-                    "description": "The username of the user to be added"
-                },
-                {
-                    "name": "chat_id",
-                    "description": "The id of the chat to add the user to"
-                }
-            ],
-            "return": "<response status 200, or 4xx if the request is invalid>"
         },
         {
             "path": "/messages/is_admin",
@@ -94,18 +81,6 @@
             ],
             "postParams": [],
             "return": "'yes' or 'no'"
-        },
-        {
-            "path": "/messages/remove_user",
-            "description": "Remove a user from the group chat. You must have admin privilege to perform this action. If the target user is admin, the request user must be creator (leader) of the group chat.",
-            "getParams": [],
-            "postParams": [
-                {
-                    "name": "username",
-                    "description": "The username of the target user to boot"
-                }
-            ],
-            "return": "<response status 200, or 4xx if the request is invalid>"
         },
         {
             "path": "/messages/get_admins",
@@ -139,6 +114,34 @@
                     }
                 ]
             }
+        },
+        {
+            "path": "/messages/add_member",
+            "description": "Add a friend into the group chat with the given id. The request user must be in the chat, and the target user must be friend with the request user.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "username",
+                    "description": "The username of the user to be added"
+                },
+                {
+                    "name": "chat_id",
+                    "description": "The id of the chat to add the user to"
+                }
+            ],
+            "return": "<response status 200, or 4xx if the request is invalid>"
+        },
+        {
+            "path": "/messages/remove_user",
+            "description": "Remove a user from the group chat. You must have admin privilege to perform this action. If the target user is admin, the request user must be creator (leader) of the group chat.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "username",
+                    "description": "The username of the target user to boot"
+                }
+            ],
+            "return": "<response status 200, or 4xx if the request is invalid>"
         },
         {
             "path": "/messages/add_admin",

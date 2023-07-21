@@ -1,4 +1,5 @@
 import "dart:typed_data";
+import "dart:math";
 import "package:auto_route/auto_route.dart";
 import "package:flutter/material.dart";
 
@@ -7,27 +8,29 @@ import "package:supercellmates/http_requests/make_requests.dart";
 import "package:supercellmates/router/router.gr.dart";
 import "package:supercellmates/http_requests/endpoints.dart";
 import "package:supercellmates/features/dialogs.dart";
+import "package:fluttericon/font_awesome5_icons.dart";
 import 'package:intl/intl.dart';
 
 class PostListView extends StatefulWidget {
   const PostListView({
     Key? key,
     required this.postList,
-    required this.isInProfile,
-    required this.isMyPost,
+    required this.username,
+    required this.isInSomeProfile,
     required this.updateCallBack,
+    required this.refreshable, // if true, RefreshIndicator<Listview> will be returned
+    // if refreshable, scrollAtTopEvent should be Future<void>
     required this.scrollAtTopEvent,
     required this.scrollAtBottomEvent,
   }) : super(key: key);
 
   final dynamic postList;
+  final String username;
   // if the posts are displayed in someone's profile,
-  // the user icon should not route to user's profile page
-  final bool isInProfile;
-  // if the posts belong to the user themselves,
-  // the user should be able to edit the post
-  final bool isMyPost;
+  // prerssing the profile should not route to profile page
+  final bool isInSomeProfile;
   final dynamic updateCallBack;
+  final bool refreshable;
   final dynamic scrollAtTopEvent;
   final dynamic scrollAtBottomEvent;
 
@@ -41,6 +44,8 @@ class PostListViewState extends State<PostListView> {
   List<Uint8List> profileImages = [];
   List<List<Uint8List>?> postImagesRaw = [];
   List<dynamic> timePosted = [];
+  List<bool> seeMore = [];
+  final int seeMoreThreshold = 500;
 
   final _controller = ScrollController();
 
@@ -52,6 +57,7 @@ class PostListViewState extends State<PostListView> {
     profileImages = List.filled(count, Uint8List.fromList([]), growable: true);
     postImagesRaw = List.filled(count, null, growable: true);
     timePosted = List.filled(count, null, growable: true);
+    seeMore = List.filled(count, false, growable: true);
     for (int i = 0; i < count; i++) {
       loadImages(i);
       loadTime(i);
@@ -59,9 +65,7 @@ class PostListViewState extends State<PostListView> {
     _controller.addListener(() {
       if (_controller.position.atEdge) {
         bool isTop = _controller.position.pixels == 0;
-        if (isTop) {
-          widget.scrollAtTopEvent();
-        } else {
+        if (!isTop) {
           widget.scrollAtBottomEvent();
         }
       }
@@ -82,6 +86,7 @@ class PostListViewState extends State<PostListView> {
       profileImages.add(Uint8List.fromList([]));
       postImagesRaw.add(null);
       timePosted.add(null);
+      seeMore.add(false);
       loadImages(i);
       loadTime(i);
     }
@@ -108,8 +113,48 @@ class PostListViewState extends State<PostListView> {
         (widget.postList[index]["time_posted"] * 1000000).toInt());
   }
 
+  String parseVisibility(bool public, bool friend, bool tag) {
+    if (public) {
+      return "public";
+    } else if (friend && tag) {
+      return "friends with same tag";
+    } else if (friend) {
+      return "friends";
+    } else {
+      return "people with same tag";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    TextButton seeMoreSection(int index) {
+      return TextButton(
+          onPressed: () => setState(() => seeMore[index] = true),
+          child: Row(
+            children: [
+              Transform.rotate(
+                angle: pi / 2,
+                child: Icon(Icons.arrow_right),
+              ),
+              Text("See more")
+            ],
+          ));
+    }
+
+    TextButton seeLessSection(int index) {
+      return TextButton(
+          onPressed: () => setState(() => seeMore[index] = false),
+          child: Row(
+            children: [
+              Transform.rotate(
+                angle: pi / 2 * 3,
+                child: Icon(Icons.arrow_right),
+              ),
+              Text("See less")
+            ],
+          ));
+    }
+
     ListView list = ListView.builder(
         controller: _controller,
         itemCount: count,
@@ -119,12 +164,18 @@ class PostListViewState extends State<PostListView> {
           String username = widget.postList[index]["creator"]["username"];
           String title = widget.postList[index]["title"];
           String content = widget.postList[index]["content"];
+          String visibility = parseVisibility(
+              widget.postList[index]["public_visible"],
+              widget.postList[index]["friend_visible"],
+              widget.postList[index]["tag_visible"]);
           List<Uint8List>? images =
               dataLoaded[index] ? postImagesRaw[index] : null;
           return Column(children: [
             // post creator info header
             TextButton(
-              onPressed: widget.isInProfile
+              onPressed: widget.isInSomeProfile ||
+                      widget.username ==
+                          widget.postList[index]["creator"]["username"]
                   ? () {}
                   : () async {
                       FocusManager.instance.primaryFocus?.unfocus();
@@ -162,7 +213,7 @@ class PostListViewState extends State<PostListView> {
                     ),
                     SizedBox(
                       width: MediaQuery.of(context).size.width - 85,
-                      child: Text(username,
+                      child: Text("@$username",
                           style: const TextStyle(
                             color: Colors.blueGrey,
                             fontSize: 12,
@@ -197,27 +248,53 @@ class PostListViewState extends State<PostListView> {
                           ],
                         ),
                         const Padding(padding: EdgeInsets.only(top: 5)),
-                        Row(
+                        // content
+                        Column(
                           children: [
-                            const Padding(padding: EdgeInsets.only(left: 10)),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width - 40,
-                              child: Text(
-                                content,
-                                style: const TextStyle(fontSize: 14),
-                              ),
-                            )
+                            Row(
+                              children: [
+                                const Padding(
+                                    padding: EdgeInsets.only(left: 10)),
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width - 40,
+                                  child: Text(
+                                    content.length > seeMoreThreshold &&
+                                            !seeMore[index]
+                                        ? content.substring(0, seeMoreThreshold)
+                                        : content,
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                )
+                              ],
+                            ),
+                            content.length > seeMoreThreshold && !seeMore[index]
+                                ? SizedBox(
+                                    height: 40,
+                                    child: seeMoreSection(index),
+                                  )
+                                : content.length > seeMoreThreshold &&
+                                        seeMore[index]
+                                    ? SizedBox(
+                                        height: 40,
+                                        child: seeLessSection(index),
+                                      )
+                                    : Container()
                           ],
                         ),
-                        const Padding(padding: EdgeInsets.only(top: 10)),
+                        content.length > 200
+                            ? Container()
+                            : const Padding(padding: EdgeInsets.only(top: 10)),
                         // images
                         dataLoaded[index]
                             ? images!.isEmpty
                                 ? Container()
                                 : Column(
                                     children: [
-                                      const Padding(
-                                          padding: EdgeInsets.only(top: 10)),
+                                      content.length > 200
+                                          ? Container()
+                                          : const Padding(
+                                              padding:
+                                                  EdgeInsets.only(top: 10)),
                                       images.length < 5
                                           ? SizedBox(
                                               width: MediaQuery.of(context)
@@ -364,7 +441,9 @@ class PostListViewState extends State<PostListView> {
                       style: const TextStyle(color: Colors.pink),
                     ),
                   ),
-                  widget.isMyPost && dataLoaded[index]
+                  dataLoaded[index] &&
+                          widget.username ==
+                              widget.postList[index]["creator"]["username"]
                       ? SizedBox(
                           width: MediaQuery.of(context).size.width,
                           child: Row(
@@ -431,10 +510,10 @@ class PostListViewState extends State<PostListView> {
                       : Container()
                 ])),
 
-            // post time
+            // post time & visibility
             SizedBox(
               width: MediaQuery.of(context).size.width,
-              height: 25,
+              height: 20,
               child: Row(
                 children: [
                   const Padding(padding: EdgeInsets.only(left: 30)),
@@ -442,6 +521,25 @@ class PostListViewState extends State<PostListView> {
                     DateFormat('yyyy-MM-dd HH:mm').format(timePosted[index]),
                     style: const TextStyle(color: Colors.blueGrey),
                   ),
+                  const Padding(padding: EdgeInsets.only(left: 10)),
+                  Tooltip(
+                      message: visibility,
+                      triggerMode: TooltipTriggerMode.tap,
+                      preferBelow: false,
+                      verticalOffset: 12,
+                      child: Icon(
+                          visibility == "public"
+                              ? Icons.public
+                              : visibility == "friends"
+                                  ? Icons.people_sharp
+                                  : visibility == "people with same tag"
+                                      ? FontAwesome5.tag
+                                      : FontAwesome5.user_tag,
+                          color: Colors.blueGrey,
+                          size:
+                              visibility == "public" || visibility == "friends"
+                                  ? 18
+                                  : 13)),
                 ],
               ),
             ),
@@ -457,6 +555,12 @@ class PostListViewState extends State<PostListView> {
             )
           ]);
         });
-    return list;
+    return widget.refreshable
+        ? RefreshIndicator(
+            onRefresh: widget.scrollAtTopEvent,
+            displacement: 20,
+            child: list,
+          )
+        : list;
   }
 }

@@ -52,10 +52,14 @@ abstract class $AppRouter extends _i22.RootStackRouter {
         child: const _i2.PrivacyAgreementPage(),
       );
     },
-    CreateGroupChatRoute.name: (routeData) {
+    CreateGroupRoute.name: (routeData) {
+      final args = routeData.argsAs<CreateGroupRouteArgs>();
       return _i22.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i3.CreateGroupChatPage(),
+        child: _i3.CreateGroupPage(
+          key: args.key,
+          updateCallBack: args.updateCallBack,
+        ),
       );
     },
     FriendsRoute.name: (routeData) {
@@ -265,17 +269,41 @@ class PrivacyAgreementRoute extends _i22.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i3.CreateGroupChatPage]
-class CreateGroupChatRoute extends _i22.PageRouteInfo<void> {
-  const CreateGroupChatRoute({List<_i22.PageRouteInfo>? children})
-      : super(
-          CreateGroupChatRoute.name,
+/// [_i3.CreateGroupPage]
+class CreateGroupRoute extends _i22.PageRouteInfo<CreateGroupRouteArgs> {
+  CreateGroupRoute({
+    _i23.Key? key,
+    required dynamic updateCallBack,
+    List<_i22.PageRouteInfo>? children,
+  }) : super(
+          CreateGroupRoute.name,
+          args: CreateGroupRouteArgs(
+            key: key,
+            updateCallBack: updateCallBack,
+          ),
           initialChildren: children,
         );
 
-  static const String name = 'CreateGroupChatRoute';
+  static const String name = 'CreateGroupRoute';
 
-  static const _i22.PageInfo<void> page = _i22.PageInfo<void>(name);
+  static const _i22.PageInfo<CreateGroupRouteArgs> page =
+      _i22.PageInfo<CreateGroupRouteArgs>(name);
+}
+
+class CreateGroupRouteArgs {
+  const CreateGroupRouteArgs({
+    this.key,
+    required this.updateCallBack,
+  });
+
+  final _i23.Key? key;
+
+  final dynamic updateCallBack;
+
+  @override
+  String toString() {
+    return 'CreateGroupRouteArgs{key: $key, updateCallBack: $updateCallBack}';
+  }
 }
 
 /// generated route for

@@ -1,0 +1,25 @@
+title Request Tag
+
+actor User
+participant Frontend
+participant Backend
+database Database
+
+User->Frontend:request tag
+activate User
+activate Frontend
+User<--Frontend:request tag template
+loop empty tag name
+User->Frontend:submit tag details
+User<--Frontend:alert tag is empty
+end 
+Frontend->Backend:submit tag details
+activate Backend
+Backend->Database:create tag request
+activate Database
+Backend<--Database:created / duplicate exists
+deactivate Database
+Frontend<--Backend:created / duplicate exists
+deactivate Backend
+User<--Frontend:created / duplicate exists
+deactivate Frontend

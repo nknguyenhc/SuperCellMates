@@ -1,5 +1,5 @@
 function PendingFriendRequest() {
-    const username = document.querySelector("#profile-id").innerText.slice(1);
+    const username = document.querySelector("#profile-id").innerText;
     const isLoading = React.useRef(false);
     const setIsLoading = (newValue) => isLoading.current = newValue;
 

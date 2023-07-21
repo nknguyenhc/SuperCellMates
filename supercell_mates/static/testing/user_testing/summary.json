@@ -2,30 +2,28 @@
     "name": "summary",
     "tests": [
         {
-            "name": "Authentication",
-            "questions": [
-                {
-                    "question": "Complexity (whether it has enough details to be ready for use)",
-                    "img": "/user_auth/complexity.png"
-                },
-                {
-                    "question": "Any suggestion on details to be added on for this feature?",
-                    "img": "/user_auth/complexity_suggestion.png"
-                }
-            ]
+            "suggestion": "Various UI-UX improvement such as display width, page organisation.",
+            "response": "Most are accepted and are implemented. Some are being implemented."
         },
         {
-            "name": "User Profile & Log",
-            "questions": [
-                {
-                    "question": "Complexity (whether it has enough details to be ready for use)",
-                    "img": "/user_profile_log/complexity.png"
-                },
-                {
-                    "question": "Any suggestion on details to be added on for this feature?",
-                    "img": "/user_profile_log/complexity_suggestion.png"
-                }
-            ]
+            "suggestion": "Filter is not working.",
+            "response": "Page reloads upon applying a filter. Implemented."
+        },
+        {
+            "suggestion": "Post sharing.",
+            "response": "Hyperlinks to individual posts are provided, but direct sharing of post on platform will not be implemented."
+        },
+        {
+            "suggestion": "Pending friend request when friend request sent instead of default add friend button.",
+            "response": "Rejected. We do not want users to track their outgoing friend requests."
+        },
+        {
+            "suggestion": "Search user by name.",
+            "response": "To be implemented after MS3."
+        },
+        {
+            "suggestion": "Notification service.",
+            "response": "To be implemented after MS3."
         }
     ]
 }

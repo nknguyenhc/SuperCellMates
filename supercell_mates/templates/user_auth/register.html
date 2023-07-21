@@ -14,22 +14,22 @@
         <form autocomplete="off" action="{% url 'user_auth:register' %}" method="POST" id="register-form" class="authentication-form needs-validation" novalidate>
             {% csrf_token %} 
             <div class="m-2">
-                <label for="name" class="form-label">Name</label>
+                <label for="name" class="form-label">Name <strong class="asterisk">*</strong></label>
                 <input type="text" name="name" id="name" class="form-control" autofocus>
                 <div class="invalid-feedback"></div>
             </div>
             <div class="m-2">
-                <label for="username" class="form-label">Username</label>
+                <label for="username" class="form-label">Username <strong class="asterisk">*</strong></label>
                 <input type="text" name="username" id="username" class="form-control">
                 <div class="invalid-feedback"></div>
             </div>
             <div class="m-2">
-                <label for="password" class="form-label">Password</label>
+                <label for="password" class="form-label">Password <strong class="asterisk">*</strong></label>
                 <input type="password" name="password" id="password" class="form-control">
                 <div class="invalid-feedback"></div>
             </div>
             <div class="m-2">
-                <label for="confirm-password" class="form-label">Confirm password</label>
+                <label for="confirm-password" class="form-label">Confirm password <strong class="asterisk">*</strong></label>
                 <input type="password" id="confirm-password" class="form-control" aria-describedby="not-matching-passwords">
                 <div class="invalid-feedback" id="not-matching-passwords"></div>
             </div>
@@ -38,8 +38,9 @@
                 <label for="privacy-agreement-checkbox" class="form-check-label">I agree to Match Miner's <a href="/static/files/privacy_agreement.pdf" target="_blank">privacy agreement</a>.</label>
                 <div class="invalid-feedback"></div>
             </div>
-            <div class="m-2">
+            <div class="m-2 auth-submit">
                 <input type="submit" value="Create Account" class="btn btn-primary">
+                <div class="spinner-border text-warning loading-icon" role="status"></div>
             </div>
             <div class="alert alert-danger m-2" id="register-message"></div>
         </form>

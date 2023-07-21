@@ -56,7 +56,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
       ),
       title: Column(children: [
         SizedBox(
-          height: 26,
+          height: 24,
           width: 300,
           child: Text(
             widget.profileMap["user_profile"]["name"],
@@ -66,12 +66,11 @@ class ProfileAppBarState extends State<ProfileAppBar> {
             ),
           ),
         ),
-        Container(
-          padding: const EdgeInsets.only(left: 1),
-          height: 23,
+        SizedBox(
+          height: 22,
           width: 300,
           child: Text(
-            widget.profileMap["user_profile"]["username"],
+            "@${widget.profileMap["user_profile"]["username"]}",
             style: const TextStyle(fontSize: 15, color: Colors.blueGrey),
           ),
         ),
@@ -79,7 +78,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
       actions: [
         Column(
           children: [
-            const Padding(padding: EdgeInsets.all(3)),
+            const Padding(padding: EdgeInsets.only(top:4)),
             SizedBox(
               height: 40,
               child: IconButton(
@@ -101,10 +100,10 @@ class ProfileAppBarState extends State<ProfileAppBar> {
             ),
           ],
         ),
-        const Padding(padding: EdgeInsets.all(2)),
+        const Padding(padding: EdgeInsets.only(right: 2)),
         Column(
           children: [
-            const Padding(padding: EdgeInsets.all(3)),
+            const Padding(padding: EdgeInsets.only(top:4)),
             SizedBox(
               height: 40,
               child: IconButton(
@@ -126,7 +125,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
             ),
           ],
         ),
-        Container(padding: const EdgeInsets.all(10)),
+        const Padding(padding: EdgeInsets.only(right: 5))
       ],
     );
   }

@@ -59,6 +59,41 @@ function getJSONItemFromLocal(key, defaultValue) {
     }
 }
 
+const bottomMessageManager = {
+    currTimeout: null,
+    popMessage: (message) => {
+        function backToOriginal() {
+            messageDiv.classList.remove('bottom-popup-transition');
+            messageDiv.classList.remove('bottom-popup-in');
+        }
+
+        const messageDiv = document.querySelector("#bottom-popup");
+        messageDiv.innerText = message;
+        backToOriginal();
+        clearTimeout(this.currTimeout);
+        setTimeout(() => {
+            messageDiv.classList.add('bottom-popup-transition');
+            messageDiv.classList.add('bottom-popup-in');
+            this.currTimeout = setTimeout(() => {
+                backToOriginal();
+            }, 5000);
+        }, 50);
+    }
+}
+
+function displayLoader() {
+    document.querySelector("#loader").style.cssText = `
+        z-index: 100000;
+        background: rgba(0, 0, 0, 0.2);
+    `;
+    document.querySelector("#loader .loading-icon").style.display = 'block';
+}
+
+function hideLoader() {
+    document.querySelector("#loader").style.cssText = '';
+    document.querySelector("#loader .loading-icon").style.display = '';
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const editPages = document.querySelectorAll(".edit-page");
     editPages.forEach(editPage => editPage.addEventListener("click", event => {

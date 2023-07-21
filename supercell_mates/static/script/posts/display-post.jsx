@@ -1,5 +1,5 @@
 function ProfileFeed() {
-    const username = document.querySelector("#profile-id").innerText.slice(1);
+    const username = document.querySelector("#profile-id").innerText;
     const isAllPostsLoaded = React.useRef(false);
     const setIsAllPostsLoaded = (newValue) => isAllPostsLoaded.current = newValue;
     const oneDayTime = 24 * 3600;
@@ -7,15 +7,19 @@ function ProfileFeed() {
     const setCurrTimestamp = (newValue) => currTimestamp.current = newValue;
     const postsDiv = React.useRef(null);
     const profilePageFilters = getJSONItemFromLocal('profilePageFilters', {});
-    const tag = profilePageFilters[username] ? profilePageFilters[username] : '';
+    const tag = React.useRef(profilePageFilters[username] ? profilePageFilters[username] : '');
+    const setTag = (newTag) => tag.current = newTag;
     const [count, dispatchCount] = React.useReducer(state => state + 1, 0);
+    const [isLoading, setIsLoading] = React.useState(false);
 
     React.useEffect(() => {
         const tagFilters = Array.from(document.querySelectorAll('#nav-tag-list .tag-listing'));
+        let tagStillExists = false;
         tagFilters.forEach(tagListing => {
             const tagInnerText = tagListing.querySelector('.tag-name').innerText;
-            if (tagInnerText === tag) {
+            if (tagInnerText === tag.current) {
                 tagListing.querySelector('label').click();
+                tagStillExists = true;
             }
             tagListing.addEventListener('click', () => {
                 const currProfilePageFilters = getJSONItemFromLocal('profilePageFilters', {});
@@ -24,10 +28,16 @@ function ProfileFeed() {
                 dispatchCount();
             });
         });
+        if (!tagStillExists) {
+            profilePageFilters[username] = '';
+            localStorage.setItem('profilePageFilters', JSON.stringify(profilePageFilters));
+            setTag('');
+        }
         const filterClearer = document.querySelector("#nav-clear-filter");
         filterClearer.addEventListener('click', () => {
             const currProfilePageFilters = getJSONItemFromLocal('profilePageFilters', {});
             currProfilePageFilters[username] = '';
+            localStorage.setItem('profilePageFilters', JSON.stringify(currProfilePageFilters));
             dispatchCount();
             tagFilters.forEach(tagListing => {
                 tagListing.querySelector('input').checked = false;
@@ -35,18 +45,20 @@ function ProfileFeed() {
         });
 
         loadMorePosts().then(() => {
-            window.addEventListener("scroll", () => {
+            setInterval(() => {
                 if (!isAllPostsLoaded.current && document.body.offsetHeight - window.innerHeight - window.scrollY < 100) {
                     setIsAllPostsLoaded(true);
                     loadMorePosts();
                 }
-            })
+            }, 1000);
         })
     }, []);
 
     function loadMorePosts() {
-        return fetch(`/post/posts/${username}?${currTimestamp.current ? `start=${currTimestamp.current - oneDayTime}&end=${currTimestamp.current}` : ''}${tag === '' ? '' : `&tag=${tag}`}`)
+        setIsLoading(true);
+        return fetch(`/post/posts/${username}?${currTimestamp.current ? `start=${currTimestamp.current - oneDayTime}&end=${currTimestamp.current}` : ''}${tag.current === '' ? '' : `&tag=${tag.current}`}`)
             .then(response => {
+                setIsLoading(false);
                 if (response.status !== 200) {
                     triggerErrorMessage();
                     return;
@@ -67,6 +79,9 @@ function ProfileFeed() {
                         postsDiv.current.appendChild(postCard);
                     });
 
+                    if (response.posts.length === 0 && !isAllPostsLoaded.current) {
+                        return loadMorePosts();
+                    }
                 })
             });
     }
@@ -74,6 +89,7 @@ function ProfileFeed() {
     return (
         <React.Fragment>
             <div ref={postsDiv} id="profile-posts"></div>
+            <span className="spinner-border text-info" id="post-loader" role="status" style={{display: isLoading ? '' : 'none'}} />
             <FilterMessage count={count} />
         </React.Fragment>
     );

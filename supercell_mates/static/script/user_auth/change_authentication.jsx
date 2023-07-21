@@ -2,8 +2,7 @@ function ChangeUsername() {
     const [newUsername, setNewUsername] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [errorMessage, setErrorMessage] = React.useState('');
-    const isLoading = React.useRef(false);
-    const setIsLoading = (newValue) => isLoading.current = newValue;
+    const [isLoading, setIsLoading] = React.useState(false);
 
     function submitForm(event) {
         event.preventDefault();
@@ -21,7 +20,7 @@ function ChangeUsername() {
             return;
         }
 
-        if (!isLoading.current) {
+        if (!isLoading) {
             setIsLoading(true);
             fetch('/change_username', postRequestContent({
                 new_username: newUsername,
@@ -47,23 +46,25 @@ function ChangeUsername() {
 
     return (
         <React.Fragment>
-            <form onSubmit={submitForm}>
+            <button type="button" class="change-details-close btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => document.querySelector("#change-username-page").style.display = 'none'} />
+            <form className="change-details-form" onSubmit={submitForm}>
                 <div className="mb-3">
-                    <label htmlFor="new-username" className="form-label">New Username</label>
+                    <label htmlFor="new-username" className="form-label">New Username <strong className="asterisk">*</strong></label>
                     <input type="text" id="new-username" class="form-control" autocomplete="off" onChange={event => {
                         setNewUsername(event.target.value);
                         setErrorMessage('');
                     }} />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="password" className="form-label">Confirm Password</label>
+                    <label htmlFor="password" className="form-label">Confirm Password <strong className="asterisk">*</strong></label>
                     <input type="password" id="password" class="form-control" onChange={event => {
                         setPassword(event.target.value);
                         setErrorMessage('');
                     }} />
                 </div>
-                <div className="mb-3">
-                    <input type="submit" value="Change Username" className="btn btn-primary" />
+                <div className="mb-3 change-details-submit">
+                    <input type="submit" value="Change Username" className="btn btn-primary" disabled={isLoading} />
+                    <span className="spinner-border text-warning" style={{display: isLoading ? '' : 'none'}} />
                 </div>
             </form>
             {
@@ -82,8 +83,7 @@ function ChangePassword() {
     const [newPassword, setNewPassword] = React.useState('');
     const [confirmNewPassword, setConfirmNewPassword] = React.useState('');
     const [errorMessage, setErrorMessage] = React.useState('');
-    const isLoading = React.useRef(false);
-    const setIsLoading = (newValue) => isLoading.current = newValue;
+    const [isLoading, setIsLoading] = React.useState(false);
 
     function submitForm(event) {
         event.preventDefault();
@@ -98,7 +98,7 @@ function ChangePassword() {
             return;
         }
 
-        if (!isLoading.current) {
+        if (!isLoading) {
             setIsLoading(true);
             fetch('/change_password', postRequestContent({
                 old_password: oldPassword,
@@ -124,27 +124,29 @@ function ChangePassword() {
 
     return (
         <React.Fragment>
-            <form onSubmit={submitForm}>
+            <button type="button" class="change-details-close btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => document.querySelector("#change-password-page").style.display = 'none'} />
+            <form className="change-details-form" onSubmit={submitForm}>
                 <div className="mb-3">
-                    <label htmlFor="old-password" className="form-label">Old Password</label>
+                    <label htmlFor="old-password" className="form-label">Old Password <strong className="asterisk">*</strong></label>
                     <input type="password" id="old-password" class="form-control" onChange={event => setOldPassword(event.target.value)} />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="new-password" className="form-label">New Password</label>
+                    <label htmlFor="new-password" className="form-label">New Password <strong className="asterisk">*</strong></label>
                     <input type="password" id="new-password" class="form-control" onChange={event => {
                         setNewPassword(event.target.value);
                         setErrorMessage('')
                     }} />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="confirm-new-password" className="form-label">Confirm New Password</label>
+                    <label htmlFor="confirm-new-password" className="form-label">Confirm New Password <strong className="asterisk">*</strong></label>
                     <input type="password" id="confirm-new-password" class="form-control" onChange={event => {
                         setConfirmNewPassword(event.target.value);
                         setErrorMessage('');
                     }} />
                 </div>
-                <div className="mb-3">
-                    <input type="submit" value="Update Password" className="btn btn-primary" />
+                <div className="mb-3 change-details-submit">
+                    <input type="submit" value="Update Password" className="btn btn-primary" disabled={isLoading} />
+                    <span className="spinner-border text-warning" style={{display: isLoading ? '' : 'none'}} />
                 </div>
             </form>
             {
@@ -162,8 +164,7 @@ function ChangeName() {
     const [newName, setNewName] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [errorMessage, setErrorMessage] = React.useState('');
-    const isLoading = React.useRef(false);
-    const setIsLoading = (newValue) => isLoading.current = newValue;
+    const [isLoading, setIsLoading] = React.useState(false);
 
     function submitForm(event) {
         event.preventDefault();
@@ -178,7 +179,7 @@ function ChangeName() {
             return;
         }
 
-        if (!isLoading.current) {
+        if (!isLoading) {
             setIsLoading(false);
             fetch('/profile/change_name', postRequestContent({
                 name: newName,
@@ -204,23 +205,25 @@ function ChangeName() {
 
     return (
         <React.Fragment>
-            <form onSubmit={submitForm}>
+            <button type="button" class="change-details-close btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => document.querySelector("#change-name-page").style.display = 'none'} />
+            <form className="change-details-form" onSubmit={submitForm}>
                 <div className="mb-3">
-                    <label htmlFor="new-name" className="form-label">New Name</label>
+                    <label htmlFor="new-name" className="form-label">New Name <strong className="asterisk">*</strong></label>
                     <input type="text" id="new-name" className="form-control" autoComplete="off" onChange={event => {
                         setNewName(event.target.value);
                         setErrorMessage('');
                     }} />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="password" className="form-label">Confirm Password</label>
+                    <label htmlFor="password" className="form-label">Confirm Password <strong className="asterisk">*</strong></label>
                     <input type="password" id="password" className="form-control" onChange={event => {
                         setPassword(event.target.value);
                         setErrorMessage('');
                     }} />
                 </div>
-                <div className="mb-3">
-                    <input type="submit" value="Change Name" className="btn btn-primary" />
+                <div className="mb-3 change-details-submit">
+                    <input type="submit" value="Change Name" className="btn btn-primary" disabled={isLoading} />
+                    <span className="spinner-border text-warning" style={{display: isLoading ? '' : 'none'}} />
                 </div>
             </form>
             {

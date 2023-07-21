@@ -12,12 +12,17 @@
     <script type="text/babel" src="/static/script/documentation/documentation-components.jsx"></script>
     <script type="text/babel" src="/static/script/documentation/documentation-interactive.jsx"></script>
     <script type="text/babel" src="/static/script/documentation/documentation-overview.jsx"></script>
+    <script type="text/babel" src="/static/script/documentation/sequence.jsx"></script>
 {% endblock %} 
 
 {% block body %} 
+    <div id="documentation-title">
+        <h1 class="mx-auto my-4">Documentation</h1>
+    </div>
     <div id="documentation-overview">
         <img src="/static/documentation/structure.PNG" id="documentation-overview-diagram">
         <div id="documentation-overview-text"></div>
     </div>
+    <div id="documentation-sequence"></div>
     <div id="documentation"></div>
 {% endblock %} 

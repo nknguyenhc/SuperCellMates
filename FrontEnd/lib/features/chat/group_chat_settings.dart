@@ -26,7 +26,7 @@ class GroupChatSettingsPageState extends State<GroupChatSettingsPage> {
   List<dynamic> members = [];
   List<dynamic> admins = [];
   int adminButtonIndex =
-      -1; // 0: remove member, 1: remove admin, 2: assign admin, 3: appoint new leader
+      -1; // 0: remove member, 1: assign admin, 2: remove admin, 3: appoint new leader
   String memberOrAdminTitle = "Group members";
 
   @override
@@ -117,7 +117,7 @@ class GroupChatSettingsPageState extends State<GroupChatSettingsPage> {
                             onPressed: () {
                               adminButtonIndex == 2
                                   ? showConfirmationDialog(context,
-                                      "Are you sure to remove ${admins[index]["name"]}'s admin position?",
+                                      "Are you sure to remove ${admins[index]["name"]}'s admin privileges?",
                                       () async {
                                       dynamic body = {
                                         "chatid": widget.chatInfo["id"],
@@ -127,7 +127,7 @@ class GroupChatSettingsPageState extends State<GroupChatSettingsPage> {
                                           EndPoints.removeAdmin.endpoint, body);
                                       if (response == "ok") {
                                         showSuccessDialog(context,
-                                            "Successfully removed ${admins[index]["name"]}'s admin position!");
+                                            "Successfully removed ${admins[index]["name"]}'s admin previleges!");
                                         getMembers();
                                       } else {
                                         showErrorDialog(context, response);
@@ -166,10 +166,16 @@ class GroupChatSettingsPageState extends State<GroupChatSettingsPage> {
                         : Container()
                   ],
                 ),
-                Text(
-                  admins[index]["name"],
-                  style: const TextStyle(
-                      color: Colors.blue, fontWeight: FontWeight.bold),
+                Container(
+                  alignment: Alignment.center,
+                  width: MediaQuery.of(context).size.width / 5,
+                  child: Text(
+                    admins[index]["name"],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        color: Colors.blue, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
             );
@@ -260,21 +266,27 @@ class GroupChatSettingsPageState extends State<GroupChatSettingsPage> {
                               : Container()
                         ],
                       ),
-                Text(
-                  index == members.length ? "" : members[index]["name"],
-                  style: index == members.length
-                      ? const TextStyle()
-                      : TextStyle(
-                          color: members[index]["role"] == "creator"
-                              ? Colors.pink
-                              : members[index]["role"] == "admin"
-                                  ? Colors.blue
-                                  : Colors.black,
-                          fontWeight: members[index]["role"] == "creator" ||
-                                  members[index]["role"] == "admin"
-                              ? FontWeight.bold
-                              : FontWeight.normal),
-                ),
+                Container(
+                  alignment: Alignment.center,
+                  width: MediaQuery.of(context).size.width / 5,
+                  child: Text(
+                    index == members.length ? "" : members[index]["name"],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: index == members.length
+                        ? const TextStyle()
+                        : TextStyle(
+                            color: members[index]["role"] == "creator"
+                                ? Colors.pink
+                                : members[index]["role"] == "admin"
+                                    ? Colors.blue
+                                    : Colors.black,
+                            fontWeight: members[index]["role"] == "creator" ||
+                                    members[index]["role"] == "admin"
+                                ? FontWeight.bold
+                                : FontWeight.normal),
+                  ),
+                )
               ],
             );
           }

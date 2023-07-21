@@ -45,7 +45,10 @@ def create_group_chat(request):
         HttpResponse: the feedback of the process
     """
     try:
-        users = request.POST.getlist('users')
+        if 'users_async' in request.POST:
+            users = json.loads(request.POST["users_async"])
+        else:
+            users = request.POST.getlist('users')
         group_name = request.POST["group_name"]
         groupchat = GroupChat(timestamp=datetime.now().timestamp(), name=group_name, creator=request.user)
         groupchat.save()
@@ -457,7 +460,6 @@ def private_chat_info(request_user_auth, private_chat_object):
 
 
 @login_required
-@ensure_csrf_cookie
 def get_chat_id(request):
     """Get chat id between the request user and the target user.
     Request must contain the following GET parameters:
@@ -481,6 +483,7 @@ def get_chat_id(request):
 
 
 @login_required
+@ensure_csrf_cookie
 def get_group_chats(request):
     """Get information of all group chats of the current user.
     The information of each group chat is a dictionary returned by the function group_chat_info above.

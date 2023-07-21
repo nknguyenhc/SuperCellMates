@@ -6,7 +6,8 @@ function Testing() {
             apps: [
                 "user_auth",
                 "user_profile",
-                "user_log"
+                "user_log",
+                "posts"
             ]
         },
         {
@@ -16,7 +17,8 @@ function Testing() {
                 "logged_out",
                 "layout",
                 "profile",
-                "settings"
+                "settings",
+                "home"
             ]
         },
         {
@@ -24,6 +26,7 @@ function Testing() {
             path: "user_testing/",
             apps: [
                 "summary",
+                "details",
                 "bugs",
             ]
         }
@@ -71,7 +74,8 @@ function Testing() {
 
     return (
         <div id="testing-window" className="p-4">
-            <div id="testing-sections">
+            <h3 id="testing-title">Testing</h3>
+            <div id="testing-sections" className="pt-3">
                 {
                     structures.map((structure, i) => (
                         <button className={"btn " + (i === displayIndex ? "btn-primary" : "btn-outline-primary")} onClick={() => newSection(i)}>{structure.display}</button>
@@ -169,9 +173,9 @@ function WebFrontendView({ tests }) {
 
 
 function UserTestingView({ tests, name }) {
-    if (name === 'summary') {
+    if (name === 'details') {
         return (
-            <div className="user-testing-summary-window">
+            <div className="user-testing-details-window">
                 {tests.map(section => (
                     <div className="user-testing-section">
                         <h5>{section.name}</h5>
@@ -215,6 +219,25 @@ function UserTestingView({ tests, name }) {
                             <td>{bug.cause}</td>
                             <td>{bug.fix}</td>
                             <td>{bug.lesson}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        )
+    } else if (name === 'summary') {
+        return (
+            <table className="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Suggestion</th>
+                        <th scope="col">Our response</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {tests.map(section => (
+                        <tr>
+                            <td>{section.suggestion}</td>
+                            <td>{section.response}</td>
                         </tr>
                     ))}
                 </tbody>

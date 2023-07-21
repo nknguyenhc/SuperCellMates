@@ -46,6 +46,16 @@
             "datePassed": "04/07/2023"
         },
         {
+            "instruction": "Navigate to setup page by either pressing 'Edit Profile' button in profile page or 'Edit Profile' button in setup page. Remove a tag you have by clicking the cross besides the tag.",
+            "expected": "Tag is removed. Upon redirecting to profile page, the tag is no longer there. The option to remove another tag you have is also no longer there.",
+            "datePassed": "18/07/2023"
+        },
+        {
+            "instruction": "Navigate to setup page by either pressing 'Edit Profile' button in profile page or 'Edit Profile' button in setup page, within the tag removal cooldown period (1 week).",
+            "expected": "There is no tag removal option for tags you have.",
+            "datePassed": "18/07/2023"
+        },
+        {
             "instruction": "Navigate to setup page by either pressing 'Edit Profile' button in profile page or 'Edit Profile' button in setup page. Attempt to add tags to more than 4 tags.",
             "expected": "Limit cannot be exceeded, the page notifies the user of the limit.",
             "datePassed": "04/07/2023"
@@ -109,6 +119,11 @@
             "instruction": "Navigate to another user's profile page by searching for the user's username on the top navigation bar, and click on the user. This user must be your friend, and must have posted using a tag that you have.",
             "expected": "You can view all posts that are set to public and friends, and posts under a tag that you have and that require people to have the same tag.",
             "datePassed": "04/07/2023"
+        },
+        {
+            "instruction": "Navigate to another user's profile page by searching for the user's username on the top navigation bar, and click on the user. Click on one of the tags, or clear filters.",
+            "expected": "The page reloads, and the posts loaded are only of the tag that the user clicks, or all posts if the user clicks clear filters. Only posts under the filter that the user has access to will be loaded.",
+            "datePassed": "19/07/2023"
         }
     ]
 }

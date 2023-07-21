@@ -15,5 +15,7 @@ urlpatterns = [
     path('tag/<str:tag_id>', views.get_tag_icon, name="get_tag_icon"),
     path('user_tags/<str:username>', views.get_user_tags, name="get_user_tags"),
     path('change_name', views.change_name, name="change_name"),
+    path('can_remove_tag', views.can_remove_tag, name="can_remove_tag"),
+    path('remove_tag', views.remove_tag, name="remove_tag"),
     path('achievements/<str:username>', views.achievements, name="achievements"),
 ]

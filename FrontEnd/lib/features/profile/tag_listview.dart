@@ -10,18 +10,20 @@ import 'package:supercellmates/http_requests/make_requests.dart';
 import 'package:supercellmates/router/router.gr.dart';
 
 class TagListView extends StatefulWidget {
-  const TagListView(
-      {Key? key,
-      required this.tagList,
-      required this.isAddTag,
-      this.tagLimitReached,
-      this.onAddCallBack})
-      : super(key: key);
+  const TagListView({
+    Key? key,
+    required this.tagList,
+    required this.isAddTag,
+    this.tagLimitReached,
+    this.onAddCallBack,
+    this.canRemoveTag,
+  }) : super(key: key);
 
   final dynamic tagList;
   final bool isAddTag;
   final bool? tagLimitReached;
   final dynamic onAddCallBack;
+  final bool? canRemoveTag;
 
   @override
   State<TagListView> createState() => TagListViewState();
@@ -92,9 +94,32 @@ class TagListViewState extends State<TagListView> {
 
     showConfirmationDialog(
       context,
-      "Are you sure to add $tagListString?\nTags cannot be dropped once claimed.",
+      "Are you sure to add $tagListString?\n\nNote that if you delete a tag, you will not be allowed to remove any more tag for 7 days.",
       () => _addTags(namesToAdd),
     );
+  }
+
+  void _removeTag(int index) async {
+    startUploadingDialog(context, "data");
+    var body = {"tag": widget.tagList[index]["name"]};
+    var response = await postWithCSRF(EndPoints.removeTag.endpoint, body);
+    stopLoadingDialog(context);
+    Future.delayed(Duration(milliseconds: 100)).then((value) {
+      if (response == "tag removed") {
+        widget.onAddCallBack();
+        showSuccessDialog(context,
+            "Successfully removed tag, and you cannot remove any more tag for 7 days.\n\nYou can help maintain high-quality communities by choosing tags which you are most passionate about!");
+      } else {
+        showErrorDialog(context, response);
+      }
+    });
+  }
+
+  void _requestConfirmationForRemovingTag(int index) {
+    showConfirmationDialog(
+        context,
+        "Are you sure to remove ${widget.tagList[index]["name"]}?\n\nThis action is irreversible, and you will not be allowed to remove any more tag for 7 days.",
+        () => _removeTag(index));
   }
 
   @override
@@ -131,7 +156,9 @@ class TagListViewState extends State<TagListView> {
                     children: [
                       const Padding(padding: EdgeInsets.only(left: 2)),
                       SizedBox(
-                        width: MediaQuery.of(context).size.width - 150,
+                        width: widget.isAddTag
+                            ? MediaQuery.of(context).size.width - 150
+                            : MediaQuery.of(context).size.width - 135,
                         child: Text(
                           name,
                           style: const TextStyle(
@@ -140,6 +167,18 @@ class TagListViewState extends State<TagListView> {
                       ),
                     ],
                   ),
+                  !widget.isAddTag &&
+                          widget.canRemoveTag != null &&
+                          widget.canRemoveTag!
+                      ? IconButton(
+                          onPressed: () {
+                            _requestConfirmationForRemovingTag(index);
+                          },
+                          icon: const Icon(
+                            Icons.cancel,
+                            color: Colors.red,
+                          ))
+                      : Container(),
                   widget.isAddTag
                       ? TextButton(
                           onPressed: () {

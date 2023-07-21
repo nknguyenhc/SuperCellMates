@@ -26,6 +26,7 @@
             <div class="m-2">
                 <input type="submit" class="btn btn-primary" value="Login">
             </div>
+            <div class="m-2">Don't have an account yet? Register <a href="{% url 'user_auth:register' %}">here</a>.</div>
             <div class="authentication-error">
                 <div class="alert alert-danger m-2" id="login-message"></div>
                 {% if error_message %} 

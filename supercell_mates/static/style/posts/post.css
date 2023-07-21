@@ -1,6 +1,14 @@
 #create-post {
     width: 50vw;
     min-width: 500px;
+    max-width: 700px;
+    border: lightgrey solid 1px;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+#create-post:hover {
+    border: black solid 1px;
 }
 
 #post-content {
@@ -10,7 +18,7 @@
 .visibility-section {
     display: flex;
     flex-direction: row;
-    gap: 20px;
+    gap: 30px;
 }
 
 .visibility-section button {
@@ -20,6 +28,9 @@
 .visibility-indicator {
     height: 30px;
     width: 30px;
+    display: flex;
+    flex-direction: row;
+    gap: 7px;
 }
 
 .visibility-indicator img {
@@ -31,12 +42,14 @@
     flex-direction: row;
     gap: 10px;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 #post-submit-button {
     display: flex;
-    flex-direction: column;
-    align-items: end;
+    flex-direction: row;
+    justify-content: end;
+    gap: 15px;
 }
 
 #post-choose-images {
@@ -72,12 +85,20 @@
     border-radius: 5px;
 }
 
+#edit-close-btn {
+    float: right;
+}
+
+#edit-first-div {
+    margin-top: 20px;
+}
+
 #edit-post-images-preview {
     display: flex;
     flex-direction: row;
     gap: 30px;
     flex-wrap: wrap;
-    overflow: scroll;
+    overflow: auto;
     height: 220px;
 }
 
@@ -139,8 +160,8 @@
 }
 
 .post-link {
-    height: 30px;
-    width: 30px;
+    height: 25px;
+    width: 25px;
     cursor: pointer;
 }
 
@@ -150,7 +171,7 @@
 }
 
 .post-content {
-    white-space: pre-line;
+    white-space: pre-wrap;
     text-align: justify;
 }
 
@@ -161,26 +182,28 @@
 }
 
 .post-images img {
-    max-height: 100%;
-    max-width: 100%;
-    margin-top: 15vw;
-    margin-left: 25vw;
-    transform: translate(-50%, -50%);
+    max-height: 85%;
+    max-width: 80%;
+    margin: auto;
 }
 
 .carousel {
-    width: 50vw;
-    height: 30vw;
+    width: 30vw;
+    height: 20vw;
 }
 
 .carousel-item {
-    width: 50vw;
-    height: 30vw;
+    width: 30vw;
+    height: 20vw;
 }
 
 .carousel-inner {
-    width: 50vw;
-    height: 30vw;
+    width: 30vw;
+    height: 20vw;
+}
+
+.carousel-control-prev, .carousel-control-next {
+    height: 85%;
 }
 
 #filter-message {
@@ -204,8 +227,14 @@
 
 #display-post {
     width: 70%;
+    min-width: 500px;
+    max-width: 700px;
     padding-bottom: 50px;
     padding-top: 50px;
     margin-left: auto;
     margin-right: auto;
+}
+
+#post-loader {
+    margin-left: 49%;
 }

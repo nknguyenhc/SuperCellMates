@@ -1,5 +1,12 @@
 function Post(props) {
     const post = props.post;
+    const [isShowMore, setIsShowMore] = React.useState(false);
+    const shortLimit = 500;
+    const [iconName, setIconName] = React.useState(null);
+    const [visibility, setVisibility] = React.useState(null);
+    const visTooltip = React.useRef(null);
+    const replyTooltip = React.useRef(null);
+    const linkTooltip = React.useRef(null);
 
     function PostImages() {
         return (
@@ -32,6 +39,40 @@ function Post(props) {
         )
     }
 
+    React.useEffect(() => {
+        if (post.public_visible) {
+            setIconName('public-icon.png');
+            setVisibility('public');
+        } else if (post.friend_visible) {
+            if (post.tag_visible) {
+                setIconName('friend-tag-icon.png');
+                setVisibility('friends with same tag');
+            } else {
+                setIconName('friend-icon.png');
+                setVisibility('friends');
+            }
+        } else {
+            setIconName('tag-icon.png');
+            setVisibility('people with same tag');
+        }
+    }, []);
+
+    React.useEffect(() => {
+        const tooltips = [];
+        if (visTooltip.current) {
+            tooltips.push(new bootstrap.Tooltip(visTooltip.current));
+        }
+        if (replyTooltip.current) {
+            tooltips.push(new bootstrap.Tooltip(replyTooltip.current));
+        }
+        if (linkTooltip.current) {
+            tooltips.push(new bootstrap.Tooltip(linkTooltip.current));
+        }
+        return () => {
+            tooltips.forEach(t => t.dispose());
+        };
+    }, [visTooltip.current, replyTooltip.current, linkTooltip.current]);
+
     function toReplyPostChat() {
         fetch('/messages/get_chat_id?username=' + post.creator.username)
             .then(response => {
@@ -57,8 +98,8 @@ function Post(props) {
                         <img src={post.creator.profile_pic_url} />
                     </div>
                     <div className="post-creator-text-info">
-                        <div className="post-creator-name">{post.creator.name}</div>
-                        <a className="post-creator-username" href={post.creator.profile_link}>@{post.creator.username}</a>
+                        <strong className="post-creator-name">{post.creator.name}</strong>
+                        <a className="post-creator-username" href={post.creator.profile_link}>{post.creator.username}</a>
                     </div>
                     {
                         props.myProfile
@@ -71,17 +112,23 @@ function Post(props) {
                     }
                 </div>
                 <div className="post-more">
+                    <div ref={visTooltip} className="post-link" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title={visibility}>
+                        {iconName && visibility &&<img src={"/static/media/" + iconName} />}
+                    </div>
                     <div className="post-date">{`${formatNumber(new Date(post.time_posted).getDate(), 2)}/${formatNumber(new Date(post.time_posted).getMonth() + 1, 2)}/${formatNumber(new Date(post.time_posted).getFullYear(), 4)} ${formatNumber(new Date(post.time_posted).getHours(), 2)}:${formatNumber(new Date(post.time_posted).getMinutes(), 2)}`}</div>
                     {
                         post.can_reply
-                        ? <div className="post-link" onClick={() => toReplyPostChat()}>
+                        ? <div ref={replyTooltip} className="post-link" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Reply in chat" onClick={() => toReplyPostChat()}>
                             <img src="/static/media/reply-icon.png" />
                         </div>
                         : ''
                     }
-                    <a href={"/post/display?id=" + post.id} className="post-link">
+                    <div ref={linkTooltip} className="post-link" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Copy link" onClick={() => {
+                        navigator.clipboard.writeText(window.location.host + "/post/display?id=" + post.id);
+                        bottomMessageManager.popMessage('Link copied to clipboard!');
+                    }}>
                         <img src="/static/media/hyperlink-icon.png" />
-                    </a>
+                    </div>
                 </div>
             </div>
             <h4 className='mb-2'>{post.title}</h4>
@@ -91,7 +138,21 @@ function Post(props) {
                     <div>{post.tag.name}</div>
                 </div>
             </div>
-            <div className="post-content mb-2">{post.content}</div>
+            <div className="post-content mb-2">
+                {
+                    post.content.length > shortLimit
+                    ? isShowMore
+                        ? <div>
+                            {post.content + '\n'}
+                            <a href="javascript:void(0)" onClick={() => setIsShowMore(false)}>See Less</a>
+                        </div>
+                        : <div>
+                            {post.content.slice(0, shortLimit) + ' ... '}
+                            <a href="javascript:void(0)" onClick={() => setIsShowMore(true)}>See More</a>
+                        </div>
+                    : post.content
+                }
+            </div>
             <div className="post-images mb-2">
                 {
                     post.images.length === 0

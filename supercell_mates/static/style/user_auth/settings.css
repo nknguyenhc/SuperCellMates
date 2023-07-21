@@ -13,3 +13,17 @@
 .settings-label {
     align-self: center;
 }
+
+.change-details-close {
+    float: right;
+}
+
+.change-details-form {
+    margin-top: 20px;
+}
+
+.change-details-submit {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}

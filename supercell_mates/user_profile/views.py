@@ -16,6 +16,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.conf import settings
 from PIL import Image
 import json
+from datetime import datetime
 
 from user_auth.models import Tag, UserAuth
 from user_log.models import FriendRequest
@@ -409,7 +410,44 @@ def change_name(request):
     
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body is missing an important key")
+
+
+@login_required
+def can_remove_tag(request):
+    """Determine if the request user can make a tag removal at this point of time.
+
+    Args:
+        request (HttpRequest): the request made to this view
     
+    Returns:
+        HttpResponse: true if a tag can be removed at this point, else false.
+    """
+    cooldown = 3600 * 24 * 7 # time in seconds
+    return HttpResponse("true" if datetime.now().timestamp() - request.user.user_profile.remove_tag_timestamp >= cooldown else "false")
+
+
+@login_required
+@require_http_methods(["POST"])
+def remove_tag(request):
+    cooldown = 3600 * 24 * 7 # time in seconds
+    if datetime.now().timestamp() - request.user.user_profile.remove_tag_timestamp < cooldown:
+        return HttpResponseBadRequest("you are not allowed to remove tag at this point")
+    try:
+        tag_name = request.POST["tag"]
+        tag = Tag.objects.get(name=tag_name)
+        if request.user.user_profile.tagList.filter(name=tag_name).exists():
+            request.user.user_profile.tagList.remove(tag)
+            request.user.user_profile.remove_tag_timestamp = datetime.now().timestamp()
+            request.user.user_profile.save()
+            return HttpResponse("tag removed")
+        else:
+            return HttpResponseBadRequest("tag does not belong to you")
+    
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("tag field not found")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("tag with provided name not found")
+
 
 @login_required
 def achievements(request, username):

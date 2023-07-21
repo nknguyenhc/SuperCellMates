@@ -1,6 +1,8 @@
 #testing-window {
     margin: 0 auto;
     width: 80%;
+    min-width: 800px;
+    max-width: 1200px;
 }
 
 #testing-sections {
@@ -20,7 +22,7 @@
     font: revert;
 }
 
-.user-testing-summary-window {
+.user-testing-details-window {
     display: flex;
     flex-direction: column;
     gap: 20px;

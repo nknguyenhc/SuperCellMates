@@ -10,7 +10,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmPassword = document.querySelector("#confirm-password");
     const agreement = document.querySelector("#privacy-agreement-checkbox");
 
+    let isLoading = false;
+    function setIsLoading(newValue) {
+        isLoading = newValue;
+        document.querySelector(".loading-icon").style.display = newValue ? 'block' : 'none';
+    }
+
     form.addEventListener("submit", event => {
+        if (isLoading) {
+            event.preventDefault();
+            return;
+        }
         if (!agreement.checked) {
             event.preventDefault();
             addErrMessage("You must agree to our privacy agreement to proceed", messageDiv, agreement, "You must agree to proceed");
@@ -56,8 +66,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     usernameInput.addEventListener('blur', () => {
+        if (isLoading) {
+            return;
+        }
+        setIsLoading(true);
         fetch(`/check_unique_username_async?username=${usernameInput.value}`)
             .then(response => {
+                setIsLoading(false);
                 if (response.status !== 200) {
                     triggerErrorMessage();
                 } else {

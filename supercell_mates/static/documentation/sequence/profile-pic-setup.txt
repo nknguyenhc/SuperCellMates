@@ -1,0 +1,33 @@
+title Profile Picture Setup
+
+actor User
+participant Frontend
+participant Backend
+database Database
+
+User->Frontend:request profile picture setup
+activate User
+activate Frontend
+Frontend->Backend:request profile picture setup
+activate Backend
+Frontend<--Backend:setup template
+deactivate Backend
+User<--Frontend:display template
+loop user stay on page
+loop file uploaded not image
+User->Frontend:upload image
+Frontend->Backend:update profile image
+activate Backend
+activate Backend
+Frontend<--Backend:file is not image
+deactivate Backend
+User<--Frontend:alert error
+end
+Backend->Database:update profile image
+activate Database
+Backend<--Database:profile image updated
+deactivate Database
+Frontend<--Backend:profile image updated
+deactivate Backend
+User<--Frontend:profile image updated
+end
