@@ -1,0 +1,94 @@
+title Friend
+
+actor User1
+participant Frontend1
+participant Backend1
+database Database
+participant Backend2
+participant Frontend2
+actor User2
+
+User1->Frontend1:redirect to others' profile page
+activate User1
+activate Frontend1
+Frontend1->Backend1:request profile page template
+activate Backend1
+Frontend1<--Backend1:return profile page template
+deactivate Backend1
+User1<--Frontend1:display profile page template
+
+loop user stay in page
+loop not friends yet
+User1->Frontend1:request add friend
+Frontend1->Backend1:request add friend
+activate Backend1
+Backend1->Database:check friend list & request list
+activate Database
+loop already friends or requested
+Backend1<--Database:already friends / requested
+Frontend1<--Backend1:already friends / requested
+User1<-Frontend1:already friends / requested
+end
+Backend1<--Database:friend request sent
+deactivate Database
+Frontend1<--Backend1:friend request sent
+deactivate Backend1
+User1<-Frontend1:friend request sent
+end
+
+loop already friends
+User1->Frontend1:request delete friend
+Frontend1->Backend1:request delete friend
+activate Backend1
+Backend1->Database:remove friendship
+activate Database
+Backend1<--Database:friend deleted
+deactivate Database
+Frontend1<--Backend1:friend deleted
+deactivate Backend1
+User1<-Frontend1:friend deleted
+deactivate Frontend1
+deactivate User1
+end
+end
+
+
+User2 ->Frontend2: redirect to friend requests page
+activate User2
+activate Frontend2
+Frontend2->Backend2:request friend requests template
+activate Backend2
+Frontend2<--Backend2:return friend requests template
+deactivate Backend2
+User2<--Frontend2:display friend requests template
+
+loop user stay in page
+loop accept friend request
+User2->Frontend2:accept friend request
+Frontend2->Backend2: accept friend request
+activate Backend2
+Backend2->Database:remove friend request
+activate Database
+Backend2->Database:create friendship
+Backend2<--Database: friend request accepted
+deactivate Database
+Frontend2<--Backend2:friend request accepted
+deactivate Backend2
+User2<--Frontend2: friend request accepted
+end
+
+loop reject friend request
+User2->Frontend2:reject friend request
+Frontend2->Backend2: reject friend request
+activate Backend2
+Backend2->Database:remove friend request
+activate Database
+Backend2<--Database: friend request rejected
+deactivate Database
+Frontend2<--Backend2:friend request rejected
+deactivate Backend2
+User2<--Frontend2: friend request rejected
+deactivate Frontend2
+deactivate User2
+end
+end
