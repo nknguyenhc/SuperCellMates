@@ -1,0 +1,35 @@
+title Search users
+
+actor User
+participant Frontend
+participant Backend
+database Database
+
+User->Frontend:provide search phrase
+activate User
+activate Frontend
+loop search phrase starts with '@'
+Frontend->Backend:strip '@' and search for usernames
+activate Backend
+Backend->Database:query users with matching username
+activate Database
+Backend<--Database:return users with matching username
+deactivate Database
+Frontend<--Backend:return matching users
+deactivate Backend
+User<--Frontend:display matching profiles
+end
+
+loop search phrase does not start with '@'
+Frontend->Backend:search for names and usernames
+activate Backend
+Backend->Database:query users with matching name or username
+activate Database
+Backend<--Database:return users with matching name or username
+deactivate Database
+Frontend<--Backend:return matching users
+deactivate Backend
+User<--Frontend:display matching profiles
+deactivate Frontend
+deactivate User
+end
