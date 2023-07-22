@@ -47,6 +47,7 @@ function DocumentationInteractive() {
             apps: [
                 "authentication",
                 "home",
+                "chat",
                 "profile",
             ]
         }
