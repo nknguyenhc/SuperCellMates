@@ -69,6 +69,18 @@ function ChatPage() {
                                     }
                                     if (index < newPrivateChats.length) {
                                         clickOpenChat(id, index, false, true);
+                                        const postReplies = getJSONItemFrom('postReplies', {}, sessionStorage);
+                                        const targetUsername = newPrivateChats[index].chatName;
+                                        if (postReplies[targetUsername] && postReplies[targetUsername] !== '') {
+                                            fetch('/post/post/' + postReplies[targetUsername])
+                                                .then(response => {
+                                                    if (response.status === 200) {
+                                                        response.json().then(post => setTargetPost(post));
+                                                    } else if (response.status !== 404) {
+                                                        triggerErrorMessage();
+                                                    }
+                                                });
+                                        }
                                     }
                                 }
                             }
@@ -118,23 +130,6 @@ function ChatPage() {
                         });
                 }
             });
-        
-        const postQueries = window.location.search
-            .slice(1)
-            .split('&')
-            .map(eqn => eqn.split("="))
-            .filter(pair => pair[0] === "post")
-        if (postQueries.length > 0) {
-            const postId = postQueries[0][1];
-            fetch('/post/post/' + postId)
-                .then(response => {
-                    if (response.status === 200) {
-                        response.json().then(post => setTargetPost(post));
-                    } else if (response.status !== 404) {
-                        triggerErrorMessage();
-                    }
-                });
-        }
     }, []);
 
     React.useEffect(() => {
@@ -331,6 +326,9 @@ function ChatPage() {
                 jsonBody.type = "reply_post";
                 jsonBody.post_id = targetPost.id;
                 setTargetPost(null);
+                const postReplies = getJSONItemFrom('postReplies', {}, sessionStorage);
+                postReplies[privateChats[highlighting].chatName] = '';
+                sessionStorage.setItem('postReplies', JSON.stringify(postReplies));
             } else {
                 jsonBody.type = "text";
             }
@@ -437,6 +435,15 @@ function ChatPage() {
         }
     }
 
+    function removePostReference() {
+        setTargetPost(null);
+        const postReplies = getJSONItemFrom('postReplies', {}, sessionStorage);
+        console.log(postReplies);
+        postReplies[privateChats[highlighting].chatName] = '';
+        sessionStorage.setItem('postReplies', JSON.stringify(postReplies));
+        console.log(sessionStorage.getItem('postReplies'));
+    }
+
     return (
         <div id="chat-window">
             <div id="chat-selector">
@@ -519,6 +526,7 @@ function ChatPage() {
                                     <h6 className="chat-target-post-title">{targetPost.title.length > 50 ? targetPost.title.slice(0, 40) + ' ...' : targetPost.title}</h6>
                                     <div className="chat-target-post-content">{targetPost.content.length > 50 ? targetPost.content.slice(0, 40) + ' ...' : targetPost.content}</div>
                                 </a>
+                                <div className="btn-close" onClick={() => removePostReference()}></div>
                             </div>
                         }
                         <div id="chat-input" className="p-2">

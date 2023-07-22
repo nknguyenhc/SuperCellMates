@@ -189,7 +189,7 @@
     flex-direction: row;
     gap: 10px;
     align-items: center;
-    width: 100%;
+    width: 85%;
     padding-top: 5px;
 }
 
@@ -207,9 +207,20 @@
 .chat-target-post-text {
     display: flex;
     flex-direction: column;
-    gap: 5px;
     text-decoration: none;
     color: black;
+    flex-grow: 1;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.chat-target-post-title {
+    margin: 0;
+    background-color: rgb(188, 188, 188);
+}
+
+.chat-target-post-content {
+    background-color: rgb(226, 226, 226);
     flex-grow: 1;
 }
 

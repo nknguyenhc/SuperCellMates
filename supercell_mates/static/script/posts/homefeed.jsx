@@ -1,10 +1,10 @@
 function HomeFeed() {
     const [sortMethod, setSortMethod] = React.useState("time");
     const [isFriendFilter, setIsFriendFilter] = React.useState(
-        getJSONItemFromLocal('isFriendFilter', false)
+        getJSONItemFrom('isFriendFilter', false, localStorage)
     );
     const [isTagFilter, setIsTagFilter] = React.useState(
-        getJSONItemFromLocal('isTagFilter', false)
+        getJSONItemFrom('isTagFilter', false, localStorage)
     );
     const isAllPostsLoaded = React.useRef(false);
     const startTimestamp = React.useRef('');

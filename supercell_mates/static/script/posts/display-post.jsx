@@ -6,7 +6,7 @@ function ProfileFeed() {
     const currTimestamp = React.useRef(null);
     const setCurrTimestamp = (newValue) => currTimestamp.current = newValue;
     const postsDiv = React.useRef(null);
-    const profilePageFilters = getJSONItemFromLocal('profilePageFilters', {});
+    const profilePageFilters = getJSONItemFrom('profilePageFilters', {}, localStorage);
     const tag = React.useRef(profilePageFilters[username] ? profilePageFilters[username] : '');
     const setTag = (newTag) => tag.current = newTag;
     const [count, dispatchCount] = React.useReducer(state => state + 1, 0);
@@ -22,7 +22,7 @@ function ProfileFeed() {
                 tagStillExists = true;
             }
             tagListing.addEventListener('click', () => {
-                const currProfilePageFilters = getJSONItemFromLocal('profilePageFilters', {});
+                const currProfilePageFilters = getJSONItemFrom('profilePageFilters', {}, localStorage);
                 currProfilePageFilters[username] = tagInnerText;
                 localStorage.setItem('profilePageFilters', JSON.stringify(currProfilePageFilters));
                 dispatchCount();
@@ -35,7 +35,7 @@ function ProfileFeed() {
         }
         const filterClearer = document.querySelector("#nav-clear-filter");
         filterClearer.addEventListener('click', () => {
-            const currProfilePageFilters = getJSONItemFromLocal('profilePageFilters', {});
+            const currProfilePageFilters = getJSONItemFrom('profilePageFilters', {}, localStorage);
             currProfilePageFilters[username] = '';
             localStorage.setItem('profilePageFilters', JSON.stringify(currProfilePageFilters));
             dispatchCount();
