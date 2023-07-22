@@ -19,11 +19,15 @@
         },
         {
             "suggestion": "Search user by name.",
-            "response": "To be implemented after MS3."
+            "response": "Implemented. Matching results can contain either matching name or username. Searching with '@' in front yields results with usernames only."
         },
         {
             "suggestion": "Notification service.",
             "response": "To be implemented after MS3."
+        },
+        {
+            "suggestion": "My own posts in home page.",
+            "response": "Implemented. Users are now able to view their own posts in home page."
         }
     ]
 }

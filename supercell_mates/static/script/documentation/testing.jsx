@@ -177,7 +177,7 @@ function UserTestingView({ tests, name }) {
     if (name === 'details') {
         return (
             <div className="user-testing-details-window">
-                {tests.map(section => (
+                {tests.sections.map(section => (
                     <div className="user-testing-section">
                         <h5>{section.name}</h5>
                         <table className="table table-bordered">
@@ -188,11 +188,11 @@ function UserTestingView({ tests, name }) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {section.questions.map(question => (
+                                {tests.questions.map(question => (
                                     <tr>
                                         <td>{question.question}</td>
                                         <td>
-                                            <img src={"/static/testing/user_testing/" + question.img} width="600" />
+                                            <img src={"/static/testing/user_testing/" + section.path + question.img} width="600" />
                                         </td>
                                     </tr>
                                 ))}
@@ -200,6 +200,27 @@ function UserTestingView({ tests, name }) {
                         </table>
                     </div>
                 ))}
+                <div className="user-testing-section">
+                    <h5>Overall Feedback</h5>
+                    <table className="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col">Question</th>
+                                <th scope="col">Responses</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {tests.overall.map(question => (
+                                <tr>
+                                    <td>{question.question}</td>
+                                    <td>
+                                        <img src={"/static/testing/user_testing/" + question.img} width="600" />
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         )
     } else if (name === 'bugs') {

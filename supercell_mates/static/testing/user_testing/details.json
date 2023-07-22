@@ -1,31 +1,79 @@
 {
     "name": "details",
-    "tests": [
-        {
-            "name": "Authentication",
-            "questions": [
-                {
-                    "question": "Complexity (whether it has enough details to be ready for use)",
-                    "img": "/user_auth/complexity.png"
-                },
-                {
-                    "question": "Any suggestion on details to be added on for this feature?",
-                    "img": "/user_auth/complexity_suggestion.png"
-                }
-            ]
-        },
-        {
-            "name": "User Profile & Log",
-            "questions": [
-                {
-                    "question": "Complexity (whether it has enough details to be ready for use)",
-                    "img": "/user_profile_log/complexity.png"
-                },
-                {
-                    "question": "Any suggestion on details to be added on for this feature?",
-                    "img": "/user_profile_log/complexity_suggestion.png"
-                }
-            ]
-        }
-    ]
+    "tests": {
+        "sections": [
+            {
+                "name": "Authentication",
+                "path": "user_auth/"
+            },
+            {
+                "name": "User Profile & Log",
+                "path": "user_profile_log/"
+            },
+            {
+                "name": "Posts",
+                "path": "posts/"
+            },
+            {
+                "name": "Instant Messaging",
+                "path": "messages/"
+            }
+        ],
+        "questions": [
+            {
+                "question": "Complexity (whether it has enough details to be ready for use)",
+                "img": "complexity.png"
+            },
+            {
+                "question": "Any suggestion on details to be added on for this feature?",
+                "img": "complexity_suggestion.png"
+            },
+            {
+                "question": "Importance (whether it should be given high attention in future developments)",
+                "img": "importance.png"
+            },
+            {
+                "question": "Any elaboration on your answer to the previous question?",
+                "img": "importance_suggestion.png"
+            },
+            {
+                "question": "Visibility (whether it can be easily found on the platform)",
+                "img": "visibility.png"
+            },
+            {
+                "question": "Any suggestion on changes for this feature to be more visible?",
+                "img": "visibility_suggestion.png"
+            },
+            {
+                "question": "Clarity of UI (whether the UI design clearly shows the way to navigate around this feature)",
+                "img": "clarity.png"
+            },
+            {
+                "question": "Please suggest on any UI changes to make this feature more navigable.",
+                "img": "clarity_suggestion.png"
+            },
+            {
+                "question": "Any bugs that you have found while testing this feature?",
+                "img": "bugs.png"
+            },
+            {
+                "question": "Overall comment for this feature?",
+                "img": "overall.png"
+            }
+        ],
+        "overall": [
+            {
+                "question": "Are there any important features you feel are missing in our platform?",
+                "img": "missing_features.png"
+            },
+            {
+                "question": "Any security/privacy concern with our platform?",
+                "img": "security_privacy.png"
+            },
+            {
+                "question": "Any comments in general?",
+                "img": "overall.png"
+            }
+        ]
+    }
 }
