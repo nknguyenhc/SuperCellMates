@@ -1,0 +1,1 @@
+s.dependency 'file_picker'
