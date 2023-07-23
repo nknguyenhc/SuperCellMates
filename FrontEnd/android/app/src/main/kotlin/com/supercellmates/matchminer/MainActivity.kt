@@ -1,4 +1,4 @@
-package com.supercellmates.supercellmates
+package com.supercellmates.matchminer
 
 import io.flutter.embedding.android.FlutterActivity
 
