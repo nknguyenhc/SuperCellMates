@@ -47,10 +47,10 @@ function isAlphaNumeric(str) {
     return /^[A-Za-z0-9]*$/.test(str);
 }
 
-function getJSONItemFromLocal(key, defaultValue) {
-    if (localStorage.getItem(key)) {
+function getJSONItemFrom(key, defaultValue, storage) {
+    if (storage.getItem(key)) {
         try {
-            return JSON.parse(localStorage.getItem(key));
+            return JSON.parse(storage.getItem(key));
         } catch {
             return defaultValue;
         }

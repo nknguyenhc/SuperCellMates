@@ -19,6 +19,10 @@
         {
             "question": "I do not want to go through the trouble of uploading a new icon while suggesting the new tag.",
             "answer": "Absolutely, you do not have to! Our admin will be able to change the icon attached to a tag. We have made improvements to our UI, currently it is showing that tag name field is compulsory, but icon is optional."
+        },
+        {
+            "question": "The images take quite long to take.",
+            "answer": "Apologies for the network issues, images taking some time to load is because file storage is located at a different host (AWS), and it takes some time to load resources cross-origin. We are looking into cheaper options than Heroku, even possibly AWS itself (we are not sure yet if it is possible for us)"
         }
     ]
 }

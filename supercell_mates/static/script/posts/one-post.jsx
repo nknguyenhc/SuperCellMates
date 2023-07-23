@@ -84,7 +84,10 @@ function Post(props) {
                     if (text === 'no chat found') {
                         triggerErrorMessage();
                     } else {
-                        window.location.assign('/messages/?chatid=' + text + '&post=' + post.id);
+                        const postReplies = getJSONItemFrom('postReplies', {}, sessionStorage);
+                        postReplies[post.creator.username] = post.id;
+                        sessionStorage.setItem('postReplies', JSON.stringify(postReplies));
+                        window.location.assign('/messages/?chatid=' + text);
                     }
                 })
             })

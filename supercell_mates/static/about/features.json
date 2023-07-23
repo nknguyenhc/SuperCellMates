@@ -13,11 +13,11 @@
                 },
                 {
                     "details": "Privacy agreement upon registration",
-                    "progress": "Done using a placeholder agreement, to be replaced with the actual agreement"
+                    "progress": "Placeholder"
                 },
                 {
                     "details": "Register with email/phone for password recovery",
-                    "progress": "Add-on feature, to-do"
+                    "progress": "Add-on"
                 }
             ]
         },
@@ -143,7 +143,7 @@
                 },
                 {
                     "details": "Search users by name",
-                    "progress": "To do"
+                    "progress": "Done"
                 },
                 {
                     "details": "Search posts by content",
@@ -219,11 +219,11 @@
             "rows": [
                 {
                     "details": "Start game sessions in group chat",
-                    "progress": "To do"
+                    "progress": "Add-on"
                 },
                 {
                     "details": "Werewolf moderator",
-                    "progress": "To do"
+                    "progress": "Add-on"
                 },
                 {
                     "details": "Secret Hitler moderator",

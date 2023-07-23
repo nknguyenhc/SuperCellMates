@@ -6,6 +6,9 @@ function DocumentationSequence() {
         "tag setup",
         "profile pic setup",
         "request tag",
+        "search users",
+        "friend",
+        "post",
         "chat"
     ];
     const [index, setIndex] = React.useState(-1);
