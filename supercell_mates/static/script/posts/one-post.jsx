@@ -93,33 +93,6 @@ function Post(props) {
             })
     }
 
-    function addHyperlink(content) {
-        return content.split(' ')
-            .map(string => {
-                if (string.includes('http')) {
-                    const testStrings = string.split('http');
-                    if (testStrings[1].startsWith('s://') || testStrings[1].startsWith('://')) {
-                        let i = 0;
-                        let containsDot = false;
-                        while (i < testStrings[1].length) {
-                            if (testStrings[1][i] === '.') {
-                                containsDot = true;
-                            }
-                            if (/[\s,;]/.test(testStrings[1][i])) {
-                                break;
-                            }
-                            i++;
-                        }
-                        if (containsDot) {
-                            const link = testStrings[1].slice(0, i);
-                            return [testStrings[0], [`<a href=${'http' + link}>${'http' + link}</a>`, testStrings[1].slice(i)].join('')].join('');
-                        }
-                    }
-                }
-                return string;
-            }).join(' ');
-    }
-
     return (
         <React.Fragment>
             <div className="post-header">
@@ -173,20 +146,14 @@ function Post(props) {
                     post.content.length > shortLimit
                     ? isShowMore
                         ? <div>
-                            <div dangerouslySetInnerHTML={{
-                                __html: addHyperlink(post.content) + '\n'
-                            }}></div>
+                            {post.content + '\n'}
                             <a href="javascript:void(0)" onClick={() => setIsShowMore(false)}>See Less</a>
                         </div>
                         : <div>
-                            <div dangerouslySetInnerHTML={{
-                                __html: addHyperlink(post.content.slice(0, shortLimit)) + '\n'
-                            }}></div>
+                            {post.content.slice(0, shortLimit) + ' ... '}
                             <a href="javascript:void(0)" onClick={() => setIsShowMore(true)}>See More</a>
                         </div>
-                    : <div dangerouslySetInnerHTML={{
-                        __html: addHyperlink(post.content)
-                    }}></div>
+                    : post.content
                 }
             </div>
             <div className="post-images mb-2">
