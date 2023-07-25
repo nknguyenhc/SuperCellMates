@@ -26,10 +26,11 @@
                                 <img src="/static/media/nav-bar/profile.png">
                             </a>
                         </li>
-                        <li class="nav-item layout-nav-item" id="nav-message" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="message">
+                        <li class="nav-item layout-nav-item position-relative" id="nav-message" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="message">
                             <a href="{% url 'message:index' %}" class="nav-link">
                                 <img src="/static/media/nav-bar/message.png">
                             </a>
+                            <span class="position-absolute top-100 start-100 translate-middle badge rounded-pill bg-danger" id="message-count-badge"></span>
                         </li>
                         <li class="nav-item layout-nav-item position-relative" id="nav-notification" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="notifications">
                             <a href="javascript:void(0)" class="nav-link" id="nav-notification-link">

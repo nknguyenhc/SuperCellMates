@@ -10,5 +10,12 @@ document.addEventListener("DOMContentLoaded", () => {
             document.querySelector("#nav-notification").classList.remove('bg-info');
         }
         renderNotificationCentre();
+    });
+    document.addEventListener('click', event => {
+        if (!document.querySelector("#nav-notification").contains(event.target)) {
+            isShow = false;
+            document.querySelector("#notification-centre").style.display = 'none';
+            document.querySelector("#nav-notification").classList.remove('bg-info');
+        }
     })
 })

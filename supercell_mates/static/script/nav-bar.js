@@ -1,3 +1,4 @@
+// request tag link
 (() => {
     const requestTagLink = document.querySelector("#request-tag-link");
     if (requestTagLink !== null) {
@@ -7,6 +8,7 @@
     }
 })();
 
+// highlighting the correct div
 (() => {
     if (window.location.pathname === '/') {
         document.querySelector("#nav-home").classList.add('bg-info');
@@ -22,6 +24,7 @@
 })();
 
 document.addEventListener("DOMContentLoaded", () => {
+    // tooltip
     if (document.querySelector("#nav-home") !== null) {
         new bootstrap.Tooltip(document.querySelector("#nav-home"));
         new bootstrap.Tooltip(document.querySelector("#nav-profile"));
@@ -31,5 +34,19 @@ document.addEventListener("DOMContentLoaded", () => {
         if (document.querySelector("#nav-admin")) {
             new bootstrap.Tooltip(document.querySelector("#nav-admin"));
         }
+    }
+
+    // message count badge
+    if (document.querySelector("#nav-message") !== null) {
+        fetch('/notification/chats_new_messages')
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                    return;
+                }
+                response.json().then(counts => {
+                    document.querySelector("#message-count-badge").innerText = counts.privates.length + counts.groups.length;
+                });
+            });
     }
 });

@@ -45,6 +45,24 @@ function NotificationCentre() {
 
 
 function FriendRequest({ request }) {
+    const [isActionDone, setIsActionDone] = React.useState(false);
+    const [isFriendRequestAccepted, setIsFriendRequestAccepted] = React.useState(false);
+
+    function respondFriendRequest(accepted) {
+        fetch('/user/add_friend', postRequestContent({
+            username: request.username,
+            accepted: accepted,
+        }))
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                } else {
+                    setIsActionDone(true);
+                    setIsFriendRequestAccepted(accepted);
+                }
+            })
+    }
+
     return (
         <div className='request-listing'>
             <div className="request-listing-info">
@@ -57,8 +75,22 @@ function FriendRequest({ request }) {
                 </div>
             </div>
             <div className="request-listing-action">
-                <button className="btn btn-sm btn-success">Accept</button>
-                <button className="btn btn-sm btn-danger">Decline</button>
+                {
+                    isActionDone
+                        ? isFriendRequestAccepted
+                            ? <React.Fragment>
+                                <img height="18" width="18" src="/static/media/check-icon.png" />
+                                <div className="text-success">accepted</div>
+                            </React.Fragment>
+                            : <React.Fragment>
+                                <img height="18" width="18" src="/static/media/cross-icon.png" />
+                                <div className="text-danger">rejected</div>
+                            </React.Fragment>
+                        : <React.Fragment>
+                            <button className="btn btn-sm btn-success" onClick={() => respondFriendRequest(true)}>Accept</button>
+                            <button className="btn btn-sm btn-danger" onClick={() => respondFriendRequest(false)}>Decline</button>
+                        </React.Fragment>
+                }
             </div>
         </div>
     )

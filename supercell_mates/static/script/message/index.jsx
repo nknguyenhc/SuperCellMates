@@ -29,6 +29,8 @@ function ChatPage() {
     const setIsLoading = (newValue) => isLoading.current = newValue;
     const [isConnectingWs, setIsConnectingWs] = React.useState(false);
     const [targetPost, setTargetPost] = React.useState(null);
+    const isFirstLoading = React.useRef(true);
+    const setIsFirstLoading = (newValue) => isFirstLoading.current = newValue;
 
     React.useEffect(() => {
         fetch('/messages/get_private_chats')
@@ -189,7 +191,7 @@ function ChatPage() {
     }
 
     async function loadMessagesUntilFound(chatid, currTime, currMessages, isPrivate) {
-        return fetch('/messages/get_' + (isPrivate ? 'private' : 'group') + '_messages/' + chatid + `?start=${currTime - jump}&end=${currTime}`)
+        return fetch('/messages/get_' + (isPrivate ? 'private' : 'group') + '_messages/' + chatid + `?start=${currTime - jump}&end=${currTime}`, isFirstLoading.current ? postRequestContent({}) : null)
             .then(response => {
                 if (response.status !== 200) {
                     triggerErrorMessage();
@@ -200,6 +202,7 @@ function ChatPage() {
                                 if (response.next_last_timestamp !== 0) {
                                     return loadMessagesUntilFound(chatid, response.next_last_timestamp, currMessages, isPrivate);
                                 } else {
+                                    setIsFirstLoading(false);
                                     return {
                                         currTexts: [...currMessages],
                                         currTime: currTime,
@@ -207,6 +210,7 @@ function ChatPage() {
                                     }
                                 }
                             } else {
+                                setIsFirstLoading(false);
                                 setTexts(response.messages.concat(currMessages));
                                 return {
                                     currTexts: response.messages.concat(currMessages),
@@ -228,6 +232,7 @@ function ChatPage() {
         }
 
         setIsConnectingWs(true);
+        setIsFirstLoading(true);
         
         loadMessagesUntilFound(chatid, new Date().getTime() / 1000, [], isPrivate)
             .then(result => {
@@ -253,6 +258,14 @@ function ChatPage() {
                     result.currTexts.push(data);
                     setTexts([...result.currTexts]);
                     testAndScrollToBottom();
+                    fetch('/notification/see_message', postRequestContent({
+                        message_id: data.id,
+                        type: data.type + (isPrivate ? ' private' : ' group')
+                    })).then(response => {
+                        if (response.status !== 200) {
+                            triggerErrorMessage();
+                        }
+                    })
                 };
 
                 chatSocket.onclose = (e) => {
@@ -438,10 +451,8 @@ function ChatPage() {
     function removePostReference() {
         setTargetPost(null);
         const postReplies = getJSONItemFrom('postReplies', {}, sessionStorage);
-        console.log(postReplies);
         postReplies[privateChats[highlighting].chatName] = '';
         sessionStorage.setItem('postReplies', JSON.stringify(postReplies));
-        console.log(sessionStorage.getItem('postReplies'));
     }
 
     return (
