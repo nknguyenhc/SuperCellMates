@@ -394,27 +394,28 @@ class GroupChatSettingsPageState extends State<GroupChatSettingsPage> {
             titleSpacing: 0,
             title: const Text(
               "Group chat settings",
-              style: const TextStyle(fontSize: 20),
+              style: TextStyle(fontSize: 20),
             )),
         body: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                memberOrAdminTitle,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    memberOrAdminTitle,
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.width * 0.7,
+                    child: membersGridView,
+                  ),
+                  manageMemberSection,
+                  manageAdminSection,
+                ],
               ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.width * 0.7,
-                child: membersGridView,
-              ),
-              manageMemberSection,
-              manageAdminSection,
-            ],
-          ),
-        ));
+            )));
   }
 }
