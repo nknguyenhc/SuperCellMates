@@ -196,7 +196,8 @@ class ProfilePageState extends State<ProfilePage> {
                         }
                         AutoRouter.of(context).push(CreatePostRoute(
                             tagName: data["tags"][selectedTagIndex - 1]["name"],
-                            updateCallBack: loadProfilePosts));
+                            updateCallBack: loadProfilePosts,
+                            isEdit: false));
                       },
                       child: const Row(children: [
                         Icon(Icons.post_add, size: 40),

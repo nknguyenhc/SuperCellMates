@@ -453,12 +453,13 @@ class PostListViewState extends State<PostListView> {
                                 width: 30,
                                 child: IconButton(
                                   onPressed: () {
-                                    AutoRouter.of(context).push(EditPostRoute(
+                                    AutoRouter.of(context).push(CreatePostRoute(
                                         tagName: widget.postList[index]["tag"]
                                             ["name"],
                                         oldPostData: widget.postList[index],
                                         oldPostImages: postImagesRaw[index],
-                                        updateCallBack: widget.updateCallBack));
+                                        updateCallBack: widget.updateCallBack,
+                                        isEdit: true));
                                   },
                                   icon: const Icon(
                                     Icons.edit_outlined,
