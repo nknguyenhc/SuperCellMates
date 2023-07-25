@@ -28,5 +28,6 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: CreateGroupRoute.page),
         AutoRoute(page: GroupChatSettingsRoute.page),
         AutoRoute(page: GroupChatInviteFriendRoute.page),
+        AutoRoute(page: OnePostRoute.page),
       ];
 }

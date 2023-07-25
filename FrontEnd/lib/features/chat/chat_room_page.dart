@@ -133,7 +133,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
             text: m["message"],
             createdAt: (m["timestamp"] * 1000).toInt() // in milliseconds,
             );
-      } else {
+      } else if (m["type"] == "file") {
         Future<Uint8List> futureImageData =
             getRawImageData("${EndPoints.getImage.endpoint}${m["id"]}");
 
@@ -145,8 +145,21 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
             id: m["id"],
             metadata: {
               "name": m["file_name"],
-              "is_image": m["is_image"],
+              "type": m["is_image"] ? "image" : "file",
               "futureImageData": futureImageData
+            });
+      } else {
+        // message is a reply post
+        return types.CustomMessage(
+            author: types.User(
+                id: m["user"]["username"],
+                firstName: m["user"]["name"],
+                imageUrl: m["user"]["profile_link"]),
+            id: m["id"],
+            metadata: {
+              "type": "reply_post",
+              "message": m["message"],
+              "post": m["post"],
             });
       }
     }).toList();
@@ -468,98 +481,171 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     Widget customMessageBuilder(types.CustomMessage p0,
         {int messageWidth = 1}) {
       // build corresponding widget from metadata in customMessage instances
-      return FutureBuilder(
-          future: p0.metadata!["futureImageData"],
-          builder: (_, snap) {
-            if (snap.hasData) {
-              return Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      p0.author.id == widget.username
-                          ? const SizedBox(
-                              width: 0,
-                            )
-                          : Text(
-                              p0.author.firstName!,
-                              style:
-                                  const TextStyle(color: Colors.indigoAccent),
-                            ),
-                      p0.author.id == widget.username
-                          ? const SizedBox(
-                              width: 0,
-                            )
-                          : const Padding(padding: EdgeInsets.only(bottom: 5)),
-                      p0.metadata!["is_image"]
-                          ? ClipRRect(
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(10)),
-                              child: IconButton(
-                                constraints: BoxConstraints(
-                                    maxWidth:
-                                        MediaQuery.of(context).size.width * 0.7,
-                                    maxHeight:
-                                        MediaQuery.of(context).size.height *
-                                            0.3),
-                                onPressed: () => context.router.push(
-                                    SinglePhotoViewer(
-                                        photoBytes: snap.data! as Uint8List,
-                                        actions: [])),
-                                icon: Image.memory(snap.data! as Uint8List,
-                                    fit: BoxFit.contain),
-                                padding: EdgeInsets.zero,
-                              ))
-                          : TextButton(
-                              onPressed: () {
-                                int dotIndex =
-                                    p0.metadata!["name"].lastIndexOf('.');
-                                String fileName = dotIndex == -1
-                                    ? p0.metadata!["name"]
-                                    : p0.metadata!["name"]
-                                        .substring(0, dotIndex);
-                                String extension = dotIndex == -1
-                                    ? ""
-                                    : p0.metadata!["name"]
-                                        .substring(dotIndex + 1);
-                                FileSaver.instance.saveAs(
-                                    name: fileName,
-                                    bytes: snap.data! as Uint8List,
-                                    ext: extension,
-                                    mimeType: MimeType.other);
-                              },
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.file_present,
-                                    size: 20,
-                                  ),
-                                  const Padding(
-                                      padding: EdgeInsets.only(right: 5)),
-                                  Container(
-                                      constraints: BoxConstraints(
-                                          maxWidth: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.5),
-                                      child: Text(
-                                        p0.metadata!["name"],
-                                        style: const TextStyle(
-                                            color: Colors.indigo,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            decoration:
-                                                TextDecoration.underline),
-                                      )),
-                                ],
-                              ))
-                    ],
-                  ));
-            }
-            return const CircularProgressIndicator();
-          });
+      return Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // name section
+              p0.author.id == widget.username
+                  ? const SizedBox(
+                      width: 0,
+                    )
+                  : Text(
+                      p0.author.firstName!,
+                      style: const TextStyle(color: Colors.indigoAccent),
+                    ),
+              p0.author.id == widget.username
+                  ? const SizedBox(
+                      width: 0,
+                    )
+                  : const Padding(padding: EdgeInsets.only(bottom: 5)),
+
+              // message section
+              p0.metadata!["type"] != "reply_post"
+                  ? FutureBuilder(
+                      future: p0.metadata!["futureImageData"],
+                      builder: (_, snap) {
+                        if (snap.hasData) {
+                          return p0
+                                  .metadata!["type"] == "image" // image as icon button
+                              ? ClipRRect(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(10)),
+                                  child: IconButton(
+                                    constraints: BoxConstraints(
+                                        maxWidth:
+                                            MediaQuery.of(context).size.width *
+                                                0.7,
+                                        maxHeight:
+                                            MediaQuery.of(context).size.height *
+                                                0.3),
+                                    onPressed: () => context.router.push(
+                                        SinglePhotoViewer(
+                                            photoBytes: snap.data! as Uint8List,
+                                            actions: [])),
+                                    icon: Image.memory(snap.data! as Uint8List,
+                                        fit: BoxFit.contain),
+                                    padding: EdgeInsets.zero,
+                                  ))
+                              : TextButton(
+                                  // file as text button
+                                  onPressed: () {
+                                    int dotIndex =
+                                        p0.metadata!["name"].lastIndexOf('.');
+                                    String fileName = dotIndex == -1
+                                        ? p0.metadata!["name"]
+                                        : p0.metadata!["name"]
+                                            .substring(0, dotIndex);
+                                    String extension = dotIndex == -1
+                                        ? ""
+                                        : p0.metadata!["name"]
+                                            .substring(dotIndex + 1);
+                                    FileSaver.instance.saveAs(
+                                        name: fileName,
+                                        bytes: snap.data! as Uint8List,
+                                        ext: extension,
+                                        mimeType: MimeType.other);
+                                  },
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.file_present,
+                                        size: 20,
+                                      ),
+                                      const Padding(
+                                          padding: EdgeInsets.only(right: 5)),
+                                      Container(
+                                          constraints: BoxConstraints(
+                                              maxWidth: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.5),
+                                          child: Text(
+                                            p0.metadata!["name"],
+                                            style: const TextStyle(
+                                                color: Colors.indigo,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                decoration:
+                                                    TextDecoration.underline),
+                                          )),
+                                    ],
+                                  ));
+                        } else {
+                          return const CircularProgressIndicator();
+                        }
+                      })
+                  : Column(
+                      // replied post as icon button
+                      crossAxisAlignment: widget.username == p0.author.id
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
+                      children: [
+                        Text("replied to post",
+                            style: TextStyle(
+                                color: widget.username == p0.author.id
+                                    ? Colors.white70
+                                    : Colors.blueGrey,
+                                fontStyle: FontStyle.italic)),
+                        const Padding(padding: EdgeInsets.only(top: 5)),
+                        p0.metadata!["post"] == null
+                            ? Text("This post has been deleted",
+                                style: TextStyle(
+                                    color: widget.username == p0.author.id
+                                        ? Colors.white70
+                                        : Colors.blueGrey,
+                                    fontStyle: FontStyle.italic,
+                                    fontWeight: FontWeight.bold))
+                            : ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
+                                    constraints: BoxConstraints(
+                                        maxWidth:
+                                            MediaQuery.of(context).size.width *
+                                                0.5),
+                                    color: widget.username == p0.author.id
+                                        ? Colors.white70
+                                        : Colors.grey,
+                                    child: IconButton(
+                                        onPressed: () => context.router.push(
+                                            OnePostRoute(
+                                                postID: p0.metadata!["post"]
+                                                    ["id"],
+                                                username: widget.username)),
+                                        icon: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              p0.metadata!["post"]["title"],
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            const Padding(
+                                                padding:
+                                                    EdgeInsets.only(top: 5)),
+                                            Text(
+                                              p0.metadata!["post"]["content"],
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        )))),
+                        const Padding(padding: EdgeInsets.only(top: 10)),
+                        Text(p0.metadata!["message"],
+                            style: TextStyle(
+                                color: widget.username == p0.author.id
+                                    ? Colors.white
+                                    : Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15))
+                      ],
+                    )
+            ],
+          ));
     }
 
     return Scaffold(
