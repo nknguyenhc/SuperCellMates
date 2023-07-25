@@ -21,11 +21,19 @@ class ChatListView extends StatefulWidget {
 
 class ChatListViewState extends State<ChatListView> {
   int count = 0;
+  List<Future> listOfLoadImageFutures = [];
 
   @override
   void initState() {
     super.initState();
     count = widget.chatList.length;
+    for (int i = 0; i < count; i++) {
+      listOfLoadImageFutures.add(
+        getRawImageData(widget.isPrivate
+            ? widget.chatList[i]["user"]["profile_img_url"]
+            : widget.chatList[i]["img"]),
+      );
+    }
   }
 
   @override
@@ -56,10 +64,7 @@ class ChatListViewState extends State<ChatListView> {
                       height: 45,
                       width: 45,
                       child: FutureBuilder(
-                          future: getRawImageData(widget.isPrivate
-                              ? widget.chatList[index]["user"]
-                                  ["profile_img_url"]
-                              : widget.chatList[index]["img"]),
+                          future: listOfLoadImageFutures[index],
                           builder: (context, snapshot) {
                             return snapshot.hasData
                                 ? IconButton(
