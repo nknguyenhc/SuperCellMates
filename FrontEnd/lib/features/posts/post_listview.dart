@@ -52,16 +52,7 @@ class PostListViewState extends State<PostListView> {
   @override
   void initState() {
     super.initState();
-    count = widget.postList.length;
-    dataLoaded = List.filled(count, false, growable: true);
-    profileImages = List.filled(count, Uint8List.fromList([]), growable: true);
-    postImagesRaw = List.filled(count, null, growable: true);
-    timePosted = List.filled(count, null, growable: true);
-    seeMore = List.filled(count, false, growable: true);
-    for (int i = 0; i < count; i++) {
-      loadImages(i);
-      loadTime(i);
-    }
+    loadPosts();
     _controller.addListener(() {
       if (_controller.position.atEdge) {
         bool isTop = _controller.position.pixels == 0;
@@ -75,18 +66,19 @@ class PostListViewState extends State<PostListView> {
   @override
   void didUpdateWidget(covariant PostListView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    loadMore();
+    if (oldWidget.postList != widget.postList) {
+      loadPosts();
+    }
   }
 
-  void loadMore() {
-    int currCount = dataLoaded.length;
+  void loadPosts() {
     count = widget.postList.length;
-    for (int i = currCount; i < count; i++) {
-      dataLoaded.add(false);
-      profileImages.add(Uint8List.fromList([]));
-      postImagesRaw.add(null);
-      timePosted.add(null);
-      seeMore.add(false);
+    dataLoaded = List.filled(count, false, growable: true);
+    profileImages = List.filled(count, Uint8List.fromList([]), growable: true);
+    postImagesRaw = List.filled(count, null, growable: true);
+    timePosted = List.filled(count, null, growable: true);
+    seeMore = List.filled(count, false, growable: true);
+    for (int i = 0; i < count; i++) {
       loadImages(i);
       loadTime(i);
     }

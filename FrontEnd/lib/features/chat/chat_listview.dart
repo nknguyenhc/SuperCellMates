@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:supercellmates/http_requests/get_image.dart';
@@ -23,28 +21,11 @@ class ChatListView extends StatefulWidget {
 
 class ChatListViewState extends State<ChatListView> {
   int count = 0;
-  var dataLoaded = [];
-  var chatIcons = [];
 
   @override
   void initState() {
     super.initState();
     count = widget.chatList.length;
-    dataLoaded = List<bool>.filled(count, false, growable: true);
-    chatIcons =
-        List<Uint8List?>.filled(count, Uint8List.fromList([]), growable: true);
-    for (int i = 0; i < count; i++) {
-      loadImage(i);
-    }
-  }
-
-  void loadImage(index) async {
-    chatIcons[index] = await getRawImageData(widget.isPrivate
-        ? widget.chatList[index]["user"]["profile_img_url"]
-        : widget.chatList[index]["img"]);
-    setState(() {
-      dataLoaded[index] = true;
-    });
   }
 
   @override
@@ -72,20 +53,28 @@ class ChatListViewState extends State<ChatListView> {
                 },
                 child: Row(children: [
                   SizedBox(
-                    height: 45,
-                    width: 45,
-                    child: dataLoaded[index]
-                        ? IconButton(
-                            onPressed: () {
-                              AutoRouter.of(context).push(SinglePhotoViewer(
-                                  photoBytes: chatIcons[index], actions: []));
-                            },
-                            icon: Image.memory(chatIcons[index]),
-                            iconSize: 45,
-                            padding: EdgeInsets.zero,
-                          )
-                        : const CircularProgressIndicator(),
-                  ),
+                      height: 45,
+                      width: 45,
+                      child: FutureBuilder(
+                          future: getRawImageData(widget.isPrivate
+                              ? widget.chatList[index]["user"]
+                                  ["profile_img_url"]
+                              : widget.chatList[index]["img"]),
+                          builder: (context, snapshot) {
+                            return snapshot.hasData
+                                ? IconButton(
+                                    onPressed: () {
+                                      AutoRouter.of(context).push(
+                                          SinglePhotoViewer(
+                                              photoBytes: snapshot.data!,
+                                              actions: []));
+                                    },
+                                    icon: Image.memory(snapshot.data!),
+                                    iconSize: 45,
+                                    padding: EdgeInsets.zero,
+                                  )
+                                : const CircularProgressIndicator();
+                          })),
                   const Padding(padding: EdgeInsets.all(6)),
                   Column(
                     children: [

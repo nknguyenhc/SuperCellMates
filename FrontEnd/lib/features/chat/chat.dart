@@ -141,7 +141,6 @@ class ChatPageState extends State<ChatPage> {
               : MediaQuery.of(context).size.height - 255,
           child: dataLoaded
               ? ChatListView(
-                  key: UniqueKey(),
                   username: widget.username,
                   chatList: chatList,
                   isPrivate: navigationBarIndex == 0,

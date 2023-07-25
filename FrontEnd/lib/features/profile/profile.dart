@@ -238,7 +238,6 @@ class ProfilePageState extends State<ProfilePage> {
                       width: MediaQuery.of(context).size.width,
                       child: profilePostsLoaded
                           ? PostListView(
-                              key: UniqueKey(),
                               postList: profilePosts,
                               isInSomeProfile: true,
                               username: data["user_profile"]["username"],
