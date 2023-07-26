@@ -66,8 +66,10 @@ class PostListViewState extends State<PostListView> {
   @override
   void didUpdateWidget(covariant PostListView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.postList != widget.postList) {
+    if (widget.postList != oldWidget.postList) {
       loadPosts();
+    } else if (widget.postList.length > dataLoaded.length) {
+      loadMore();
     }
   }
 
@@ -79,6 +81,21 @@ class PostListViewState extends State<PostListView> {
     timePosted = List.filled(count, null, growable: true);
     seeMore = List.filled(count, false, growable: true);
     for (int i = 0; i < count; i++) {
+      loadImages(i);
+      loadTime(i);
+    }
+  }
+
+  void loadMore() {
+    // for loading more posts in home feed
+    int currCount = dataLoaded.length;
+    count = widget.postList.length;
+    for (int i = currCount; i < count; i++) {
+      dataLoaded.add(false);
+      profileImages.add(Uint8List.fromList([]));
+      postImagesRaw.add(null);
+      timePosted.add(null);
+      seeMore.add(false);
       loadImages(i);
       loadTime(i);
     }
