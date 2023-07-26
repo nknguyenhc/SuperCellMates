@@ -1,6 +1,7 @@
 function NotificationCentre() {
     const [currPage, setCurrPage] = React.useState(-1);
     const [friendRequests, setFriendRequests] = React.useState([]);
+    const [friendRequestCount, setFriendRequestCount] = React.useState(0);
     const [friendAccepts, setFriendAccepts] = React.useState([]);
     const [friendAcceptCount, setFriendAcceptCount] = React.useState(0);
 
@@ -11,7 +12,10 @@ function NotificationCentre() {
                     triggerErrorMessage();
                     return;
                 }
-                response.json().then(users => setFriendRequests(users));
+                response.json().then(users => {
+                    setFriendRequests(users);
+                    setFriendRequestCount(users.length);
+                });
             });
         
         fetch('/notification/friends', postRequestContent({}))
@@ -31,13 +35,13 @@ function NotificationCentre() {
     }, []);
 
     React.useEffect(() => {
-        const total = friendAcceptCount + friendRequests.length;
+        const total = friendAcceptCount + friendRequestCount;
         if (total > 0) {
             document.querySelector("#notification-count-badge").innerText = total;
         } else {
             document.querySelector("#notification-count-badge").innerText = '';
         }
-    }, [friendAcceptCount, friendRequests])
+    }, [friendAcceptCount, friendRequestCount])
 
     return (
         <React.Fragment>
@@ -46,7 +50,7 @@ function NotificationCentre() {
                     src={"/static/media/nav-bar/incoming-request-icon.png"}
                     isSelected={currPage === 0}
                     setPage={() => setCurrPage(0)}
-                    count={friendRequests.length}
+                    count={friendRequestCount}
                 />
                 <NotificationIcon 
                     src={"/static/media/nav-bar/friend-accept-icon.png"}
@@ -69,7 +73,7 @@ function NotificationCentre() {
                     {
                         currPage === 0
                         ? friendRequests.map(listing => (
-                            <FriendRequest request={listing} />
+                            <FriendRequest request={listing} click={() => setFriendRequestCount(state => state - 1)} />
                         ))
                         : currPage === 1
                         ? friendAccepts.map((listing, i) => (
@@ -84,7 +88,7 @@ function NotificationCentre() {
 }
 
 
-function FriendRequest({ request }) {
+function FriendRequest({ request, click }) {
     const [isActionDone, setIsActionDone] = React.useState(false);
     const [isFriendRequestAccepted, setIsFriendRequestAccepted] = React.useState(false);
 
@@ -99,8 +103,9 @@ function FriendRequest({ request }) {
                 } else {
                     setIsActionDone(true);
                     setIsFriendRequestAccepted(accepted);
+                    click();
                 }
-            })
+            });
     }
 
     return (
