@@ -87,8 +87,8 @@
         },
         {
             "instruction": "Navigate to another user's profile page by searching for the user's username on the top navigation bar, and click on the user. This user must not be your friend. Press on add friend button beside the profile image.",
-            "expected": "A new friend request is created. The other user should be able to view the friend request in the friend requests page. Reloading the page shows the same button, this is so that you cannot track the friend request.",
-            "datePassed": "04/07/2023"
+            "expected": "A new friend request is created. The other user should be able to view the friend request in the friend requests page, and receive a notification under notification centre. Reloading the page shows the same button, this is so that you cannot track the friend request.",
+            "datePassed": "26/07/2023"
         },
         {
             "instruction": "Navigate to another user's profile page by searching for the user's username on the top navigation bar, and click on the user. This user must be your friend. Click on message button.",

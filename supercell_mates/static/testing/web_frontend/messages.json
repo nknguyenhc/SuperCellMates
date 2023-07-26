@@ -2,13 +2,13 @@
     "tests": [
         {
             "instruction": "Redirect to the chat page by clicking on the chat icon on menu bar.",
-            "expected": "Chat page is rendered. All chats should be loaded, under respective 'private' and 'group' tabs",
-            "datePassed": "21/07/2023"
+            "expected": "Chat page is rendered. All chats should be loaded, under respective 'private' and 'group' tabs. Each tab should indicate which chats have unread messages (upon first load, all of those chats should be at the top).",
+            "datePassed": "26/07/2023"
         },
         {
             "instruction": "Click open one of the chats.",
-            "expected": "Some of the latest messages are loaded.",
-            "datePassed": "21/07/2023"
+            "expected": "Some of the latest messages are loaded. The chat listing on the left should update on the chats that have unread messages",
+            "datePassed": "26/07/2023"
         },
         {
             "instruction": "Click open one of the chats and scroll up.",

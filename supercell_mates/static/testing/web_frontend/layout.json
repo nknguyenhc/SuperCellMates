@@ -39,6 +39,36 @@
             "instruction": "Input some text into the search bar. Hit enter or press search.",
             "expected": "All users with username that has search parameter as substring appears in the result list.",
             "datePassed": "10/07/2023"
+        },
+        {
+            "instruction": "Load any page.",
+            "expected": "On navigation bar, number of unread chats under chat icon must be correct, and total number of unresponded incoming friend requests and number of new outgoing accepted friend requests must be correct.",
+            "datePassed": "26/07/2023"
+        },
+        {
+            "instruction": "Click on notification (bell) icon, open incoming friend requests",
+            "expected": "All incoming friend requests are displayed, with action buttons accept and reject.",
+            "datePassed": "26/07/2023"
+        },
+        {
+            "instruction": "Click on notification (bell) icon, open incoming friend requests, press on accept friend request.",
+            "expected": "Friend request is accepted, friendship is created. Redirect to the user's profile page to verify.",
+            "datePassed": "26/07/2023"
+        },
+        {
+            "instruction": "Click on notification (bell) icon, open incoming friend requests, press on reject friend request.",
+            "expected": "Friend request is deleted, friendship is not created. Redirect to the user's profile page to verify.",
+            "datePassed": "26/07/2023"
+        },
+        {
+            "instruction": "Click on notification (bell) icon, open outgoing friend requests.",
+            "expected": "Notifications on new accepted outgoing friend requests (since last redirect) is displayed.",
+            "datePassed": "26/07/2023"
+        },
+        {
+            "instruction": "Click on notification (bell) icon. Close the browser (the entire window, not just the tab) and immediately open the page.",
+            "expected": "If no friend request is sent to you in that split second, accepted outgoing friend requests tab is empty.",
+            "datePassed": "26/07/2023"
         }
     ]
 }
