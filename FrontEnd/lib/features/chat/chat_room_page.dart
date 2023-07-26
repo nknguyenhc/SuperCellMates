@@ -28,16 +28,18 @@ import 'package:intl/intl.dart';
 
 @RoutePage()
 class ChatRoomPage extends StatefulWidget {
-  const ChatRoomPage(
-      {Key? key,
-      required this.username,
-      required this.chatInfo,
-      required this.isPrivate})
-      : super(key: key);
+  const ChatRoomPage({
+    Key? key,
+    required this.username,
+    required this.chatInfo,
+    required this.isPrivate,
+    this.replyPostData,
+  }) : super(key: key);
 
   final String username;
   final dynamic chatInfo;
   final bool isPrivate;
+  final dynamic replyPostData;
 
   @override
   State<ChatRoomPage> createState() => _ChatRoomPageState();
@@ -48,12 +50,16 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   WebSocketChannel? wsChannel;
   final int jump = 60; // seconds within which a batch of messages are loaded
   double nextLastTimestamp = 0;
+  bool messageLoaded = false;
   bool inputEnabled = true;
+  bool isReplyPost = false;
 
   List<types.Message> messages = [];
   // memoised profile image urls
   // asynchronously mapped to IconButtons with icon being the image
   Map<String, dynamic> usernameToProfileImageUrl = {};
+
+  Widget? bottomWidget;
 
   bool showAttachmentMenu = false;
   final GlobalKey _menuKey =
@@ -64,6 +70,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     super.initState();
     double currTimestamp = DateTime.now().microsecondsSinceEpoch / 1000000;
     loadMessages(currTimestamp - jump, currTimestamp);
+    loadBottomWidget();
     connect(0);
   }
 
@@ -131,7 +138,9 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   }
 
   void loadMessages(double start, double end) async {
+    messageLoaded = false;
     if (end == 0) {
+      setState(() => messageLoaded = true);
       return;
     }
 
@@ -183,6 +192,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     // update Chat widget
     setState(() {
       messages.addAll(oldMessagesList.reversed);
+      messageLoaded = true;
     });
 
     // ensure enough messages initially
@@ -265,6 +275,66 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         });
       },
     );
+  }
+
+  void loadBottomWidget() {
+    if (widget.replyPostData != null) {
+      Widget postPreview = Padding(
+          padding: const EdgeInsets.only(left: 30, bottom: 10),
+          child: IconButton(
+            onPressed: () => context.router.push(OnePostRoute(
+                postID: widget.replyPostData["postID"],
+                username: widget.username)),
+            icon: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                    constraints: const BoxConstraints(
+                        maxWidth: 200, minWidth: 80, maxHeight: 100),
+                    padding: const EdgeInsets.all(10),
+                    color: Colors.grey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          widget.replyPostData["title"],
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const Padding(padding: EdgeInsets.only(top: 5)),
+                        Text(
+                          widget.replyPostData["content"],
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ],
+                    ))),
+          ));
+
+      Widget bottomSection = Row(
+        children: [
+          postPreview,
+          IconButton(
+              onPressed: () => cancelReplyPost(),
+              icon: const Icon(
+                Icons.cancel,
+                color: Colors.red,
+              ))
+        ],
+      );
+      setState(() {
+        bottomWidget = bottomSection;
+        isReplyPost = true;
+      });
+    }
+  }
+
+  void cancelReplyPost() {
+    setState(() {
+      bottomWidget = Container();
+      isReplyPost = false;
+    });
   }
 
   void _handleImageSelection() async {
@@ -428,6 +498,22 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         borderRadius: const BorderRadius.all(Radius.circular(15)),
         border: Border.all());
 
+    Widget emptyStateBuilder() {
+      return Stack(
+        children: [
+          Container(
+            alignment: Alignment.center,
+            child: Text(
+                messageLoaded ? "No messages here yet" : "Loading messages..."),
+          ),
+          Container(
+            alignment: Alignment.bottomLeft,
+            child: bottomWidget ?? Container(),
+          )
+        ],
+      );
+    }
+
     DefaultChatTheme chatTheme = DefaultChatTheme(
         inputTextDecoration:
             inputEnabled ? enabledInputDecoration : disabledInputDecoration,
@@ -447,22 +533,35 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         showErrorDialog(context, "Message cannot be empty!");
         return;
       } else if (s.text.length > 700) {
-        messageMap = {
-          "type": "text",
-          "message": s.text.substring(0, 700),
-        };
+        messageMap = isReplyPost
+            ? {
+                "type": "reply_post",
+                "message": s.text.substring(0, 700),
+                "post_id": widget.replyPostData["postID"],
+              }
+            : {
+                "type": "text",
+                "message": s.text.substring(0, 700),
+              };
         showCustomDialog(context, "Message is too long",
             "Only the first 700 characters were sent");
       } else {
-        messageMap = {
-          "type": "text",
-          "message": s.text,
-        };
+        messageMap = isReplyPost
+            ? {
+                "type": "reply_post",
+                "message": s.text,
+                "post_id": widget.replyPostData["postID"],
+              }
+            : {
+                "type": "text",
+                "message": s.text,
+              };
       }
       wsChannel!.sink.add(jsonEncode(messageMap));
       setState(() {
         messages = messages;
       });
+      cancelReplyPost();
     }
 
     Widget avatarBuilder(String userId) {
@@ -539,7 +638,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           borderRadius: BorderRadius.circular(12),
           child: Container(
               constraints: BoxConstraints(
-                  maxWidth: MediaQuery.of(context).size.width * 0.5),
+                  maxWidth: MediaQuery.of(context).size.width * 0.5,
+                  minWidth: 80),
               color: widget.username == p0.author.id
                   ? Colors.white70
                   : Colors.grey,
@@ -670,44 +770,45 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
             : Stack(children: [
                 // Chat widget that contains the chat ui
                 SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: Chat(
-                    user: types.User(id: widget.username),
-                    messages: messages,
-                    onSendPressed: onSendPressed,
-                    inputOptions: InputOptions(enabled: inputEnabled),
-                    theme: chatTheme,
+                    width: MediaQuery.of(context).size.width,
+                    child: Chat(
+                      user: types.User(id: widget.username),
+                      messages: messages,
+                      emptyState: emptyStateBuilder(),
+                      onSendPressed: onSendPressed,
+                      inputOptions: InputOptions(enabled: inputEnabled),
+                      theme: chatTheme,
+                      listBottomWidget: bottomWidget ?? Container(),
 
-                    dateFormat: DateFormat('dd/MM/yy'),
-                    dateHeaderThreshold: 5 * 60 * 1000, // 5 minutes
+                      dateFormat: DateFormat('dd/MM/yy'),
+                      dateHeaderThreshold: 5 * 60 * 1000, // 5 minutes
 
-                    showUserAvatars: true,
-                    showUserNames: widget.isPrivate ? false : true,
+                      showUserAvatars: true,
+                      showUserNames: widget.isPrivate ? false : true,
 
-                    avatarBuilder: avatarBuilder,
+                      avatarBuilder: avatarBuilder,
 
-                    nameBuilder: (p0) => Text(
-                      p0.firstName ?? "",
-                      style: const TextStyle(color: Colors.indigoAccent),
-                    ),
+                      nameBuilder: (p0) => Text(
+                        p0.firstName ?? "",
+                        style: const TextStyle(color: Colors.indigoAccent),
+                      ),
 
-                    customMessageBuilder: customMessageBuilder,
+                      customMessageBuilder: customMessageBuilder,
 
-                    onEndReached: () {
-                      return Future(() => loadMessages(
-                          nextLastTimestamp - jump, nextLastTimestamp));
-                    },
-                    onEndReachedThreshold: 0.8,
-                    isLastPage: nextLastTimestamp == 0,
+                      onEndReached: () {
+                        return Future(() => loadMessages(
+                            nextLastTimestamp - jump, nextLastTimestamp));
+                      },
+                      onEndReachedThreshold: 0.8,
+                      isLastPage: nextLastTimestamp == 0,
 
-                    onAttachmentPressed: inputEnabled
-                        ? () {
-                            dynamic state = _menuKey.currentState;
-                            state.showButtonMenu();
-                          }
-                        : () {},
-                  ),
-                ),
+                      onAttachmentPressed: inputEnabled
+                          ? () {
+                              dynamic state = _menuKey.currentState;
+                              state.showButtonMenu();
+                            }
+                          : () {},
+                    )),
                 Positioned(
                   bottom: 24,
                   left: 25,

@@ -64,7 +64,7 @@ class OnePostPageState extends State<OnePostPage> {
                               child: PostListView(
                                   postList: [jsonDecode(snapshot.data)],
                                   username: widget.username,
-                                  isInSomeProfile: false,
+                                  isInSomeProfile: true,
                                   updateCallBack: loadPost,
                                   refreshable: false,
                                   scrollAtTopEvent: () {},

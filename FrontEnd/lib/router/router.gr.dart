@@ -61,6 +61,7 @@ abstract class $AppRouter extends _i22.RootStackRouter {
           username: args.username,
           chatInfo: args.chatInfo,
           isPrivate: args.isPrivate,
+          replyPostData: args.replyPostData,
         ),
       );
     },
@@ -277,6 +278,7 @@ class ChatRoomRoute extends _i22.PageRouteInfo<ChatRoomRouteArgs> {
     required String username,
     required dynamic chatInfo,
     required bool isPrivate,
+    dynamic replyPostData,
     List<_i22.PageRouteInfo>? children,
   }) : super(
           ChatRoomRoute.name,
@@ -285,6 +287,7 @@ class ChatRoomRoute extends _i22.PageRouteInfo<ChatRoomRouteArgs> {
             username: username,
             chatInfo: chatInfo,
             isPrivate: isPrivate,
+            replyPostData: replyPostData,
           ),
           initialChildren: children,
         );
@@ -301,6 +304,7 @@ class ChatRoomRouteArgs {
     required this.username,
     required this.chatInfo,
     required this.isPrivate,
+    this.replyPostData,
   });
 
   final _i23.Key? key;
@@ -311,9 +315,11 @@ class ChatRoomRouteArgs {
 
   final bool isPrivate;
 
+  final dynamic replyPostData;
+
   @override
   String toString() {
-    return 'ChatRoomRouteArgs{key: $key, username: $username, chatInfo: $chatInfo, isPrivate: $isPrivate}';
+    return 'ChatRoomRouteArgs{key: $key, username: $username, chatInfo: $chatInfo, isPrivate: $isPrivate, replyPostData: $replyPostData}';
   }
 }
 
