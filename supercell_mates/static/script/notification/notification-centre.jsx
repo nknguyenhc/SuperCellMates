@@ -4,6 +4,7 @@ function NotificationCentre() {
     const [friendRequestCount, setFriendRequestCount] = React.useState(0);
     const [friendAccepts, setFriendAccepts] = React.useState([]);
     const [friendAcceptCount, setFriendAcceptCount] = React.useState(0);
+    const [loadCount, setLoadCount] = React.useState(0);
 
     React.useEffect(() => {
         fetch('/user/friend_requests_async')
@@ -12,6 +13,7 @@ function NotificationCentre() {
                     triggerErrorMessage();
                     return;
                 }
+                setLoadCount(state => state + 1);
                 response.json().then(users => {
                     setFriendRequests(users);
                     setFriendRequestCount(users.length);
@@ -24,6 +26,7 @@ function NotificationCentre() {
                     triggerErrorMessage();
                     return;
                 }
+                setLoadCount(state => state + 1);
                 response.json().then(response => {
                     let currAccepts = getJSONItemFrom('friendAccepts', [], sessionStorage);
                     currAccepts = [...response.users.reverse(), ...currAccepts];
@@ -83,6 +86,9 @@ function NotificationCentre() {
                     }
                 </div>
             </div>
+            {loadCount !== 2 && <div className="notification-loading-icon">
+                <span className="spinner-grow text-warning" />
+            </div>}
         </React.Fragment>
     )
 }
