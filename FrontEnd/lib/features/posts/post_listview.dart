@@ -176,10 +176,18 @@ class PostListViewState extends State<PostListView> {
           Widget buildPostProfileImage() {
             return dataLoaded[index]
                 ? IconButton(
-                    onPressed: () {
-                      AutoRouter.of(context).push(SinglePhotoViewer(
-                          photoBytes: profileImageRawData, actions: []));
-                    },
+                    onPressed: widget.isInSomeProfile ||
+                            widget.username ==
+                                widget.postList[index]["creator"]["username"]
+                        ? () {
+                            AutoRouter.of(context).push(SinglePhotoViewer(
+                                photoBytes: profileImageRawData, actions: []));
+                          }
+                        : () async {
+                            FocusManager.instance.primaryFocus?.unfocus();
+                            AutoRouter.of(context)
+                                .push(OthersProfileRoute(username: username));
+                          },
                     icon: Image.memory(profileImageRawData),
                     iconSize: 40,
                     padding: EdgeInsets.zero,
@@ -477,34 +485,25 @@ class PostListViewState extends State<PostListView> {
           }
 
           return Column(children: [
+            const Padding(padding: EdgeInsets.only(top: 10)),
+
             // post creator info header
-            TextButton(
-              onPressed: widget.isInSomeProfile ||
-                      widget.username ==
-                          widget.postList[index]["creator"]["username"]
-                  ? () {}
-                  : () async {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      AutoRouter.of(context)
-                          .push(OthersProfileRoute(username: username));
-                    },
-              child: Row(children: [
-                const Padding(padding: EdgeInsets.only(left: 5)),
-                SizedBox(
-                  height: 40,
-                  width: 40,
-                  child: buildPostProfileImage(),
-                ),
-                const Padding(padding: EdgeInsets.all(5)),
-                buildPostCreatorInfo(),
-              ]),
-            ),
+            Row(children: [
+              const Padding(padding: EdgeInsets.only(left: 20)),
+              SizedBox(
+                height: 40,
+                width: 40,
+                child: buildPostProfileImage(),
+              ),
+              const Padding(padding: EdgeInsets.all(5)),
+              buildPostCreatorInfo(),
+            ]),
 
             // Post body: title, content, images
             SizedBox(
               width: MediaQuery.of(context).size.width,
               child: Padding(
-                  padding: const EdgeInsets.only(left: 30, right: 15),
+                  padding: const EdgeInsets.only(left: 30, right: 15, top: 5),
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
