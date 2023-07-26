@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
                 response.json().then(counts => {
                     const total = counts.privates.length + counts.groups.length;
-                    if (total > 0) {
+                    if (document.querySelector("#message-count-badge") && total > 0) {
                         document.querySelector("#message-count-badge").innerText = total;
                     }
                 });

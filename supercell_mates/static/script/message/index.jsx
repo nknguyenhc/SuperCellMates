@@ -133,6 +133,8 @@ function ChatPage() {
                         });
                 }
             });
+        
+        document.querySelector("#message-count-badge").remove();
     }, []);
 
     const refreshMessageIndicators = React.useCallback(() => {
@@ -147,7 +149,6 @@ function ChatPage() {
                     (isPrivateChatsSelected ? response.privates : response.groups).forEach(chatId => {
                         newChatsWithNewMessages.push((isPrivateChatsSelected ? privateChats : groupChats).findIndex(chat => chat.id === chatId));
                     });
-                    console.log(newChatsWithNewMessages);
                     setChatsWithNewMessages(newChatsWithNewMessages);
                 })
             })
