@@ -35,7 +35,7 @@ function NotificationCentre() {
         if (total > 0) {
             document.querySelector("#notification-count-badge").innerText = total;
         } else {
-            document.querySelector("#notification-count-badge").innerTExt = '';
+            document.querySelector("#notification-count-badge").innerText = '';
         }
     }, [friendAcceptCount, friendRequests])
 
@@ -53,6 +53,7 @@ function NotificationCentre() {
                     isSelected={currPage === 1}
                     setPage={() => setCurrPage(1)}
                     count={friendAcceptCount}
+                    click={() => setFriendAcceptCount(0)}
                 />
             </div>
             <hr />
@@ -150,13 +151,16 @@ function FriendAccept({ user }) {
 }
 
 
-function NotificationIcon({ isSelected, setPage, src, count }) {
+function NotificationIcon({ isSelected, setPage, src, count, click }) {
     const [isHovering, setIsHovering] = React.useState(false);
 
     return (
         <div 
         className={"position-relative notification-icon" + (isSelected ? " bg-info" : isHovering ? " bg-body-secondary" : "")} 
-        onClick={setPage}
+        onClick={() => {
+            setPage();
+            click && click();
+        }}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
         >
