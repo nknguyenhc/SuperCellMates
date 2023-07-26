@@ -97,8 +97,10 @@ function NotificationCentre() {
 function FriendRequest({ request, click }) {
     const [isActionDone, setIsActionDone] = React.useState(false);
     const [isFriendRequestAccepted, setIsFriendRequestAccepted] = React.useState(false);
+    const [isDisabled, setIsDisabled] = React.useState(false);
 
     function respondFriendRequest(accepted) {
+        setIsDisabled(true);
         fetch('/user/add_friend', postRequestContent({
             username: request.username,
             accepted: accepted,
@@ -138,8 +140,8 @@ function FriendRequest({ request, click }) {
                                 <div className="text-danger">rejected</div>
                             </React.Fragment>
                         : <React.Fragment>
-                            <button className="btn btn-sm btn-success" onClick={() => respondFriendRequest(true)}>Accept</button>
-                            <button className="btn btn-sm btn-danger" onClick={() => respondFriendRequest(false)}>Decline</button>
+                            <button className="btn btn-sm btn-success" onClick={() => respondFriendRequest(true)} disabled={isDisabled}>Accept</button>
+                            <button className="btn btn-sm btn-danger" onClick={() => respondFriendRequest(false)} disabled={isDisabled}>Decline</button>
                         </React.Fragment>
                 }
             </div>
