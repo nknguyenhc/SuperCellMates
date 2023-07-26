@@ -1,0 +1,46 @@
+title Friend requests
+
+actor User
+participant Frontend
+participant Backend
+database Database
+
+User ->Frontend: redirect to friend requests page
+activate User
+activate Frontend
+Frontend->Backend:request friend requests template
+activate Backend
+Frontend<--Backend:return friend requests template
+deactivate Backend
+User<--Frontend:display friend requests template
+
+alt accept friend request
+User->Frontend:accept friend request
+Frontend->Backend: accept friend request
+activate Backend
+Backend->Database:remove friend request
+activate Database
+Backend<--Database:friend request removed
+deactivate Database
+Backend->Database:create friendship
+activate Database
+Backend<--Database:friendship created
+deactivate Database
+Frontend<--Backend:friend added
+deactivate Backend
+User<--Frontend: friend request accepted
+
+else reject friend request
+User->Frontend:reject friend request
+Frontend->Backend: reject friend request
+activate Backend
+Backend->Database:remove friend request
+activate Database
+Backend<--Database: friend request removed
+deactivate Database
+Frontend<--Backend:friend request rejected
+deactivate Backend
+User<--Frontend: friend request rejected
+end
+deactivate Frontend
+deactivate User

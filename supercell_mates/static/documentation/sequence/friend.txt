@@ -1,24 +1,22 @@
 title Friend
 
-actor User1
-participant Frontend1
+actor User
+participant Frontend
 participant Backend
 database Database
-participant Frontend2
-actor User2
 
-User1->Frontend1:redirect to others' profile page
-activate User1
-activate Frontend1
-Frontend1->Backend:request profile page template
+User->Frontend:redirect to others' profile page
+activate User
+activate Frontend
+Frontend->Backend:request profile page template
 activate Backend
-Frontend1<--Backend:return profile page template
+Frontend<--Backend:return profile page template
 deactivate Backend
-User1<--Frontend1:display profile page template
+User<--Frontend:display profile page template
 
-alt not friends
-User1->Frontend1:request add friend
-Frontend1->Backend:request add friend
+alt not friends, no friend request from the other user
+User->Frontend:request add friend
+Frontend->Backend:request add friend
 activate Backend
 Backend->Database:check friend list & request list
 activate Database
@@ -30,62 +28,48 @@ deactivate Database
 Backend->Database:create friend notification
 Backend<--Database:friend notification created
 end
-Frontend1<--Backend:friend request sent
+Frontend<--Backend:friend request sent
 deactivate Backend
-User1<-Frontend1:friend request sent
+User<-Frontend:friend request sent
+
+else not friends, friend request sent from the other user
+alt accept friend request
+User->Frontend:accept friend request
+Frontend->Backend:accept friend request
+activate Backend
+Backend->Database:delete friend request
+activate Database
+Backend<--Database:friend request deleted
+deactivate Database
+Backend->Database:add friendship
+activate Database
+Backend<--Database:friendship added
+deactivate Database
+Frontend<--Backend:friend request accepted
+deactivate Backend
+User<--Frontend:friend request accepted
+else reject friend request
+User->Frontend:reject friend request
+Frontend->Backend:reject friend request
+activate Backend
+Backend->Database:delete friend request
+activate Database
+Backend<--Database:friend request deleted
+deactivate Database
+Frontend<--Backend:friend request rejected
+deactivate Backend
+User<--Frontend:friend request rejected
+end
 
 else already friends
-User1->Frontend1:request delete friend
-Frontend1->Backend:request delete friend
+User->Frontend:request delete friend
+Frontend->Backend:request delete friend
 activate Backend
 Backend->Database:remove friendship
 activate Database
 Backend<--Database:friend deleted
 deactivate Database
-Frontend1<--Backend:friend deleted
+Frontend<--Backend:friend deleted
 deactivate Backend
-User1<-Frontend1:friend deleted
+User<-Frontend:friend deleted
 end
-deactivate Frontend1
-deactivate User1
-
-
-User2 ->Frontend2: redirect to friend requests page
-activate User2
-activate Frontend2
-Frontend2->Backend:request friend requests template
-activate Backend
-Frontend2<--Backend:return friend requests template
-deactivate Backend
-User2<--Frontend2:display friend requests template
-
-alt accept friend request
-User2->Frontend2:accept friend request
-Frontend2->Backend: accept friend request
-activate Backend
-Backend->Database:remove friend request
-activate Database
-Backend<--Database:friend request removed
-deactivate Database
-Backend->Database:create friendship
-activate Database
-Backend<--Database:friendship created
-deactivate Database
-Frontend2<--Backend:friend added
-deactivate Backend
-User2<--Frontend2: friend request accepted
-
-else reject friend request
-User2->Frontend2:reject friend request
-Frontend2->Backend: reject friend request
-activate Backend
-Backend->Database:remove friend request
-activate Database
-Backend<--Database: friend request removed
-deactivate Database
-Frontend2<--Backend:friend request rejected
-deactivate Backend
-User2<--Frontend2: friend request rejected
-end
-deactivate Frontend2
-deactivate User2

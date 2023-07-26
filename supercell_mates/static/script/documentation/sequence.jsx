@@ -8,10 +8,11 @@ function DocumentationSequence() {
         "request tag",
         "search users",
         "friend",
+        "friend requests",
         "post",
         "chat",
         "post feed",
-        "notification"
+        "notification",
     ];
     const [index, setIndex] = React.useState(-1);
 
