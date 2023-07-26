@@ -1,6 +1,8 @@
 function NotificationCentre() {
     const [currPage, setCurrPage] = React.useState(-1);
     const [friendRequests, setFriendRequests] = React.useState([]);
+    const [friendAccepts, setFriendAccepts] = React.useState([]);
+    const [friendAcceptCount, setFriendAcceptCount] = React.useState(0);
 
     React.useEffect(() => {
         fetch('/user/friend_requests_async')
@@ -11,7 +13,31 @@ function NotificationCentre() {
                 }
                 response.json().then(users => setFriendRequests(users));
             });
+        
+        fetch('/notification/friends', postRequestContent({}))
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                    return;
+                }
+                response.json().then(response => {
+                    let currAccepts = getJSONItemFrom('friendAccepts', [], sessionStorage);
+                    currAccepts = [...response.users.reverse(), ...currAccepts];
+                    sessionStorage.setItem('friendAccepts', JSON.stringify(currAccepts));
+                    setFriendAccepts(currAccepts);
+                    setFriendAcceptCount(response.users.length);
+                })
+            });
     }, []);
+
+    React.useEffect(() => {
+        const total = friendAcceptCount + friendRequests.length;
+        if (total > 0) {
+            document.querySelector("#notification-count-badge").innerText = total;
+        } else {
+            document.querySelector("#notification-count-badge").innerTExt = '';
+        }
+    }, [friendAcceptCount, friendRequests])
 
     return (
         <React.Fragment>
@@ -20,6 +46,13 @@ function NotificationCentre() {
                     src={"/static/media/nav-bar/incoming-request-icon.png"}
                     isSelected={currPage === 0}
                     setPage={() => setCurrPage(0)}
+                    count={friendRequests.length}
+                />
+                <NotificationIcon 
+                    src={"/static/media/nav-bar/friend-accept-icon.png"}
+                    isSelected={currPage === 1}
+                    setPage={() => setCurrPage(1)}
+                    count={friendAcceptCount}
                 />
             </div>
             <hr />
@@ -27,6 +60,8 @@ function NotificationCentre() {
                 <div id="notification-title" className="mb-2">
                     {currPage === 0
                     ? 'Incoming friend requests'
+                    : currPage === 1
+                    ? 'Outgoing accepted requests'
                     : ''}
                 </div>
                 <div id="notification-list">
@@ -34,6 +69,10 @@ function NotificationCentre() {
                         currPage === 0
                         ? friendRequests.map(listing => (
                             <FriendRequest request={listing} />
+                        ))
+                        : currPage === 1
+                        ? friendAccepts.map((listing, i) => (
+                            <FriendAccept user={listing} isHighlighting={i < friendAcceptCount} />
                         ))
                         : ''
                     }
@@ -97,26 +136,35 @@ function FriendRequest({ request }) {
 }
 
 
-function NotificationIcon({ isSelected, setPage, src }) {
+function FriendAccept({ user }) {
+    return (
+        <div className="accept-listing">
+            <a href={user.profile_link} className="accept-listing-profile-pic">
+                <img src={user.profile_pic_url} />
+            </a>
+            <div className="accept-listing-text">
+                {user.name} ({<a href={user.profile_link}>{user.username}</a>}) has accepted your friend request.
+            </div>
+        </div>
+    )
+}
+
+
+function NotificationIcon({ isSelected, setPage, src, count }) {
     const [isHovering, setIsHovering] = React.useState(false);
 
     return (
         <div 
-        className={"notification-icon" + (isSelected ? " bg-info" : isHovering ? " bg-body-secondary" : "")} 
+        className={"position-relative notification-icon" + (isSelected ? " bg-info" : isHovering ? " bg-body-secondary" : "")} 
         onClick={setPage}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
         >
             <img src={src} />
+            {count > 0 && <span class="position-absolute top-100 start-100 translate-middle badge rounded-pill bg-danger">{count}</span>}
         </div>
     );
 }
 
 
-function renderNotificationCentre() {
-    const notifDiv = document.querySelector("#notification-centre");
-    Array.from(notifDiv.children).forEach(child => notifDiv.removeChild(child));
-    const newChild = document.createElement('div');
-    ReactDOM.render(<NotificationCentre />, newChild);
-    notifDiv.appendChild(newChild);
-}
+ReactDOM.render(<NotificationCentre />, document.querySelector("#notification-centre"));

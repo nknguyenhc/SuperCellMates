@@ -11,6 +11,7 @@ from user_profile.views import layout_context
 from user_auth.models import UserAuth
 from .models import FriendRequest
 from message.models import PrivateChat
+from notification.models import FriendNotification
 
 
 def view_profile_context(user_auth_obj, request_user):
@@ -242,6 +243,8 @@ def add_friend(request):
             request.user.user_log.friend_requests.get(from_user=user_log_obj).delete()
             if accepted == "true":
                 request.user.user_log.friend_list.add(user_log_obj)
+                friend_notification = FriendNotification(from_user=request.user.user_log, to_user=user_log_obj)
+                friend_notification.save()
                 if not request.user.private_chats.filter(users=request.user).filter(users=user_log_obj.user_auth).exists():
                     new_chat = PrivateChat(timestamp=datetime.now().timestamp())
                     new_chat.save()

@@ -45,7 +45,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
                 response.json().then(counts => {
-                    document.querySelector("#message-count-badge").innerText = counts.privates.length + counts.groups.length;
+                    const total = counts.privates.length + counts.groups.length;
+                    if (total > 0) {
+                        document.querySelector("#message-count-badge").innerText = total;
+                    }
                 });
             });
     }

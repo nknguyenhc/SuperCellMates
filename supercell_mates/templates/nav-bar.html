@@ -36,7 +36,8 @@
                             <a href="javascript:void(0)" class="nav-link" id="nav-notification-link">
                                 <img src="/static/media/nav-bar/notification-icon.png">
                             </a>
-                            <div class="position-absolute" id="notification-centre"></div>
+                            <span class="position-absolute top-100 start-100 translate-middle badge rounded-pill bg-danger" id="notification-count-badge"></span>
+                            <div class="position-absolute" id="notification-centre" style="display: none"></div>
                         </li>
                     {% endif %} 
                     {% if user.is_staff %} 
@@ -76,7 +77,9 @@
 </div>
 <link rel="stylesheet" href="/static/style/nav-bar.css">
 <script src="/static/script/nav-bar.js"></script>
-<script type='text/babel' src="/static/script/user_log/search-result.jsx"></script>
-<script src="/static/script/user_log/search-bar.js"></script>
-<script src="/static/script/notification/icon-control.js"></script>
-<script type="text/babel" src="/static/script/notification/notification-centre.jsx"></script>
+{% if user.is_authenticated %} 
+    <script type='text/babel' src="/static/script/user_log/search-result.jsx"></script>
+    <script src="/static/script/user_log/search-bar.js"></script>
+    <script src="/static/script/notification/icon-control.js"></script>
+    <script type="text/babel" src="/static/script/notification/notification-centre.jsx"></script>
+{% endif %} 

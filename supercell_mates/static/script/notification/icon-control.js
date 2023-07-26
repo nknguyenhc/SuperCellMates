@@ -1,21 +1,21 @@
 document.addEventListener("DOMContentLoaded", () => {
     let isShow = false;
-    document.querySelector("#notification-centre").style.display = 'none';
+    const notificationCentre = document.querySelector("#notification-centre");
+    const notificationIcon = document.querySelector("#nav-notification");
     document.querySelector("#nav-notification-link").addEventListener('click', () => {
         isShow = !isShow;
-        document.querySelector("#notification-centre").style.display = isShow ? '' : 'none';
+        notificationCentre.style.display = isShow ? '' : 'none';
         if (isShow) {
-            document.querySelector("#nav-notification").classList.add('bg-info');
+            notificationIcon.classList.add('bg-info');
         } else {
-            document.querySelector("#nav-notification").classList.remove('bg-info');
+            notificationIcon.classList.remove('bg-info');
         }
-        renderNotificationCentre();
     });
     document.addEventListener('click', event => {
-        if (!document.querySelector("#nav-notification").contains(event.target)) {
+        if (!notificationIcon.contains(event.target)) {
             isShow = false;
-            document.querySelector("#notification-centre").style.display = 'none';
-            document.querySelector("#nav-notification").classList.remove('bg-info');
+            notificationCentre.style.display = 'none';
+            notificationIcon.classList.remove('bg-info');
         }
-    })
+    });
 })

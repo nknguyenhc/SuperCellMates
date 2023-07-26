@@ -150,3 +150,21 @@
     gap: 5px;
     align-items: center;
 }
+
+.accept-listing {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: center;
+}
+
+.accept-listing-profile-pic {
+    flex-shrink: 0;
+    height: 50px;
+    width: 50px;
+}
+
+.accept-listing-profile-pic img {
+    height: 100%;
+    width: 100%;
+}
