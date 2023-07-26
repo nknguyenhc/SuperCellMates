@@ -2,6 +2,7 @@ function ChatPage() {
     const [isPrivateChatsSelected, setIsPrivateChatsSelected] = React.useState(true);
     const [privateChats, setPrivateChats] = React.useState([]);
     const [groupChats, setGroupChats] = React.useState([]);
+    const [chatsWithNewMessages, setChatsWithNewMessages] = React.useState([]);
     const [displayGroupChatForm, setDisplayGroupChatForm] = React.useState(false);
     const [highlighting, setHighlighting] = React.useState(-1);
     const [texts, setTexts] = React.useState([]);
@@ -134,6 +135,28 @@ function ChatPage() {
             });
     }, []);
 
+    const refreshMessageIndicators = React.useCallback(() => {
+        fetch('/notification/chats_new_messages')
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                    return;
+                }
+                response.json().then(response => {
+                    const newChatsWithNewMessages = [];
+                    (isPrivateChatsSelected ? response.privates : response.groups).forEach(chatId => {
+                        newChatsWithNewMessages.push((isPrivateChatsSelected ? privateChats : groupChats).findIndex(chat => chat.id === chatId));
+                    });
+                    console.log(newChatsWithNewMessages);
+                    setChatsWithNewMessages(newChatsWithNewMessages);
+                })
+            })
+    }, [privateChats, groupChats, isPrivateChatsSelected]);
+
+    React.useEffect(() => {
+        refreshMessageIndicators();
+    }, [privateChats, groupChats, isPrivateChatsSelected]);
+
     React.useEffect(() => {
         setUsername(document.querySelector('input#username-hidden').value);
     }, []);
@@ -168,9 +191,11 @@ function ChatPage() {
         setChatSelected(true);
         setCurrChatId(chatId);
         setHighlighting(i);
+        setChatsWithNewMessages((curr) => curr.filter(index => index !== i));
         if (pushState) {
             history.pushState('', '', `?chatid=${chatId}`);
         }
+        refreshMessageIndicators();
     }
 
     function openNewGroupChatForm(pushState) {
@@ -264,6 +289,7 @@ function ChatPage() {
                     })).then(response => {
                         if (response.status !== 200) {
                             triggerErrorMessage();
+                            return;
                         }
                     })
                 };
@@ -322,6 +348,14 @@ function ChatPage() {
         setHighlighting(0);
     }
 
+    const bringChatToTop = React.useCallback(() => {
+        if (isPrivateChatsSelected) {
+            bringPrivateChatToTop();
+        } else {
+            bringGroupChatToTop();
+        }
+    })
+
     function testAndScrollToBottom() {
         if (messageLog.current.scrollTop >= messageLog.current.scrollHeight - messageLog.current.parentElement.clientHeight - 500) {
             setTimeout(() => {
@@ -352,11 +386,7 @@ function ChatPage() {
             setTimeout(() => {
                 adjustInputHeight(inputField.current);
             }, 50);
-            if (isPrivateChatsSelected) {
-                bringPrivateChatToTop();
-            } else {
-                bringGroupChatToTop();
-            }
+            bringChatToTop();
         }
     }
 
@@ -418,11 +448,7 @@ function ChatPage() {
                         message_id: messageId,
                     }));
                     setShowFilePreview(false);
-                    if (isPrivate) {
-                        bringPrivateChatToTop();
-                    } else {
-                        bringGroupChatToTop();
-                    }
+                    bringChatToTop();
                 })
         } else {
             setShowFilePreview(false);
@@ -475,10 +501,13 @@ function ChatPage() {
                                 onClick={() => clickOpenChat(privateChat.id, i, true, true)} style={{
                                     backgroundColor: highlighting === i && chatSelected ? "#CDCBCB" : '',
                                 }}>
-                                    <div className="chat-listing-image">
-                                        <img src={privateChat.image} />
+                                    <div className="chat-listing-details">
+                                        <div className="chat-listing-image">
+                                            <img src={privateChat.image} />
+                                        </div>
+                                        <div className="chat-listing-name">{privateChat.chatName}</div>
                                     </div>
-                                    <div className="chat-listing-name">{privateChat.chatName}</div>
+                                    {chatsWithNewMessages.includes(i) && highlighting !== i && <span className="bg-danger rounded-circle p-2" />}
                                 </div>
                             ))
                         : <React.Fragment>
@@ -496,10 +525,13 @@ function ChatPage() {
                                     onClick={() => clickOpenChat(groupChat.id, i, true, false)} style={{
                                         backgroundColor: highlighting === i && chatSelected ? "#CDCBCB" : '',
                                     }}>
-                                        <div className="chat-listing-image">
-                                            <img src={groupChat.image} />
+                                        <div className="chat-listing-details">
+                                            <div className="chat-listing-image">
+                                                <img src={groupChat.image} />
+                                            </div>
+                                            <div className="chat-listing-name">{groupChat.chatName}</div>
                                         </div>
-                                        <div className="chat-listing-name">{groupChat.chatName}</div>
+                                        {chatsWithNewMessages.includes(i) && highlighting !== i && <span className="bg-danger rounded-circle p-2" />}
                                     </div>
                                 ))
                             }

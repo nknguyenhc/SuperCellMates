@@ -712,7 +712,7 @@ def get_private_messages(request, chat_id):
     start, end = get_params
     
     all_messages, next_last_timestamp = get_texts(chat_obj, start, end)
-    if request.method == "POST":
+    if request.method == "POST" and len(all_messages) > 0:
         all_messages[len(all_messages) - 1].seen_users.add(request.user)
 
     return JsonResponse({
