@@ -1,10 +1,14 @@
-const requestTagLink = document.querySelector("#request-tag-link");
-if (requestTagLink !== null) {
-    requestTagLink.addEventListener("click", () => {
-        document.querySelector("#add_tag").style.display = "block";
-    });
-}
+// request tag link
+(() => {
+    const requestTagLink = document.querySelector("#request-tag-link");
+    if (requestTagLink !== null) {
+        requestTagLink.addEventListener("click", () => {
+            document.querySelector("#add_tag").style.display = "block";
+        });
+    }
+})();
 
+// highlighting the correct div
 (() => {
     if (window.location.pathname === '/') {
         document.querySelector("#nav-home").classList.add('bg-info');
@@ -20,6 +24,7 @@ if (requestTagLink !== null) {
 })();
 
 document.addEventListener("DOMContentLoaded", () => {
+    // tooltip
     if (document.querySelector("#nav-home") !== null) {
         new bootstrap.Tooltip(document.querySelector("#nav-home"));
         new bootstrap.Tooltip(document.querySelector("#nav-profile"));
@@ -29,5 +34,22 @@ document.addEventListener("DOMContentLoaded", () => {
         if (document.querySelector("#nav-admin")) {
             new bootstrap.Tooltip(document.querySelector("#nav-admin"));
         }
+    }
+
+    // message count badge
+    if (document.querySelector("#nav-message") !== null) {
+        fetch('/notification/chats_new_messages')
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                    return;
+                }
+                response.json().then(counts => {
+                    const total = counts.privates.length + counts.groups.length;
+                    if (document.querySelector("#message-count-badge") && total > 0) {
+                        document.querySelector("#message-count-badge").innerText = total;
+                    }
+                });
+            });
     }
 });

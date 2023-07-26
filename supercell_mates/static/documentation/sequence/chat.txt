@@ -15,6 +15,7 @@ activate Backend
 Frontend1<--Backend:return chat template
 deactivate Backend
 User1<--Frontend1:display chat template
+opt user 2 redirects to chat page
 User2->Frontend2:redirect to chat
 activate User2
 activate Frontend2
@@ -23,6 +24,7 @@ activate Backend
 Frontend2<--Backend:return chat template
 deactivate Backend
 User2<--Frontend2:display chat template
+end
 Frontend1->Backend:get current chats
 activate Backend
 Backend->Database:get current chats
@@ -32,6 +34,7 @@ deactivate Database
 Frontend1<--Backend:return current chats
 deactivate Backend
 User1<--Frontend1:display current chats
+opt user 2 redirected to chat page
 Frontend2->Backend:get current chats
 activate Backend
 Backend->Database:get current chats
@@ -41,6 +44,28 @@ deactivate Database
 Frontend2<--Backend:return current chats
 deactivate Backend
 User2<--Frontend2:display current chats
+end
+Frontend1->Backend:get chats with new messages
+activate Backend
+Backend->Database:chats with new messages
+activate Database
+Backend<--Database:chats with new messages
+deactivate Database
+Frontend1<--Backend:chats with new messages
+deactivate Backend
+User1<--Frontend1:highlight chats with new messages
+opt user 2 redirected to chat page
+Frontend2->Backend:get chats with new messages
+activate Backend
+Backend->Database:chats with new messages
+activate Database
+Backend<--Database:chats with new messages
+deactivate Database
+Frontend2<--Backend:chats with new messages
+deactivate Backend
+User2<--Frontend2:highlight chats with new messages
+end
+
 loop user stay in page
 alt user open a chat
 User1->Frontend1:chat with user 2
@@ -81,6 +106,7 @@ Frontend2<--Backend:return messages
 deactivate Backend
 User2<--Frontend2:display messages
 end
+alt user send message
 alt user send text/post reply
 User1->Frontend1:send message
 Frontend1->Backend:send message
@@ -89,9 +115,8 @@ activate Database
 Backend<--Database:message added
 deactivate Database
 Frontend1<--Backend:new message
-Frontend2<-Backend:new message
 User1<--Frontend1:new message
-User2<-Frontend2: new message
+
 else user send file
 User1->Frontend1:send message
 Frontend1->Backend:upload file as message
@@ -104,9 +129,50 @@ Frontend1<--Backend:file message added
 deactivate Backend
 Frontend1->Backend:get file message
 Frontend1<--Backend:new file message
-Frontend2<-Backend:new file message
 User1<--Frontend1:new file message
-User2<-Frontend2:new file message
+end
+opt user 2 in chat
+Frontend2<-Backend:new message
+User2<-Frontend2: new message
+end
+Frontend1->Backend:user 1 see message
+activate Backend
+Backend->Database:user 1 see message
+activate Database
+Backend<--Database:data added
+deactivate Database
+Frontend1<--Backend:data added
+deactivate Backend
+opt user 2 in chat
+Frontend2->Backend:user 2 see message
+activate Backend
+Backend->Database:user 2 see message
+activate Database
+Backend<--Database:data added
+deactivate Database
+Frontend2<--Backend:data added
+deactivate Backend
+end
+Frontend1->Backend:get chats with new messages
+activate Backend
+Backend->Database:chats with new messages
+activate Database
+Backend<--Database:chats with new messages
+deactivate Database
+Frontend1<--Backend:chats with new messages
+deactivate Backend
+User1<--Frontend1:highlight chats with new messages
+opt user 2 redirected to chat page
+Frontend2->Backend:get chats with new messages
+activate Backend
+Backend->Database:chats with new messages
+activate Database
+Backend<--Database:chats with new messages
+deactivate Database
+Frontend2<--Backend:chats with new messages
+deactivate Backend
+User2<--Frontend2:highlight chats with new messages
+end
 else user open group chat settings
 User1->Frontend1:open group chat settings
 Frontend1->Backend:obtain group chat info

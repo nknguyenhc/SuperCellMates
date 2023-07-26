@@ -17,6 +17,7 @@ function DocumentationInteractive() {
         "user_log",
         "posts",
         "messages",
+        "notification"
     ]
     const structures = [
         {

@@ -40,17 +40,20 @@ class TextMessage(AbstractMessage):
 class PrivateTextMessage(TextMessage):
     chat = models.ForeignKey(PrivateChat, on_delete=models.CASCADE, related_name='text_messages')
     user = models.ForeignKey('user_auth.UserAuth', on_delete=models.CASCADE, related_name='private_text_messages')
+    seen_users = models.ManyToManyField('user_auth.UserAuth', related_name='seen_private_text_messages')
 
 
 class ReplyPostMessage(TextMessage):
     chat = models.ForeignKey(PrivateChat, on_delete=models.CASCADE, related_name='reply_post_messages')
     post = models.ForeignKey('posts.Post', on_delete=models.SET_NULL, related_name='replies', null=True)
     user = models.ForeignKey('user_auth.UserAuth', on_delete=models.CASCADE, related_name='reply_post_messages')
+    seen_users = models.ManyToManyField('user_auth.UserAuth', related_name='seen_reply_post_messages')
 
 
 class GroupTextMessage(TextMessage):
     chat = models.ForeignKey(GroupChat, on_delete=models.CASCADE, related_name='text_messages')
     user = models.ForeignKey('user_auth.UserAuth', on_delete=models.CASCADE, related_name='group_text_messages')
+    seen_users = models.ManyToManyField('user_auth.UserAuth', related_name='seen_group_text_messages')
 
 # file message
 class FileMessage(AbstractMessage):
@@ -65,8 +68,10 @@ class FileMessage(AbstractMessage):
 class PrivateFileMessage(FileMessage):
     chat = models.ForeignKey(PrivateChat, on_delete=models.CASCADE, related_name='file_messages')
     user = models.ForeignKey('user_auth.UserAuth', on_delete=models.CASCADE, related_name='private_file_messages')
+    seen_users = models.ManyToManyField('user_auth.UserAuth', related_name='seen_private_file_messages')
 
 
 class GroupFileMessage(FileMessage):
     chat = models.ForeignKey(GroupChat, on_delete=models.CASCADE, related_name='file_messages')
     user = models.ForeignKey('user_auth.UserAuth', on_delete=models.CASCADE, related_name='group_file_messages')
+    seen_users = models.ManyToManyField('user_auth.UserAuth', related_name='seen_group_file_messages')

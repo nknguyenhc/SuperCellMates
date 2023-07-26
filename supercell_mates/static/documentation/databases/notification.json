@@ -1,0 +1,20 @@
+{
+    "name": "notification",
+    "views": [
+        {
+            "name": "Friend Notification",
+            "fields": [
+                {
+                    "name": "from_user",
+                    "type": "ForeignKey(UserLog)",
+                    "description": "The user that has accepted the friend request"
+                },
+                {
+                    "name": "to_user",
+                    "type": "ForeignKey(UserLog)",
+                    "description": "The user that initially sent the friend request, also the one receiving the notification"
+                }
+            ]
+        }
+    ]
+}

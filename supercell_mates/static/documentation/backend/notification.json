@@ -1,0 +1,62 @@
+{
+    "name": "notification",
+    "views": [
+        {
+            "path": "/notification/friends",
+            "description": "Obtain and delete the current notifications on new friend request acceptance notifications. Each notification contains information on users that accepted friend request from current (request) user",
+            "getParams": [],
+            "postParams": [],
+            "return": {
+                "users": [
+                    {
+                        "name": "<name of user 1>",
+                        "username": "<username of user 1>",
+                        "profile_link": "<link to profile page of user 1>",
+                        "profile_pic_url": "<URL to profile pic of user 1>"
+                    },
+                    {
+                        "name": "<name of user 2>",
+                        "username": "<username of user 2>",
+                        "profile_link": "<link to profile page of user 2>",
+                        "profile_pic_url": "<URL to profile pic of user 2>"
+                    },
+                    {
+                        "name": "<name of user 3>",
+                        "username": "<username of user 3>",
+                        "profile_link": "<link to profile page of user 3>",
+                        "profile_pic_url": "<URL to profile pic of user 3>"
+                    }
+                ]
+            }
+        },
+        {
+            "path": "/notification/chats_new_messages",
+            "description": "Obtain the chats that has new messages since the last time the user opened the chat",
+            "getParams": [],
+            "postParams": [],
+            "return": {
+                "privates": [
+                    "<id of chat 1>",
+                    "<id of chat 2>",
+                    "<id of chat 3>"
+                ]
+            }
+        },
+        {
+            "path": "/notification/see_message",
+            "description": "Notify backend that the current user has seen a particular message.",
+            "getParams": [],
+            "postParams": [
+                {
+                    "name": "message_id",
+                    "description": "the id of the message to mark as read"
+                },
+                {
+                    "name": "type",
+                    "description": "the type of message, having one of the values 'text private', 'text group', 'file private', 'file group' or 'reply_post private'"
+                }
+            ],
+            "return": "<response status 200, or status 4xx if request is invalid>"
+        }
+    ]
+}

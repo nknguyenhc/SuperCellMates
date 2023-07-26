@@ -70,7 +70,7 @@
         {
             "name": "reply_post",
             "json": {
-                "type": "file",
+                "type": "reply_post",
                 "message": "<text message>",
                 "user": {
                     "name": "<name of sender>",

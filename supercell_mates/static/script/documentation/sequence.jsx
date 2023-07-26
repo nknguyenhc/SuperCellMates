@@ -9,7 +9,9 @@ function DocumentationSequence() {
         "search users",
         "friend",
         "post",
-        "chat"
+        "chat",
+        "post feed",
+        "notification"
     ];
     const [index, setIndex] = React.useState(-1);
 
