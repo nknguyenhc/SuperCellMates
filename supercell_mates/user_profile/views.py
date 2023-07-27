@@ -6,7 +6,7 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate
-from .models import UserProfile
+from .models import UserProfile, TagActivityRecord
 from user_auth.models import UserAuth, Tag
 import io
 from django.core.files.images import ImageFile
@@ -447,6 +447,53 @@ def remove_tag(request):
         return HttpResponseBadRequest("tag field not found")
     except ObjectDoesNotExist:
         return HttpResponseBadRequest("tag with provided name not found")
+
+
+def get_tag_activity_record(user, tag):
+    user_profile = user.user_profile
+    record_object = TagActivityRecord.objects.get(user_profile=user, tag=tag)
+    return record_object
+
+
+def set_activity_score(record, score):
+    """Updates the activity score of a user's activity record about a tag.
+    If the score is higher than before (meaning the user displays more activity about the tag),
+    the last_activity_timestamp of the record will be updated to the current timestamp
+
+    Args:
+        record: the TagActivityRecord object ot update
+        score: the new activity_score to be updated in the record
+    """
+    if score > record.activity_score:
+        record.last_activity_timestamp = datetime.now().timestamp()
+    record.activity_score = score
+
+
+LOWEST_FINAL_SCORE = 2.0
+DECREASE_COEFFICIENT = 0.05
+DECREASE_EXPONENT = 1.5
+DAYS_TO_REACH_LOWEST = 15
+MICROSECONDS_IN_A_DAY = 24 * 3600 * 1000000
+
+
+def compute_tag_activity_final_score(record):
+    """Computes the final score of a tag activity record, counting in decrease with time.
+    Currently, the final score ranges from 2.0 (minimally active) to 5.0 (absolutely active).
+    It takes around 7 days to decrease by 1, and 15 days to decrease from maximum to minimum.
+
+    Args:
+        record: the tag activity record to compute for
+
+    Returns: the final score of the record, computed with formula:
+        final_score = activity_score - DECREASE_COEFFICIENT * days_since_last_activity ** DECREASE_EXPONENT
+
+    """
+    timestamps_since_last_activity = record.last_activity_timestamp - datetime.now().timestamp()
+    days_since_last_activity = timestamps_since_last_activity / MICROSECONDS_IN_A_DAY
+    if days_since_last_activity > DAYS_TO_REACH_LOWEST:
+        return LOWEST_FINAL_SCORE
+    final_score = record.activity_score - DECREASE_COEFFICIENT * days_since_last_activity ** DECREASE_EXPONENT
+    return max(LOWEST_FINAL_SCORE, final_score)
 
 
 @login_required
