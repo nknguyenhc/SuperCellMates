@@ -196,7 +196,8 @@ class ProfilePageState extends State<ProfilePage> {
                         }
                         AutoRouter.of(context).push(CreatePostRoute(
                             tagName: data["tags"][selectedTagIndex - 1]["name"],
-                            updateCallBack: loadProfilePosts));
+                            updateCallBack: loadProfilePosts,
+                            isEdit: false));
                       },
                       child: const Row(children: [
                         Icon(Icons.post_add, size: 40),
@@ -237,7 +238,6 @@ class ProfilePageState extends State<ProfilePage> {
                       width: MediaQuery.of(context).size.width,
                       child: profilePostsLoaded
                           ? PostListView(
-                              key: UniqueKey(),
                               postList: profilePosts,
                               isInSomeProfile: true,
                               username: data["user_profile"]["username"],

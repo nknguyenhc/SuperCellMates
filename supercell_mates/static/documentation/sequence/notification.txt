@@ -1,0 +1,70 @@
+title Notification
+
+actor User
+participant Frontend
+participant Backend
+database Database
+
+User->Frontend:open notifications
+activate User
+activate Frontend
+User<--Frontend:display notification panel
+Frontend->Backend:get incoming friend requests
+activate Backend
+Backend->Database:get incoming friend requests
+activate Database
+Backend<--Database:return incoming friend requests
+deactivate Database
+Frontend<--Backend:return incoming friend requests
+deactivate Backend
+Frontend->Backend:get accepted friend requests
+activate Backend
+Backend->Database:get accepted request notifications
+activate Database
+Backend<--Database:return accepted request notifications
+deactivate Database
+Backend->Database:delete request notifications
+activate Database
+Backend<--Database:request notifications deleted
+deactivate Database
+Frontend<--Backend:return accepted friend requests
+deactivate Backend
+
+loop user stay in notification panel
+alt user open incoming friend requests tab
+User->Frontend:open incoming friend requests tab
+User<--Frontend:display incoming friend requests
+opt user take action on incoming friend request
+alt user accept friend request
+User->Frontend:accept friend request
+Frontend->Backend:accept friend request
+activate Backend
+Backend->Database:delete friend request
+activate Database
+Backend<--Database:friend request deleted
+deactivate Database
+Backend->Database:add friendship
+activate Database
+Backend<--Database:friendship added
+deactivate Database
+Frontend<--Backend:friendship added
+deactivate Backend
+User<--Frontend:friendship added
+else user reject friend request
+User->Frontend:reject friend request
+Frontend->Backend:reject friend request
+activate Backend
+Backend->Database:delete friend request
+activate Database
+Backend<--Database:friend request deleted
+deactivate Database
+Frontend<--Backend:friend request rejected
+deactivate Backend
+User<--Frontend:friend request rejected
+end
+end
+else user open outgoing friend requests tab
+User->Frontend:open outgoing friend requests tab
+User<--Frontend:display accepted friend requests
+end
+end

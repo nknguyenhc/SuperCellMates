@@ -29,22 +29,13 @@ class CreateGroupPageState extends State<CreateGroupPage> {
   Timer? _searchTimer;
   List<dynamic> currMembers = [];
   String groupName = "";
-
-  Widget defaultSearchResult = Container(
-    height: 300,
-    alignment: Alignment.center,
-    child: const Text(
-      "Use the search button above to invite friends!",
-      textAlign: TextAlign.center,
-    ),
-  );
-
+  double searchResultHeight = 250;
   Widget searchResult = Container();
 
   @override
   void initState() {
     super.initState();
-    searchResult = defaultSearchResult;
+    searchResult = _buildDefaultSearchResult();
   }
 
   void setSearchResult(Widget newResult) {
@@ -84,7 +75,7 @@ class CreateGroupPageState extends State<CreateGroupPage> {
             onPressed: (dynamic userInfo) {
               setState(() {
                 currMembers.add(userInfo);
-                setSearchResult(defaultSearchResult);
+                setSearchResult(_buildDefaultSearchResult());
               });
             },
           )
@@ -104,14 +95,15 @@ class CreateGroupPageState extends State<CreateGroupPage> {
       key: UniqueKey(),
       children: [
         SizedBox(
-            width: MediaQuery.of(context).size.width, height: 300, child: list),
+            width: MediaQuery.of(context).size.width,
+            height: searchResultHeight,
+            child: list),
       ],
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    TextField groupNameTextField = TextField(
+  Widget _buildGroupNameSection() {
+    return TextField(
       maxLength: 25,
       decoration: const InputDecoration(
           border: OutlineInputBorder(),
@@ -124,8 +116,21 @@ class CreateGroupPageState extends State<CreateGroupPage> {
         groupName = input;
       },
     );
+  }
 
-    TextButton submitButton = TextButton(
+  Widget _buildDefaultSearchResult() {
+    return Container(
+      height: searchResultHeight,
+      alignment: Alignment.center,
+      child: const Text(
+        "Use the search button above to invite friends!",
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return TextButton(
         onPressed: () {
           if (groupName == "") {
             showErrorDialog(context, "Group name cannot be empty!");
@@ -162,8 +167,10 @@ class CreateGroupPageState extends State<CreateGroupPage> {
           "Submit",
           style: TextStyle(color: Colors.white),
         ));
+  }
 
-    ListView membersPreview = ListView.builder(
+  Widget _buildMembersPreviewSection() {
+    return ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: currMembers.length,
         itemBuilder: (context, index) {
@@ -210,13 +217,16 @@ class CreateGroupPageState extends State<CreateGroupPage> {
             },
           );
         });
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: EasySearchBar(
           onSearch: (input) {
             if (input == "") {
-              setSearchResult(defaultSearchResult);
+              setSearchResult(_buildDefaultSearchResult());
               return;
             }
             if (_searchTimer == null || !_searchTimer!.isActive) {
@@ -232,9 +242,9 @@ class CreateGroupPageState extends State<CreateGroupPage> {
               });
             }
           },
-          title: Text(
+          title: const Text(
             "Create new group",
-            style: const TextStyle(fontSize: 20),
+            style: TextStyle(fontSize: 20),
           ),
           searchHintText: "Search by username...",
           backgroundColor: Colors.white,
@@ -242,26 +252,27 @@ class CreateGroupPageState extends State<CreateGroupPage> {
           elevation: 0,
           titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
         ),
-        body: Column(
+        body: SingleChildScrollView(
+            child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-              child: groupNameTextField,
+              child: _buildGroupNameSection(),
             ),
             searchResult,
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
               child: SizedBox(
                 height: 100,
-                child: membersPreview,
+                child: _buildMembersPreviewSection(),
               ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(25, 5, 20, 0),
-              child: submitButton,
+              child: _buildSubmitButton(),
             ),
           ],
-        ));
+        )));
   }
 }

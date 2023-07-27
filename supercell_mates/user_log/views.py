@@ -11,6 +11,7 @@ from user_profile.views import layout_context
 from user_auth.models import UserAuth
 from .models import FriendRequest
 from message.models import PrivateChat
+from notification.models import FriendNotification
 
 
 def view_profile_context(user_auth_obj, request_user):
@@ -113,12 +114,16 @@ def add_friend_request(request):
         if username == request.user.username:
             return HttpResponseBadRequest("cannot send friend request to yourself")
         user_log_obj = UserAuth.objects.get(username=username).user_log
-        if user_log_obj not in request.user.user_log.friend_list.all() and not FriendRequest.objects.filter(from_user=request.user.user_log, to_user=user_log_obj).exists():
+        is_friend = user_log_obj in request.user.user_log.friend_list.all()
+        friend_request_sent = FriendRequest.objects.filter(from_user=request.user.user_log, to_user=user_log_obj).exists() or FriendRequest.objects.filter(to_user=request.user.user_log, from_user=user_log_obj).exists()
+        if not is_friend and not friend_request_sent:
             friend_request = FriendRequest(from_user=request.user.user_log, to_user=user_log_obj)
             friend_request.save()
             return HttpResponse("ok")
+        elif friend_request_sent:
+            return HttpResponse("ok")
         else:
-            return HttpResponse("already in friend list / friend request already sent")
+            return HttpResponseBadRequest("already in friend list")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("no username submitted")
     except ObjectDoesNotExist:
@@ -242,6 +247,8 @@ def add_friend(request):
             request.user.user_log.friend_requests.get(from_user=user_log_obj).delete()
             if accepted == "true":
                 request.user.user_log.friend_list.add(user_log_obj)
+                friend_notification = FriendNotification(from_user=request.user.user_log, to_user=user_log_obj)
+                friend_notification.save()
                 if not request.user.private_chats.filter(users=request.user).filter(users=user_log_obj.user_auth).exists():
                     new_chat = PrivateChat(timestamp=datetime.now().timestamp())
                     new_chat.save()

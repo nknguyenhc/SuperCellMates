@@ -34,7 +34,7 @@ function ProfileFeed() {
             setTag('');
         }
         const filterClearer = document.querySelector("#nav-clear-filter");
-        filterClearer.addEventListener('click', () => {
+        filterClearer && filterClearer.addEventListener('click', () => {
             const currProfilePageFilters = getJSONItemFrom('profilePageFilters', {}, localStorage);
             currProfilePageFilters[username] = '';
             localStorage.setItem('profilePageFilters', JSON.stringify(currProfilePageFilters));

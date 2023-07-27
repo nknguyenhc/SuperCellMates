@@ -33,7 +33,9 @@ enum EndPoints {
   deletePost,
 
   getHomeFeed,
+  getPost,
 
+  getChatID,
   getPrivateChats,
   getGroupChats,
   getPrivateMessages,
@@ -80,6 +82,8 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.editPost: "/post/post/edit/",
     EndPoints.deletePost: "/post/delete",
     EndPoints.getHomeFeed: "/post/",
+    EndPoints.getPost: "/post/post/",
+    EndPoints.getChatID: "/messages/get_chat_id",
     EndPoints.getPrivateChats: "/messages/get_private_chats",
     EndPoints.getGroupChats: "/messages/get_group_chats",
     EndPoints.getPrivateMessages: "/messages/get_private_messages/",

@@ -28,6 +28,7 @@ class RequestTagPageState extends State<RequestTagPage> {
   CroppedFile? tagIcon;
   String tagDescription = "";
   bool attachTag = CustomCheckbox.ischecked;
+  final GlobalKey checkBoxKey = GlobalKey();
 
   void setIcon(CroppedFile icon) {
     icon.readAsBytes().then((bytes) {
@@ -53,196 +54,200 @@ class RequestTagPageState extends State<RequestTagPage> {
     attachTag = !attachTag;
   }
 
+  Widget _buildTagNameSection() {
+    return Row(
+      children: [
+        const Text(
+          "Tag name:",
+          style: TextStyle(
+            fontSize: 14,
+          ),
+        ),
+        const Padding(padding: EdgeInsets.all(11)),
+        SizedBox(
+          width: MediaQuery.of(context).size.width - 140,
+          child: TextField(
+            maxLength: 25,
+            decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: "An accurate name...",
+                hintStyle: TextStyle(color: Colors.grey, fontSize: 14)),
+            style: const TextStyle(
+              fontSize: 14,
+            ),
+            onChanged: (input) {
+              tagName = input;
+            },
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildTagIconSection() {
+    return Row(
+      children: [
+        const Text(
+          "Tag icon:",
+          style: TextStyle(
+            fontSize: 14,
+          ),
+        ),
+        const Padding(padding: EdgeInsets.all(10)),
+        IconButton(
+            onPressed: () async {
+              XFile? img = await imagePicker.pickImage(
+                  source: ImageSource.gallery, maxHeight: 600, maxWidth: 800);
+              if (img == null) return;
+              CroppedFile? croppedImg = await cropSquaredImage(img);
+              if (croppedImg != null) {
+                setIcon(croppedImg);
+              }
+            },
+            icon: const Icon(
+              Icons.photo_library,
+              size: 35,
+            )),
+        const Padding(padding: EdgeInsets.all(10)),
+        tagIcon == null
+            ? Container()
+            : Image.file(
+                File(tagIcon!.path),
+                width: 70,
+                height: 70,
+              ),
+      ],
+    );
+  }
+
+  Widget _buildDescriptionSection() {
+    return Row(
+      children: [
+        const Text(
+          "Description:",
+          style: TextStyle(
+            fontSize: 14,
+          ),
+        ),
+        const Padding(padding: EdgeInsets.all(5)),
+        SizedBox(
+            width: MediaQuery.of(context).size.width - 140,
+            child: TextField(
+              maxLength: 200,
+              decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: "Additional information about the tag...",
+                  hintStyle: TextStyle(color: Colors.grey, fontSize: 14)),
+              style: const TextStyle(fontSize: 14),
+              maxLines: 6,
+              minLines: 5,
+              onChanged: (input) {
+                tagDescription = input;
+              },
+            ))
+      ],
+    );
+  }
+
+  Widget _buildAttachTagCheckbox() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        CustomCheckbox(
+          key: checkBoxKey,
+          togglePACheckedFunction: toggleAttachTag,
+          tickColor: Colors.white,
+          boxColor: Colors.black,
+        ),
+        TextButton(
+            style: const ButtonStyle(
+                padding: MaterialStatePropertyAll(EdgeInsets.zero)),
+            onPressed: () {
+              dynamic state = checkBoxKey.currentState;
+              setState(() {
+                state.toggle();
+              });
+            },
+            child: Text("If approved, attach tag to my profile",
+                style: TextStyle(
+                  color: Colors.black,
+                )))
+      ],
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return Row(
+      children: [
+        const Padding(padding: EdgeInsets.all(10)),
+        TextButton(
+            onPressed: () {
+              if (tagName == "") {
+                showErrorDialog(context, "Tag name cannot be empty!");
+              } else {
+                showConfirmationDialog(
+                    context, "Are you sure to request for this tag?", () async {
+                  startUploadingDialog(context, "data");
+                  dynamic body = tagIcon == null
+                      ? {
+                          "tag": tagName,
+                          "description": tagDescription,
+                          "attach": attachTag,
+                        }
+                      : {
+                          "tag": tagName,
+                          "description": tagDescription,
+                          "img": jsonEncode(await tagIcon!.readAsBytes()),
+                          "attach": attachTag
+                        };
+                  dynamic response = await postWithCSRF(
+                      EndPoints.addTagRequest.endpoint, body);
+                  stopLoadingDialog(context);
+                  Future.delayed(Duration(milliseconds: 100)).then((value) {
+                    if (response == "Successfully added tag request") {
+                      showSuccessDialog(context,
+                          "Your request is sent, our admin will review your request.");
+                    } else {
+                      showErrorDialog(context, response);
+                    }
+                  });
+                });
+              }
+            },
+            style: const ButtonStyle(
+                backgroundColor: MaterialStatePropertyAll(Colors.blue)),
+            child: const Text(
+              "Submit",
+              style: TextStyle(color: Colors.white),
+            ))
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final GlobalKey checkBoxKey = GlobalKey();
-
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar:
             AppBar(titleSpacing: 0, title: const Text("Request for a new tag")),
-        body: Container(
-          alignment: Alignment.center,
+        body: SingleChildScrollView(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-            const Padding(
-              padding: EdgeInsets.all(10),
-            ),
-            Row(
-              children: [
-                const Padding(padding: EdgeInsets.all(10)),
-                const Text(
-                  "Tag name:",
-                  style: TextStyle(
-                    fontSize: 14,
-                  ),
-                ),
-                const Padding(padding: EdgeInsets.all(11)),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width - 140,
-                  child: TextField(
-                    maxLength: 25,
-                    decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: "An accurate name...",
-                        hintStyle: TextStyle(color: Colors.grey, fontSize: 14)),
-                    style: const TextStyle(
-                      fontSize: 14,
-                    ),
-                    onChanged: (input) {
-                      tagName = input;
-                    },
-                  ),
-                )
-              ],
-            ),
-            const Padding(
-              padding: EdgeInsets.all(20),
-            ),
-            Row(
-              children: [
-                const Padding(padding: EdgeInsets.all(10)),
-                const Text(
-                  "Tag icon:",
-                  style: TextStyle(
-                    fontSize: 14,
-                  ),
-                ),
-                const Padding(padding: EdgeInsets.all(10)),
-                IconButton(
-                    onPressed: () async {
-                      XFile? img = await imagePicker.pickImage(
-                          source: ImageSource.gallery,
-                          maxHeight: 600,
-                          maxWidth: 800);
-                      if (img == null) return;
-                      CroppedFile? croppedImg = await cropSquaredImage(img);
-                      if (croppedImg != null) {
-                        setIcon(croppedImg);
-                      }
-                    },
-                    icon: const Icon(
-                      Icons.photo_library,
-                      size: 35,
-                    )),
-                const Padding(padding: EdgeInsets.all(10)),
-                tagIcon == null
-                    ? Container()
-                    : Image.file(
-                        File(tagIcon!.path),
-                        width: 70,
-                        height: 70,
-                      ),
-              ],
-            ),
-            const Padding(
-              padding: EdgeInsets.all(20),
-            ),
-            Row(
-              children: [
-                const Padding(padding: EdgeInsets.all(10)),
-                const Text(
-                  "Description:",
-                  style: TextStyle(
-                    fontSize: 14,
-                  ),
-                ),
-                const Padding(padding: EdgeInsets.all(5)),
-                SizedBox(
-                    width: MediaQuery.of(context).size.width - 140,
-                    child: TextField(
-                      maxLength: 200,
-                      decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: "Additional information about the tag...",
-                          hintStyle:
-                              TextStyle(color: Colors.grey, fontSize: 14)),
-                      style: const TextStyle(fontSize: 14),
-                      maxLines: 5,
-                      onChanged: (input) {
-                        tagDescription = input;
-                      },
-                    ))
-              ],
-            ),
-            const Padding(
-              padding: EdgeInsets.all(5),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CustomCheckbox(
-                  key: checkBoxKey,
-                  togglePACheckedFunction: toggleAttachTag,
-                  tickColor: Colors.white,
-                  boxColor: Colors.black,
-                ),
-                TextButton(
-                    style: const ButtonStyle(
-                        padding: MaterialStatePropertyAll(EdgeInsets.zero)),
-                    onPressed: () {
-                      dynamic state = checkBoxKey.currentState;
-                      setState(() {
-                        state.toggle();
-                      });
-                    },
-                    child: Text("If approved, attach tag to my profile",
-                        style: TextStyle(
-                          color: Colors.black,
-                        )))
-              ],
-            ),
-            const Padding(
-              padding: EdgeInsets.all(5),
-            ),
-            Row(
-              children: [
-                const Padding(padding: EdgeInsets.all(10)),
-                TextButton(
-                    onPressed: () {
-                      if (tagName == "") {
-                        showErrorDialog(context, "Tag name cannot be empty!");
-                      } else {
-                        showConfirmationDialog(
-                            context, "Are you sure to request for this tag?",
-                            () async {
-                          startUploadingDialog(context, "data");
-                          dynamic body = tagIcon == null
-                              ? {
-                                  "tag": tagName,
-                                  "description": tagDescription,
-                                  "attach": attachTag,
-                                }
-                              : {
-                                  "tag": tagName,
-                                  "description": tagDescription,
-                                  "img":
-                                      jsonEncode(await tagIcon!.readAsBytes()),
-                                  "attach": attachTag
-                                };
-                          dynamic response = await postWithCSRF(
-                              EndPoints.addTagRequest.endpoint, body);
-                          stopLoadingDialog(context);
-                          Future.delayed(Duration(milliseconds: 100))
-                              .then((value) {
-                            if (response == "Successfully added tag request") {
-                              showSuccessDialog(context,
-                                  "Your request is sent, our admin will review your request.");
-                            } else {
-                              showErrorDialog(context, response);
-                            }
-                          });
-                        });
-                      }
-                    },
-                    style: const ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll(Colors.blue)),
-                    child: const Text(
-                      "Submit",
-                      style: TextStyle(color: Colors.white),
-                    ))
-              ],
-            )
+            Padding(
+                padding: const EdgeInsets.only(left: 20, top:10),
+                child: Column(
+                  children: [
+                    _buildTagNameSection(),
+                    const Padding(padding: EdgeInsets.only(top: 20)),
+                    _buildTagIconSection(),
+                    const Padding(padding: EdgeInsets.only(top: 20)),
+                    _buildDescriptionSection(),
+                    const Padding(padding: EdgeInsets.only(top: 10)),
+                    _buildAttachTagCheckbox(),
+                    const Padding(padding: EdgeInsets.only(top: 10)),
+                    _buildSubmitButton(),
+                  ],
+                ))
           ]),
         ));
   }

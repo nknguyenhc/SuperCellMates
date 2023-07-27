@@ -2,6 +2,7 @@ function ChatPage() {
     const [isPrivateChatsSelected, setIsPrivateChatsSelected] = React.useState(true);
     const [privateChats, setPrivateChats] = React.useState([]);
     const [groupChats, setGroupChats] = React.useState([]);
+    const [chatsWithNewMessages, setChatsWithNewMessages] = React.useState([]);
     const [displayGroupChatForm, setDisplayGroupChatForm] = React.useState(false);
     const [highlighting, setHighlighting] = React.useState(-1);
     const [texts, setTexts] = React.useState([]);
@@ -29,6 +30,8 @@ function ChatPage() {
     const setIsLoading = (newValue) => isLoading.current = newValue;
     const [isConnectingWs, setIsConnectingWs] = React.useState(false);
     const [targetPost, setTargetPost] = React.useState(null);
+    const isFirstLoading = React.useRef(true);
+    const setIsFirstLoading = (newValue) => isFirstLoading.current = newValue;
 
     React.useEffect(() => {
         fetch('/messages/get_private_chats')
@@ -130,7 +133,30 @@ function ChatPage() {
                         });
                 }
             });
+        
+        document.querySelector("#message-count-badge").remove();
     }, []);
+
+    const refreshMessageIndicators = React.useCallback(() => {
+        fetch('/notification/chats_new_messages')
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                    return;
+                }
+                response.json().then(response => {
+                    const newChatsWithNewMessages = [];
+                    (isPrivateChatsSelected ? response.privates : response.groups).forEach(chatId => {
+                        newChatsWithNewMessages.push((isPrivateChatsSelected ? privateChats : groupChats).findIndex(chat => chat.id === chatId));
+                    });
+                    setChatsWithNewMessages(newChatsWithNewMessages);
+                })
+            })
+    }, [privateChats, groupChats, isPrivateChatsSelected]);
+
+    React.useEffect(() => {
+        refreshMessageIndicators();
+    }, [privateChats, groupChats, isPrivateChatsSelected]);
 
     React.useEffect(() => {
         setUsername(document.querySelector('input#username-hidden').value);
@@ -166,9 +192,11 @@ function ChatPage() {
         setChatSelected(true);
         setCurrChatId(chatId);
         setHighlighting(i);
+        setChatsWithNewMessages((curr) => curr.filter(index => index !== i));
         if (pushState) {
             history.pushState('', '', `?chatid=${chatId}`);
         }
+        refreshMessageIndicators();
     }
 
     function openNewGroupChatForm(pushState) {
@@ -189,7 +217,7 @@ function ChatPage() {
     }
 
     async function loadMessagesUntilFound(chatid, currTime, currMessages, isPrivate) {
-        return fetch('/messages/get_' + (isPrivate ? 'private' : 'group') + '_messages/' + chatid + `?start=${currTime - jump}&end=${currTime}`)
+        return fetch('/messages/get_' + (isPrivate ? 'private' : 'group') + '_messages/' + chatid + `?start=${currTime - jump}&end=${currTime}`, isFirstLoading.current ? postRequestContent({}) : null)
             .then(response => {
                 if (response.status !== 200) {
                     triggerErrorMessage();
@@ -200,6 +228,7 @@ function ChatPage() {
                                 if (response.next_last_timestamp !== 0) {
                                     return loadMessagesUntilFound(chatid, response.next_last_timestamp, currMessages, isPrivate);
                                 } else {
+                                    setIsFirstLoading(false);
                                     return {
                                         currTexts: [...currMessages],
                                         currTime: currTime,
@@ -207,6 +236,7 @@ function ChatPage() {
                                     }
                                 }
                             } else {
+                                setIsFirstLoading(false);
                                 setTexts(response.messages.concat(currMessages));
                                 return {
                                     currTexts: response.messages.concat(currMessages),
@@ -228,6 +258,7 @@ function ChatPage() {
         }
 
         setIsConnectingWs(true);
+        setIsFirstLoading(true);
         
         loadMessagesUntilFound(chatid, new Date().getTime() / 1000, [], isPrivate)
             .then(result => {
@@ -253,6 +284,15 @@ function ChatPage() {
                     result.currTexts.push(data);
                     setTexts([...result.currTexts]);
                     testAndScrollToBottom();
+                    fetch('/notification/see_message', postRequestContent({
+                        message_id: data.id,
+                        type: data.type + (isPrivate ? ' private' : ' group')
+                    })).then(response => {
+                        if (response.status !== 200) {
+                            triggerErrorMessage();
+                            return;
+                        }
+                    })
                 };
 
                 chatSocket.onclose = (e) => {
@@ -309,6 +349,14 @@ function ChatPage() {
         setHighlighting(0);
     }
 
+    const bringChatToTop = React.useCallback(() => {
+        if (isPrivateChatsSelected) {
+            bringPrivateChatToTop();
+        } else {
+            bringGroupChatToTop();
+        }
+    })
+
     function testAndScrollToBottom() {
         if (messageLog.current.scrollTop >= messageLog.current.scrollHeight - messageLog.current.parentElement.clientHeight - 500) {
             setTimeout(() => {
@@ -339,11 +387,7 @@ function ChatPage() {
             setTimeout(() => {
                 adjustInputHeight(inputField.current);
             }, 50);
-            if (isPrivateChatsSelected) {
-                bringPrivateChatToTop();
-            } else {
-                bringGroupChatToTop();
-            }
+            bringChatToTop();
         }
     }
 
@@ -405,11 +449,7 @@ function ChatPage() {
                         message_id: messageId,
                     }));
                     setShowFilePreview(false);
-                    if (isPrivate) {
-                        bringPrivateChatToTop();
-                    } else {
-                        bringGroupChatToTop();
-                    }
+                    bringChatToTop();
                 })
         } else {
             setShowFilePreview(false);
@@ -438,10 +478,8 @@ function ChatPage() {
     function removePostReference() {
         setTargetPost(null);
         const postReplies = getJSONItemFrom('postReplies', {}, sessionStorage);
-        console.log(postReplies);
         postReplies[privateChats[highlighting].chatName] = '';
         sessionStorage.setItem('postReplies', JSON.stringify(postReplies));
-        console.log(sessionStorage.getItem('postReplies'));
     }
 
     return (
@@ -464,10 +502,13 @@ function ChatPage() {
                                 onClick={() => clickOpenChat(privateChat.id, i, true, true)} style={{
                                     backgroundColor: highlighting === i && chatSelected ? "#CDCBCB" : '',
                                 }}>
-                                    <div className="chat-listing-image">
-                                        <img src={privateChat.image} />
+                                    <div className="chat-listing-details">
+                                        <div className="chat-listing-image">
+                                            <img src={privateChat.image} />
+                                        </div>
+                                        <div className="chat-listing-name">{privateChat.chatName}</div>
                                     </div>
-                                    <div className="chat-listing-name">{privateChat.chatName}</div>
+                                    {chatsWithNewMessages.includes(i) && highlighting !== i && <span className="bg-danger rounded-circle p-2" />}
                                 </div>
                             ))
                         : <React.Fragment>
@@ -485,10 +526,13 @@ function ChatPage() {
                                     onClick={() => clickOpenChat(groupChat.id, i, true, false)} style={{
                                         backgroundColor: highlighting === i && chatSelected ? "#CDCBCB" : '',
                                     }}>
-                                        <div className="chat-listing-image">
-                                            <img src={groupChat.image} />
+                                        <div className="chat-listing-details">
+                                            <div className="chat-listing-image">
+                                                <img src={groupChat.image} />
+                                            </div>
+                                            <div className="chat-listing-name">{groupChat.chatName}</div>
                                         </div>
-                                        <div className="chat-listing-name">{groupChat.chatName}</div>
+                                        {chatsWithNewMessages.includes(i) && highlighting !== i && <span className="bg-danger rounded-circle p-2" />}
                                     </div>
                                 ))
                             }

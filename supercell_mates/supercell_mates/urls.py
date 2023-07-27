@@ -27,6 +27,7 @@ urlpatterns = [
     path('favicon.ico', RedirectView.as_view(url='/static/media/logo.png')),
     path('post/', include('posts.urls')),
     path('messages/', include('message.urls')),
+    path('notification/', include('notification.urls')),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

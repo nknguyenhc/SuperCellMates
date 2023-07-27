@@ -1,0 +1,22 @@
+{
+    "tests": [
+        {
+            "setup": "This test must be conducted on a page displayed as a result of an API endpoint (e.g. /async), not of a URL that renders template (e.g. home page). This is because any page that renders the navbar will request backend to delete notifications.",
+            "javascript": "fetch('/notification/friends', postRequestContent({})).then(response => response.json()).then(response => console.log(response))",
+            "expected": "New notifications on users that have accepted your friend request. Calling this API the second time returns an empty array (as notifications have been deleted on first call)",
+            "datePassed": "26/07/2023"
+        },
+        {
+            "setup": "NIL",
+            "javascript": "fetch('/notification/chats_new_messages').then(response => response.json()).then(response => console.log(response))",
+            "expected": "List of private chats and group chats (more precisely, their ids) that have new messages",
+            "datePassed": "26/07/2023"
+        },
+        {
+            "setup": "To obtain id of a message, you may call an API endpoint to fetch the latest messages from a chat that you are in. See testing section under messages for more info on how to fetch the latest messages. Accepted message types are: 'text private', 'text group' 'reply_post private', 'file private', 'file group'.",
+            "javascript": "fetch('/notification/see_message', postRequestContent({ message_id: <id of message>, type: <one of the accepted types> })).then(response => response.text()).then(response => console.log(response))",
+            "expected": "Console notification that the message has been marked seen",
+            "datePassed": "26/07/2023"
+        }
+    ]
+}

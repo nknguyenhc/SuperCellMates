@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'user_log',
     'posts',
     'message',
+    'notification',
 ]
 
 MIDDLEWARE = [

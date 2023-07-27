@@ -1,0 +1,50 @@
+title Post feed
+
+actor User
+participant Frontend
+participant Backend
+database Database
+
+User->Frontend:redirect to homepage/another's profile
+activate User
+activate Frontend
+Frontend->Backend:request template
+activate Backend
+Frontend<--Backend:return template
+deactivate Backend
+User<--Frontend:display template
+Frontend->Frontend:apply cached filters
+User<--Frontend:display filters applied
+
+Frontend->Backend:get latest posts
+activate Backend
+Backend->Database:get latest posts
+activate Database
+Backend<--Database:return latest posts
+deactivate Database
+Frontend<--Backend:return latest posts
+deactivate Backend
+
+loop user scrolls down to bottom
+User->Frontend:scrolls down to bottom
+Frontend->Backend:get older posts
+activate Backend
+Backend->Database:get older posts
+activate Database
+Backend<--Database:return older posts
+deactivate Database
+Frontend<--Backend:return older posts
+deactivate Backend
+User<--Frontend:display older posts
+end
+
+opt user applies filter
+User->Frontend:apply filter(s)
+User<--Frontend:filters cached
+Frontend->Backend:reload template
+deactivate Frontend
+activate Backend
+Frontend<--Backend:return template
+activate Frontend
+User<--Frontend:display page
+end

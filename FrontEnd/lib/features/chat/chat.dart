@@ -60,9 +60,11 @@ class ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     TextButton createGroupButton = TextButton(
         onPressed: () {
-          context.router.push(CreateGroupRoute(updateCallBack: () => loadChats(1)));
+          context.router
+              .push(CreateGroupRoute(updateCallBack: () => loadChats(1)));
         },
-        style: const ButtonStyle(padding: MaterialStatePropertyAll(EdgeInsets.only(top:5))),
+        style: const ButtonStyle(
+            padding: MaterialStatePropertyAll(EdgeInsets.only(top: 5))),
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -72,7 +74,9 @@ class ChatPageState extends State<ChatPage> {
               size: 25,
             ),
             Padding(padding: EdgeInsets.only(right: 10)),
-            Text("New group",)
+            Text(
+              "New group",
+            )
           ],
         ));
 
@@ -124,11 +128,12 @@ class ChatPageState extends State<ChatPage> {
         selectedIndex: navigationBarIndex,
         shadowColor: Colors.grey,
       ),
-      navigationBarIndex == 1 ? 
-      SizedBox(
-        height: 35,
-        child: createGroupButton,
-      ) : Container(),
+      navigationBarIndex == 1
+          ? SizedBox(
+              height: 35,
+              child: createGroupButton,
+            )
+          : Container(),
       SizedBox(
           width: MediaQuery.of(context).size.width,
           height: navigationBarIndex == 0
@@ -136,7 +141,6 @@ class ChatPageState extends State<ChatPage> {
               : MediaQuery.of(context).size.height - 255,
           child: dataLoaded
               ? ChatListView(
-                  key: UniqueKey(),
                   username: widget.username,
                   chatList: chatList,
                   isPrivate: navigationBarIndex == 0,

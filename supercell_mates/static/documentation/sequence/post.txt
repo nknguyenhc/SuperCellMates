@@ -1,88 +1,60 @@
 title Post
 
-actor User1
-participant Frontend1
+actor User
+participant Frontend
 participant Backend
 database Database
-participant Frontend2 & Backend2
-actor User2
 
-User1->Frontend1:redirect to post creation
-activate User1
-activate Frontend1
-Frontend1->Backend:request post creation template
-activate Backend
-Frontend1<--Backend:return post creation template
-deactivate Backend
-User1<--Frontend1:display post creation template
+opt create post
+activate User
+activate Frontend
 loop invalid post details
-User1->Frontend1:submit post details
-User1<--Frontend1: alert invalid post details
+User->Frontend:submit new post details
+User<--Frontend: alert invalid post details
 end
-Frontend1 -> Backend: submit post details
+Frontend -> Backend: submit post details
 activate Backend
-Backend ->Database: upload details
+Backend ->Database: create post
 activate Database
 Backend<--Database: post created
 deactivate Database
-Frontend1 <--Backend: post created
+Frontend <--Backend: post created
 deactivate Backend
-User1 <--Frontend1: post created
+User <--Frontend: post created
+end
+deactivate Frontend
 
-User1->Frontend1:redirect to post edition
-Frontend1->Backend:request post edition template
-activate Backend
-Frontend1<--Backend:return post edition template
-deactivate Backend
-User1<--Frontend1:display post edition template
-loop user stay in page
-loop post deletion
-User1->Frontend1:request delete post
-Frontend1->Backend:request delete post
+opt user pops post edit window
+activate Frontend
+User->Frontend:request edit post
+User<--Frontend:display post edition template
+opt delete post
+User->Frontend:request delete post
+Frontend->Backend:request delete post
 activate Backend
 Backend->Database: delete post
 activate Database
 Backend <--Database: post deleted
 deactivate Database
-Frontend1 <--Backend: post deleted
+Frontend <--Backend: post deleted
 deactivate Backend
-User1<--Frontend1: post deleted
+User<--Frontend: post deleted
 end
 
+opt edit post
 loop invalid new post details
-User1->Frontend1:submit new post details
-User1<--Frontend1: alert invalid new post details
+User->Frontend:submit new post details
+User<--Frontend: alert invalid new post details
 end
-Frontend1 -> Backend: submit new post details
+Frontend -> Backend: submit new post details
 activate Backend
 Backend ->Database: upload details
 activate Database
 Backend<--Database: post edited
 deactivate Database
-Frontend1 <--Backend: post edited
+Frontend <--Backend: post edited
 deactivate Backend
-User1 <--Frontend1: post edited
-deactivate Frontend1
+User <--Frontend: post edited
 end
-deactivate User1
-
-
-User2 ->Frontend2 & Backend2: redirect to profile posts
-activate User2
-activate Frontend2 & Backend2
-Frontend2 & Backend2->Database: request profile posts
-activate Database
-Frontend2 & Backend2<--Database: post details
-deactivate Database
-User2<--Frontend2 & Backend2: display profile posts
-deactivate Frontend2 & Backend2
-
-User2 ->Frontend2 & Backend2: redirect to home feed
-activate Frontend2 & Backend2
-Frontend2 & Backend2->Database: request home feed posts
-activate Database
-Frontend2 & Backend2<--Database: post details
-deactivate Database
-User2<--Frontend2 & Backend2: display home feed posts
-deactivate Frontend2 & Backend2
-deactivate User2
+end
+deactivate Frontend

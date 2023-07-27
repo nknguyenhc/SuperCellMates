@@ -28,16 +28,18 @@ import 'package:intl/intl.dart';
 
 @RoutePage()
 class ChatRoomPage extends StatefulWidget {
-  const ChatRoomPage(
-      {Key? key,
-      required this.username,
-      required this.chatInfo,
-      required this.isPrivate})
-      : super(key: key);
+  const ChatRoomPage({
+    Key? key,
+    required this.username,
+    required this.chatInfo,
+    required this.isPrivate,
+    this.replyPostData,
+  }) : super(key: key);
 
   final String username;
   final dynamic chatInfo;
   final bool isPrivate;
+  final dynamic replyPostData;
 
   @override
   State<ChatRoomPage> createState() => _ChatRoomPageState();
@@ -48,12 +50,16 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   WebSocketChannel? wsChannel;
   final int jump = 60; // seconds within which a batch of messages are loaded
   double nextLastTimestamp = 0;
+  bool messageLoaded = false;
   bool inputEnabled = true;
+  bool isReplyPost = false;
 
   List<types.Message> messages = [];
   // memoised profile image urls
   // asynchronously mapped to IconButtons with icon being the image
   Map<String, dynamic> usernameToProfileImageUrl = {};
+
+  Widget? bottomWidget;
 
   bool showAttachmentMenu = false;
   final GlobalKey _menuKey =
@@ -64,6 +70,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     super.initState();
     double currTimestamp = DateTime.now().microsecondsSinceEpoch / 1000000;
     loadMessages(currTimestamp - jump, currTimestamp);
+    loadBottomWidget();
     connect(0);
   }
 
@@ -76,8 +83,64 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     }
   }
 
+  types.TextMessage messageDictToTextMessage(dynamic m) {
+    return types.TextMessage(
+        id: m["id"],
+        author: types.User(
+            id: m["user"]["username"],
+            firstName: m["user"]["name"],
+            imageUrl: m["user"]["profile_link"]),
+        text: m["message"],
+        createdAt: (m["timestamp"] * 1000).toInt() // in milliseconds,
+        );
+  }
+
+  types.CustomMessage messageDictToFileMessgae(dynamic m) {
+    Future<Uint8List> futureImageData =
+        getRawImageData("${EndPoints.getImage.endpoint}${m["id"]}");
+
+    return types.CustomMessage(
+        author: types.User(
+            id: m["user"]["username"],
+            firstName: m["user"]["name"],
+            imageUrl: m["user"]["profile_link"]),
+        id: m["id"],
+        metadata: {
+          "name": m["file_name"],
+          "type": m["is_image"] ? "image" : "file",
+          "futureImageData": futureImageData
+        });
+  }
+
+  types.CustomMessage messageDictToReplyPostMessage(dynamic m) {
+    return types.CustomMessage(
+        author: types.User(
+            id: m["user"]["username"],
+            firstName: m["user"]["name"],
+            imageUrl: m["user"]["profile_link"]),
+        id: m["id"],
+        metadata: {
+          "type": "reply_post",
+          "message": m["message"],
+          "post": m["post"],
+        });
+  }
+
+  types.Message messageDictToMessageType(dynamic m) {
+    if (m["type"] == "text") {
+      return messageDictToTextMessage(m);
+    } else if (m["type"] == "file") {
+      return messageDictToFileMessgae(m);
+    } else {
+      // message is a reply post
+      return messageDictToReplyPostMessage(m);
+    }
+  }
+
   void loadMessages(double start, double end) async {
+    messageLoaded = false;
     if (end == 0) {
+      setState(() => messageLoaded = true);
       return;
     }
 
@@ -123,37 +186,13 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                 usernameToProfileImageUrl[m["user"]["username"]] = button));
       }
       // create corresponding types.Message
-      if (m["type"] == "text") {
-        return types.TextMessage(
-            id: m["id"],
-            author: types.User(
-                id: m["user"]["username"],
-                firstName: m["user"]["name"],
-                imageUrl: m["user"]["profile_link"]),
-            text: m["message"],
-            createdAt: (m["timestamp"] * 1000).toInt() // in milliseconds,
-            );
-      } else {
-        Future<Uint8List> futureImageData =
-            getRawImageData("${EndPoints.getImage.endpoint}${m["id"]}");
-
-        return types.CustomMessage(
-            author: types.User(
-                id: m["user"]["username"],
-                firstName: m["user"]["name"],
-                imageUrl: m["user"]["profile_link"]),
-            id: m["id"],
-            metadata: {
-              "name": m["file_name"],
-              "is_image": m["is_image"],
-              "futureImageData": futureImageData
-            });
-      }
+      return messageDictToMessageType(m);
     }).toList();
 
     // update Chat widget
     setState(() {
       messages.addAll(oldMessagesList.reversed);
+      messageLoaded = true;
     });
 
     // ensure enough messages initially
@@ -211,35 +250,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           }
 
           // create corresponding types.message
-          if (messageMap["type"] == "text") {
-            messages.insert(
-                0,
-                types.TextMessage(
-                    author: types.User(
-                        id: messageMap["user"]["username"],
-                        firstName: messageMap["user"]["name"],
-                        imageUrl: messageMap["user"]["profile_link"]),
-                    id: messageMap["id"],
-                    text: messageMap["message"],
-                    createdAt: (messageMap["timestamp"] * 1000)
-                        .toInt() // in milliseconds
-                    ));
-          } else {
-            messages.insert(
-                0,
-                types.CustomMessage(
-                    id: messageMap["id"],
-                    author: types.User(
-                        id: messageMap["user"]["username"],
-                        firstName: messageMap["user"]["name"],
-                        imageUrl: messageMap["user"]["profile_link"]),
-                    metadata: {
-                      "name": messageMap["file_name"],
-                      "is_image": messageMap["is_image"],
-                      "futureImageData": getRawImageData(
-                          "${EndPoints.getImage.endpoint}${messageMap["id"]}"),
-                    }));
-          }
+          messages.insert(0, messageDictToMessageType(messageMap));
 
           // update Chat widget
           setState(() {
@@ -264,6 +275,66 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         });
       },
     );
+  }
+
+  void loadBottomWidget() {
+    if (widget.replyPostData != null) {
+      Widget postPreview = Padding(
+          padding: const EdgeInsets.only(left: 30, bottom: 10),
+          child: IconButton(
+            onPressed: () => context.router.push(OnePostRoute(
+                postID: widget.replyPostData["postID"],
+                username: widget.username)),
+            icon: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                    constraints: const BoxConstraints(
+                        maxWidth: 200, minWidth: 80, maxHeight: 100),
+                    padding: const EdgeInsets.all(10),
+                    color: Colors.grey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          widget.replyPostData["title"],
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const Padding(padding: EdgeInsets.only(top: 5)),
+                        Text(
+                          widget.replyPostData["content"],
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ],
+                    ))),
+          ));
+
+      Widget bottomSection = Row(
+        children: [
+          postPreview,
+          IconButton(
+              onPressed: () => cancelReplyPost(),
+              icon: const Icon(
+                Icons.cancel,
+                color: Colors.red,
+              ))
+        ],
+      );
+      setState(() {
+        bottomWidget = bottomSection;
+        isReplyPost = true;
+      });
+    }
+  }
+
+  void cancelReplyPost() {
+    setState(() {
+      bottomWidget = Container();
+      isReplyPost = false;
+    });
   }
 
   void _handleImageSelection() async {
@@ -427,28 +498,70 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         borderRadius: const BorderRadius.all(Radius.circular(15)),
         border: Border.all());
 
+    Widget emptyStateBuilder() {
+      return Stack(
+        children: [
+          Container(
+            alignment: Alignment.center,
+            child: Text(
+                messageLoaded ? "No messages here yet" : "Loading messages..."),
+          ),
+          Container(
+            alignment: Alignment.bottomLeft,
+            child: bottomWidget ?? Container(),
+          )
+        ],
+      );
+    }
+
+    DefaultChatTheme chatTheme = DefaultChatTheme(
+        inputTextDecoration:
+            inputEnabled ? enabledInputDecoration : disabledInputDecoration,
+        primaryColor: Colors.blue,
+        inputBackgroundColor: Colors.white,
+        inputMargin: inputMargin,
+        inputPadding: const EdgeInsets.all(15),
+        inputTextColor: Colors.black,
+        messageInsetsHorizontal: 12,
+        messageInsetsVertical: 12,
+        inputContainerDecoration: inputDecoration,
+        attachmentButtonMargin: EdgeInsets.zero);
+
     void onSendPressed(types.PartialText s) {
       dynamic messageMap;
       if (s.text.isEmpty) {
         showErrorDialog(context, "Message cannot be empty!");
         return;
       } else if (s.text.length > 700) {
-        messageMap = {
-          "type": "text",
-          "message": s.text.substring(0, 700),
-        };
+        messageMap = isReplyPost
+            ? {
+                "type": "reply_post",
+                "message": s.text.substring(0, 700),
+                "post_id": widget.replyPostData["postID"],
+              }
+            : {
+                "type": "text",
+                "message": s.text.substring(0, 700),
+              };
         showCustomDialog(context, "Message is too long",
             "Only the first 700 characters were sent");
       } else {
-        messageMap = {
-          "type": "text",
-          "message": s.text,
-        };
+        messageMap = isReplyPost
+            ? {
+                "type": "reply_post",
+                "message": s.text,
+                "post_id": widget.replyPostData["postID"],
+              }
+            : {
+                "type": "text",
+                "message": s.text,
+              };
       }
       wsChannel!.sink.add(jsonEncode(messageMap));
       setState(() {
         messages = messages;
       });
+      cancelReplyPost();
     }
 
     Widget avatarBuilder(String userId) {
@@ -465,101 +578,169 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           : const CircularProgressIndicator();
     }
 
+    Widget imageMessageBuilder(types.CustomMessage p0, Object data) {
+      // image as icon button
+      return ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
+          child: IconButton(
+            constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.7,
+                maxHeight: MediaQuery.of(context).size.height * 0.3),
+            onPressed: () => context.router.push(
+                SinglePhotoViewer(photoBytes: data as Uint8List, actions: [])),
+            icon: Image.memory(data as Uint8List, fit: BoxFit.contain),
+            padding: EdgeInsets.zero,
+          ));
+    }
+
+    Widget fileMessageBuilder(types.CustomMessage p0, Object data) {
+      // file as text button
+      return TextButton(
+          onPressed: () {
+            int dotIndex = p0.metadata!["name"].lastIndexOf('.');
+            String fileName = dotIndex == -1
+                ? p0.metadata!["name"]
+                : p0.metadata!["name"].substring(0, dotIndex);
+            String extension = dotIndex == -1
+                ? ""
+                : p0.metadata!["name"].substring(dotIndex + 1);
+            FileSaver.instance.saveAs(
+                name: fileName,
+                bytes: data as Uint8List,
+                ext: extension,
+                mimeType: MimeType.other);
+          },
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.file_present,
+                size: 20,
+              ),
+              const Padding(padding: EdgeInsets.only(right: 5)),
+              Container(
+                  constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width * 0.5),
+                  child: Text(
+                    p0.metadata!["name"],
+                    style: const TextStyle(
+                        color: Colors.indigo,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline),
+                  )),
+            ],
+          ));
+    }
+
+    Widget postIconButtonBuilder(types.CustomMessage p0) {
+      return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+              constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.5,
+                  minWidth: 80),
+              color: widget.username == p0.author.id
+                  ? Colors.white70
+                  : Colors.grey,
+              child: IconButton(
+                  onPressed: () => context.router.push(OnePostRoute(
+                      postID: p0.metadata!["post"]["id"],
+                      username: widget.username)),
+                  icon: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        p0.metadata!["post"]["title"],
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const Padding(padding: EdgeInsets.only(top: 5)),
+                      Text(
+                        p0.metadata!["post"]["content"],
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ],
+                  ))));
+    }
+
+    Widget replyPostMessageBuilder(types.CustomMessage p0) {
+      // replied post as icon button
+      return Column(
+        crossAxisAlignment: widget.username == p0.author.id
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
+        children: [
+          Text("replied to post",
+              style: TextStyle(
+                  color: widget.username == p0.author.id
+                      ? Colors.white70
+                      : Colors.blueGrey,
+                  fontStyle: FontStyle.italic)),
+          const Padding(padding: EdgeInsets.only(top: 5)),
+          p0.metadata!["post"] == null
+              ? Text("This post has been deleted",
+                  style: TextStyle(
+                      color: widget.username == p0.author.id
+                          ? Colors.white70
+                          : Colors.blueGrey,
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.bold))
+              : postIconButtonBuilder(p0),
+          const Padding(padding: EdgeInsets.only(top: 10)),
+          Text(p0.metadata!["message"],
+              style: TextStyle(
+                  color: widget.username == p0.author.id
+                      ? Colors.white
+                      : Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15))
+        ],
+      );
+    }
+
     Widget customMessageBuilder(types.CustomMessage p0,
         {int messageWidth = 1}) {
       // build corresponding widget from metadata in customMessage instances
-      return FutureBuilder(
-          future: p0.metadata!["futureImageData"],
-          builder: (_, snap) {
-            if (snap.hasData) {
-              return Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      p0.author.id == widget.username
-                          ? const SizedBox(
-                              width: 0,
-                            )
-                          : Text(
-                              p0.author.firstName!,
-                              style:
-                                  const TextStyle(color: Colors.indigoAccent),
-                            ),
-                      p0.author.id == widget.username
-                          ? const SizedBox(
-                              width: 0,
-                            )
-                          : const Padding(padding: EdgeInsets.only(bottom: 5)),
-                      p0.metadata!["is_image"]
-                          ? ClipRRect(
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(10)),
-                              child: IconButton(
-                                constraints: BoxConstraints(
-                                    maxWidth:
-                                        MediaQuery.of(context).size.width * 0.7,
-                                    maxHeight:
-                                        MediaQuery.of(context).size.height *
-                                            0.3),
-                                onPressed: () => context.router.push(
-                                    SinglePhotoViewer(
-                                        photoBytes: snap.data! as Uint8List,
-                                        actions: [])),
-                                icon: Image.memory(snap.data! as Uint8List,
-                                    fit: BoxFit.contain),
-                                padding: EdgeInsets.zero,
-                              ))
-                          : TextButton(
-                              onPressed: () {
-                                int dotIndex =
-                                    p0.metadata!["name"].lastIndexOf('.');
-                                String fileName = dotIndex == -1
-                                    ? p0.metadata!["name"]
-                                    : p0.metadata!["name"]
-                                        .substring(0, dotIndex);
-                                String extension = dotIndex == -1
-                                    ? ""
-                                    : p0.metadata!["name"]
-                                        .substring(dotIndex + 1);
-                                FileSaver.instance.saveAs(
-                                    name: fileName,
-                                    bytes: snap.data! as Uint8List,
-                                    ext: extension,
-                                    mimeType: MimeType.other);
-                              },
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.file_present,
-                                    size: 20,
-                                  ),
-                                  const Padding(
-                                      padding: EdgeInsets.only(right: 5)),
-                                  Container(
-                                      constraints: BoxConstraints(
-                                          maxWidth: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.5),
-                                      child: Text(
-                                        p0.metadata!["name"],
-                                        style: const TextStyle(
-                                            color: Colors.indigo,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            decoration:
-                                                TextDecoration.underline),
-                                      )),
-                                ],
-                              ))
-                    ],
-                  ));
-            }
-            return const CircularProgressIndicator();
-          });
+      return Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // name section
+              p0.author.id == widget.username
+                  ? const SizedBox(
+                      width: 0,
+                    )
+                  : Text(
+                      p0.author.firstName!,
+                      style: const TextStyle(color: Colors.indigoAccent),
+                    ),
+              p0.author.id == widget.username
+                  ? const SizedBox(
+                      width: 0,
+                    )
+                  : const Padding(padding: EdgeInsets.only(bottom: 5)),
+
+              // message section
+              p0.metadata!["type"] != "reply_post"
+                  ? FutureBuilder(
+                      future: p0.metadata!["futureImageData"],
+                      builder: (_, snap) {
+                        if (snap.hasData) {
+                          return p0.metadata!["type"] == "image"
+                              ? imageMessageBuilder(p0, snap.data!)
+                              : fileMessageBuilder(p0, snap.data!);
+                        } else {
+                          return const CircularProgressIndicator();
+                        }
+                      })
+                  : replyPostMessageBuilder(p0),
+            ],
+          ));
     }
 
     return Scaffold(
@@ -589,57 +770,45 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
             : Stack(children: [
                 // Chat widget that contains the chat ui
                 SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: Chat(
-                    user: types.User(id: widget.username),
-                    messages: messages,
-                    onSendPressed: onSendPressed,
-                    inputOptions: InputOptions(enabled: inputEnabled),
-                    theme: DefaultChatTheme(
-                        inputTextDecoration: inputEnabled
-                            ? enabledInputDecoration
-                            : disabledInputDecoration,
-                        primaryColor: Colors.blue,
-                        //secondaryColor: Colors.pinkAccent,
-                        inputBackgroundColor: Colors.white,
-                        inputMargin: inputMargin,
-                        inputPadding: const EdgeInsets.all(15),
-                        inputTextColor: Colors.black,
-                        messageInsetsHorizontal: 12,
-                        messageInsetsVertical: 12,
-                        inputContainerDecoration: inputDecoration,
-                        attachmentButtonMargin: EdgeInsets.zero),
+                    width: MediaQuery.of(context).size.width,
+                    child: Chat(
+                      user: types.User(id: widget.username),
+                      messages: messages,
+                      emptyState: emptyStateBuilder(),
+                      onSendPressed: onSendPressed,
+                      inputOptions: InputOptions(enabled: inputEnabled),
+                      theme: chatTheme,
+                      listBottomWidget: bottomWidget ?? Container(),
 
-                    dateFormat: DateFormat('dd/MM/yy'),
-                    dateHeaderThreshold: 5 * 60 * 1000, // 5 minutes
+                      dateFormat: DateFormat('dd/MM/yy'),
+                      dateHeaderThreshold: 5 * 60 * 1000, // 5 minutes
 
-                    showUserAvatars: true,
-                    showUserNames: widget.isPrivate ? false : true,
+                      showUserAvatars: true,
+                      showUserNames: widget.isPrivate ? false : true,
 
-                    avatarBuilder: avatarBuilder,
+                      avatarBuilder: avatarBuilder,
 
-                    nameBuilder: (p0) => Text(
-                      p0.firstName ?? "",
-                      style: const TextStyle(color: Colors.indigoAccent),
-                    ),
+                      nameBuilder: (p0) => Text(
+                        p0.firstName ?? "",
+                        style: const TextStyle(color: Colors.indigoAccent),
+                      ),
 
-                    customMessageBuilder: customMessageBuilder,
+                      customMessageBuilder: customMessageBuilder,
 
-                    onEndReached: () {
-                      return Future(() => loadMessages(
-                          nextLastTimestamp - jump, nextLastTimestamp));
-                    },
-                    onEndReachedThreshold: 0.8,
-                    isLastPage: nextLastTimestamp == 0,
+                      onEndReached: () {
+                        return Future(() => loadMessages(
+                            nextLastTimestamp - jump, nextLastTimestamp));
+                      },
+                      onEndReachedThreshold: 0.8,
+                      isLastPage: nextLastTimestamp == 0,
 
-                    onAttachmentPressed: inputEnabled
-                        ? () {
-                            dynamic state = _menuKey.currentState;
-                            state.showButtonMenu();
-                          }
-                        : () {},
-                  ),
-                ),
+                      onAttachmentPressed: inputEnabled
+                          ? () {
+                              dynamic state = _menuKey.currentState;
+                              state.showButtonMenu();
+                            }
+                          : () {},
+                    )),
                 Positioned(
                   bottom: 24,
                   left: 25,

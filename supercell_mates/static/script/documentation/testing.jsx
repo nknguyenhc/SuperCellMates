@@ -8,6 +8,7 @@ function Testing() {
                 "user_profile",
                 "user_log",
                 "posts",
+                "notification",
             ]
         },
         {

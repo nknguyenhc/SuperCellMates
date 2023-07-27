@@ -14,26 +14,26 @@ import 'package:auto_route/auto_route.dart' as _i22;
 import 'package:flutter/material.dart' as _i23;
 import 'package:supercellmates/features/auth/login.dart' as _i1;
 import 'package:supercellmates/features/auth/privacy_agreement.dart' as _i2;
-import 'package:supercellmates/features/chat/chat_room_page.dart' as _i19;
-import 'package:supercellmates/features/chat/create_group_page.dart' as _i3;
+import 'package:supercellmates/features/chat/chat_room_page.dart' as _i3;
+import 'package:supercellmates/features/chat/create_group_page.dart' as _i4;
 import 'package:supercellmates/features/chat/group_chat_invite_friend.dart'
-    as _i21;
-import 'package:supercellmates/features/chat/group_chat_settings.dart' as _i20;
-import 'package:supercellmates/features/friends/friends.dart' as _i4;
-import 'package:supercellmates/features/home/settings.dart' as _i5;
-import 'package:supercellmates/features/main_scaffold.dart' as _i6;
-import 'package:supercellmates/features/posts/create_post.dart' as _i7;
-import 'package:supercellmates/features/posts/edit_post.dart' as _i8;
-import 'package:supercellmates/features/profile/achievement.dart' as _i9;
-import 'package:supercellmates/features/profile/add_tag.dart' as _i10;
-import 'package:supercellmates/features/profile/change_name.dart' as _i11;
-import 'package:supercellmates/features/profile/change_password.dart' as _i12;
-import 'package:supercellmates/features/profile/change_username.dart' as _i13;
-import 'package:supercellmates/features/profile/edit_profile.dart' as _i14;
-import 'package:supercellmates/features/profile/others_profile.dart' as _i15;
-import 'package:supercellmates/features/profile/request_tag.dart' as _i16;
-import 'package:supercellmates/functions/multiple_photos_viewer.dart' as _i17;
-import 'package:supercellmates/functions/single_photo_viewer.dart' as _i18;
+    as _i5;
+import 'package:supercellmates/features/chat/group_chat_settings.dart' as _i6;
+import 'package:supercellmates/features/friends/friends.dart' as _i7;
+import 'package:supercellmates/features/home/settings.dart' as _i8;
+import 'package:supercellmates/features/main_scaffold.dart' as _i9;
+import 'package:supercellmates/features/posts/create_post.dart' as _i10;
+import 'package:supercellmates/features/posts/one_post.dart' as _i21;
+import 'package:supercellmates/features/profile/achievement.dart' as _i11;
+import 'package:supercellmates/features/profile/add_tag.dart' as _i12;
+import 'package:supercellmates/features/profile/change_name.dart' as _i13;
+import 'package:supercellmates/features/profile/change_password.dart' as _i14;
+import 'package:supercellmates/features/profile/change_username.dart' as _i15;
+import 'package:supercellmates/features/profile/edit_profile.dart' as _i16;
+import 'package:supercellmates/features/profile/others_profile.dart' as _i17;
+import 'package:supercellmates/features/profile/request_tag.dart' as _i18;
+import 'package:supercellmates/functions/multiple_photos_viewer.dart' as _i19;
+import 'package:supercellmates/functions/single_photo_viewer.dart' as _i20;
 
 abstract class $AppRouter extends _i22.RootStackRouter {
   $AppRouter({super.navigatorKey});
@@ -52,55 +52,81 @@ abstract class $AppRouter extends _i22.RootStackRouter {
         child: const _i2.PrivacyAgreementPage(),
       );
     },
+    ChatRoomRoute.name: (routeData) {
+      final args = routeData.argsAs<ChatRoomRouteArgs>();
+      return _i22.AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: _i3.ChatRoomPage(
+          key: args.key,
+          username: args.username,
+          chatInfo: args.chatInfo,
+          isPrivate: args.isPrivate,
+          replyPostData: args.replyPostData,
+        ),
+      );
+    },
     CreateGroupRoute.name: (routeData) {
       final args = routeData.argsAs<CreateGroupRouteArgs>();
       return _i22.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i3.CreateGroupPage(
+        child: _i4.CreateGroupPage(
           key: args.key,
           updateCallBack: args.updateCallBack,
+        ),
+      );
+    },
+    GroupChatInviteFriendRoute.name: (routeData) {
+      final args = routeData.argsAs<GroupChatInviteFriendRouteArgs>();
+      return _i22.AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: _i5.GroupChatInviteFriendPage(
+          key: args.key,
+          chatInfo: args.chatInfo,
+          currMembers: args.currMembers,
+          updateCallBack: args.updateCallBack,
+        ),
+      );
+    },
+    GroupChatSettingsRoute.name: (routeData) {
+      final args = routeData.argsAs<GroupChatSettingsRouteArgs>();
+      return _i22.AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: _i6.GroupChatSettingsPage(
+          key: args.key,
+          chatInfo: args.chatInfo,
+          username: args.username,
         ),
       );
     },
     FriendsRoute.name: (routeData) {
       return _i22.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i4.FriendsPage(),
+        child: const _i7.FriendsPage(),
       );
     },
     SettingsRoute.name: (routeData) {
       return _i22.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i5.SettingsPage(),
+        child: const _i8.SettingsPage(),
       );
     },
     MainScaffold.name: (routeData) {
       return _i22.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i6.MainScaffold(),
+        child: const _i9.MainScaffold(),
       );
     },
     CreatePostRoute.name: (routeData) {
       final args = routeData.argsAs<CreatePostRouteArgs>();
       return _i22.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i7.CreatePostPage(
+        child: _i10.CreatePostPage(
           key: args.key,
+          isEdit: args.isEdit,
           tagName: args.tagName,
           updateCallBack: args.updateCallBack,
-        ),
-      );
-    },
-    EditPostRoute.name: (routeData) {
-      final args = routeData.argsAs<EditPostRouteArgs>();
-      return _i22.AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: _i8.EditPostPage(
-          key: args.key,
-          tagName: args.tagName,
           oldPostData: args.oldPostData,
           oldPostImages: args.oldPostImages,
-          updateCallBack: args.updateCallBack,
         ),
       );
     },
@@ -108,7 +134,7 @@ abstract class $AppRouter extends _i22.RootStackRouter {
       final args = routeData.argsAs<AchievementRouteArgs>();
       return _i22.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i9.AchievementPage(
+        child: _i11.AchievementPage(
           key: args.key,
           name: args.name,
           myProfile: args.myProfile,
@@ -119,7 +145,7 @@ abstract class $AppRouter extends _i22.RootStackRouter {
       final args = routeData.argsAs<AddTagRouteArgs>();
       return _i22.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i10.AddTagPage(
+        child: _i12.AddTagPage(
           key: args.key,
           updateCallBack: args.updateCallBack,
         ),
@@ -129,7 +155,7 @@ abstract class $AppRouter extends _i22.RootStackRouter {
       final args = routeData.argsAs<ChangeNameRouteArgs>();
       return _i22.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i11.ChangeNamePage(
+        child: _i13.ChangeNamePage(
           key: args.key,
           updateProfileMapCallBack: args.updateProfileMapCallBack,
         ),
@@ -138,14 +164,14 @@ abstract class $AppRouter extends _i22.RootStackRouter {
     ChangePasswordRoute.name: (routeData) {
       return _i22.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i12.ChangePasswordPage(),
+        child: const _i14.ChangePasswordPage(),
       );
     },
     ChangeUsernameRoute.name: (routeData) {
       final args = routeData.argsAs<ChangeUsernameRouteArgs>();
       return _i22.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i13.ChangeUsernamePage(
+        child: _i15.ChangeUsernamePage(
           key: args.key,
           updateProfileMapCallBack: args.updateProfileMapCallBack,
         ),
@@ -155,7 +181,7 @@ abstract class $AppRouter extends _i22.RootStackRouter {
       final args = routeData.argsAs<EditProfileRouteArgs>();
       return _i22.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i14.EditProfilePage(
+        child: _i16.EditProfilePage(
           key: args.key,
           updateProfileImageCallBack: args.updateProfileImageCallBack,
           updateProfileMapCallBack: args.updateProfileMapCallBack,
@@ -166,7 +192,7 @@ abstract class $AppRouter extends _i22.RootStackRouter {
       final args = routeData.argsAs<OthersProfileRouteArgs>();
       return _i22.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i15.OthersProfilePage(
+        child: _i17.OthersProfilePage(
           key: args.key,
           username: args.username,
           onDeleteFriendCallBack: args.onDeleteFriendCallBack,
@@ -176,14 +202,14 @@ abstract class $AppRouter extends _i22.RootStackRouter {
     RequestTagRoute.name: (routeData) {
       return _i22.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i16.RequestTagPage(),
+        child: const _i18.RequestTagPage(),
       );
     },
     MultiplePhotosViewer.name: (routeData) {
       final args = routeData.argsAs<MultiplePhotosViewerArgs>();
       return _i22.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i17.MultiplePhotosViewer(
+        child: _i19.MultiplePhotosViewer(
           key: args.key,
           listOfPhotoBytes: args.listOfPhotoBytes,
           initialIndex: args.initialIndex,
@@ -195,45 +221,21 @@ abstract class $AppRouter extends _i22.RootStackRouter {
       final args = routeData.argsAs<SinglePhotoViewerArgs>();
       return _i22.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i18.SinglePhotoViewer(
+        child: _i20.SinglePhotoViewer(
           key: args.key,
           photoBytes: args.photoBytes,
           actions: args.actions,
         ),
       );
     },
-    ChatRoomRoute.name: (routeData) {
-      final args = routeData.argsAs<ChatRoomRouteArgs>();
+    OnePostRoute.name: (routeData) {
+      final args = routeData.argsAs<OnePostRouteArgs>();
       return _i22.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i19.ChatRoomPage(
+        child: _i21.OnePostPage(
           key: args.key,
+          postID: args.postID,
           username: args.username,
-          chatInfo: args.chatInfo,
-          isPrivate: args.isPrivate,
-        ),
-      );
-    },
-    GroupChatSettingsRoute.name: (routeData) {
-      final args = routeData.argsAs<GroupChatSettingsRouteArgs>();
-      return _i22.AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: _i20.GroupChatSettingsPage(
-          key: args.key,
-          chatInfo: args.chatInfo,
-          username: args.username,
-        ),
-      );
-    },
-    GroupChatInviteFriendRoute.name: (routeData) {
-      final args = routeData.argsAs<GroupChatInviteFriendRouteArgs>();
-      return _i22.AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: _i21.GroupChatInviteFriendPage(
-          key: args.key,
-          chatInfo: args.chatInfo,
-          currMembers: args.currMembers,
-          updateCallBack: args.updateCallBack,
         ),
       );
     },
@@ -269,7 +271,60 @@ class PrivacyAgreementRoute extends _i22.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i3.CreateGroupPage]
+/// [_i3.ChatRoomPage]
+class ChatRoomRoute extends _i22.PageRouteInfo<ChatRoomRouteArgs> {
+  ChatRoomRoute({
+    _i23.Key? key,
+    required String username,
+    required dynamic chatInfo,
+    required bool isPrivate,
+    dynamic replyPostData,
+    List<_i22.PageRouteInfo>? children,
+  }) : super(
+          ChatRoomRoute.name,
+          args: ChatRoomRouteArgs(
+            key: key,
+            username: username,
+            chatInfo: chatInfo,
+            isPrivate: isPrivate,
+            replyPostData: replyPostData,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'ChatRoomRoute';
+
+  static const _i22.PageInfo<ChatRoomRouteArgs> page =
+      _i22.PageInfo<ChatRoomRouteArgs>(name);
+}
+
+class ChatRoomRouteArgs {
+  const ChatRoomRouteArgs({
+    this.key,
+    required this.username,
+    required this.chatInfo,
+    required this.isPrivate,
+    this.replyPostData,
+  });
+
+  final _i23.Key? key;
+
+  final String username;
+
+  final dynamic chatInfo;
+
+  final bool isPrivate;
+
+  final dynamic replyPostData;
+
+  @override
+  String toString() {
+    return 'ChatRoomRouteArgs{key: $key, username: $username, chatInfo: $chatInfo, isPrivate: $isPrivate, replyPostData: $replyPostData}';
+  }
+}
+
+/// generated route for
+/// [_i4.CreateGroupPage]
 class CreateGroupRoute extends _i22.PageRouteInfo<CreateGroupRouteArgs> {
   CreateGroupRoute({
     _i23.Key? key,
@@ -307,7 +362,100 @@ class CreateGroupRouteArgs {
 }
 
 /// generated route for
-/// [_i4.FriendsPage]
+/// [_i5.GroupChatInviteFriendPage]
+class GroupChatInviteFriendRoute
+    extends _i22.PageRouteInfo<GroupChatInviteFriendRouteArgs> {
+  GroupChatInviteFriendRoute({
+    _i23.Key? key,
+    required dynamic chatInfo,
+    required List<dynamic> currMembers,
+    required dynamic updateCallBack,
+    List<_i22.PageRouteInfo>? children,
+  }) : super(
+          GroupChatInviteFriendRoute.name,
+          args: GroupChatInviteFriendRouteArgs(
+            key: key,
+            chatInfo: chatInfo,
+            currMembers: currMembers,
+            updateCallBack: updateCallBack,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'GroupChatInviteFriendRoute';
+
+  static const _i22.PageInfo<GroupChatInviteFriendRouteArgs> page =
+      _i22.PageInfo<GroupChatInviteFriendRouteArgs>(name);
+}
+
+class GroupChatInviteFriendRouteArgs {
+  const GroupChatInviteFriendRouteArgs({
+    this.key,
+    required this.chatInfo,
+    required this.currMembers,
+    required this.updateCallBack,
+  });
+
+  final _i23.Key? key;
+
+  final dynamic chatInfo;
+
+  final List<dynamic> currMembers;
+
+  final dynamic updateCallBack;
+
+  @override
+  String toString() {
+    return 'GroupChatInviteFriendRouteArgs{key: $key, chatInfo: $chatInfo, currMembers: $currMembers, updateCallBack: $updateCallBack}';
+  }
+}
+
+/// generated route for
+/// [_i6.GroupChatSettingsPage]
+class GroupChatSettingsRoute
+    extends _i22.PageRouteInfo<GroupChatSettingsRouteArgs> {
+  GroupChatSettingsRoute({
+    _i23.Key? key,
+    required dynamic chatInfo,
+    required String username,
+    List<_i22.PageRouteInfo>? children,
+  }) : super(
+          GroupChatSettingsRoute.name,
+          args: GroupChatSettingsRouteArgs(
+            key: key,
+            chatInfo: chatInfo,
+            username: username,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'GroupChatSettingsRoute';
+
+  static const _i22.PageInfo<GroupChatSettingsRouteArgs> page =
+      _i22.PageInfo<GroupChatSettingsRouteArgs>(name);
+}
+
+class GroupChatSettingsRouteArgs {
+  const GroupChatSettingsRouteArgs({
+    this.key,
+    required this.chatInfo,
+    required this.username,
+  });
+
+  final _i23.Key? key;
+
+  final dynamic chatInfo;
+
+  final String username;
+
+  @override
+  String toString() {
+    return 'GroupChatSettingsRouteArgs{key: $key, chatInfo: $chatInfo, username: $username}';
+  }
+}
+
+/// generated route for
+/// [_i7.FriendsPage]
 class FriendsRoute extends _i22.PageRouteInfo<void> {
   const FriendsRoute({List<_i22.PageRouteInfo>? children})
       : super(
@@ -321,7 +469,7 @@ class FriendsRoute extends _i22.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i5.SettingsPage]
+/// [_i8.SettingsPage]
 class SettingsRoute extends _i22.PageRouteInfo<void> {
   const SettingsRoute({List<_i22.PageRouteInfo>? children})
       : super(
@@ -335,7 +483,7 @@ class SettingsRoute extends _i22.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i6.MainScaffold]
+/// [_i9.MainScaffold]
 class MainScaffold extends _i22.PageRouteInfo<void> {
   const MainScaffold({List<_i22.PageRouteInfo>? children})
       : super(
@@ -349,19 +497,25 @@ class MainScaffold extends _i22.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i7.CreatePostPage]
+/// [_i10.CreatePostPage]
 class CreatePostRoute extends _i22.PageRouteInfo<CreatePostRouteArgs> {
   CreatePostRoute({
     _i23.Key? key,
+    required bool isEdit,
     required String tagName,
     required dynamic updateCallBack,
+    dynamic oldPostData,
+    dynamic oldPostImages,
     List<_i22.PageRouteInfo>? children,
   }) : super(
           CreatePostRoute.name,
           args: CreatePostRouteArgs(
             key: key,
+            isEdit: isEdit,
             tagName: tagName,
             updateCallBack: updateCallBack,
+            oldPostData: oldPostData,
+            oldPostImages: oldPostImages,
           ),
           initialChildren: children,
         );
@@ -375,77 +529,33 @@ class CreatePostRoute extends _i22.PageRouteInfo<CreatePostRouteArgs> {
 class CreatePostRouteArgs {
   const CreatePostRouteArgs({
     this.key,
+    required this.isEdit,
     required this.tagName,
     required this.updateCallBack,
+    this.oldPostData,
+    this.oldPostImages,
   });
 
   final _i23.Key? key;
+
+  final bool isEdit;
 
   final String tagName;
 
   final dynamic updateCallBack;
-
-  @override
-  String toString() {
-    return 'CreatePostRouteArgs{key: $key, tagName: $tagName, updateCallBack: $updateCallBack}';
-  }
-}
-
-/// generated route for
-/// [_i8.EditPostPage]
-class EditPostRoute extends _i22.PageRouteInfo<EditPostRouteArgs> {
-  EditPostRoute({
-    _i23.Key? key,
-    required String tagName,
-    required dynamic oldPostData,
-    required dynamic oldPostImages,
-    dynamic updateCallBack,
-    List<_i22.PageRouteInfo>? children,
-  }) : super(
-          EditPostRoute.name,
-          args: EditPostRouteArgs(
-            key: key,
-            tagName: tagName,
-            oldPostData: oldPostData,
-            oldPostImages: oldPostImages,
-            updateCallBack: updateCallBack,
-          ),
-          initialChildren: children,
-        );
-
-  static const String name = 'EditPostRoute';
-
-  static const _i22.PageInfo<EditPostRouteArgs> page =
-      _i22.PageInfo<EditPostRouteArgs>(name);
-}
-
-class EditPostRouteArgs {
-  const EditPostRouteArgs({
-    this.key,
-    required this.tagName,
-    required this.oldPostData,
-    required this.oldPostImages,
-    this.updateCallBack,
-  });
-
-  final _i23.Key? key;
-
-  final String tagName;
 
   final dynamic oldPostData;
 
   final dynamic oldPostImages;
 
-  final dynamic updateCallBack;
-
   @override
   String toString() {
-    return 'EditPostRouteArgs{key: $key, tagName: $tagName, oldPostData: $oldPostData, oldPostImages: $oldPostImages, updateCallBack: $updateCallBack}';
+    return 'CreatePostRouteArgs{key: $key, isEdit: $isEdit, tagName: $tagName, updateCallBack: $updateCallBack, oldPostData: $oldPostData, oldPostImages: $oldPostImages}';
   }
 }
 
 /// generated route for
-/// [_i9.AchievementPage]
+/// [_i11.AchievementPage]
 class AchievementRoute extends _i22.PageRouteInfo<AchievementRouteArgs> {
   AchievementRoute({
     _i23.Key? key,
@@ -488,7 +598,7 @@ class AchievementRouteArgs {
 }
 
 /// generated route for
-/// [_i10.AddTagPage]
+/// [_i12.AddTagPage]
 class AddTagRoute extends _i22.PageRouteInfo<AddTagRouteArgs> {
   AddTagRoute({
     _i23.Key? key,
@@ -526,7 +636,7 @@ class AddTagRouteArgs {
 }
 
 /// generated route for
-/// [_i11.ChangeNamePage]
+/// [_i13.ChangeNamePage]
 class ChangeNameRoute extends _i22.PageRouteInfo<ChangeNameRouteArgs> {
   ChangeNameRoute({
     _i23.Key? key,
@@ -564,7 +674,7 @@ class ChangeNameRouteArgs {
 }
 
 /// generated route for
-/// [_i12.ChangePasswordPage]
+/// [_i14.ChangePasswordPage]
 class ChangePasswordRoute extends _i22.PageRouteInfo<void> {
   const ChangePasswordRoute({List<_i22.PageRouteInfo>? children})
       : super(
@@ -578,7 +688,7 @@ class ChangePasswordRoute extends _i22.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i13.ChangeUsernamePage]
+/// [_i15.ChangeUsernamePage]
 class ChangeUsernameRoute extends _i22.PageRouteInfo<ChangeUsernameRouteArgs> {
   ChangeUsernameRoute({
     _i23.Key? key,
@@ -616,7 +726,7 @@ class ChangeUsernameRouteArgs {
 }
 
 /// generated route for
-/// [_i14.EditProfilePage]
+/// [_i16.EditProfilePage]
 class EditProfileRoute extends _i22.PageRouteInfo<EditProfileRouteArgs> {
   EditProfileRoute({
     _i23.Key? key,
@@ -659,7 +769,7 @@ class EditProfileRouteArgs {
 }
 
 /// generated route for
-/// [_i15.OthersProfilePage]
+/// [_i17.OthersProfilePage]
 class OthersProfileRoute extends _i22.PageRouteInfo<OthersProfileRouteArgs> {
   OthersProfileRoute({
     _i23.Key? key,
@@ -702,7 +812,7 @@ class OthersProfileRouteArgs {
 }
 
 /// generated route for
-/// [_i16.RequestTagPage]
+/// [_i18.RequestTagPage]
 class RequestTagRoute extends _i22.PageRouteInfo<void> {
   const RequestTagRoute({List<_i22.PageRouteInfo>? children})
       : super(
@@ -716,7 +826,7 @@ class RequestTagRoute extends _i22.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i17.MultiplePhotosViewer]
+/// [_i19.MultiplePhotosViewer]
 class MultiplePhotosViewer
     extends _i22.PageRouteInfo<MultiplePhotosViewerArgs> {
   MultiplePhotosViewer({
@@ -765,7 +875,7 @@ class MultiplePhotosViewerArgs {
 }
 
 /// generated route for
-/// [_i18.SinglePhotoViewer]
+/// [_i20.SinglePhotoViewer]
 class SinglePhotoViewer extends _i22.PageRouteInfo<SinglePhotoViewerArgs> {
   SinglePhotoViewer({
     _i23.Key? key,
@@ -808,142 +918,44 @@ class SinglePhotoViewerArgs {
 }
 
 /// generated route for
-/// [_i19.ChatRoomPage]
-class ChatRoomRoute extends _i22.PageRouteInfo<ChatRoomRouteArgs> {
-  ChatRoomRoute({
+/// [_i21.OnePostPage]
+class OnePostRoute extends _i22.PageRouteInfo<OnePostRouteArgs> {
+  OnePostRoute({
     _i23.Key? key,
-    required String username,
-    required dynamic chatInfo,
-    required bool isPrivate,
-    List<_i22.PageRouteInfo>? children,
-  }) : super(
-          ChatRoomRoute.name,
-          args: ChatRoomRouteArgs(
-            key: key,
-            username: username,
-            chatInfo: chatInfo,
-            isPrivate: isPrivate,
-          ),
-          initialChildren: children,
-        );
-
-  static const String name = 'ChatRoomRoute';
-
-  static const _i22.PageInfo<ChatRoomRouteArgs> page =
-      _i22.PageInfo<ChatRoomRouteArgs>(name);
-}
-
-class ChatRoomRouteArgs {
-  const ChatRoomRouteArgs({
-    this.key,
-    required this.username,
-    required this.chatInfo,
-    required this.isPrivate,
-  });
-
-  final _i23.Key? key;
-
-  final String username;
-
-  final dynamic chatInfo;
-
-  final bool isPrivate;
-
-  @override
-  String toString() {
-    return 'ChatRoomRouteArgs{key: $key, username: $username, chatInfo: $chatInfo, isPrivate: $isPrivate}';
-  }
-}
-
-/// generated route for
-/// [_i20.GroupChatSettingsPage]
-class GroupChatSettingsRoute
-    extends _i22.PageRouteInfo<GroupChatSettingsRouteArgs> {
-  GroupChatSettingsRoute({
-    _i23.Key? key,
-    required dynamic chatInfo,
+    required String postID,
     required String username,
     List<_i22.PageRouteInfo>? children,
   }) : super(
-          GroupChatSettingsRoute.name,
-          args: GroupChatSettingsRouteArgs(
+          OnePostRoute.name,
+          args: OnePostRouteArgs(
             key: key,
-            chatInfo: chatInfo,
+            postID: postID,
             username: username,
           ),
           initialChildren: children,
         );
 
-  static const String name = 'GroupChatSettingsRoute';
+  static const String name = 'OnePostRoute';
 
-  static const _i22.PageInfo<GroupChatSettingsRouteArgs> page =
-      _i22.PageInfo<GroupChatSettingsRouteArgs>(name);
+  static const _i22.PageInfo<OnePostRouteArgs> page =
+      _i22.PageInfo<OnePostRouteArgs>(name);
 }
 
-class GroupChatSettingsRouteArgs {
-  const GroupChatSettingsRouteArgs({
+class OnePostRouteArgs {
+  const OnePostRouteArgs({
     this.key,
-    required this.chatInfo,
+    required this.postID,
     required this.username,
   });
 
   final _i23.Key? key;
 
-  final dynamic chatInfo;
+  final String postID;
 
   final String username;
 
   @override
   String toString() {
-    return 'GroupChatSettingsRouteArgs{key: $key, chatInfo: $chatInfo, username: $username}';
-  }
-}
-
-/// generated route for
-/// [_i21.GroupChatInviteFriendPage]
-class GroupChatInviteFriendRoute
-    extends _i22.PageRouteInfo<GroupChatInviteFriendRouteArgs> {
-  GroupChatInviteFriendRoute({
-    _i23.Key? key,
-    required dynamic chatInfo,
-    required List<dynamic> currMembers,
-    required dynamic updateCallBack,
-    List<_i22.PageRouteInfo>? children,
-  }) : super(
-          GroupChatInviteFriendRoute.name,
-          args: GroupChatInviteFriendRouteArgs(
-            key: key,
-            chatInfo: chatInfo,
-            currMembers: currMembers,
-            updateCallBack: updateCallBack,
-          ),
-          initialChildren: children,
-        );
-
-  static const String name = 'GroupChatInviteFriendRoute';
-
-  static const _i22.PageInfo<GroupChatInviteFriendRouteArgs> page =
-      _i22.PageInfo<GroupChatInviteFriendRouteArgs>(name);
-}
-
-class GroupChatInviteFriendRouteArgs {
-  const GroupChatInviteFriendRouteArgs({
-    this.key,
-    required this.chatInfo,
-    required this.currMembers,
-    required this.updateCallBack,
-  });
-
-  final _i23.Key? key;
-
-  final dynamic chatInfo;
-
-  final List<dynamic> currMembers;
-
-  final dynamic updateCallBack;
-
-  @override
-  String toString() {
-    return 'GroupChatInviteFriendRouteArgs{key: $key, chatInfo: $chatInfo, currMembers: $currMembers, updateCallBack: $updateCallBack}';
+    return 'OnePostRouteArgs{key: $key, postID: $postID, username: $username}';
   }
 }

@@ -52,16 +52,7 @@ class PostListViewState extends State<PostListView> {
   @override
   void initState() {
     super.initState();
-    count = widget.postList.length;
-    dataLoaded = List.filled(count, false, growable: true);
-    profileImages = List.filled(count, Uint8List.fromList([]), growable: true);
-    postImagesRaw = List.filled(count, null, growable: true);
-    timePosted = List.filled(count, null, growable: true);
-    seeMore = List.filled(count, false, growable: true);
-    for (int i = 0; i < count; i++) {
-      loadImages(i);
-      loadTime(i);
-    }
+    loadPosts();
     _controller.addListener(() {
       if (_controller.position.atEdge) {
         bool isTop = _controller.position.pixels == 0;
@@ -75,10 +66,28 @@ class PostListViewState extends State<PostListView> {
   @override
   void didUpdateWidget(covariant PostListView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    loadMore();
+    if (widget.postList != oldWidget.postList) {
+      loadPosts();
+    } else if (widget.postList.length > dataLoaded.length) {
+      loadMore();
+    }
+  }
+
+  void loadPosts() {
+    count = widget.postList.length;
+    dataLoaded = List.filled(count, false, growable: true);
+    profileImages = List.filled(count, Uint8List.fromList([]), growable: true);
+    postImagesRaw = List.filled(count, null, growable: true);
+    timePosted = List.filled(count, null, growable: true);
+    seeMore = List.filled(count, false, growable: true);
+    for (int i = 0; i < count; i++) {
+      loadImages(i);
+      loadTime(i);
+    }
   }
 
   void loadMore() {
+    // for loading more posts in home feed
     int currCount = dataLoaded.length;
     count = widget.postList.length;
     for (int i = currCount; i < count; i++) {
@@ -125,6 +134,14 @@ class PostListViewState extends State<PostListView> {
     }
   }
 
+  Widget postDivider = const Divider(
+    height: 1,
+    thickness: 0.3,
+    color: Colors.blueGrey,
+    indent: 15,
+    endIndent: 15,
+  );
+
   @override
   Widget build(BuildContext context) {
     TextButton seeMoreSection(int index) {
@@ -160,287 +177,374 @@ class PostListViewState extends State<PostListView> {
         itemCount: count,
         itemBuilder: (context, index) {
           Uint8List profileImageRawData = profileImages[index];
+          String postID = widget.postList[index]["id"];
           String name = widget.postList[index]["creator"]["name"];
           String username = widget.postList[index]["creator"]["username"];
           String title = widget.postList[index]["title"];
           String content = widget.postList[index]["content"];
+          bool canReply = widget.postList[index]["can_reply"];
           String visibility = parseVisibility(
               widget.postList[index]["public_visible"],
               widget.postList[index]["friend_visible"],
               widget.postList[index]["tag_visible"]);
           List<Uint8List>? images =
               dataLoaded[index] ? postImagesRaw[index] : null;
-          return Column(children: [
-            // post creator info header
-            TextButton(
-              onPressed: widget.isInSomeProfile ||
-                      widget.username ==
-                          widget.postList[index]["creator"]["username"]
-                  ? () {}
-                  : () async {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      AutoRouter.of(context)
-                          .push(OthersProfileRoute(username: username));
-                    },
-              child: Row(children: [
-                const Padding(padding: EdgeInsets.only(left: 5)),
-                SizedBox(
-                  height: 40,
-                  width: 40,
-                  child: dataLoaded[index]
-                      ? IconButton(
-                          onPressed: () {
+
+          Widget buildPostProfileImage() {
+            return dataLoaded[index]
+                ? IconButton(
+                    onPressed: widget.isInSomeProfile ||
+                            widget.username ==
+                                widget.postList[index]["creator"]["username"]
+                        ? () {
                             AutoRouter.of(context).push(SinglePhotoViewer(
                                 photoBytes: profileImageRawData, actions: []));
+                          }
+                        : () async {
+                            FocusManager.instance.primaryFocus?.unfocus();
+                            AutoRouter.of(context)
+                                .push(OthersProfileRoute(username: username));
                           },
-                          icon: Image.memory(profileImageRawData),
-                          iconSize: 40,
-                          padding: EdgeInsets.zero,
-                        )
-                      : const CircularProgressIndicator(),
+                    icon: Image.memory(profileImageRawData),
+                    iconSize: 40,
+                    padding: EdgeInsets.zero,
+                  )
+                : const CircularProgressIndicator();
+          }
+
+          Widget buildPostCreatorInfo() {
+            return Column(
+              children: [
+                const Padding(padding: EdgeInsets.all(2)),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width - 85,
+                  child: Text(
+                    name,
+                    style: const TextStyle(color: Colors.black, fontSize: 15),
+                  ),
                 ),
-                const Padding(padding: EdgeInsets.all(5)),
-                Column(
-                  children: [
-                    const Padding(padding: EdgeInsets.all(2)),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width - 85,
-                      child: Text(
-                        name,
-                        style:
-                            const TextStyle(color: Colors.black, fontSize: 15),
-                      ),
-                    ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width - 85,
-                      child: Text("@$username",
-                          style: const TextStyle(
-                            color: Colors.blueGrey,
-                            fontSize: 12,
-                          )),
-                    ),
-                    const Padding(padding: EdgeInsets.all(2)),
-                  ],
-                )
-              ]),
-            ),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width - 85,
+                  child: Text("@$username",
+                      style: const TextStyle(
+                        color: Colors.blueGrey,
+                        fontSize: 12,
+                      )),
+                ),
+                const Padding(padding: EdgeInsets.all(2)),
+              ],
+            );
+          }
+
+          Widget buildTitleSection() {
+            return SizedBox(
+              width: MediaQuery.of(context).size.width - 45,
+              child: Text(
+                title,
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+              ),
+            );
+          }
+
+          Widget buildContentSection() {
+            return Column(
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width - 45,
+                  child: Text(
+                    content.length > seeMoreThreshold && !seeMore[index]
+                        ? content.substring(0, seeMoreThreshold)
+                        : content,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
+                content.length > seeMoreThreshold && !seeMore[index]
+                    ? SizedBox(
+                        height: 40,
+                        child: seeMoreSection(index),
+                      )
+                    : content.length > seeMoreThreshold && seeMore[index]
+                        ? SizedBox(
+                            height: 40,
+                            child: seeLessSection(index),
+                          )
+                        : Container()
+              ],
+            );
+          }
+
+          Widget buildImageSection() {
+            return images!.isEmpty
+                ? Container()
+                : Column(
+                    children: [
+                      content.length > 200
+                          ? Container()
+                          : const Padding(padding: EdgeInsets.only(top: 10)),
+                      images.length < 5
+                          ? SizedBox(
+                              width: MediaQuery.of(context).size.width - 45,
+                              height: images.length < 3
+                                  ? MediaQuery.of(context).size.width / 2 - 20
+                                  : MediaQuery.of(context).size.width - 45,
+                              child: GridView.builder(
+                                itemCount: images.length,
+                                shrinkWrap: true,
+                                padding:
+                                    const EdgeInsets.only(left: 10, right: 15),
+                                physics: const NeverScrollableScrollPhysics(),
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2,
+                                        mainAxisSpacing: 10,
+                                        crossAxisSpacing: 10),
+                                itemBuilder: (context, imageIndex) {
+                                  return IconButton(
+                                      splashColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      padding: EdgeInsets.zero,
+                                      onPressed: () => AutoRouter.of(context)
+                                          .push(MultiplePhotosViewer(
+                                              listOfPhotoBytes:
+                                                  postImagesRaw[index]!,
+                                              initialIndex: imageIndex,
+                                              actionFunction: null)),
+                                      icon: Image.memory(
+                                        images[imageIndex],
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                2,
+                                        height:
+                                            MediaQuery.of(context).size.width /
+                                                2,
+                                        fit: BoxFit.cover,
+                                      ));
+                                },
+                              ),
+                            )
+                          : SizedBox(
+                              width: MediaQuery.of(context).size.width - 40,
+                              height: images.length < 7
+                                  ? MediaQuery.of(context).size.width * 2 / 3 -
+                                      27
+                                  : MediaQuery.of(context).size.width - 65,
+                              child: GridView.builder(
+                                itemCount: images.length,
+                                shrinkWrap: true,
+                                padding:
+                                    const EdgeInsets.only(left: 10, right: 10),
+                                physics: const NeverScrollableScrollPhysics(),
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 3,
+                                        mainAxisSpacing: 10,
+                                        crossAxisSpacing: 10),
+                                itemBuilder: (context, imageIndex) {
+                                  return IconButton(
+                                      splashColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      padding: EdgeInsets.zero,
+                                      onPressed: () => AutoRouter.of(context)
+                                          .push(MultiplePhotosViewer(
+                                              listOfPhotoBytes:
+                                                  postImagesRaw[index]!,
+                                              initialIndex: imageIndex,
+                                              actionFunction: null)),
+                                      icon: Image.memory(
+                                        images[imageIndex],
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                2,
+                                        height:
+                                            MediaQuery.of(context).size.width /
+                                                2,
+                                        fit: BoxFit.cover,
+                                      ));
+                                },
+                              ),
+                            )
+                    ],
+                  );
+          }
+
+          Widget buildPostTag() {
+            return Container(
+              padding: const EdgeInsets.only(left: 30),
+              child: Text(
+                "#${widget.postList[index]["tag"]["name"]}",
+                style: const TextStyle(color: Colors.pink),
+              ),
+            );
+          }
+
+          Widget buildEditButton() {
+            return SizedBox(
+              width: 30,
+              child: IconButton(
+                tooltip: "edit",
+                onPressed: () {
+                  AutoRouter.of(context).push(CreatePostRoute(
+                      tagName: widget.postList[index]["tag"]["name"],
+                      oldPostData: widget.postList[index],
+                      oldPostImages: postImagesRaw[index],
+                      updateCallBack: widget.updateCallBack,
+                      isEdit: true));
+                },
+                icon: const Icon(
+                  Icons.edit_outlined,
+                  color: Colors.black,
+                ),
+                iconSize: 20,
+              ),
+            );
+          }
+
+          Widget buildDeleteButton() {
+            return SizedBox(
+                width: 30,
+                child: IconButton(
+                  tooltip: "delete",
+                  onPressed: () {
+                    showConfirmationDialog(
+                        context, "Are you sure to delete this post?", () async {
+                      startUploadingDialog(context, "data");
+                      dynamic body = {
+                        "post_id": widget.postList[index]["id"],
+                      };
+                      dynamic r = await postWithCSRF(
+                          EndPoints.deletePost.endpoint, body);
+                      stopLoadingDialog(context);
+                      Future.delayed(Duration(milliseconds: 100)).then((value) {
+                        if (r == "post deleted") {
+                          widget.updateCallBack();
+                          showSuccessDialog(
+                              context, "Successfully deleted post");
+                        } else {
+                          showErrorDialog(context, r);
+                        }
+                      });
+                    });
+                  },
+                  icon: const Icon(
+                    Icons.delete,
+                    color: Colors.pink,
+                  ),
+                  iconSize: 20,
+                ));
+          }
+
+          Widget buildPostReplyButton() {
+            return SizedBox(
+                width: 30,
+                child: IconButton(
+                  tooltip: "private reply",
+                  onPressed: () {
+                    getRequest(EndPoints.getChatID.endpoint,
+                        {"username": username}).then((response) {
+                      if (response == "Connection error" ||
+                          response == "no chat found") {
+                        // TODO: change error handling
+                        showErrorDialog(context, response);
+                        return;
+                      }
+                      Map chatInfo = {
+                        "id": response,
+                        "user": {
+                          "name": name,
+                          "username": username,
+                        }
+                      };
+                      context.router.push(ChatRoomRoute(
+                          username: widget.username,
+                          chatInfo: chatInfo,
+                          isPrivate: true,
+                          replyPostData: {
+                            "title": title,
+                            "content": content,
+                            "postID": postID
+                          }));
+                    });
+                  },
+                  icon: const Icon(
+                    FontAwesome5.comment_dots,
+                    color: Colors.blue,
+                  ),
+                  iconSize: 17,
+                ));
+          }
+
+          Widget buildPostTime() {
+            return Text(
+              DateFormat('yyyy-MM-dd HH:mm').format(timePosted[index]),
+              style: const TextStyle(color: Colors.blueGrey),
+            );
+          }
+
+          Widget buildPostVisibility() {
+            return Tooltip(
+                message: visibility,
+                triggerMode: TooltipTriggerMode.tap,
+                preferBelow: false,
+                verticalOffset: 12,
+                child: Icon(
+                    visibility == "public"
+                        ? Icons.public
+                        : visibility == "friends"
+                            ? Icons.people_sharp
+                            : visibility == "people with same tag"
+                                ? FontAwesome5.tag
+                                : FontAwesome5.user_tag,
+                    color: Colors.blueGrey,
+                    size: visibility == "public" || visibility == "friends"
+                        ? 18
+                        : 13));
+          }
+
+          return Column(children: [
+            const Padding(padding: EdgeInsets.only(top: 10)),
+
+            // post creator info header
+            Row(children: [
+              const Padding(padding: EdgeInsets.only(left: 20)),
+              SizedBox(
+                height: 40,
+                width: 40,
+                child: buildPostProfileImage(),
+              ),
+              const Padding(padding: EdgeInsets.all(5)),
+              buildPostCreatorInfo(),
+            ]),
 
             // Post body: title, content, images
             SizedBox(
               width: MediaQuery.of(context).size.width,
-              child: Row(
-                children: [
-                  const Padding(padding: EdgeInsets.all(10)),
-                  Column(
+              child: Padding(
+                  padding: const EdgeInsets.only(left: 30, right: 15, top: 5),
+                  child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            const Padding(padding: EdgeInsets.only(left: 10)),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width - 40,
-                              child: Text(
-                                title,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 17),
-                              ),
-                            )
-                          ],
-                        ),
+                        //title
+                        buildTitleSection(),
                         const Padding(padding: EdgeInsets.only(top: 5)),
                         // content
-                        Column(
-                          children: [
-                            Row(
-                              children: [
-                                const Padding(
-                                    padding: EdgeInsets.only(left: 10)),
-                                SizedBox(
-                                  width: MediaQuery.of(context).size.width - 40,
-                                  child: Text(
-                                    content.length > seeMoreThreshold &&
-                                            !seeMore[index]
-                                        ? content.substring(0, seeMoreThreshold)
-                                        : content,
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                )
-                              ],
-                            ),
-                            content.length > seeMoreThreshold && !seeMore[index]
-                                ? SizedBox(
-                                    height: 40,
-                                    child: seeMoreSection(index),
-                                  )
-                                : content.length > seeMoreThreshold &&
-                                        seeMore[index]
-                                    ? SizedBox(
-                                        height: 40,
-                                        child: seeLessSection(index),
-                                      )
-                                    : Container()
-                          ],
-                        ),
+                        buildContentSection(),
                         content.length > 200
                             ? Container()
                             : const Padding(padding: EdgeInsets.only(top: 10)),
                         // images
                         dataLoaded[index]
-                            ? images!.isEmpty
-                                ? Container()
-                                : Column(
-                                    children: [
-                                      content.length > 200
-                                          ? Container()
-                                          : const Padding(
-                                              padding:
-                                                  EdgeInsets.only(top: 10)),
-                                      images.length < 5
-                                          ? SizedBox(
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width -
-                                                  40,
-                                              height: images.length < 3
-                                                  ? MediaQuery.of(context)
-                                                              .size
-                                                              .width /
-                                                          2 -
-                                                      20
-                                                  : MediaQuery.of(context)
-                                                          .size
-                                                          .width -
-                                                      45,
-                                              child: GridView.builder(
-                                                itemCount: images.length,
-                                                shrinkWrap: true,
-                                                padding: const EdgeInsets.only(
-                                                    left: 10, right: 10),
-                                                physics:
-                                                    const NeverScrollableScrollPhysics(),
-                                                gridDelegate:
-                                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                                        crossAxisCount: 2,
-                                                        mainAxisSpacing: 10,
-                                                        crossAxisSpacing: 10),
-                                                itemBuilder:
-                                                    (context, imageIndex) {
-                                                  return IconButton(
-                                                      splashColor:
-                                                          Colors.transparent,
-                                                      highlightColor:
-                                                          Colors.transparent,
-                                                      padding: EdgeInsets.zero,
-                                                      onPressed: () => AutoRouter
-                                                              .of(context)
-                                                          .push(MultiplePhotosViewer(
-                                                              listOfPhotoBytes:
-                                                                  postImagesRaw[
-                                                                      index]!,
-                                                              initialIndex:
-                                                                  imageIndex,
-                                                              actionFunction:
-                                                                  null)),
-                                                      icon: Image.memory(
-                                                        images[imageIndex],
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width /
-                                                            2,
-                                                        height: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width /
-                                                            2,
-                                                        fit: BoxFit.cover,
-                                                      ));
-                                                },
-                                              ),
-                                            )
-                                          : SizedBox(
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width -
-                                                  40,
-                                              height: images.length < 7
-                                                  ? MediaQuery.of(context)
-                                                              .size
-                                                              .width *
-                                                          2 /
-                                                          3 -
-                                                      27
-                                                  : MediaQuery.of(context)
-                                                          .size
-                                                          .width -
-                                                      65,
-                                              child: GridView.builder(
-                                                itemCount: images.length,
-                                                shrinkWrap: true,
-                                                padding: const EdgeInsets.only(
-                                                    left: 10, right: 10),
-                                                physics:
-                                                    const NeverScrollableScrollPhysics(),
-                                                gridDelegate:
-                                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                                        crossAxisCount: 3,
-                                                        mainAxisSpacing: 10,
-                                                        crossAxisSpacing: 10),
-                                                itemBuilder:
-                                                    (context, imageIndex) {
-                                                  return IconButton(
-                                                      splashColor:
-                                                          Colors.transparent,
-                                                      highlightColor:
-                                                          Colors.transparent,
-                                                      padding: EdgeInsets.zero,
-                                                      onPressed: () => AutoRouter
-                                                              .of(context)
-                                                          .push(MultiplePhotosViewer(
-                                                              listOfPhotoBytes:
-                                                                  postImagesRaw[
-                                                                      index]!,
-                                                              initialIndex:
-                                                                  imageIndex,
-                                                              actionFunction:
-                                                                  null)),
-                                                      icon: Image.memory(
-                                                        images[imageIndex],
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width /
-                                                            2,
-                                                        height: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width /
-                                                            2,
-                                                        fit: BoxFit.cover,
-                                                      ));
-                                                },
-                                              ),
-                                            )
-                                    ],
-                                  )
+                            ? buildImageSection()
                             : const CircularProgressIndicator(),
-                      ])
-                ],
-              ),
+                      ])),
             ),
 
-            // tag, edit and delete
+            // tag, edit and delete and post reply
             SizedBox(
                 width: MediaQuery.of(context).size.width,
                 height: 25,
                 child: Stack(children: [
-                  Container(
-                    padding: const EdgeInsets.only(left: 30),
-                    child: Text(
-                      "#${widget.postList[index]["tag"]["name"]}",
-                      style: const TextStyle(color: Colors.pink),
-                    ),
-                  ),
+                  buildPostTag(),
                   dataLoaded[index] &&
                           widget.username ==
                               widget.postList[index]["creator"]["username"]
@@ -449,65 +553,25 @@ class PostListViewState extends State<PostListView> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              SizedBox(
-                                width: 30,
-                                child: IconButton(
-                                  onPressed: () {
-                                    AutoRouter.of(context).push(EditPostRoute(
-                                        tagName: widget.postList[index]["tag"]
-                                            ["name"],
-                                        oldPostData: widget.postList[index],
-                                        oldPostImages: postImagesRaw[index],
-                                        updateCallBack: widget.updateCallBack));
-                                  },
-                                  icon: const Icon(
-                                    Icons.edit_outlined,
-                                    color: Colors.black,
-                                  ),
-                                  iconSize: 20,
-                                ),
-                              ),
+                              buildEditButton(),
                               const Padding(padding: EdgeInsets.only(left: 10)),
-                              SizedBox(
-                                  width: 30,
-                                  child: IconButton(
-                                    onPressed: () {
-                                      showConfirmationDialog(context,
-                                          "Are you sure to delete this post?",
-                                          () async {
-                                        startUploadingDialog(context, "data");
-                                        dynamic body = {
-                                          "post_id": widget.postList[index]
-                                              ["id"],
-                                        };
-                                        dynamic r = await postWithCSRF(
-                                            EndPoints.deletePost.endpoint,
-                                            body);
-                                        stopLoadingDialog(context);
-                                        Future.delayed(
-                                                Duration(milliseconds: 100))
-                                            .then((value) {
-                                          if (r == "post deleted") {
-                                            widget.updateCallBack();
-                                            showSuccessDialog(context,
-                                                "Successfully deleted post");
-                                          } else {
-                                            showErrorDialog(context, r);
-                                          }
-                                        });
-                                      });
-                                    },
-                                    icon: const Icon(
-                                      Icons.delete,
-                                      color: Colors.pink,
-                                    ),
-                                    iconSize: 20,
-                                  )),
+                              buildDeleteButton(),
                               const Padding(
                                   padding: EdgeInsets.only(right: 20)),
                             ],
                           ))
-                      : Container()
+                      : dataLoaded[index] && !widget.isInSomeProfile && canReply
+                          ? SizedBox(
+                              width: MediaQuery.of(context).size.width,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  buildPostReplyButton(),
+                                  const Padding(
+                                      padding: EdgeInsets.only(right: 18))
+                                ],
+                              ))
+                          : Container()
                 ])),
 
             // post time & visibility
@@ -517,44 +581,18 @@ class PostListViewState extends State<PostListView> {
               child: Row(
                 children: [
                   const Padding(padding: EdgeInsets.only(left: 30)),
-                  Text(
-                    DateFormat('yyyy-MM-dd HH:mm').format(timePosted[index]),
-                    style: const TextStyle(color: Colors.blueGrey),
-                  ),
+                  buildPostTime(),
                   const Padding(padding: EdgeInsets.only(left: 10)),
-                  Tooltip(
-                      message: visibility,
-                      triggerMode: TooltipTriggerMode.tap,
-                      preferBelow: false,
-                      verticalOffset: 12,
-                      child: Icon(
-                          visibility == "public"
-                              ? Icons.public
-                              : visibility == "friends"
-                                  ? Icons.people_sharp
-                                  : visibility == "people with same tag"
-                                      ? FontAwesome5.tag
-                                      : FontAwesome5.user_tag,
-                          color: Colors.blueGrey,
-                          size:
-                              visibility == "public" || visibility == "friends"
-                                  ? 18
-                                  : 13)),
+                  buildPostVisibility(),
                 ],
               ),
             ),
 
             const Padding(padding: EdgeInsets.only(top: 5)),
-
-            const Divider(
-              height: 1,
-              thickness: 0.3,
-              color: Colors.blueGrey,
-              indent: 15,
-              endIndent: 15,
-            )
+            postDivider,
           ]);
         });
+
     return widget.refreshable
         ? RefreshIndicator(
             onRefresh: widget.scrollAtTopEvent,
