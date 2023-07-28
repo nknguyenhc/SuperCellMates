@@ -170,6 +170,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
+        leadingWidth: 50,
         toolbarHeight: 80,
         backgroundColor: Colors.lightBlue,
         titleSpacing: 0,
@@ -218,7 +219,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
           profileData["is_friend"]
               ? Column(
                   children: [
-                    const Padding(padding: EdgeInsets.only(top: 4)),
+                    const Padding(padding: EdgeInsets.only(top: 6)),
                     SizedBox(
                       height: 40,
                       child: IconButton(
@@ -229,7 +230,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                               "Are you sure to unfriend ${profileData["user_profile"]["name"]}?",
                               deleteFriend);
                         },
-                        iconSize: 35,
+                        iconSize: 32,
                       ),
                     ),
                     const SizedBox(
@@ -245,7 +246,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                 )
               : Column(
                   children: [
-                    const Padding(padding: EdgeInsets.only(top: 4)),
+                    const Padding(padding: EdgeInsets.only(top: 6)),
                     SizedBox(
                       height: 40,
                       child: IconButton(
@@ -256,7 +257,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                               "Are you sure to send a friend request?",
                               sendFriendRequest);
                         },
-                        iconSize: 35,
+                        iconSize: 32,
                       ),
                     ),
                     const SizedBox(
@@ -272,15 +273,15 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                 ),
           Column(
             children: [
-              const Padding(padding: EdgeInsets.only(top: 6)),
+              const Padding(padding: EdgeInsets.only(top: 10)),
               SizedBox(
-                height: 38,
+                height: 36,
                 child: IconButton(
                   icon: const Icon(FontAwesome5.trophy),
                   onPressed: () => AutoRouter.of(context).push(AchievementRoute(
                       name: profileData["user_profile"]["name"],
                       myProfile: false)),
-                  iconSize: 30,
+                  iconSize: 25,
                 ),
               ),
               const SizedBox(

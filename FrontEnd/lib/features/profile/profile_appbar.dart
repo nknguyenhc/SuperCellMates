@@ -103,7 +103,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
         ),
         Column(
           children: [
-            const Padding(padding: EdgeInsets.only(top:10)),
+            const Padding(padding: EdgeInsets.only(top:11)),
             SizedBox(
               height: 34,
               child: IconButton(
@@ -111,7 +111,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
                 onPressed: () => AutoRouter.of(context).push(AchievementRoute(
                     name: widget.profileMap["user_profile"]["name"],
                     myProfile: true)),
-                iconSize: 26,
+                iconSize: 25,
               ),
             ),
             const SizedBox(
@@ -119,7 +119,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
               child: Text(
                 " Lv.1",
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                 ),
               ),
             ),
