@@ -11,10 +11,14 @@ from django.core.files.images import ImageFile
 from datetime import datetime
 import json
 
-from user_profile.views import verify_image, list_to_image_and_verify_async
+from user_profile.views import verify_image, list_to_image_and_verify_async, \
+    get_tag_activity_record, change_activity_score, MAXIMUM_ACTIVITY_SCORE
 
 from user_auth.models import Tag, UserAuth
 from .models import Post, PostImage
+
+CREATE_POST_TAG_ACTIVITY_COEFFICIENT = 0.5
+DELETE_POST_MAXIMUM_PUNISHMENT = -1
 
 
 @login_required
@@ -107,6 +111,11 @@ def create_post(request):
         post.img_count = len(imgs)
         post.save()
 
+        # update tag activity
+        record_obj = get_tag_activity_record(request.user, tag_object)
+        change_amount = CREATE_POST_TAG_ACTIVITY_COEFFICIENT * (MAXIMUM_ACTIVITY_SCORE - record_obj.activity_score)
+        change_activity_score(record_obj, change_amount)
+
         return HttpResponse("post created")
     
     except MultiValueDictKeyError:
@@ -115,6 +124,7 @@ def create_post(request):
         return HttpResponseBadRequest("tag with provided name not found")
     except TypeError:
         return HttpResponseBadRequest("imgs key submitted is not of type array")
+
 
 def get_list_from_request_body(request, key):
     """Used when the request body contains a value of list type.
@@ -326,6 +336,15 @@ def delete_post(request):
         post = Post.objects.get(id=post_id)
         if post not in request.user.user_log.posts.all():
             return HttpResponseBadRequest("you are not the owner of this post")
+
+        # update tag activity, decreasing at most DELETE_POST_MAXIMUM_PUNISHMENT
+        tag_obj = post.tag
+        record_obj = get_tag_activity_record(request.user, tag_obj)
+        change_amount = CREATE_POST_TAG_ACTIVITY_COEFFICIENT / (1 - CREATE_POST_TAG_ACTIVITY_COEFFICIENT) *\
+            (record_obj.activity_score - MAXIMUM_ACTIVITY_SCORE)
+        change_amount = max(DELETE_POST_MAXIMUM_PUNISHMENT, change_amount)
+        change_activity_score(record_obj, change_amount)
+
         post.delete()
         return HttpResponse("post deleted")
     
