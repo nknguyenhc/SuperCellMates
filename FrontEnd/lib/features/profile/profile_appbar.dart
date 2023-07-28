@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import "package:fluttericon/font_awesome5_icons.dart";
 
 import 'package:supercellmates/http_requests/get_image.dart';
 import 'package:supercellmates/router/router.gr.dart';
@@ -100,24 +101,23 @@ class ProfileAppBarState extends State<ProfileAppBar> {
             ),
           ],
         ),
-        const Padding(padding: EdgeInsets.only(right: 2)),
         Column(
           children: [
-            const Padding(padding: EdgeInsets.only(top:4)),
+            const Padding(padding: EdgeInsets.only(top:10)),
             SizedBox(
-              height: 40,
+              height: 34,
               child: IconButton(
-                icon: const Icon(Icons.pentagon),
+                icon: const Icon(FontAwesome5.trophy),
                 onPressed: () => AutoRouter.of(context).push(AchievementRoute(
                     name: widget.profileMap["user_profile"]["name"],
                     myProfile: true)),
-                iconSize: 35,
+                iconSize: 26,
               ),
             ),
             const SizedBox(
               height: 30,
               child: Text(
-                "Lv.1",
+                " Lv.1",
                 style: TextStyle(
                   fontSize: 14,
                 ),
@@ -125,7 +125,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
             ),
           ],
         ),
-        const Padding(padding: EdgeInsets.only(right: 5))
+        const Padding(padding: EdgeInsets.only(right: 10))
       ],
     );
   }

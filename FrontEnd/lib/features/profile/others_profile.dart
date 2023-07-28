@@ -3,12 +3,14 @@ import 'dart:typed_data';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import "package:fluttericon/font_awesome5_icons.dart";
 import 'package:supercellmates/features/posts/post_listview.dart';
 import 'package:supercellmates/http_requests/get_image.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
 import 'package:supercellmates/router/router.gr.dart';
 import 'package:supercellmates/features/dialogs.dart';
+import 'package:supercellmates/functions/matching_index.dart';
 
 @RoutePage()
 class OthersProfilePage extends StatefulWidget {
@@ -79,7 +81,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
       "end": DateTime(2099).microsecondsSinceEpoch.toDouble() / 1000000,
     };
     if (selectedTagIndex != -1) {
-      requestBody["tag"] = profileData["tags"][selectedTagIndex - 1]["name"];
+      requestBody["tag"] = profileData["tags"][selectedTagIndex]["name"];
     }
 
     dynamic profilePostsResponseJson = await getRequest(
@@ -216,7 +218,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
           profileData["is_friend"]
               ? Column(
                   children: [
-                    const Padding(padding: EdgeInsets.only(top:4)),
+                    const Padding(padding: EdgeInsets.only(top: 4)),
                     SizedBox(
                       height: 40,
                       child: IconButton(
@@ -235,7 +237,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                       child: Text(
                         "Unfriend",
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 13,
                         ),
                       ),
                     ),
@@ -243,7 +245,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                 )
               : Column(
                   children: [
-                    const Padding(padding: EdgeInsets.only(top:4)),
+                    const Padding(padding: EdgeInsets.only(top: 4)),
                     SizedBox(
                       height: 40,
                       child: IconButton(
@@ -262,7 +264,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                       child: Text(
                         "Add",
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 13,
                         ),
                       ),
                     ),
@@ -270,29 +272,29 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                 ),
           Column(
             children: [
-              const Padding(padding: EdgeInsets.only(top:4)),
+              const Padding(padding: EdgeInsets.only(top: 6)),
               SizedBox(
-                height: 40,
+                height: 38,
                 child: IconButton(
-                  icon: const Icon(Icons.pentagon),
+                  icon: const Icon(FontAwesome5.trophy),
                   onPressed: () => AutoRouter.of(context).push(AchievementRoute(
                       name: profileData["user_profile"]["name"],
                       myProfile: false)),
-                  iconSize: 35,
+                  iconSize: 30,
                 ),
               ),
               const SizedBox(
                 height: 30,
                 child: Text(
-                  "Lv.1",
+                  " Lv.1",
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                   ),
                 ),
               ),
             ],
           ),
-          const Padding(padding: EdgeInsets.only(right: 5)),
+          const Padding(padding: EdgeInsets.only(right: 10)),
         ],
       ),
       body: Column(
@@ -301,16 +303,25 @@ class OthersProfilePageState extends State<OthersProfilePage> {
           // Tags
           SizedBox(
             height: 60,
-            child: Flex(direction: Axis.horizontal, children: [
-              Expanded(
-                child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: tagList.length + 1,
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (BuildContext context, int index) {
-                      return index == 0
-                          ? const Padding(padding: EdgeInsets.all(6))
-                          : SizedBox(
+            child: Flex(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                direction: Axis.horizontal,
+                children: [
+                  const Padding(padding: EdgeInsets.only(left: 20)),
+                  SizedBox(
+                    width: 25,
+                    height: 25,
+                    child: buildMatchingIndexButton(
+                        context, profileData["matching_index"].round()),
+                  ),
+                  const Padding(padding: EdgeInsets.only(left: 10)),
+                  Expanded(
+                    child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: tagList.length,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (BuildContext context, int index) {
+                          return SizedBox(
                               width: 45,
                               height: 45,
                               child: Column(
@@ -320,8 +331,8 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                                     onPressed: () {
                                       chooseTag(index);
                                     },
-                                    icon: dataLoaded[index - 1]
-                                        ? Image.memory(tagIcons[index - 1],
+                                    icon: dataLoaded[index]
+                                        ? Image.memory(tagIcons[index],
                                             width: 45,
                                             height: 45,
                                             fit: BoxFit.contain)
@@ -339,9 +350,9 @@ class OthersProfilePageState extends State<OthersProfilePage> {
                                       : Container(),
                                 ],
                               ));
-                    }),
-              )
-            ]),
+                        }),
+                  )
+                ]),
           ),
           const Divider(
             height: 1,
