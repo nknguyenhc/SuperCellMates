@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import datetime
 
 
 class UserProfile(models.Model):
@@ -14,4 +15,4 @@ class TagActivityRecord(models.Model):
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="tag_activity_record")
     tag = models.ForeignKey("user_auth.Tag", on_delete=models.CASCADE, related_name="tag_activity_records")
     activity_score = models.FloatField(default=2)
-    last_activity_timestamp = models.FloatField(default=0)
+    last_activity_timestamp = models.FloatField(default=datetime.now().timestamp())

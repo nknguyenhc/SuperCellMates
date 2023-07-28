@@ -462,8 +462,8 @@ def compute_matching_index(user1, user2):
         matching_index = common_tag_proportion ** COMMON_TAG_PROPORTION_EXPONENT * final_scores_average
 
     """
-    common_tag_list = (user1.user_profile.tagList & user2.user_profile.tagList).all()
-    if len(common_tag_list == 0):
+    common_tag_list = user1.user_profile.tagList.all() & user2.user_profile.tagList.all()
+    if len(common_tag_list) == 0:
         return 0
     smaller_tag_list_length = min(user1.user_profile.tagList.count(), user2.user_profile.tagList.count())
     common_tag_proportion = len(common_tag_list) / smaller_tag_list_length

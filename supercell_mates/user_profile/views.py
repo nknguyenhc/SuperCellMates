@@ -451,7 +451,7 @@ def remove_tag(request):
 
 def get_tag_activity_record(user, tag):
     user_profile = user.user_profile
-    record_object = TagActivityRecord.objects.get(user_profile=user, tag=tag)
+    record_object = TagActivityRecord.objects.get(user_profile=user_profile, tag=tag)
     return record_object
 
 
@@ -467,13 +467,14 @@ def set_activity_score(record, score):
     if score > record.activity_score:
         record.last_activity_timestamp = datetime.now().timestamp()
     record.activity_score = score
+    record.save()
 
 
 LOWEST_FINAL_SCORE = 2.0
 DECREASE_COEFFICIENT = 0.05
 DECREASE_EXPONENT = 1.5
 DAYS_TO_REACH_LOWEST = 15
-MICROSECONDS_IN_A_DAY = 24 * 3600 * 1000000
+SECONDS_IN_A_DAY = 24 * 3600
 
 
 def compute_tag_activity_final_score(record):
@@ -488,9 +489,9 @@ def compute_tag_activity_final_score(record):
         final_score = activity_score - DECREASE_COEFFICIENT * days_since_last_activity ** DECREASE_EXPONENT
 
     """
-    timestamps_since_last_activity = record.last_activity_timestamp - datetime.now().timestamp()
-    days_since_last_activity = timestamps_since_last_activity / MICROSECONDS_IN_A_DAY
-    if days_since_last_activity > DAYS_TO_REACH_LOWEST:
+    timestamps_since_last_activity = datetime.now().timestamp() - record.last_activity_timestamp
+    days_since_last_activity = timestamps_since_last_activity / SECONDS_IN_A_DAY
+    if days_since_last_activity > DAYS_TO_REACH_LOWEST or days_since_last_activity < 0:
         return LOWEST_FINAL_SCORE
     final_score = record.activity_score - DECREASE_COEFFICIENT * days_since_last_activity ** DECREASE_EXPONENT
     return max(LOWEST_FINAL_SCORE, final_score)
