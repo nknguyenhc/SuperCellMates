@@ -14,6 +14,8 @@ import json
 from user_profile.views import verify_image, list_to_image_and_verify_async, \
     get_tag_activity_record, change_activity_score, MAXIMUM_ACTIVITY_SCORE
 
+from user_log.views import compute_matching_index
+
 from user_auth.models import Tag, UserAuth
 from .models import Post, PostImage
 
@@ -121,7 +123,7 @@ def create_post(request):
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body is missing an important key")
     except ObjectDoesNotExist:
-        return HttpResponseBadRequest("tag with provided name not found")
+        return HttpResponseBadRequest("tag or tag activity record not found")
     except TypeError:
         return HttpResponseBadRequest("imgs key submitted is not of type array")
 
@@ -351,8 +353,7 @@ def delete_post(request):
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body does not contain an important key")
     except ObjectDoesNotExist:
-        return HttpResponseBadRequest("post with given id not found")
-
+        return HttpResponseBadRequest("post or tag activity record not found")
 
 
 def parse_post_object(post, user_auth_viewer):
@@ -385,7 +386,7 @@ def parse_post_object(post, user_auth_viewer):
         images
     ))
 
-    return {
+    ret = {
         "id": post.id,
         "title": post.title,
         "content": post.content,
@@ -406,6 +407,13 @@ def parse_post_object(post, user_auth_viewer):
         "images": images,
         "can_reply": post.creator.friend_list.filter(user_auth=user_auth_viewer).exists(),
     }
+
+    if post.creator != user_auth_viewer:
+        ret.update({
+            "matching_index": compute_matching_index(post.creator, user_auth_viewer)
+        })
+
+    return ret
 
 
 def has_access(user_auth_obj, post):

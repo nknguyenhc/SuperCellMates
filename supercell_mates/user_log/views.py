@@ -46,7 +46,8 @@ def view_profile_context(user_auth_obj, request_user):
         "tags": tags,
         "my_profile": False,
         "is_friend": user_auth_obj.user_log in request_user.user_log.friend_list.all(),
-        "is_friend_request_sent": FriendRequest.objects.filter(to_user=request_user.user_log, from_user=user_auth_obj.user_log).exists()
+        "is_friend_request_sent": FriendRequest.objects.filter(to_user=request_user.user_log, from_user=user_auth_obj.user_log).exists(),
+        "matching_index": compute_matching_index(user_auth_obj, request_user)
     }
     result.update(layout_context(user_auth_obj))
     return result
@@ -65,13 +66,15 @@ def view_profile(request, username):
     Returns:
         HttpResponse: the response with the template to view the target user
     """
-
-    if UserAuth.objects.filter(username=username).exists() and request.user.username != username:
-        return render(request, "user_log/view_profile.html", view_profile_context(UserAuth.objects.get(username=username), request.user))
-    elif request.user.username == username:
-        return redirect(reverse("user_profile:index"))
-    else:
-        return HttpResponseNotFound()
+    try:
+        if UserAuth.objects.filter(username=username).exists() and request.user.username != username:
+            return render(request, "user_log/view_profile.html", view_profile_context(UserAuth.objects.get(username=username), request.user))
+        elif request.user.username == username:
+            return redirect(reverse("user_profile:index"))
+        else:
+            return HttpResponseNotFound()
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("Tag activity record not found when computing matching index")
 
 
 @login_required
@@ -86,11 +89,13 @@ def view_profile_async(request, username):
         JsonResponse/HttpResponseNotFound: the information of the target user, or response of status code 404 if no user with the username is found.
         The fields in the JsonResponse are the same fields as those in the dictionary returned by view_profile_context function in this app.
     """
-
-    if UserAuth.objects.filter(username=username).exists() and request.user.username != username:
-        return JsonResponse(view_profile_context(UserAuth.objects.get(username=username), request.user))
-    else:
-        return HttpResponseNotFound()
+    try:
+        if UserAuth.objects.filter(username=username).exists() and request.user.username != username:
+            return JsonResponse(view_profile_context(UserAuth.objects.get(username=username), request.user))
+        else:
+            return HttpResponseNotFound()
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("Tag activity record not found when computing matching index")
 
 
 @login_required
@@ -462,6 +467,9 @@ def compute_matching_index(user1, user2):
         matching_index = common_tag_proportion ** COMMON_TAG_PROPORTION_EXPONENT * final_scores_average
 
     """
+    if user1 == user2:
+        # In case of bugs / malformed requests
+        return 0
     common_tag_list = user1.user_profile.tagList.all() & user2.user_profile.tagList.all()
     if len(common_tag_list) == 0:
         return 0
