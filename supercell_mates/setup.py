@@ -14,7 +14,7 @@ import sys
 from random import random
 
 from user_auth.models import UserAuth, Tag
-from user_profile.models import UserProfile
+from user_profile.models import UserProfile, TagActivityRecord
 from user_log.models import UserLog
 
 
@@ -93,6 +93,13 @@ def setup_tags():
         image.close()
 
 
+def setup_records():
+    for user in UserProfile.objects.all():
+        for tag in user.tagList.all():
+            record = TagActivityRecord(user_profile=user, tag=tag)
+            record.save()
+
+
 if __name__ == '__main__':
     print("flushing database ...")
     flush()
@@ -103,3 +110,5 @@ if __name__ == '__main__':
     print("creating tags ...")
     setup_tags()
     print("finished")
+    if not TagActivityRecord.objects.filter(user_profile=UserAuth.objects.get(username='nguyen').user_profile, tag=Tag.objects.get(name='Computer Science')).exists():
+        setup_records()

@@ -47,7 +47,7 @@ def view_profile_context(user_auth_obj, request_user):
         "my_profile": False,
         "is_friend": user_auth_obj.user_log in request_user.user_log.friend_list.all(),
         "is_friend_request_sent": FriendRequest.objects.filter(to_user=request_user.user_log, from_user=user_auth_obj.user_log).exists(),
-        "matching_index": compute_matching_index(user_auth_obj, request_user)
+        "matching_index": round(compute_matching_index(user_auth_obj, request_user))
     }
     result.update(layout_context(user_auth_obj))
     return result

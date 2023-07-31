@@ -410,7 +410,7 @@ def parse_post_object(post, user_auth_viewer):
 
     if post.creator != user_auth_viewer:
         ret.update({
-            "matching_index": compute_matching_index(post.creator, user_auth_viewer)
+            "matching_index": round(compute_matching_index(post.creator, user_auth_viewer))
         })
 
     return ret
