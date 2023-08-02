@@ -25,6 +25,8 @@ class FriendsPageState extends State<FriendsPage> {
   dynamic friendRequestList;
   dynamic friendPageBody;
 
+  Notifications notifications = GetIt.I<Notifications>();
+
   @override
   void initState() {
     dataLoaded = false;
@@ -41,6 +43,7 @@ class FriendsPageState extends State<FriendsPage> {
         : UserListView(
             userList: friendList,
             updateCallBack: getFriendList,
+            isFriendList: true,
           );
     setState(() {
       dataLoaded = true;
@@ -68,8 +71,7 @@ class FriendsPageState extends State<FriendsPage> {
       return;
     }
     friendRequestList = jsonDecode(friendRequestListJson);
-    GetIt.I<Notifications>()
-        .updateIncomingFriendRequestsCount(friendRequestList.length);
+    notifications.updateIncomingFriendRequestsCount(friendRequestList.length);
     updateFriendPageBody(friendRequestList, true);
   }
 
@@ -96,18 +98,26 @@ class FriendsPageState extends State<FriendsPage> {
                   SizedBox(
                     height: 40,
                     child: TextButton(
-                      onPressed: () {
-                        navigate(0);
-                      },
-                      child: Text(
-                        "Friends",
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: navigationBarIndex == 0
-                                ? Colors.blue
-                                : Colors.blueGrey),
-                      ),
-                    ),
+                        onPressed: () {
+                          navigate(0);
+                        },
+                        child: ListenableBuilder(
+                          listenable: notifications,
+                          builder: (context, child) {
+                            return createNotificationBadge(
+                                Text(
+                                  "Friends",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: navigationBarIndex == 0
+                                          ? Colors.blue
+                                          : Colors.blueGrey),
+                                ),
+                                notifications.outgoingAcceptedRequestCount,
+                                14,
+                                14);
+                          },
+                        )),
                   ),
                 ],
               ),
@@ -121,7 +131,7 @@ class FriendsPageState extends State<FriendsPage> {
                         navigate(1);
                       },
                       child: ListenableBuilder(
-                        listenable: GetIt.I<Notifications>(),
+                        listenable: notifications,
                         builder: (context, child) {
                           return createNotificationBadge(
                               Text("Requests",
@@ -130,8 +140,7 @@ class FriendsPageState extends State<FriendsPage> {
                                       color: navigationBarIndex == 1
                                           ? Colors.blue
                                           : Colors.blueGrey)),
-                              GetIt.I<Notifications>()
-                                  .incomingFriendRequestsCount,
+                              notifications.incomingFriendRequestsCount,
                               14,
                               14);
                         },

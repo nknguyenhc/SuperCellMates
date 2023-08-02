@@ -7,10 +7,13 @@ import 'package:badges/badges.dart' as badges;
 
 class Notifications extends ChangeNotifier {
   int incomingFriendRequestsCount = 0;
+  int outgoingAcceptedRequestCount = 0;
+  List acceptedRequests = [];
   int unreadChatCount = 0;
   List unreadPrivateChats = [];
   List unreadGroupChats = [];
 
+  // incoming friend requests
   void countIncomingFriendRequests() {
     getRequest(EndPoints.viewFriendRequests.endpoint, null).then((response) {
       if (response == "Connection error") {
@@ -25,6 +28,38 @@ class Notifications extends ChangeNotifier {
     notifyListeners();
   }
 
+  // outgoing accepted friend requests
+  void retrieveAcceptedRequests() {
+    postWithCSRF(EndPoints.getAcceptedRequests.endpoint, null).then(
+      (response) {
+        if (response == "Connection error") return;
+        Map results = jsonDecode(response);
+        acceptedRequests.addAll(results["users"]);
+        updateAcceptedRequestsCount();
+      },
+    );
+  }
+
+  void acknowledgeAcceptedRequest(String username) {
+    List toRemove =
+        []; // prevent multiple entries for same username, due to delete friend
+    for (dynamic user in acceptedRequests) {
+      if (user["username"] == username) {
+        toRemove.add(user);
+      }
+    }
+    for (dynamic user in toRemove) {
+      acceptedRequests.remove(user);
+    }
+    updateAcceptedRequestsCount();
+  }
+
+  void updateAcceptedRequestsCount() {
+    outgoingAcceptedRequestCount = acceptedRequests.length;
+    notifyListeners();
+  }
+
+  // unread chat messages
   void getUnreadChats() {
     getRequest(EndPoints.getUnreadChats.endpoint, null).then((response) {
       if (response == "Connection error") {
@@ -36,7 +71,7 @@ class Notifications extends ChangeNotifier {
       updateUnreadChatsCount();
     });
   }
- 
+
   void readChat(chatType, id) {
     List chats = chatType == "private" ? unreadPrivateChats : unreadGroupChats;
     int index = chats.indexOf(id);

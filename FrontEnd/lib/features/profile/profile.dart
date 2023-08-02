@@ -31,6 +31,8 @@ class ProfilePageState extends State<ProfilePage> {
   dynamic profilePosts;
   bool profilePostsLoaded = false;
 
+  Notifications notifications = GetIt.I<Notifications>();
+
   @override
   void initState() {
     super.initState();
@@ -52,7 +54,8 @@ class ProfilePageState extends State<ProfilePage> {
       loadTagIcons(i);
     }
     setState(() => data = data);
-    GetIt.I<Notifications>().countIncomingFriendRequests();
+    notifications.countIncomingFriendRequests();
+    notifications.retrieveAcceptedRequests();
     loadProfilePosts();
   }
 

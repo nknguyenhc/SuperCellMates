@@ -130,6 +130,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   }
 
   void seeMessage(String messageID, String type) {
+    // TODO: don't request if already loaded in cache
     dynamic body = {
       "message_id": messageID,
       "type": type,

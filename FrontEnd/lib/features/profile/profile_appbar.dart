@@ -35,6 +35,8 @@ class ProfileAppBarState extends State<ProfileAppBar> {
   String username = "";
   Image? profileImage;
 
+  Notifications notifications = GetIt.I<Notifications>();
+
   void initProfileImage() async {
     dataLoaded = false;
     profileImage = await getImage(widget.profileMap["image_url"]);
@@ -86,14 +88,20 @@ class ProfileAppBarState extends State<ProfileAppBar> {
               height: 40,
               child: IconButton(
                 onPressed: () {
-                  AutoRouter.of(context).push(const FriendsRoute());
+                  AutoRouter.of(context)
+                      .push(const FriendsRoute())
+                      .then((value) {
+                    notifications.countIncomingFriendRequests();
+                    notifications.retrieveAcceptedRequests();
+                  });
                 },
                 icon: ListenableBuilder(
                   listenable: GetIt.I<Notifications>(),
                   builder: (context, child) {
                     return createNotificationBadge(
                         const Icon(Icons.people),
-                        GetIt.I<Notifications>().incomingFriendRequestsCount,
+                        notifications.incomingFriendRequestsCount +
+                            notifications.outgoingAcceptedRequestCount,
                         10,
                         8);
                   },

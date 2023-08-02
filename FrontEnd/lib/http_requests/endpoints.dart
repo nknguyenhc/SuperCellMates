@@ -52,6 +52,7 @@ enum EndPoints {
 
   getUnreadChats,
   seeMessage,
+  getAcceptedRequests,
 
 }
 
@@ -103,7 +104,8 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.canRemoveTag: "/profile/can_remove_tag",
     EndPoints.removeTag: "/profile/remove_tag",    
     EndPoints.getUnreadChats: "/notification/chats_new_messages",
-    EndPoints.seeMessage: "/notification/see_message"
+    EndPoints.seeMessage: "/notification/see_message",
+    EndPoints.getAcceptedRequests: "/notification/friends",
 
   };
 

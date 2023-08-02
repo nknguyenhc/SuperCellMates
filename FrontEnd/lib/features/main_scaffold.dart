@@ -52,6 +52,7 @@ class MainScaffoldState extends State<MainScaffold> {
     profileMap = jsonDecode(profileMapJson);
 
     notifications.countIncomingFriendRequests();
+    notifications.retrieveAcceptedRequests();
     notifications.getUnreadChats();
 
     appbars = <AppBar>[
@@ -149,8 +150,12 @@ class MainScaffoldState extends State<MainScaffold> {
                   icon: ListenableBuilder(
                     listenable: notifications,
                     builder: (context, child) {
-                      return createNotificationBadge(const Icon(Icons.person),
-                          notifications.incomingFriendRequestsCount, 5, 8);
+                      return createNotificationBadge(
+                          const Icon(Icons.person),
+                          notifications.incomingFriendRequestsCount +
+                              notifications.outgoingAcceptedRequestCount,
+                          12,
+                          8);
                     },
                   ),
                   onPressed: () => changeIndex(2),
