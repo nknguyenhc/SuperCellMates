@@ -1,16 +1,18 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import "package:fluttericon/font_awesome5_icons.dart";
+import 'package:get_it/get_it.dart';
+import 'package:supercellmates/functions/notifications.dart';
 
 import 'package:supercellmates/http_requests/get_image.dart';
 import 'package:supercellmates/router/router.gr.dart';
 
 class ProfileAppBar extends AppBar {
-  ProfileAppBar(
-      {Key? key,
-      required this.profileMap,
-      required this.updateProfileMapCallBack})
-      : super(key: key, toolbarHeight: 80);
+  ProfileAppBar({
+    Key? key,
+    required this.profileMap,
+    required this.updateProfileMapCallBack,
+  }) : super(key: key, toolbarHeight: 80);
 
   final dynamic profileMap;
   final dynamic updateProfileMapCallBack;
@@ -50,8 +52,8 @@ class ProfileAppBarState extends State<ProfileAppBar> {
       leading: IconButton(
         padding: const EdgeInsets.only(left: 12),
         icon: dataLoaded ? profileImage! : const CircularProgressIndicator(),
-        onPressed: () => AutoRouter.of(context)
-            .push(EditProfileRoute(updateProfileImageCallBack: initProfileImage,
+        onPressed: () => AutoRouter.of(context).push(EditProfileRoute(
+            updateProfileImageCallBack: initProfileImage,
             updateProfileMapCallBack: widget.updateProfileMapCallBack)),
         iconSize: 50,
       ),
@@ -79,14 +81,23 @@ class ProfileAppBarState extends State<ProfileAppBar> {
       actions: [
         Column(
           children: [
-            const Padding(padding: EdgeInsets.only(top:4)),
+            const Padding(padding: EdgeInsets.only(top: 4)),
             SizedBox(
               height: 40,
               child: IconButton(
                 onPressed: () {
                   AutoRouter.of(context).push(const FriendsRoute());
                 },
-                icon: const Icon(Icons.people),
+                icon: ListenableBuilder(
+                  listenable: GetIt.I<Notifications>(),
+                  builder: (context, child) {
+                    return createNotificationBadge(
+                        const Icon(Icons.people),
+                        GetIt.I<Notifications>().incomingFriendRequestsCount,
+                        10,
+                        8);
+                  },
+                ),
                 iconSize: 38,
               ),
             ),
@@ -103,7 +114,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
         ),
         Column(
           children: [
-            const Padding(padding: EdgeInsets.only(top:11)),
+            const Padding(padding: EdgeInsets.only(top: 11)),
             SizedBox(
               height: 34,
               child: IconButton(

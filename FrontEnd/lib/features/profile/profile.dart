@@ -2,8 +2,10 @@ import 'dart:typed_data';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/features/posts/post_listview.dart';
+import 'package:supercellmates/functions/notifications.dart';
 import 'dart:convert';
 
 import 'package:supercellmates/http_requests/make_requests.dart';
@@ -50,6 +52,7 @@ class ProfilePageState extends State<ProfilePage> {
       loadTagIcons(i);
     }
     setState(() => data = data);
+    GetIt.I<Notifications>().countIncomingFriendRequests();
     loadProfilePosts();
   }
 

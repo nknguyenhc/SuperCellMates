@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:get_it/get_it.dart';
 import 'package:supercellmates/features/chat/chat_appbar.dart';
 import 'package:supercellmates/features/dialogs.dart';
 import 'dart:convert';
@@ -9,6 +10,7 @@ import 'package:supercellmates/features/chat/chat.dart';
 import 'package:supercellmates/features/profile/profile.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
+import 'package:supercellmates/functions/notifications.dart';
 import 'home/home_appbar.dart';
 import 'profile/profile_appbar.dart';
 
@@ -47,13 +49,18 @@ class MainScaffoldState extends State<MainScaffold> {
     }
     profileMap = jsonDecode(profileMapJson);
 
+    GetIt.I<Notifications>().countIncomingFriendRequests();
+
     appbars = <AppBar>[
-      HomeAppBar(data: {
-        "isAdmin": profileMap["is_admin"],
-        "username": profileMap["user_profile"]["username"],
-      }, updateCallBack: updateHomePageBody,
-      isFilterSelected: homeFilterSelected,
-      onDispose: (dynamic list) => homeFilterSelected = list,),
+      HomeAppBar(
+        data: {
+          "isAdmin": profileMap["is_admin"],
+          "username": profileMap["user_profile"]["username"],
+        },
+        updateCallBack: updateHomePageBody,
+        isFilterSelected: homeFilterSelected,
+        onDispose: (dynamic list) => homeFilterSelected = list,
+      ),
       ChatAppBar(),
       ProfileAppBar(
         profileMap: profileMap,
@@ -62,7 +69,8 @@ class MainScaffoldState extends State<MainScaffold> {
     ];
 
     pages = [
-      HomePage(username: profileMap["user_profile"]["username"], key: UniqueKey()),
+      HomePage(
+          username: profileMap["user_profile"]["username"], key: UniqueKey()),
       ChatPage(username: profileMap["user_profile"]["username"]),
       ProfilePage(
         updateCallBack: getProfileMap,
@@ -124,13 +132,21 @@ class MainScaffoldState extends State<MainScaffold> {
                 ),
               ),
               BottomNavigationBarItem(
-                label: "profile",
-                icon: IconButton(
-                  icon: const Icon(Icons.person),
-                  onPressed: () => changeIndex(2),
-                  iconSize: 30,
-                ),
-              )
+                  label: "profile",
+                  icon: ListenableBuilder(
+                    listenable: GetIt.I<Notifications>(),
+                    builder: (context, child) {
+                      return createNotificationBadge(
+                          IconButton(
+                            icon: const Icon(Icons.person),
+                            onPressed: () => changeIndex(2),
+                            iconSize: 30,
+                          ),
+                          GetIt.I<Notifications>().incomingFriendRequestsCount,
+                          5,
+                          5);
+                    },
+                  ))
             ],
             currentIndex: selectedIndex,
           ),

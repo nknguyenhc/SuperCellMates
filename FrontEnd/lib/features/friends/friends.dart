@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:get_it/get_it.dart';
 import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/features/friends/user_listview.dart';
+import 'package:supercellmates/functions/notifications.dart';
 import 'dart:convert';
 
 import 'package:supercellmates/http_requests/endpoints.dart';
@@ -66,6 +68,8 @@ class FriendsPageState extends State<FriendsPage> {
       return;
     }
     friendRequestList = jsonDecode(friendRequestListJson);
+    GetIt.I<Notifications>()
+        .updateIncomingFriendRequestsCount(friendRequestList.length);
     updateFriendPageBody(friendRequestList, true);
   }
 
@@ -116,12 +120,22 @@ class FriendsPageState extends State<FriendsPage> {
                       onPressed: () {
                         navigate(1);
                       },
-                      child: Text("Requests",
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: navigationBarIndex == 1
-                                  ? Colors.blue
-                                  : Colors.blueGrey)),
+                      child: ListenableBuilder(
+                        listenable: GetIt.I<Notifications>(),
+                        builder: (context, child) {
+                          return createNotificationBadge(
+                              Text("Requests",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: navigationBarIndex == 1
+                                          ? Colors.blue
+                                          : Colors.blueGrey)),
+                              GetIt.I<Notifications>()
+                                  .incomingFriendRequestsCount,
+                              14,
+                              14);
+                        },
+                      ),
                     ),
                   ),
                 ],
