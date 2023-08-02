@@ -367,7 +367,7 @@ def compute_matching_index_with_post(user_auth_obj, post_obj):
         return 0
     my_tag_score = compute_tag_activity_final_score(get_tag_activity_record(user_auth_obj, tag_obj))
     post_creator_score = compute_tag_activity_final_score(get_tag_activity_record(post_obj.creator.user_auth, tag_obj))
-    time_since_time_posted = (datetime.now().timestamp() - post_obj.timestamp) / SECONDS_IN_A_DAY
+    time_since_time_posted = (datetime.now().timestamp() - post_obj.time_posted) / SECONDS_IN_A_DAY
     raw_result = (my_tag_score + post_creator_score) / 2 * max(2 - POST_EXP_COEFFICIENT ** time_since_time_posted, 0)
     return round(raw_result, 10)
 
@@ -582,7 +582,7 @@ def get_home_feed(request):
             When entering home feed for the first time, start_timestamp should be ""
             When trying to load more posts, use the previously returned stop_timestamp as the new start_timestamp
 
-    If sort is "matching_index", the request must contain:
+    If sort is "recommendation", the request must contain:
         - start_index (int): the exact matching index of the post to start displaying from
             When entering home feed for the first time, start_index should be "5"
             When trying to load more posts, use the previous stop_matching_index as the new start_index
@@ -597,7 +597,7 @@ def get_home_feed(request):
         - stop_timestamp (float): the epoch time of the last post in the list of posts, if none is found, this field is 0
 
     If sort is "matching_index", the response also contains:
-        - stop_index (float): the matching index between user and the creator of the last post
+        - stop_index (float): the matching index between user and the creator of the last post, if none is found, this field is 0
     """
     try:
         posts = Post.objects
@@ -635,11 +635,11 @@ def get_home_feed(request):
                 ret["stop_timestamp"] = result[count-1]["time_posted"]
         
         elif request.GET["sort"] == "recommendation":
-            if request.GET["start_index"] != "":
+            if request.GET["start_index"] == "":
                 start_index = 5
             else:
                 start_index = float(request.GET["start_index"])
-            posts = posts.filter(time_posted__gt=datetime.now().timestamp() - SECONDS_IN_A_DAY * RECOMMENDED_POSTS_DAY_RANGE).all()
+            posts = posts.filter(time_posted__gt=datetime.now().timestamp() - SECONDS_IN_A_DAY * RECOMMENDED_POSTS_DAY_RANGE).exclude(creator=request.user.user_log).all()
             result = list(map(
                 lambda post: parse_post_object(post, request.user),
                 heapq.nlargest(
@@ -656,7 +656,7 @@ def get_home_feed(request):
                 "stop_index": 0
             }
             if len(result) > 0:
-                ret["stop_index"] = compute_matching_index_with_post(request.user, result[-1])
+                ret["stop_index"] = compute_matching_index_with_post(request.user, Post.objects.get(id=result[-1]["id"]))
 
         else:
             return HttpResponseBadRequest("sort method query string malformed")

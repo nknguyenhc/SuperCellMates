@@ -59,6 +59,10 @@ function getJSONItemFrom(key, defaultValue, storage) {
     }
 }
 
+function getStringFrom(key, defaultValue, storage) {
+    return storage.getItem(key) ? storage.getItem(key) : defaultValue;
+}
+
 const bottomMessageManager = {
     currTimeout: null,
     popMessage: (message) => {
