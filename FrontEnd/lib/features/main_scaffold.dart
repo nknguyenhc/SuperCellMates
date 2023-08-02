@@ -40,6 +40,8 @@ class MainScaffoldState extends State<MainScaffold> {
   late List<Widget> pages;
   late List<PreferredSizeWidget> appbars;
 
+  Notifications notifications = GetIt.I<Notifications>();
+
   void getProfileMap() async {
     dynamic profileMapJson =
         await getRequest(EndPoints.profileIndex.endpoint, null);
@@ -49,7 +51,8 @@ class MainScaffoldState extends State<MainScaffold> {
     }
     profileMap = jsonDecode(profileMapJson);
 
-    GetIt.I<Notifications>().countIncomingFriendRequests();
+    notifications.countIncomingFriendRequests();
+    notifications.getUnreadChats();
 
     appbars = <AppBar>[
       HomeAppBar(
@@ -126,27 +129,34 @@ class MainScaffoldState extends State<MainScaffold> {
               BottomNavigationBarItem(
                 label: "chat",
                 icon: IconButton(
-                  icon: const Icon(Icons.chat_bubble_outline_rounded),
+                  icon: ListenableBuilder(
+                    listenable: notifications,
+                    builder: (context, child) {
+                      return createNotificationBadge(
+                          const Icon(Icons.chat_bubble_outline_rounded),
+                          notifications.unreadChatCount,
+                          20,
+                          8);
+                    },
+                  ),
                   onPressed: () => changeIndex(1),
                   iconSize: 30,
                 ),
               ),
               BottomNavigationBarItem(
-                  label: "profile",
+                label: "profile",
+                icon: IconButton(
                   icon: ListenableBuilder(
-                    listenable: GetIt.I<Notifications>(),
+                    listenable: notifications,
                     builder: (context, child) {
-                      return createNotificationBadge(
-                          IconButton(
-                            icon: const Icon(Icons.person),
-                            onPressed: () => changeIndex(2),
-                            iconSize: 30,
-                          ),
-                          GetIt.I<Notifications>().incomingFriendRequestsCount,
-                          5,
-                          5);
+                      return createNotificationBadge(const Icon(Icons.person),
+                          notifications.incomingFriendRequestsCount, 5, 8);
                     },
-                  ))
+                  ),
+                  onPressed: () => changeIndex(2),
+                  iconSize: 30,
+                ),
+              )
             ],
             currentIndex: selectedIndex,
           ),

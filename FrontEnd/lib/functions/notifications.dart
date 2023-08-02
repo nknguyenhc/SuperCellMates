@@ -7,11 +7,14 @@ import 'package:badges/badges.dart' as badges;
 
 class Notifications extends ChangeNotifier {
   int incomingFriendRequestsCount = 0;
+  int unreadChatCount = 0;
+  List unreadPrivateChats = [];
+  List unreadGroupChats = [];
 
   void countIncomingFriendRequests() {
     getRequest(EndPoints.viewFriendRequests.endpoint, null).then((response) {
       if (response == "Connection error") {
-        return 0;
+        return;
       }
       updateIncomingFriendRequestsCount(jsonDecode(response).length);
     });
@@ -19,6 +22,31 @@ class Notifications extends ChangeNotifier {
 
   void updateIncomingFriendRequestsCount(int count) {
     incomingFriendRequestsCount = count;
+    notifyListeners();
+  }
+
+  void getUnreadChats() {
+    getRequest(EndPoints.getUnreadChats.endpoint, null).then((response) {
+      if (response == "Connection error") {
+        return;
+      }
+      Map unreadChats = jsonDecode(response);
+      unreadPrivateChats = unreadChats["privates"];
+      unreadGroupChats = unreadChats["groups"];
+      updateUnreadChatsCount();
+    });
+  }
+ 
+  void readChat(chatType, id) {
+    List chats = chatType == "private" ? unreadPrivateChats : unreadGroupChats;
+    int index = chats.indexOf(id);
+    if (index == -1) return;
+    chats.removeAt(index);
+    updateUnreadChatsCount();
+  }
+
+  void updateUnreadChatsCount() {
+    unreadChatCount = unreadPrivateChats.length + unreadGroupChats.length;
     notifyListeners();
   }
 }

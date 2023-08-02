@@ -50,6 +50,9 @@ enum EndPoints {
   addAdmin,
   assignLeader,
 
+  getUnreadChats,
+  seeMessage,
+
 }
 
 extension ExtendedEndPoints on EndPoints {
@@ -99,6 +102,8 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.assignLeader: "/messages/assign_leader",
     EndPoints.canRemoveTag: "/profile/can_remove_tag",
     EndPoints.removeTag: "/profile/remove_tag",    
+    EndPoints.getUnreadChats: "/notification/chats_new_messages",
+    EndPoints.seeMessage: "/notification/see_message"
 
   };
 

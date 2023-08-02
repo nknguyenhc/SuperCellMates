@@ -16,6 +16,7 @@ import 'package:supercellmates/config/config.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/functions/crop_image.dart';
+import 'package:supercellmates/functions/notifications.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/get_image.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
@@ -64,6 +65,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   bool showAttachmentMenu = false;
   final GlobalKey _menuKey =
       GlobalKey(); // dirty hack: for opening the popupmenu
+
+  Notifications notifications = GetIt.I<Notifications>();
 
   @override
   void initState() {
@@ -126,13 +129,24 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         });
   }
 
+  void seeMessage(String messageID, String type) {
+    dynamic body = {
+      "message_id": messageID,
+      "type": type,
+    };
+    postWithCSRF(EndPoints.seeMessage.endpoint, body);
+  }
+
   types.Message messageDictToMessageType(dynamic m) {
     if (m["type"] == "text") {
+      seeMessage(m["id"], widget.isPrivate ? "text private" : "text group");
       return messageDictToTextMessage(m);
     } else if (m["type"] == "file") {
+      seeMessage(m["id"], widget.isPrivate ? "file private" : "file group");
       return messageDictToFileMessgae(m);
     } else {
       // message is a reply post
+      seeMessage(m["id"], "reply_post private");
       return messageDictToReplyPostMessage(m);
     }
   }
