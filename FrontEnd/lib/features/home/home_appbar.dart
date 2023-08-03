@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
-import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/features/home/home.dart';
 import 'package:supercellmates/features/home/search.dart';
 import 'package:supercellmates/router/router.gr.dart';
@@ -42,8 +41,6 @@ class HomeAppBarState extends State<HomeAppBar> {
 
   Timer? _searchTimer;
 
-  bool showFilters = false;
-
   void selectFilter(int index) {
     bool prev = widget.isFilterSelected[index];
     if (index == 0) {
@@ -69,7 +66,7 @@ class HomeAppBarState extends State<HomeAppBar> {
         sort: widget.isFilterSelected[0]
             ? "time"
             : widget.isFilterSelected[1]
-                ? "matching_index"
+                ? "recommendation"
                 : null,
         friendFilter: widget.isFilterSelected[2] ? "1" : "0",
         tagFilter: widget.isFilterSelected[3] ? "1" : "0",
@@ -77,126 +74,64 @@ class HomeAppBarState extends State<HomeAppBar> {
     }
   }
 
+  List topTabTexts = ["New", "Recommended"];
+
+  Widget topTab(int index) {
+    return Tab(
+      text: topTabTexts[index],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return EasySearchBar(
-      onSearch: (input) {
-        if (input == "") {
-          widget.updateCallBack(null);
-          return;
-        }
-        if (_searchTimer == null || !_searchTimer!.isActive) {
-          _searchTimer = Timer(
-            const Duration(milliseconds: 1000),
-            () async => widget.updateCallBack(await searchUser(context, input)),
-          );
-        } else {
-          _searchTimer!.cancel();
-          _searchTimer = Timer(
-            const Duration(milliseconds: 1000),
-            () async => widget.updateCallBack(await searchUser(context, input)),
-          );
-        }
-      },
-      searchHintText: "Search by name, @username...",
-      leading: IconButton(
-        onPressed: () {
-          AutoRouter.of(context).push(const SettingsRoute());
-        },
-        icon: const Icon(Icons.settings),
-        iconSize: 25,
-      ),
-      title: const Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Match Miner",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-            ),
-          ),
-          Padding(padding: EdgeInsets.only(bottom: 4)),
-        ],
-      ),
-      actions: [
-        isAdmin
-            ? IconButton(
-                onPressed: () => {},
-                icon: const Icon(Icons.add_card_outlined),
-              )
-            : Container(),
-        // home feed filter
-        PopupMenuButton(
-          padding: const EdgeInsets.fromLTRB(4, 3.5, 15, 0),
-          offset: Offset.fromDirection(1, 40),
-          onOpened: () => setState(() {
-            showFilters = true;
-          }),
-          onSelected: (v) => setState(() {
-            showFilters = false;
-          }),
-          onCanceled: () => setState(() {
-            showFilters = false;
-          }),
-          icon: Icon(Icons.filter_alt),
-          itemBuilder: (context) => <PopupMenuEntry>[
-            PopupMenuItem(
-                height: 40,
-                padding: const EdgeInsets.only(left: 10),
-                onTap: () {
-                  selectFilter(0);
+    return DefaultTabController(
+        length: topTabTexts.length,
+        child: Builder(
+          builder: (context) {
+            Widget settingsIconButton = IconButton(
+              onPressed: () {
+                AutoRouter.of(context).push(const SettingsRoute());
+              },
+              icon: const Icon(Icons.settings),
+              iconSize: 25,
+            );
+
+            TabController tabController = DefaultTabController.of(context);
+            tabController.addListener(() {
+              if (tabController.indexIsChanging) {
+                selectFilter(tabController.index);
+              }
+            });
+
+            Widget topTabBar = TabBar(
+                padding: const EdgeInsets.only(top: 7),
+                indicatorColor: Colors.transparent,
+                dividerColor: Colors.transparent,
+                indicator: const BoxDecoration(),
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.white60,
+                labelPadding: const EdgeInsets.only(right: 20),
+                labelStyle:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                unselectedLabelStyle:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                isScrollable: true,
+                controller: tabController,
+                onTap: (index) {
+                  selectFilter(index);
                 },
-                child: Row(
-                  children: [
-                    const Text(
-                      "Sort: time",
-                      style: TextStyle(fontSize: 15),
-                    ),
-                    const Padding(padding: EdgeInsets.only(right: 6)),
-                    widget.isFilterSelected[0]
-                        ? const Icon(
-                            Icons.circle,
-                            size: 8,
-                          )
-                        : Container()
-                  ],
-                )),
-            PopupMenuItem(
+                tabs: [topTab(0), topTab(1)]);
+
+            PopupMenuEntry friendFilterPopupMenuItem = PopupMenuItem(
                 height: 50,
-                padding: const EdgeInsets.only(left: 10),
-                onTap: () {
-                  showCustomDialog(context, "Coming soon",
-                      "Matching index is under construction!");
-                  showCustomDialog(context, "Coming soon",
-                      "Matching index is under construction!");
-                },
-                child: Row(
-                  children: [
-                    const Text(
-                      "Sort: matching index",
-                      style: TextStyle(fontSize: 15),
-                    ),
-                    const Padding(padding: EdgeInsets.only(right: 6)),
-                    widget.isFilterSelected[1]
-                        ? const Icon(
-                            Icons.circle,
-                            size: 8,
-                          )
-                        : Container()
-                  ],
-                )),
-            PopupMenuItem(
-                height: 50,
-                padding: const EdgeInsets.only(left: 10),
                 onTap: () {
                   selectFilter(2);
                 },
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      "Filter: my friends",
+                      "My friends only",
                       style: TextStyle(fontSize: 15),
                     ),
                     const Padding(padding: EdgeInsets.only(right: 6)),
@@ -207,17 +142,18 @@ class HomeAppBarState extends State<HomeAppBar> {
                           )
                         : Container()
                   ],
-                )),
-            PopupMenuItem(
-                height: 40,
-                padding: const EdgeInsets.only(left: 10),
+                ));
+
+            PopupMenuEntry tagFilterPopupMenuItem = PopupMenuItem(
+                height: 50,
                 onTap: () {
                   selectFilter(3);
                 },
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      "Filter: my tags",
+                      "My tags only",
                       style: TextStyle(fontSize: 15),
                     ),
                     const Padding(padding: EdgeInsets.only(right: 6)),
@@ -228,12 +164,57 @@ class HomeAppBarState extends State<HomeAppBar> {
                           )
                         : Container()
                   ],
-                )),
-          ],
-        )
-      ],
-      backgroundColor: Colors.lightBlue,
-      putActionsOnRight: true,
-    );
+                ));
+
+            Widget filterPopupMenuButton = PopupMenuButton(
+              padding: const EdgeInsets.fromLTRB(4, 3.5, 5, 0),
+              position: PopupMenuPosition.under,
+              offset: const Offset(40, 5),
+              icon: const Icon(Icons.filter_alt, color: Color.fromARGB(255, 65, 65, 65),),
+              itemBuilder: (context) => <PopupMenuEntry>[
+                friendFilterPopupMenuItem,
+                tagFilterPopupMenuItem,
+              ],
+            );
+
+            return EasySearchBar(
+              onSearch: (input) {
+                if (input == "") {
+                  widget.updateCallBack(null);
+                  return;
+                }
+                if (_searchTimer == null || !_searchTimer!.isActive) {
+                  _searchTimer = Timer(
+                    const Duration(milliseconds: 1000),
+                    () async =>
+                        widget.updateCallBack(await searchUser(context, input)),
+                  );
+                } else {
+                  _searchTimer!.cancel();
+                  _searchTimer = Timer(
+                    const Duration(milliseconds: 1000),
+                    () async =>
+                        widget.updateCallBack(await searchUser(context, input)),
+                  );
+                }
+              },
+              searchHintText: "Search by name, @username...",
+              leading: settingsIconButton,
+              title: topTabBar,
+              actions: [
+                isAdmin
+                    ? IconButton(
+                        onPressed: () => {},
+                        icon: const Icon(Icons.add_card_outlined),
+                      )
+                    : Container(),
+                // home feed filter
+                filterPopupMenuButton,
+              ],
+              backgroundColor: Colors.lightBlue,
+              putActionsOnRight: false,
+            );
+          },
+        ));
   }
 }
