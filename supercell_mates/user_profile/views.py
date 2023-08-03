@@ -484,35 +484,39 @@ def change_activity_score(record, change_amount):
     record.save()
 
 
-def compute_tag_activity_final_score(record):
+def compute_tag_activity_final_score(record, update=True, timestamp=datetime.now().timestamp):
     """Computes the final score of a tag activity record, counting in decrease with time.
-    NOTE: Calling this view will update activity_score and last_activity_timestamp.
+    NOTE: for now, if timestamp is specified, update must be False
 
     Currently, the final score ranges from 2.0 (minimally active) to 5.0 (absolutely active).
     It takes around 7 days to decrease by 1, and 15 days to decrease from maximum to minimum.
 
     Args:
         record: the tag activity record to compute for
+        update: whether to update activity_score and last_activity_timestamp (i.e. apply the "decrease with time")
+        timestamp: if specified, will calculate the score at the provided timestamp
 
     Returns: the final score of the record, computed with formula:
         final_score = activity_score - DECREASE_COEFFICIENT * days_since_last_activity ** DECREASE_EXPONENT
     """
-    timestamps_since_last_activity = datetime.now().timestamp() - record.last_activity_timestamp
+    timestamps_since_last_activity = timestamp - record.last_activity_timestamp
     days_since_last_activity = timestamps_since_last_activity / SECONDS_IN_A_DAY
 
     if days_since_last_activity > DAYS_TO_REACH_LOWEST or days_since_last_activity < 0:
-        record.activity_score = MINIMUM_ACTIVITY_SCORE
-        record.last_activity_timestamp = datetime.now().timestamp()
-        record.save()
+        if update:
+            record.activity_score = MINIMUM_ACTIVITY_SCORE
+            record.last_activity_timestamp = datetime.now().timestamp()
+            record.save()
         return MINIMUM_ACTIVITY_SCORE
 
     final_score = record.activity_score - DECREASE_COEFFICIENT * days_since_last_activity ** DECREASE_EXPONENT
     final_score = max(MINIMUM_ACTIVITY_SCORE, final_score)
     final_score = min(MAXIMUM_ACTIVITY_SCORE, final_score)
 
-    record.activity_score = final_score
-    record.last_activity_timestamp = datetime.now().timestamp()
-    record.save()
+    if update:
+        record.activity_score = final_score
+        record.last_activity_timestamp = datetime.now().timestamp()
+        record.save()
 
     return final_score
 

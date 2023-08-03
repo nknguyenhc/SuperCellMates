@@ -25,7 +25,8 @@ class HomePage extends StatefulWidget {
 }
 
 const int defaultBlockLimit = 5;
-const String defaultStartTime = "";
+const double defaultStartTime = 0;
+const double defaultInitialTimestamp = 0;
 const double defaultStartIndex = 5;
 
 class HomePageState extends State<HomePage> {
@@ -35,7 +36,8 @@ class HomePageState extends State<HomePage> {
   bool mayHaveMore = true;
   bool isLoadingMore = true;
 
-  String nextStartTime = defaultStartTime;
+  double nextStartTime = defaultStartTime;
+  double initialTimeStamp = defaultInitialTimestamp;
   double nextStartMatchingIndex = defaultStartIndex;
 
   String sort = "time";
@@ -63,6 +65,7 @@ class HomePageState extends State<HomePage> {
     mayHaveMore = true;
     isLoadingMore = true;
     nextStartTime = defaultStartTime;
+    initialTimeStamp = defaultInitialTimestamp;
     nextStartMatchingIndex = defaultStartIndex;
     getHomeFeed();
   }
@@ -83,10 +86,12 @@ class HomePageState extends State<HomePage> {
     };
 
     if (sort == "time") {
+      initialTimeStamp = defaultInitialTimestamp;
       nextStartMatchingIndex = defaultStartIndex;
       query["start_timestamp"] = nextStartTime;
     } else {
       nextStartTime = defaultStartTime;
+      query["initial_timestamp"] = initialTimeStamp;
       query["start_index"] = nextStartMatchingIndex;
     }
 
@@ -98,8 +103,9 @@ class HomePageState extends State<HomePage> {
     }
     dynamic homeFeedResponse = jsonDecode(homeFeedResponseJson);
     if (sort == "time") {
-      nextStartTime = homeFeedResponse["stop_timestamp"].toString();
+      nextStartTime = homeFeedResponse["stop_timestamp"].toDouble();
     } else {
+      initialTimeStamp = homeFeedResponse["initial_timestamp"].toDouble();
       nextStartMatchingIndex = homeFeedResponse["stop_index"].toDouble();
     }
 

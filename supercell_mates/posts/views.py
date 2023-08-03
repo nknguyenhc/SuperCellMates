@@ -359,15 +359,21 @@ def delete_post(request):
         return HttpResponseBadRequest("post or tag activity record not found")
 
 
-def compute_matching_index_with_post(user_auth_obj, post_obj):
+def compute_matching_index_with_post(user_auth_obj, post_obj, timestamp):
     if user_auth_obj == post_obj.creator.user_auth:
         return 0
     tag_obj = post_obj.tag
     if tag_obj not in user_auth_obj.user_profile.tagList.all():
-        return 0
-    my_tag_score = compute_tag_activity_final_score(get_tag_activity_record(user_auth_obj, tag_obj))
-    post_creator_score = compute_tag_activity_final_score(get_tag_activity_record(post_obj.creator.user_auth, tag_obj))
-    time_since_time_posted = (datetime.now().timestamp() - post_obj.time_posted) / SECONDS_IN_A_DAY
+        my_tag_score = 0
+    else:
+        my_tag_score = compute_tag_activity_final_score(get_tag_activity_record(user_auth_obj, tag_obj),
+                                                        update=False, timestamp=timestamp)
+    if tag_obj not in post_obj.creator.user_profile.tagList.all():
+        post_creator_score = 0
+    else:
+        post_creator_score = compute_tag_activity_final_score(get_tag_activity_record(post_obj.creator.user_auth, tag_obj),
+                                                              update=False, timestamp=timestamp)
+    time_since_time_posted = (timestamp - post_obj.time_posted) / SECONDS_IN_A_DAY
     raw_result = (my_tag_score + post_creator_score) / 2 * max(2 - POST_EXP_COEFFICIENT ** time_since_time_posted, 0)
     return round(raw_result, 10)
 
@@ -579,13 +585,17 @@ def get_home_feed(request):
 
     If sort is "time", the request must contain:
         - start_timestamp (int): epoch time in seconds of the post to start displaying from (excluding), or empty string if fetching post from current time
-            When entering home feed for the first time, start_timestamp should be ""
+            When entering home feed for the first time, start_timestamp should be 0
             When trying to load more posts, use the previously returned stop_timestamp as the new start_timestamp
 
     If sort is "recommendation", the request must contain:
         - start_index (int): the exact matching index of the post to start displaying from
             When entering home feed for the first time, start_index should be "5"
             When trying to load more posts, use the previous stop_matching_index as the new start_index
+        - initial_timestamp (int): epoch time in seconds of the time user initiates the first request for recommended posts
+            This is reused when user loads more recommended posts, to freeze the matching indices of the posts
+            When requesting for recommended posts for the first time, initial_timestamp should be 0
+            When trying to load more, use the previously returned initial_timestamp as the new initial_timestamp
         
     Returns:
         JsonResponse containing post data, or HttpResponseBadRequest
@@ -598,6 +608,7 @@ def get_home_feed(request):
 
     If sort is "matching_index", the response also contains:
         - stop_index (float): the matching index between user and the creator of the last post, if none is found, this field is 0
+        - initial_timestamp (int): epoch time in seconds of the time user initiates the first request for recommended posts
     """
     try:
         posts = Post.objects
@@ -617,8 +628,8 @@ def get_home_feed(request):
 
         # Sort, then take accessible posts until limit is reached
         if request.GET["sort"] == "time":
-            if request.GET["start_timestamp"] != "":
-                start_timestamp = float(request.GET["start_timestamp"])
+            start_timestamp = float(request.GET["start_timestamp"])
+            if start_timestamp != 0:
                 posts = posts.filter(time_posted__lt=start_timestamp)
             posts = posts.order_by('-time_posted')
             for post_object in posts:
@@ -629,7 +640,7 @@ def get_home_feed(request):
                         break
             ret = {
                 "posts": result,
-                "stop_timestamp": 0
+                "stop_timestamp": 0.0
             }
             if count > 0:
                 ret["stop_timestamp"] = result[count-1]["time_posted"]
@@ -639,24 +650,30 @@ def get_home_feed(request):
                 start_index = 5
             else:
                 start_index = float(request.GET["start_index"])
-            posts = posts.filter(time_posted__gt=datetime.now().timestamp() - SECONDS_IN_A_DAY * RECOMMENDED_POSTS_DAY_RANGE).exclude(creator=request.user.user_log).all()
+            initial_timestamp = float(request.GET["initial_timestamp"])
+            if initial_timestamp == 0:
+                initial_timestamp = datetime.now().timestamp()
+            posts = posts.filter(time_posted__gt=initial_timestamp - SECONDS_IN_A_DAY * RECOMMENDED_POSTS_DAY_RANGE).exclude(creator=request.user.user_log).all()
             result = list(map(
                 lambda post: parse_post_object(post, request.user),
                 heapq.nlargest(
                     limit,
                     filter(
-                        lambda post: compute_matching_index_with_post(request.user, post) < start_index,
+                        lambda post: compute_matching_index_with_post(request.user, post, initial_timestamp) < start_index,
                         posts
                     ), 
-                    key=lambda post: compute_matching_index_with_post(request.user, post)
+                    key=lambda post: compute_matching_index_with_post(request.user, post, initial_timestamp)
                 )
             ))
             ret = {
                 "posts": result,
-                "stop_index": 0
+                "stop_index": 0.0,
+                "initial_timestamp": initial_timestamp
             }
             if len(result) > 0:
-                ret["stop_index"] = compute_matching_index_with_post(request.user, Post.objects.get(id=result[-1]["id"]))
+                ret["stop_index"] = compute_matching_index_with_post(request.user,
+                                                                     Post.objects.get(id=result[-1]["id"]),
+                                                                     initial_timestamp)
 
         else:
             return HttpResponseBadRequest("sort method query string malformed")
