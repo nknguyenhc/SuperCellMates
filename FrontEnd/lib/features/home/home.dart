@@ -24,15 +24,19 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => HomePageState();
 }
 
+const int defaultBlockLimit = 5;
+const String defaultStartTime = "";
+const double defaultStartIndex = 5;
+
 class HomePageState extends State<HomePage> {
-  int blockLimit = 5;
+  int blockLimit = defaultBlockLimit;
   List<dynamic> homeFeed = [];
   bool homeFeedLoaded = false;
   bool mayHaveMore = true;
   bool isLoadingMore = true;
-  String nextStartTime = "";
-  String nextStartID = "";
-  String nextStartMatchingIndex = "5";
+
+  String nextStartTime = defaultStartTime;
+  double nextStartMatchingIndex = defaultStartIndex;
 
   String sort = "time";
   String friendFilter = "0";
@@ -58,9 +62,8 @@ class HomePageState extends State<HomePage> {
     homeFeedLoaded = false;
     mayHaveMore = true;
     isLoadingMore = true;
-    nextStartTime = "";
-    nextStartID = "";
-    nextStartMatchingIndex = "5";
+    nextStartTime = defaultStartTime;
+    nextStartMatchingIndex = defaultStartIndex;
     getHomeFeed();
   }
 
@@ -77,23 +80,14 @@ class HomePageState extends State<HomePage> {
       "friend_filter": friendFilter,
       "tag_filter": tagFilter,
       "limit": blockLimit,
-      "start_id": nextStartID,
     };
 
     if (sort == "time") {
-      if (nextStartTime == "") {
-        // changed from another sorting method
-        nextStartID = "";
-      }
-      nextStartMatchingIndex = "5";
+      nextStartMatchingIndex = defaultStartIndex;
       query["start_timestamp"] = nextStartTime;
     } else {
-      if (nextStartMatchingIndex == "") {
-        // changed from another sorting method
-        nextStartID = "";
-      }
-      nextStartTime = "";
-      query["start_matching_index"] = nextStartMatchingIndex;
+      nextStartTime = defaultStartTime;
+      query["start_index"] = nextStartMatchingIndex;
     }
 
     dynamic homeFeedResponseJson =
@@ -103,11 +97,10 @@ class HomePageState extends State<HomePage> {
       return;
     }
     dynamic homeFeedResponse = jsonDecode(homeFeedResponseJson);
-    nextStartID = homeFeedResponse["stop_id"] ?? "";
     if (sort == "time") {
       nextStartTime = homeFeedResponse["stop_timestamp"].toString();
     } else {
-      nextStartMatchingIndex = homeFeedResponse["stop_matching_index"];
+      nextStartMatchingIndex = homeFeedResponse["stop_index"].toDouble();
     }
 
     setState(() {

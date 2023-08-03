@@ -86,6 +86,7 @@ class HomeAppBarState extends State<HomeAppBar> {
   Widget build(BuildContext context) {
     return DefaultTabController(
         length: topTabTexts.length,
+        initialIndex: widget.isFilterSelected[0] ? 0 : 1,
         child: Builder(
           builder: (context) {
             Widget settingsIconButton = IconButton(
@@ -170,7 +171,11 @@ class HomeAppBarState extends State<HomeAppBar> {
               padding: const EdgeInsets.fromLTRB(4, 3.5, 5, 0),
               position: PopupMenuPosition.under,
               offset: const Offset(40, 5),
-              icon: const Icon(Icons.filter_alt, color: Color.fromARGB(255, 65, 65, 65),),
+              icon: const Icon(
+                Icons.filter_alt,
+                color: Color.fromARGB(255, 65, 65, 65),
+              ),
+              tooltip: "Filter",
               itemBuilder: (context) => <PopupMenuEntry>[
                 friendFilterPopupMenuItem,
                 tagFilterPopupMenuItem,
