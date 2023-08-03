@@ -8,7 +8,6 @@ import "package:supercellmates/http_requests/make_requests.dart";
 import "package:supercellmates/router/router.gr.dart";
 import "package:supercellmates/http_requests/endpoints.dart";
 import "package:supercellmates/features/dialogs.dart";
-import "package:supercellmates/functions/matching_index.dart";
 import "package:fluttericon/font_awesome5_icons.dart";
 import 'package:intl/intl.dart';
 
@@ -184,8 +183,6 @@ class PostListViewState extends State<PostListView> {
           String title = widget.postList[index]["title"];
           String content = widget.postList[index]["content"];
           bool canReply = widget.postList[index]["can_reply"];
-          int matchingIndex =
-              widget.postList[index]["matching_index"].round() ?? 0;
           String visibility = parseVisibility(
               widget.postList[index]["public_visible"],
               widget.postList[index]["friend_visible"],
@@ -237,13 +234,6 @@ class PostListViewState extends State<PostListView> {
                   const Padding(padding: EdgeInsets.all(2)),
                 ],
               ),
-              const Padding(padding: EdgeInsets.only(right: 10)),
-              username != widget.username && !widget.isInSomeProfile
-                  ? SizedBox(
-                      width: 25,
-                      height: 25,
-                      child: buildMatchingIndexButton(context, matchingIndex))
-                  : Container()
             ]);
           }
 
