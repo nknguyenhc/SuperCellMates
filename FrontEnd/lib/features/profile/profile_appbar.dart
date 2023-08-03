@@ -91,8 +91,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
                   AutoRouter.of(context)
                       .push(const FriendsRoute())
                       .then((value) {
-                    notifications.countIncomingFriendRequests();
-                    notifications.retrieveAcceptedRequests();
+                    notifications.update();
                   });
                 },
                 icon: ListenableBuilder(

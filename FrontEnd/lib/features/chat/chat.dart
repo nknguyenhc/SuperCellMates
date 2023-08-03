@@ -53,7 +53,7 @@ class ChatPageState extends State<ChatPage> {
       return;
     }
     dynamic response = jsonDecode(responseJson);
-    notifications.getUnreadChats();
+    notifications.update();
     setState(() {
       chatList = index == 0 ? response["privates"] : response["groups"];
       dataLoaded = true;

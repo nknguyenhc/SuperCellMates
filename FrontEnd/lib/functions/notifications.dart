@@ -13,6 +13,12 @@ class Notifications extends ChangeNotifier {
   List unreadPrivateChats = [];
   List unreadGroupChats = [];
 
+  void update() {
+    countIncomingFriendRequests();
+    retrieveAcceptedRequests();
+    getUnreadChats();
+  }
+
   // incoming friend requests
   void countIncomingFriendRequests() {
     getRequest(EndPoints.viewFriendRequests.endpoint, null).then((response) {

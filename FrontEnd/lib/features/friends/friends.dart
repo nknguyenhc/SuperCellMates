@@ -60,6 +60,7 @@ class FriendsPageState extends State<FriendsPage> {
     }
     friendList = jsonDecode(friendListJson);
     updateFriendPageBody(friendList, false);
+    notifications.update();
   }
 
   void getFriendRequestList() async {
@@ -73,6 +74,7 @@ class FriendsPageState extends State<FriendsPage> {
     friendRequestList = jsonDecode(friendRequestListJson);
     notifications.updateIncomingFriendRequestsCount(friendRequestList.length);
     updateFriendPageBody(friendRequestList, true);
+    notifications.update();
   }
 
   void navigate(int index) {

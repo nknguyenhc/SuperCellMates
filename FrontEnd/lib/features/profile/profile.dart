@@ -54,8 +54,6 @@ class ProfilePageState extends State<ProfilePage> {
       loadTagIcons(i);
     }
     setState(() => data = data);
-    notifications.countIncomingFriendRequests();
-    notifications.retrieveAcceptedRequests();
     loadProfilePosts();
   }
 
@@ -79,6 +77,8 @@ class ProfilePageState extends State<ProfilePage> {
     dynamic profilePostsResponse = jsonDecode(profilePostsResponseJson);
     assert(profilePostsResponse["myProfile"]);
     profilePosts = profilePostsResponse["posts"];
+
+    notifications.update();
 
     setState(() => profilePostsLoaded = true);
   }

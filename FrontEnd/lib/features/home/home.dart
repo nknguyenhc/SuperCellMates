@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/features/posts/post_listview.dart';
+import 'package:supercellmates/functions/notifications.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
 
@@ -44,6 +46,8 @@ class HomePageState extends State<HomePage> {
   String friendFilter = "0";
   String tagFilter = "0";
 
+  Notifications notifications = GetIt.I<Notifications>();
+
   @override
   void initState() {
     super.initState();
@@ -74,6 +78,7 @@ class HomePageState extends State<HomePage> {
     if (!mayHaveMore) {
       return;
     }
+    notifications.update();
     setState(() {
       isLoadingMore = true;
     });

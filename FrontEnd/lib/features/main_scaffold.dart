@@ -51,9 +51,7 @@ class MainScaffoldState extends State<MainScaffold> {
     }
     profileMap = jsonDecode(profileMapJson);
 
-    notifications.countIncomingFriendRequests();
-    notifications.retrieveAcceptedRequests();
-    notifications.getUnreadChats();
+    notifications.update();
 
     appbars = <AppBar>[
       HomeAppBar(

@@ -124,7 +124,7 @@ class ChatListViewState extends State<ChatListView> {
                             isPrivate: true))
                         .then(
                       (value) {
-                        notifications.getUnreadChats();
+                        notifications.update();
                       },
                     );
                   } else {
@@ -136,7 +136,7 @@ class ChatListViewState extends State<ChatListView> {
                       isPrivate: false,
                     ))
                         .then((value) {
-                      notifications.getUnreadChats();
+                      notifications.update();
                     });
                   }
                 },
