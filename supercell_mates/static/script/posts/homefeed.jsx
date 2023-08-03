@@ -9,7 +9,8 @@ function HomeFeed() {
         getJSONItemFrom('isTagFilter', false, localStorage)
     );
     const isAllPostsLoaded = React.useRef(false);
-    const startNumber = React.useRef('');
+    const startNumber = React.useRef(sortMethod === 'time' ? 0 : 5);
+    const initialTimestamp = React.useRef(0);
     const postsPerLoad = 10;
     const homeFeedContent = React.useRef(null);
     const [isFriendFilterClicked, setIsFriendFilterClicked] = React.useState(false);
@@ -19,6 +20,7 @@ function HomeFeed() {
 
     const setIsAllPostsLoaded = (newValue) => isAllPostsLoaded.current = newValue;
     const setStartNumber = (newStarTimestamp) => startNumber.current = newStarTimestamp;
+    const setInitialTimestamp = (newInitialTimestamp) => initialTimestamp.current = newInitialTimestamp;
 
     React.useEffect(() => {
         let isLoading = true;
@@ -50,7 +52,7 @@ function HomeFeed() {
     }, []);
 
     function loadMorePosts() {
-        return fetch(`/post/?friend_filter=${isFriendFilter ? 1 : 0}&tag_filter=${isTagFilter ? 1 : 0}&sort=${sortMethod}&${sortMethod === 'time' ? 'start_timestamp' : 'start_index'}=${startNumber.current}&limit=${postsPerLoad}`)
+        return fetch(`/post/?friend_filter=${isFriendFilter ? 1 : 0}&tag_filter=${isTagFilter ? 1 : 0}&sort=${sortMethod}&${sortMethod === 'time' ? 'start_timestamp' : 'start_index'}=${startNumber.current}${sortMethod === 'recommendation' ? `&initial_timestamp=${initialTimestamp.current}` : ''}&limit=${postsPerLoad}`)
             .then(response => {
                 if (response.status !== 200) {
                     triggerErrorMessage();
@@ -64,6 +66,8 @@ function HomeFeed() {
                         ReactDOM.render(<Post post={post} myProfile={false} />, postCard);
                         homeFeedContent.current.appendChild(postCard);
                     });
+                    sortMethod === 'recommendation' && setInitialTimestamp(response.initial_timestamp);
+                    console.log(response.initial_timestamp);
                     return sortMethod === 'time' ? response.stop_timestamp : response.stop_index;
                 });
             });
