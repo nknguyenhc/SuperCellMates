@@ -12,7 +12,7 @@ class ProfileAppBar extends AppBar {
     Key? key,
     required this.profileMap,
     required this.updateProfileMapCallBack,
-  }) : super(key: key, toolbarHeight: 80);
+  }) : super(key: key, toolbarHeight: 72);
 
   final dynamic profileMap;
   final dynamic updateProfileMapCallBack;
@@ -47,27 +47,29 @@ class ProfileAppBarState extends State<ProfileAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      titleSpacing: 10,
-      toolbarHeight: 80,
-      backgroundColor: Colors.lightBlue,
-      leading: IconButton(
+    Widget buildProfileImage() {
+      return IconButton(
         padding: const EdgeInsets.only(left: 12),
         icon: dataLoaded ? profileImage! : const CircularProgressIndicator(),
         onPressed: () => AutoRouter.of(context).push(EditProfileRoute(
             updateProfileImageCallBack: initProfileImage,
             updateProfileMapCallBack: widget.updateProfileMapCallBack)),
         iconSize: 50,
-      ),
-      title: Column(children: [
+      );
+    }
+
+    Widget buildNameSection() {
+      return Column(children: [
         SizedBox(
-          height: 24,
+          height: 22,
           width: 300,
           child: Text(
             widget.profileMap["user_profile"]["name"],
+            strutStyle: StrutStyle(forceStrutHeight: false),
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,
+              color: Color.fromARGB(221, 44, 44, 44)
             ),
           ),
         ),
@@ -76,38 +78,63 @@ class ProfileAppBarState extends State<ProfileAppBar> {
           width: 300,
           child: Text(
             "@${widget.profileMap["user_profile"]["username"]}",
-            style: const TextStyle(fontSize: 15, color: Colors.blueGrey),
+            style: const TextStyle(fontSize: 15, color: Colors.black45),
           ),
         ),
-      ]),
+      ]);
+    }
+
+    Widget buildFriendsButton() {
+      return SizedBox(
+        height: 39,
+        child: IconButton(
+          padding: const EdgeInsets.only(top: 9),
+          onPressed: () {
+            AutoRouter.of(context).push(const FriendsRoute()).then((value) {
+              notifications.update();
+            });
+          },
+          icon: ListenableBuilder(
+            listenable: GetIt.I<Notifications>(),
+            builder: (context, child) {
+              return createNotificationBadge(
+                  const Icon(Icons.people),
+                  notifications.incomingFriendRequestsCount +
+                      notifications.outgoingAcceptedRequestCount,
+                  10,
+                  8);
+            },
+          ),
+          iconSize: 38,
+        ),
+      );
+    }
+
+    Widget buildAchievementsButton() {
+      return SizedBox(
+        height: 40,
+        child: IconButton(
+          padding: EdgeInsets.only(top: 14),
+          icon: const Icon(FontAwesome5.trophy),
+          onPressed: () => AutoRouter.of(context).push(AchievementRoute(
+              name: widget.profileMap["user_profile"]["name"],
+              myProfile: true)),
+          iconSize: 25,
+        ),
+      );
+    }
+
+    return AppBar(
+      titleSpacing: 10,
+      toolbarHeight: 72,
+      backgroundColor: Colors.lightBlue,
+      leading: buildProfileImage(),
+      title: buildNameSection(),
       actions: [
         Column(
           children: [
-            const Padding(padding: EdgeInsets.only(top: 4)),
-            SizedBox(
-              height: 40,
-              child: IconButton(
-                onPressed: () {
-                  AutoRouter.of(context)
-                      .push(const FriendsRoute())
-                      .then((value) {
-                    notifications.update();
-                  });
-                },
-                icon: ListenableBuilder(
-                  listenable: GetIt.I<Notifications>(),
-                  builder: (context, child) {
-                    return createNotificationBadge(
-                        const Icon(Icons.people),
-                        notifications.incomingFriendRequestsCount +
-                            notifications.outgoingAcceptedRequestCount,
-                        10,
-                        8);
-                  },
-                ),
-                iconSize: 38,
-              ),
-            ),
+            //const Padding(padding: EdgeInsets.only(top: 4)),
+            buildFriendsButton(),
             const SizedBox(
               height: 30,
               child: Text(
@@ -121,17 +148,8 @@ class ProfileAppBarState extends State<ProfileAppBar> {
         ),
         Column(
           children: [
-            const Padding(padding: EdgeInsets.only(top: 11)),
-            SizedBox(
-              height: 34,
-              child: IconButton(
-                icon: const Icon(FontAwesome5.trophy),
-                onPressed: () => AutoRouter.of(context).push(AchievementRoute(
-                    name: widget.profileMap["user_profile"]["name"],
-                    myProfile: true)),
-                iconSize: 25,
-              ),
-            ),
+            //const Padding(padding: EdgeInsets.only(top: 11)),
+            buildAchievementsButton(),
             const SizedBox(
               height: 30,
               child: Text(

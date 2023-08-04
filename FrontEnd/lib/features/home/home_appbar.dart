@@ -124,7 +124,8 @@ class HomeAppBarState extends State<HomeAppBar> {
                 tabs: [topTab(0), topTab(1)]);
 
             PopupMenuEntry friendFilterPopupMenuItem = PopupMenuItem(
-                height: 50,
+                padding: EdgeInsets.zero,
+                height: 40,
                 onTap: () {
                   selectFilter(2);
                 },
@@ -132,21 +133,25 @@ class HomeAppBarState extends State<HomeAppBar> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      "My friends only",
-                      style: TextStyle(fontSize: 15),
+                      "My friends",
                     ),
-                    const Padding(padding: EdgeInsets.only(right: 6)),
                     widget.isFilterSelected[2]
-                        ? const Icon(
-                            Icons.circle,
-                            size: 8,
+                        ? const Row(
+                            children: [
+                              Padding(padding: EdgeInsets.only(right: 6)),
+                              Icon(
+                                Icons.circle,
+                                size: 8,
+                              )
+                            ],
                           )
                         : Container()
                   ],
                 ));
 
             PopupMenuEntry tagFilterPopupMenuItem = PopupMenuItem(
-                height: 50,
+                padding: EdgeInsets.zero,
+                height: 40,
                 onTap: () {
                   selectFilter(3);
                 },
@@ -154,14 +159,17 @@ class HomeAppBarState extends State<HomeAppBar> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      "My tags only",
-                      style: TextStyle(fontSize: 15),
+                      "My tags",
                     ),
-                    const Padding(padding: EdgeInsets.only(right: 6)),
                     widget.isFilterSelected[3]
-                        ? const Icon(
-                            Icons.circle,
-                            size: 8,
+                        ? const Row(
+                            children: [
+                              Padding(padding: EdgeInsets.only(right: 6)),
+                              Icon(
+                                Icons.circle,
+                                size: 8,
+                              )
+                            ],
                           )
                         : Container()
                   ],
@@ -170,7 +178,7 @@ class HomeAppBarState extends State<HomeAppBar> {
             Widget filterPopupMenuButton = PopupMenuButton(
               padding: const EdgeInsets.fromLTRB(4, 3.5, 5, 0),
               position: PopupMenuPosition.under,
-              offset: const Offset(40, 5),
+              offset: const Offset(33, 5),
               icon: const Icon(
                 Icons.filter_alt,
                 color: Color.fromARGB(255, 65, 65, 65),

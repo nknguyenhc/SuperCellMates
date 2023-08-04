@@ -167,134 +167,218 @@ class OthersProfilePageState extends State<OthersProfilePage> {
       });
     }
 
+    Widget buildProfileImage() {
+      return SizedBox(
+        height: 45,
+        width: 45,
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          icon: profileImageLoaded
+              ? Image.memory(profileImage)
+              : const CircularProgressIndicator(),
+          onPressed: () {
+            AutoRouter.of(context)
+                .push(SinglePhotoViewer(photoBytes: profileImage, actions: []));
+          },
+          iconSize: 45,
+        ),
+      );
+    }
+
+    Widget buildNameSection() {
+      return Column(children: [
+        SizedBox(
+          height: 22,
+          width: MediaQuery.of(context).size.width - 225,
+          child: Text(
+            profileData["user_profile"]["name"],
+            style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Color.fromARGB(221, 44, 44, 44)),
+          ),
+        ),
+        SizedBox(
+          height: 22,
+          width: MediaQuery.of(context).size.width - 225,
+          child: Text(
+            "@${profileData["user_profile"]["username"]}",
+            style: const TextStyle(fontSize: 15, color: Colors.black45),
+          ),
+        ),
+      ]);
+    }
+
+    Widget buildAddFriendSection() {
+      return Column(
+        children: [
+          SizedBox(
+            height: 39,
+            child: IconButton(
+              icon: const Icon(Icons.person_add),
+              onPressed: () {
+                showConfirmationDialog(
+                    context,
+                    "Are you sure to send a friend request?",
+                    sendFriendRequest);
+              },
+              iconSize: 36,
+              padding: const EdgeInsets.only(top: 8),
+            ),
+          ),
+          const SizedBox(
+            height: 30,
+            child: Text(
+              " Add",
+              style: TextStyle(
+                fontSize: 13,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    Widget buildDeleteFriendSection() {
+      return Column(
+        children: [
+          SizedBox(
+            height: 39,
+            child: IconButton(
+              icon: const Icon(Icons.person_remove),
+              onPressed: () {
+                showConfirmationDialog(
+                    context,
+                    "Are you sure to unfriend ${profileData["user_profile"]["name"]}?",
+                    deleteFriend);
+              },
+              iconSize: 36,
+              padding: const EdgeInsets.only(top: 8.2),
+            ),
+          ),
+          const SizedBox(
+            height: 30,
+            child: Text(
+              "Unfriend",
+              style: TextStyle(
+                fontSize: 13,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    Widget buildAchievementsSection() {
+      return Column(
+        children: [
+          SizedBox(
+            height: 39,
+            child: IconButton(
+              icon: const Icon(FontAwesome5.trophy),
+              onPressed: () => AutoRouter.of(context).push(AchievementRoute(
+                  name: profileData["user_profile"]["name"], myProfile: false)),
+              iconSize: 25,
+              padding: const EdgeInsets.only(top: 13),
+            ),
+          ),
+          const SizedBox(
+            height: 30,
+            child: Text(
+              " Lv.1",
+              style: TextStyle(
+                fontSize: 13,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    Widget buildMatchingIndexSection() {
+      return SizedBox(
+        width: 50,
+        height: 30,
+        child: buildMatchingIndexButton(
+            context, profileData["matching_index"].round()),
+      );
+    }
+
+    Widget buildTagList() {
+      return ListView.builder(
+          padding: const EdgeInsets.only(left: 6, right: 12),
+          shrinkWrap: true,
+          itemCount: tagList.length,
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (BuildContext context, int index) {
+            Widget buildTagIcon() {
+              return Container(
+                width: selectedTagIndex == index ? 43 : 40,
+                height: selectedTagIndex == index ? 43 : 40,
+                decoration: BoxDecoration(
+                    border: Border.all(
+                        color: selectedTagIndex == index
+                            ? Colors.pink
+                            : Colors.black54,
+                        width: selectedTagIndex == index ? 4 : 2.5),
+                    shape: BoxShape.circle),
+                child: IconButton(
+                    onPressed: () => {chooseTag(index)},
+                    icon: dataLoaded[index]
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(25),
+                            child: Image.memory(tagIcons[index],
+                                width: 40, height: 40, fit: BoxFit.contain),
+                          )
+                        : const CircularProgressIndicator(),
+                    padding: EdgeInsets.zero),
+              );
+            }
+
+            return tagList[index] == ""
+                ? Container()
+                : Row(
+                    children: [
+                      const Padding(padding: EdgeInsets.only(left: 6)),
+                      buildTagIcon(),
+                    ],
+                  );
+          });
+    }
+
+    Widget dividerWithShadow = Container(
+      height: 4,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.grey,
+            Colors.white,
+          ],
+        ),
+      ),
+    );
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leadingWidth: 50,
-        toolbarHeight: 80,
+        toolbarHeight: 70,
         backgroundColor: Colors.lightBlue,
         titleSpacing: 0,
         title: Row(
           children: [
-            SizedBox(
-              height: 45,
-              width: 45,
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                icon: profileImageLoaded
-                    ? Image.memory(profileImage)
-                    : const CircularProgressIndicator(),
-                onPressed: () {
-                  AutoRouter.of(context).push(
-                      SinglePhotoViewer(photoBytes: profileImage, actions: []));
-                },
-                iconSize: 45,
-              ),
-            ),
+            buildProfileImage(),
             const Padding(padding: EdgeInsets.all(5)),
-            Column(children: [
-              SizedBox(
-                height: 25,
-                width: MediaQuery.of(context).size.width - 225,
-                child: Text(
-                  profileData["user_profile"]["name"],
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 20,
-                width: MediaQuery.of(context).size.width - 225,
-                child: Text(
-                  "@${profileData["user_profile"]["username"]}",
-                  style: const TextStyle(fontSize: 14, color: Colors.blueGrey),
-                ),
-              ),
-            ]),
+            buildNameSection(),
           ],
         ),
         actions: [
           profileData["is_friend"]
-              ? Column(
-                  children: [
-                    const Padding(padding: EdgeInsets.only(top: 6)),
-                    SizedBox(
-                      height: 40,
-                      child: IconButton(
-                        icon: const Icon(Icons.remove_circle),
-                        onPressed: () {
-                          showConfirmationDialog(
-                              context,
-                              "Are you sure to unfriend ${profileData["user_profile"]["name"]}?",
-                              deleteFriend);
-                        },
-                        iconSize: 32,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 30,
-                      child: Text(
-                        "Unfriend",
-                        style: TextStyle(
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              : Column(
-                  children: [
-                    const Padding(padding: EdgeInsets.only(top: 6)),
-                    SizedBox(
-                      height: 40,
-                      child: IconButton(
-                        icon: const Icon(Icons.add),
-                        onPressed: () {
-                          showConfirmationDialog(
-                              context,
-                              "Are you sure to send a friend request?",
-                              sendFriendRequest);
-                        },
-                        iconSize: 32,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 30,
-                      child: Text(
-                        "Add",
-                        style: TextStyle(
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-          Column(
-            children: [
-              const Padding(padding: EdgeInsets.only(top: 10)),
-              SizedBox(
-                height: 36,
-                child: IconButton(
-                  icon: const Icon(FontAwesome5.trophy),
-                  onPressed: () => AutoRouter.of(context).push(AchievementRoute(
-                      name: profileData["user_profile"]["name"],
-                      myProfile: false)),
-                  iconSize: 25,
-                ),
-              ),
-              const SizedBox(
-                height: 30,
-                child: Text(
-                  " Lv.1",
-                  style: TextStyle(
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-            ],
-          ),
+              ? buildDeleteFriendSection()
+              : buildAddFriendSection(),
+          buildAchievementsSection(),
           const Padding(padding: EdgeInsets.only(right: 10)),
         ],
       ),
@@ -303,65 +387,19 @@ class OthersProfilePageState extends State<OthersProfilePage> {
         children: [
           // Tags
           SizedBox(
-            height: 60,
+            height: 50,
             child: Flex(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 direction: Axis.horizontal,
                 children: [
                   const Padding(padding: EdgeInsets.only(left: 20)),
-                  SizedBox(
-                    width: 25,
-                    height: 25,
-                    child: buildMatchingIndexButton(
-                        context, profileData["matching_index"].round()),
-                  ),
-                  const Padding(padding: EdgeInsets.only(left: 10)),
+                  buildMatchingIndexSection(),
                   Expanded(
-                    child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: tagList.length,
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (BuildContext context, int index) {
-                          return SizedBox(
-                              width: 45,
-                              height: 45,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  IconButton(
-                                    onPressed: () {
-                                      chooseTag(index);
-                                    },
-                                    icon: dataLoaded[index]
-                                        ? Image.memory(tagIcons[index],
-                                            width: 45,
-                                            height: 45,
-                                            fit: BoxFit.contain)
-                                        : const CircularProgressIndicator(),
-                                    padding: const EdgeInsets.all(4),
-                                  ),
-                                  selectedTagIndex == index
-                                      ? const Divider(
-                                          height: 3,
-                                          thickness: 2.5,
-                                          indent: 4,
-                                          endIndent: 4,
-                                          color: Colors.blue,
-                                        )
-                                      : Container(),
-                                ],
-                              ));
-                        }),
+                    child: buildTagList(),
                   )
                 ]),
           ),
-          const Divider(
-            height: 1,
-            thickness: 0.3,
-            color: Colors.blueGrey,
-            indent: 15,
-            endIndent: 15,
-          ),
+          dividerWithShadow,
           SizedBox(
               height: myPostsHeight,
               width: MediaQuery.of(context).size.width,

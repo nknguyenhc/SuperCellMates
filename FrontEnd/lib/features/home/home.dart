@@ -132,7 +132,7 @@ class HomePageState extends State<HomePage> {
       alignment: Alignment.center,
       child: SizedBox(
           width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height - 100,
+          height: MediaQuery.of(context).size.height,
           child: homeFeedLoaded
               ? Stack(
                   alignment: Alignment.center,

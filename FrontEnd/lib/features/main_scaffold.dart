@@ -116,18 +116,24 @@ class MainScaffoldState extends State<MainScaffold> {
           appBar: appbars[selectedIndex],
           body: pages[selectedIndex],
           bottomNavigationBar: BottomNavigationBar(
+            selectedFontSize: 0,
+            unselectedFontSize: 0,
+            iconSize: 30,
+            selectedIconTheme: const IconThemeData(size: 35),
             items: [
               BottomNavigationBarItem(
                 label: "home",
                 icon: IconButton(
+                  tooltip: "Home feed",
                   icon: const Icon(Icons.home),
                   onPressed: () => changeIndex(0),
-                  iconSize: 30,
+                  //iconSize: 30,
                 ),
               ),
               BottomNavigationBarItem(
                 label: "chat",
                 icon: IconButton(
+                  tooltip: "Chat",
                   icon: ListenableBuilder(
                     listenable: notifications,
                     builder: (context, child) {
@@ -139,12 +145,13 @@ class MainScaffoldState extends State<MainScaffold> {
                     },
                   ),
                   onPressed: () => changeIndex(1),
-                  iconSize: 30,
+                  //iconSize: 30,
                 ),
               ),
               BottomNavigationBarItem(
                 label: "profile",
                 icon: IconButton(
+                  tooltip: "Profile",
                   icon: ListenableBuilder(
                     listenable: notifications,
                     builder: (context, child) {
@@ -157,7 +164,7 @@ class MainScaffoldState extends State<MainScaffold> {
                     },
                   ),
                   onPressed: () => changeIndex(2),
-                  iconSize: 30,
+                  //iconSize: 30,
                 ),
               )
             ],

@@ -122,6 +122,14 @@ class TagListViewState extends State<TagListView> {
         () => _removeTag(index));
   }
 
+  Widget tagDivider = const Divider(
+    height: 1,
+    thickness: 2,
+    color: Colors.black12,
+    indent: 10,
+    endIndent: 10,
+  );
+
   @override
   Widget build(BuildContext context) {
     ListView list = ListView.builder(
@@ -194,12 +202,7 @@ class TagListViewState extends State<TagListView> {
                       : Container(),
                 ]),
               ),
-              const Divider(
-                height: 1,
-                color: Colors.grey,
-                indent: 10,
-                endIndent: 10,
-              )
+              tagDivider
             ],
           );
         });

@@ -23,9 +23,9 @@ Widget buildMatchingIndexButton(BuildContext context, int matchingIndex) {
       style: const ButtonStyle(
           padding: MaterialStatePropertyAll(EdgeInsets.zero),
           backgroundColor: MaterialStatePropertyAll(Colors.lightBlue),
-          shape: MaterialStatePropertyAll(CircleBorder())),
+          shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))))),
       child: Text(
-        matchingIndex.toString(),
+        "MI: ${matchingIndex.toString()}",
         style: TextStyle(
             color: matchingIndexColors[matchingIndex],
             fontWeight: FontWeight.bold),

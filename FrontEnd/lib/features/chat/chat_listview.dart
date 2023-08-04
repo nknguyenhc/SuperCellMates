@@ -63,7 +63,8 @@ class ChatListViewState extends State<ChatListView> {
 
   Widget chatDivider = const Divider(
     height: 1,
-    color: Colors.grey,
+    thickness: 2,
+    color: Colors.black12,
     indent: 10,
     endIndent: 10,
   );

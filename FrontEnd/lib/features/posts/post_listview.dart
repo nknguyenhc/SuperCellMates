@@ -136,8 +136,8 @@ class PostListViewState extends State<PostListView> {
 
   Widget postDivider = const Divider(
     height: 1,
-    thickness: 0.3,
-    color: Colors.blueGrey,
+    thickness: 2,
+    color: Colors.black12,
     indent: 15,
     endIndent: 15,
   );
@@ -589,7 +589,7 @@ class PostListViewState extends State<PostListView> {
               ),
             ),
 
-            const Padding(padding: EdgeInsets.only(top: 5)),
+            const Padding(padding: EdgeInsets.only(top: 10)),
             postDivider,
           ]);
         });

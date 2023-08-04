@@ -10,6 +10,14 @@ import 'package:supercellmates/http_requests/make_requests.dart';
 import 'package:supercellmates/router/router.gr.dart';
 import 'package:supercellmates/features/dialogs.dart';
 
+Widget userDivider = const Divider(
+    height: 1,
+    thickness: 2,
+    color: Colors.black12,
+    indent: 10,
+    endIndent: 10,
+  );
+
 class UserListView extends StatefulWidget {
   const UserListView(
       {Key? key,
@@ -125,19 +133,21 @@ class UserListViewState extends State<UserListView> {
                     children: [
                       const Padding(padding: EdgeInsets.only(left: 2)),
                       SizedBox(
+                        height: 22,
                         width: MediaQuery.of(context).size.width - 100,
                         child: Text(
                           name,
                           style: const TextStyle(
-                              color: Colors.black, fontSize: 17),
+                              color: Colors.black, fontSize: 16),
                         ),
                       ),
                       SizedBox(
+                        height: 22,
                         width: MediaQuery.of(context).size.width - 100,
-                        child: Text(username,
+                        child: Text("@$username",
                             style: const TextStyle(
                               color: Colors.blueGrey,
-                              fontSize: 14,
+                              fontSize: 13,
                             )),
                       ),
                       const Padding(padding: EdgeInsets.all(2)),
@@ -148,12 +158,7 @@ class UserListViewState extends State<UserListView> {
                       : Container()
                 ]),
               ),
-              const Divider(
-                height: 1,
-                color: Colors.grey,
-                indent: 10,
-                endIndent: 10,
-              )
+              userDivider
             ],
           );
         });
@@ -246,19 +251,21 @@ class UserListViewWithCustomOnPressedState
                     children: [
                       const Padding(padding: EdgeInsets.only(left: 2)),
                       SizedBox(
+                        height: 22,
                         width: MediaQuery.of(context).size.width - 80,
                         child: Text(
                           name,
                           style: const TextStyle(
-                              color: Colors.black, fontSize: 17),
+                              color: Colors.black, fontSize: 16),
                         ),
                       ),
                       SizedBox(
+                        height: 22,
                         width: MediaQuery.of(context).size.width - 80,
-                        child: Text(username,
+                        child: Text("@$username",
                             style: const TextStyle(
                               color: Colors.blueGrey,
-                              fontSize: 14,
+                              fontSize: 13,
                             )),
                       ),
                       const Padding(padding: EdgeInsets.all(2)),
@@ -266,12 +273,7 @@ class UserListViewWithCustomOnPressedState
                   )
                 ]),
               ),
-              const Divider(
-                height: 1,
-                color: Colors.grey,
-                indent: 10,
-                endIndent: 10,
-              )
+              userDivider
             ],
           );
         });
@@ -366,20 +368,22 @@ class FriendRequestListState extends State<FriendRequestListView> {
                         children: [
                           Container(
                             padding: const EdgeInsets.only(left: 2),
+                            height: 22,
                             width: MediaQuery.of(context).size.width - 230,
                             child: Text(
                               name,
                               style: const TextStyle(
-                                  color: Colors.black, fontSize: 17),
+                                  color: Colors.black, fontSize: 16),
                             ),
                           ),
                           Container(
                             padding: const EdgeInsets.only(left: 2),
+                            height: 22,
                             width: MediaQuery.of(context).size.width - 230,
-                            child: Text(username,
+                            child: Text("@$username",
                                 style: const TextStyle(
                                   color: Colors.blueGrey,
-                                  fontSize: 14,
+                                  fontSize: 13,
                                 )),
                           ),
                           const Padding(padding: EdgeInsets.all(2)),
@@ -457,12 +461,7 @@ class FriendRequestListState extends State<FriendRequestListView> {
                           style: TextStyle(color: Colors.white, fontSize: 14))),
                 ],
               ),
-              const Divider(
-                height: 1,
-                color: Colors.grey,
-                indent: 10,
-                endIndent: 10,
-              )
+              userDivider
             ],
           );
         });
