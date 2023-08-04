@@ -9,7 +9,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_saver/file_saver.dart';
-import 'package:requests/requests.dart';
 
 import 'package:supercellmates/config/config.dart';
 
@@ -221,18 +220,14 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     // count is the number of retries, max 3 tries before prompting error
     wsUrl =
         "${GetIt.I<Config>().wsBaseURL}/${widget.isPrivate ? "message" : "group"}/${widget.chatInfo["id"]}/";
-    Requests.getStoredCookies(GetIt.I<Config>().restBaseURL)
-        .then(
-      (cookieJar) => cookieJar.delegate,
-    )
-        .then((cookieMap) {
+    retrieveCookie("sessionid").then((cookie) {
       // extract cookies and initiate websocket connection
       setState(() {
         wsChannel = IOWebSocketChannel.connect(
           Uri.parse(wsUrl),
           headers: {
             "origin": "ws://10.0.2.2:8000",
-            "cookie": "sessionid=${cookieMap["sessionid"]!.value}"
+            "cookie": "sessionid=$cookie"
           },
           connectTimeout: const Duration(seconds: 2),
         );

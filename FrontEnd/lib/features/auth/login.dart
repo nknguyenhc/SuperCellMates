@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supercellmates/features/custom_checkbox.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 
@@ -42,8 +43,12 @@ class LoginPageState extends State<LoginPage> {
     };
 
     var response = postWithCSRF(EndPoints.login.endpoint, body);
-    return response.then((message) {
+    return response.then((message) async {
       if (message == "logged in") {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString("username", body["username"]!);
+        prefs.setString("sessionid", await retrieveCookie("sessionid"));
+        prefs.setString("csrftoken", await retrieveCookie("csrftoken"));
         return null;
       }
       return message;
@@ -87,8 +92,12 @@ class LoginPageState extends State<LoginPage> {
 
     var response = postWithCSRF(EndPoints.register.endpoint, body);
 
-    return response.then((message) {
+    return response.then((message) async {
       if (message == "account created") {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString("username", body["username"]!);
+        prefs.setString("sessionid", await retrieveCookie("sessionid"));
+        prefs.setString("csrftoken", await retrieveCookie("csrftoken"));
         return null;
       }
       return message;

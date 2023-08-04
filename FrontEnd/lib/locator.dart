@@ -7,9 +7,9 @@ import 'package:supercellmates/router/router.dart';
 
 GetIt locator = GetIt.I;
 
-void setupLocator() {
+void setupLocator(bool isLoggedIn) {
   locator.registerLazySingleton<Config>(() => DevConfig());
   //locator.registerLazySingleton<Config>(() => ProdConfig());
-  locator.registerSingleton<AppRouter>(AppRouter());
+  locator.registerSingleton<AppRouter>(AppRouter(isLoggedIn: isLoggedIn));
   locator.registerSingleton<Notifications>(Notifications());
 }
