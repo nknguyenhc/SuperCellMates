@@ -16,3 +16,6 @@ function approve(inputField) {
     inputField.classList.remove('is-invalid');
     inputField.classList.add('is-valid');
 }
+
+// clear session storage
+sessionStorage.clear();

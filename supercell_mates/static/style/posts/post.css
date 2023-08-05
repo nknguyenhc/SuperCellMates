@@ -170,8 +170,13 @@
     max-width: 100%;
 }
 
+.post-title {
+    word-wrap: break-word;
+}
+
 .post-content {
     white-space: pre-wrap;
+    word-wrap: break-word;
     text-align: justify;
 }
 

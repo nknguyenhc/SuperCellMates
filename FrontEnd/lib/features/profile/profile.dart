@@ -2,8 +2,10 @@ import 'dart:typed_data';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/features/posts/post_listview.dart';
+import 'package:supercellmates/functions/notifications.dart';
 import 'dart:convert';
 
 import 'package:supercellmates/http_requests/make_requests.dart';
@@ -28,6 +30,8 @@ class ProfilePageState extends State<ProfilePage> {
   var tagIcons = [];
   dynamic profilePosts;
   bool profilePostsLoaded = false;
+
+  Notifications notifications = GetIt.I<Notifications>();
 
   @override
   void initState() {
@@ -60,7 +64,7 @@ class ProfilePageState extends State<ProfilePage> {
       "end": DateTime(2099).microsecondsSinceEpoch.toDouble() / 1000000,
     };
     if (selectedTagIndex != -1) {
-      requestBody["tag"] = data["tags"][selectedTagIndex - 1]["name"];
+      requestBody["tag"] = data["tags"][selectedTagIndex]["name"];
     }
 
     dynamic profilePostsResponseJson = await getRequest(
@@ -73,6 +77,8 @@ class ProfilePageState extends State<ProfilePage> {
     dynamic profilePostsResponse = jsonDecode(profilePostsResponseJson);
     assert(profilePostsResponse["myProfile"]);
     profilePosts = profilePostsResponse["posts"];
+
+    notifications.update();
 
     setState(() => profilePostsLoaded = true);
   }
@@ -94,9 +100,120 @@ class ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     var tagList = data != null ? data["tags"] : null;
-    // app bar: 80, taglist: 65, divider: 10, selected tag info: 50,
-    // bottom navigation bar: 82, buffer: 13
-    double myPostsHeight = MediaQuery.of(context).size.height - 300;
+    // app bar: 72, taglist: 50, divider: 4, selected tag info: 45,
+    // bottom navigation bar: ?
+    double myPostsHeight = MediaQuery.of(context).size.height - 251;
+
+    Widget buildTagList() {
+      return ListView.builder(
+          padding: const EdgeInsets.only(left: 6, right: 12),
+          shrinkWrap: true,
+          itemCount: tagList.length + 1,
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (BuildContext context, int index) {
+            Widget buildTagIcon() {
+              return Container(
+                width: selectedTagIndex == index ? 43 : 40,
+                height: selectedTagIndex == index ? 43 : 40,
+                decoration: BoxDecoration(
+                    border: Border.all(
+                        color: selectedTagIndex == index
+                            ? Colors.pink
+                            : Colors.black54,
+                        width: selectedTagIndex == index ? 4 : 2.5),
+                    shape: BoxShape.circle),
+                child: IconButton(
+                    onPressed: () => {chooseTag(index)},
+                    icon: dataLoaded[index]
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(25),
+                            child: Image.memory(tagIcons[index],
+                                width: 40, height: 40, fit: BoxFit.contain),
+                          )
+                        : const CircularProgressIndicator(),
+                    padding: EdgeInsets.zero),
+              );
+            }
+
+            Widget buildAddTagIcon() {
+              return IconButton(
+                onPressed: () => AutoRouter.of(context)
+                    .push(AddTagRoute(updateCallBack: loadData)),
+                icon: const Icon(Icons.add_circle_outline_rounded),
+                iconSize: 47,
+                padding: const EdgeInsets.only(left: 3),
+              );
+            }
+
+            return index < tagList.length
+                ? tagList[index] == ""
+                    ? Container()
+                    : Row(
+                        children: [
+                          const Padding(padding: EdgeInsets.only(left: 6)),
+                          buildTagIcon(),
+                        ],
+                      )
+                : buildAddTagIcon();
+          });
+    }
+
+    Widget buildSelectedTagInfo() {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const Text(
+            "My posts about",
+            style: TextStyle(fontSize: 14),
+          ),
+          Text(
+            selectedTagIndex == -1
+                ? "any tag"
+                : "\"${tagList[selectedTagIndex]["name"]}\"",
+            style: const TextStyle(
+                fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+          )
+        ],
+      );
+    }
+
+    Widget buildCreatePostButton() {
+      return TextButton(
+        style: const ButtonStyle(
+            padding: MaterialStatePropertyAll(EdgeInsets.only(left: 5))),
+        onPressed: () {
+          if (selectedTagIndex == -1) {
+            showCustomDialog(context, "Hold on",
+                "Press the tag icons above, to select one you want to post about!");
+            return;
+          }
+          AutoRouter.of(context).push(CreatePostRoute(
+              tagName: data["tags"][selectedTagIndex]["name"],
+              updateCallBack: loadProfilePosts,
+              isEdit: false));
+        },
+        child: const Row(children: [
+          Icon(Icons.post_add, size: 40),
+          Text(
+            "New post",
+          )
+        ]),
+      );
+    }
+
+    Widget dividerWithShadow = Container(
+      height: 4,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.grey,
+            Colors.white,
+          ],
+        ),
+      ),
+    );
 
     return data != null
         ? Column(
@@ -104,119 +221,29 @@ class ProfilePageState extends State<ProfilePage> {
             children: [
               // Tags
               SizedBox(
-                height: 60,
+                height: 50,
                 child: Flex(direction: Axis.horizontal, children: [
                   Expanded(
-                    child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: tagList.length + 2,
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (BuildContext context, int index) {
-                          return index == 0
-                              ? const Padding(padding: EdgeInsets.all(6))
-                              : index < tagList.length + 1
-                                  ? tagList[index - 1] == ""
-                                      ? Container()
-                                      : SizedBox(
-                                          width: 45,
-                                          height: 45,
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              IconButton(
-                                                onPressed: () =>
-                                                    {chooseTag(index)},
-                                                icon: dataLoaded[index - 1]
-                                                    ? Image.memory(
-                                                        tagIcons[index - 1],
-                                                        width: 45,
-                                                        height: 45,
-                                                        fit: BoxFit.contain)
-                                                    : const CircularProgressIndicator(),
-                                                padding:
-                                                    const EdgeInsets.all(3),
-                                              ),
-                                              selectedTagIndex == index
-                                                  ? const Divider(
-                                                      height: 3,
-                                                      thickness: 2.5,
-                                                      indent: 4,
-                                                      endIndent: 4,
-                                                      color: Colors.blue,
-                                                    )
-                                                  : Container()
-                                            ],
-                                          ))
-                                  : IconButton(
-                                      onPressed: () => AutoRouter.of(context)
-                                          .push(AddTagRoute(
-                                              updateCallBack: loadData)),
-                                      icon: const Icon(
-                                          Icons.add_circle_outline_rounded),
-                                      iconSize: 45,
-                                      padding: EdgeInsets.zero,
-                                    );
-                        }),
+                    child: buildTagList(),
                   )
                 ]),
               ),
 
               // selected tag info, create post button
               SizedBox(
-                height: 50,
+                height: 45,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "My posts about",
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        Text(
-                          selectedTagIndex == -1
-                              ? "any tag"
-                              : "\"${tagList[selectedTagIndex - 1]["name"]}\"",
-                          style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black),
-                        )
-                      ],
-                    ),
+                    buildSelectedTagInfo(),
                     const Padding(padding: EdgeInsets.only(left: 10)),
-                    TextButton(
-                      onPressed: () {
-                        if (selectedTagIndex == -1) {
-                          showCustomDialog(context, "Hold on",
-                              "Press the tag icons above, to select one you want to post about!");
-                          return;
-                        }
-                        AutoRouter.of(context).push(CreatePostRoute(
-                            tagName: data["tags"][selectedTagIndex - 1]["name"],
-                            updateCallBack: loadProfilePosts,
-                            isEdit: false));
-                      },
-                      child: const Row(children: [
-                        Icon(Icons.post_add, size: 40),
-                        Text(
-                          "New post",
-                        )
-                      ]),
-                    ),
+                    buildCreatePostButton(),
                   ],
                 ),
               ),
 
-              const Divider(
-                color: Colors.blueGrey,
-                height: 1,
-                thickness: 0.3,
-                indent: 15,
-                endIndent: 15,
-              ),
+              dividerWithShadow,
 
               // posts
               data["tags"].length == 0

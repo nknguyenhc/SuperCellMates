@@ -6,7 +6,7 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate
-from .models import UserProfile
+from .models import UserProfile, TagActivityRecord
 from user_auth.models import UserAuth, Tag
 import io
 from django.core.files.images import ImageFile
@@ -147,7 +147,10 @@ def add_tags(request):
             return HttpResponseBadRequest("tag limit exceeded")
         requested_tags = request.POST.getlist("tags")
         for i in range(count):
-            user_profile_obj.tagList.add(Tag.objects.get(name=requested_tags[i]))
+            tag_obj = Tag.objects.get(name=requested_tags[i])
+            user_profile_obj.tagList.add(tag_obj)
+            tag_activity_record = TagActivityRecord(user_profile=user_profile_obj, tag=tag_obj)
+            tag_activity_record.save()
         return HttpResponse("success")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body is missing an important key")
@@ -447,6 +450,75 @@ def remove_tag(request):
         return HttpResponseBadRequest("tag field not found")
     except ObjectDoesNotExist:
         return HttpResponseBadRequest("tag with provided name not found")
+
+
+MINIMUM_ACTIVITY_SCORE = 2.0
+MAXIMUM_ACTIVITY_SCORE = 5.0
+DECREASE_COEFFICIENT = 0.05
+DECREASE_EXPONENT = 1.5
+DAYS_TO_REACH_LOWEST = 15
+SECONDS_IN_A_DAY = 24 * 3600
+
+
+def get_tag_activity_record(user, tag):
+    user_profile = user.user_profile
+    record_object = TagActivityRecord.objects.get(user_profile=user_profile, tag=tag)
+    return record_object
+
+
+def change_activity_score(record, change_amount):
+    """ Apply a change to the activity score of a user's activity record about a tag.
+        - first, the 'decrease with time' will be applied by calling compute final score
+        - meaning that the activity score & last activity timestamp of the record will be updated
+        - then, the change will be applied
+
+    Args:
+        record: the TagActivityRecord object to update
+        change_amount: the possibly negative change amount to apply in the activity score
+    """
+    compute_tag_activity_final_score(record)
+
+    record.activity_score += change_amount
+    record.activity_score = max(MINIMUM_ACTIVITY_SCORE, record.activity_score)
+    record.activity_score = min(MAXIMUM_ACTIVITY_SCORE, record.activity_score)
+    record.save()
+
+
+def compute_tag_activity_final_score(record, update=True, timestamp=datetime.now().timestamp()):
+    """Computes the final score of a tag activity record, counting in decrease with time.
+    NOTE: for now, if timestamp is specified, update must be False
+
+    Currently, the final score ranges from 2.0 (minimally active) to 5.0 (absolutely active).
+    It takes around 7 days to decrease by 1, and 15 days to decrease from maximum to minimum.
+
+    Args:
+        record: the tag activity record to compute for
+        update: whether to update activity_score and last_activity_timestamp (i.e. apply the "decrease with time")
+        timestamp: if specified, will calculate the score at the provided timestamp
+
+    Returns: the final score of the record, computed with formula:
+        final_score = activity_score - DECREASE_COEFFICIENT * days_since_last_activity ** DECREASE_EXPONENT
+    """
+    timestamps_since_last_activity = timestamp - record.last_activity_timestamp
+    days_since_last_activity = timestamps_since_last_activity / SECONDS_IN_A_DAY
+
+    if days_since_last_activity > DAYS_TO_REACH_LOWEST or days_since_last_activity < 0:
+        if update:
+            record.activity_score = MINIMUM_ACTIVITY_SCORE
+            record.last_activity_timestamp = datetime.now().timestamp()
+            record.save()
+        return MINIMUM_ACTIVITY_SCORE
+
+    final_score = record.activity_score - DECREASE_COEFFICIENT * days_since_last_activity ** DECREASE_EXPONENT
+    final_score = max(MINIMUM_ACTIVITY_SCORE, final_score)
+    final_score = min(MAXIMUM_ACTIVITY_SCORE, final_score)
+
+    if update:
+        record.activity_score = final_score
+        record.last_activity_timestamp = datetime.now().timestamp()
+        record.save()
+
+    return final_score
 
 
 @login_required

@@ -54,6 +54,9 @@
                     <div id="profile-basic-info-text">
                         <strong id="profile-name" class="fs-3">{{ user_profile.name }}</strong>
                         <div id="profile-id" class="fs-4"> {{ user_profile.username }}</div>
+                        {% if matching_index %} 
+                            <div class="fs-6 badge rounded-pill text-bg-info" id="matching-index-indicator" data-bs-toggle="tooltip" data-bs-trigger="manual" data-bs-html="true" data-bs-title="Matching index represents how your interests and this person's interests match. <a href='/about'>Learn more</a>." data-bs-placement="right">{{ matching_index }}</div>
+                        {% endif %} 
                     </div>
                 </div>
             </div>

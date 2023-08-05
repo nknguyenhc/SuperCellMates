@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:get_it/get_it.dart';
 import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/features/friends/user_listview.dart';
+import 'package:supercellmates/functions/notifications.dart';
 import 'dart:convert';
 
 import 'package:supercellmates/http_requests/endpoints.dart';
@@ -23,6 +25,8 @@ class FriendsPageState extends State<FriendsPage> {
   dynamic friendRequestList;
   dynamic friendPageBody;
 
+  Notifications notifications = GetIt.I<Notifications>();
+
   @override
   void initState() {
     dataLoaded = false;
@@ -39,6 +43,7 @@ class FriendsPageState extends State<FriendsPage> {
         : UserListView(
             userList: friendList,
             updateCallBack: getFriendList,
+            isFriendList: true,
           );
     setState(() {
       dataLoaded = true;
@@ -55,6 +60,7 @@ class FriendsPageState extends State<FriendsPage> {
     }
     friendList = jsonDecode(friendListJson);
     updateFriendPageBody(friendList, false);
+    notifications.update();
   }
 
   void getFriendRequestList() async {
@@ -66,7 +72,9 @@ class FriendsPageState extends State<FriendsPage> {
       return;
     }
     friendRequestList = jsonDecode(friendRequestListJson);
+    notifications.updateIncomingFriendRequestsCount(friendRequestList.length);
     updateFriendPageBody(friendRequestList, true);
+    notifications.update();
   }
 
   void navigate(int index) {
@@ -92,18 +100,26 @@ class FriendsPageState extends State<FriendsPage> {
                   SizedBox(
                     height: 40,
                     child: TextButton(
-                      onPressed: () {
-                        navigate(0);
-                      },
-                      child: Text(
-                        "Friends",
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: navigationBarIndex == 0
-                                ? Colors.blue
-                                : Colors.blueGrey),
-                      ),
-                    ),
+                        onPressed: () {
+                          navigate(0);
+                        },
+                        child: ListenableBuilder(
+                          listenable: notifications,
+                          builder: (context, child) {
+                            return createNotificationBadge(
+                                Text(
+                                  "Friends",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: navigationBarIndex == 0
+                                          ? Colors.blue
+                                          : Colors.blueGrey),
+                                ),
+                                notifications.outgoingAcceptedRequestCount,
+                                14,
+                                14);
+                          },
+                        )),
                   ),
                 ],
               ),
@@ -116,12 +132,21 @@ class FriendsPageState extends State<FriendsPage> {
                       onPressed: () {
                         navigate(1);
                       },
-                      child: Text("Requests",
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: navigationBarIndex == 1
-                                  ? Colors.blue
-                                  : Colors.blueGrey)),
+                      child: ListenableBuilder(
+                        listenable: notifications,
+                        builder: (context, child) {
+                          return createNotificationBadge(
+                              Text("Requests",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: navigationBarIndex == 1
+                                          ? Colors.blue
+                                          : Colors.blueGrey)),
+                              notifications.incomingFriendRequestsCount,
+                              14,
+                              14);
+                        },
+                      ),
                     ),
                   ),
                 ],

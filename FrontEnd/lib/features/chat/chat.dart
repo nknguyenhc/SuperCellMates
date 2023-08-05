@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:supercellmates/features/chat/chat_listview.dart';
 import 'package:supercellmates/features/dialogs.dart';
+import 'package:supercellmates/functions/notifications.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
 import 'package:supercellmates/router/router.gr.dart';
@@ -20,7 +22,8 @@ class ChatPage extends StatefulWidget {
 class ChatPageState extends State<ChatPage> {
   bool dataLoaded = false;
   int navigationBarIndex = 0;
-  dynamic chatList = null;
+  dynamic chatList;
+  Notifications notifications = GetIt.I<Notifications>();
 
   @override
   void initState() {
@@ -50,6 +53,7 @@ class ChatPageState extends State<ChatPage> {
       return;
     }
     dynamic response = jsonDecode(responseJson);
+    notifications.update();
     setState(() {
       chatList = index == 0 ? response["privates"] : response["groups"];
       dataLoaded = true;

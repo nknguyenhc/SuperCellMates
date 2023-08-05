@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, Http
 from django.views.decorators.http import require_http_methods
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime
-from user_profile.views import layout_context
+from user_profile.views import layout_context, get_tag_activity_record, compute_tag_activity_final_score
 
 from user_auth.models import UserAuth
 from .models import FriendRequest
@@ -46,7 +46,8 @@ def view_profile_context(user_auth_obj, request_user):
         "tags": tags,
         "my_profile": False,
         "is_friend": user_auth_obj.user_log in request_user.user_log.friend_list.all(),
-        "is_friend_request_sent": FriendRequest.objects.filter(to_user=request_user.user_log, from_user=user_auth_obj.user_log).exists()
+        "is_friend_request_sent": FriendRequest.objects.filter(to_user=request_user.user_log, from_user=user_auth_obj.user_log).exists(),
+        "matching_index": round(compute_matching_index(user_auth_obj, request_user))
     }
     result.update(layout_context(user_auth_obj))
     return result
@@ -65,13 +66,15 @@ def view_profile(request, username):
     Returns:
         HttpResponse: the response with the template to view the target user
     """
-
-    if UserAuth.objects.filter(username=username).exists() and request.user.username != username:
-        return render(request, "user_log/view_profile.html", view_profile_context(UserAuth.objects.get(username=username), request.user))
-    elif request.user.username == username:
-        return redirect(reverse("user_profile:index"))
-    else:
-        return HttpResponseNotFound()
+    try:
+        if UserAuth.objects.filter(username=username).exists() and request.user.username != username:
+            return render(request, "user_log/view_profile.html", view_profile_context(UserAuth.objects.get(username=username), request.user))
+        elif request.user.username == username:
+            return redirect(reverse("user_profile:index"))
+        else:
+            return HttpResponseNotFound()
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("Tag activity record not found when computing matching index")
 
 
 @login_required
@@ -86,11 +89,13 @@ def view_profile_async(request, username):
         JsonResponse/HttpResponseNotFound: the information of the target user, or response of status code 404 if no user with the username is found.
         The fields in the JsonResponse are the same fields as those in the dictionary returned by view_profile_context function in this app.
     """
-
-    if UserAuth.objects.filter(username=username).exists() and request.user.username != username:
-        return JsonResponse(view_profile_context(UserAuth.objects.get(username=username), request.user))
-    else:
-        return HttpResponseNotFound()
+    try:
+        if UserAuth.objects.filter(username=username).exists() and request.user.username != username:
+            return JsonResponse(view_profile_context(UserAuth.objects.get(username=username), request.user))
+        else:
+            return HttpResponseNotFound()
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("Tag activity record not found when computing matching index")
 
 
 @login_required
@@ -443,3 +448,41 @@ def delete_friend(request):
         return HttpResponseBadRequest("request form data does not contain an important key")
     except ObjectDoesNotExist:
         return HttpResponseBadRequest("user with provided username does not exist")
+
+
+COMMON_TAG_PROPORTION_EXPONENT = 0.5
+
+
+def compute_matching_index(user1, user2):
+    """Computes the matching index between two users.
+    Currently, the matching index ranges from 0 (no common tags) to 5.0 (have same set of tags and both active)
+
+    Args:
+        user1: user_auth object of the first user
+        user2: user_auth object of the second user
+
+    Returns: the matching index of the two users, computed with formula:
+        common_tag_proportion = number of common tags / number of tags of the user with fewer tags
+        final_scores_average = sum of final scores of each user with each common tag / (2 * number of common tags)
+        matching_index = common_tag_proportion ** COMMON_TAG_PROPORTION_EXPONENT * final_scores_average
+
+    """
+    if user1 == user2:
+        # In case of bugs / malformed requests
+        return 0
+    common_tag_list = user1.user_profile.tagList.all() & user2.user_profile.tagList.all()
+    if len(common_tag_list) == 0:
+        return 0
+    smaller_tag_list_length = min(user1.user_profile.tagList.count(), user2.user_profile.tagList.count())
+    common_tag_proportion = len(common_tag_list) / smaller_tag_list_length
+
+    final_scores_sum = 0
+    for tag in common_tag_list:
+        final_scores_sum += compute_tag_activity_final_score(get_tag_activity_record(user1, tag))
+        final_scores_sum += compute_tag_activity_final_score(get_tag_activity_record(user2, tag))
+    final_scores_average = final_scores_sum / (2 * len(common_tag_list))
+
+    matching_index = common_tag_proportion ** COMMON_TAG_PROPORTION_EXPONENT * final_scores_average
+
+    return matching_index
+

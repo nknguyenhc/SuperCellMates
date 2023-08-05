@@ -28,6 +28,7 @@ Future<Widget> searchUser(BuildContext context, String input) async {
       ? UserListView(
           userList: userList,
           updateCallBack: () {},
+          isFriendList: false,
         )
       : Column(
           mainAxisAlignment: MainAxisAlignment.center,

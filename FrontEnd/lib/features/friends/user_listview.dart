@@ -2,19 +2,33 @@ import 'dart:typed_data';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:supercellmates/functions/notifications.dart';
 import 'package:supercellmates/http_requests/get_image.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
 import 'package:supercellmates/router/router.gr.dart';
 import 'package:supercellmates/features/dialogs.dart';
 
+Widget userDivider = const Divider(
+    height: 1,
+    thickness: 2,
+    color: Colors.black12,
+    indent: 10,
+    endIndent: 10,
+  );
+
 class UserListView extends StatefulWidget {
   const UserListView(
-      {Key? key, required this.userList, required this.updateCallBack})
+      {Key? key,
+      required this.userList,
+      required this.updateCallBack,
+      required this.isFriendList})
       : super(key: key);
 
   final dynamic userList;
   final dynamic updateCallBack;
+  final bool isFriendList;
 
   @override
   State<UserListView> createState() => UserListViewState();
@@ -24,6 +38,8 @@ class UserListViewState extends State<UserListView> {
   int count = 0;
   var dataLoaded = [];
   var profileImages = [];
+
+  Notifications notifications = GetIt.I<Notifications>();
 
   @override
   void initState() {
@@ -45,6 +61,32 @@ class UserListViewState extends State<UserListView> {
     });
   }
 
+  bool checkNewFriend(String username) {
+    for (dynamic user in notifications.acceptedRequests) {
+      if (user["username"] == username) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  Widget buildNewFriendNotificationIcon(String username) {
+    return ListenableBuilder(
+      listenable: notifications,
+      builder: (context, child) {
+        return checkNewFriend(username)
+            ? newFriendNotificationIcon
+            : Container();
+      },
+    );
+  }
+
+  Widget newFriendNotificationIcon = const Icon(
+    Icons.circle,
+    color: Colors.red,
+    size: 12,
+  );
+
   @override
   Widget build(BuildContext context) {
     ListView list = ListView.builder(
@@ -52,11 +94,16 @@ class UserListViewState extends State<UserListView> {
         itemBuilder: (context, index) {
           String name = widget.userList[index]["name"];
           String username = widget.userList[index]["username"];
+          bool isNewFriend = checkNewFriend(username);
+
           return Column(
             children: [
               TextButton(
                 onPressed: () async {
                   FocusManager.instance.primaryFocus?.unfocus();
+                  if (isNewFriend) {
+                    notifications.acknowledgeAcceptedRequest(username);
+                  }
                   AutoRouter.of(context).push(OthersProfileRoute(
                       username: username,
                       onDeleteFriendCallBack: () {
@@ -86,32 +133,32 @@ class UserListViewState extends State<UserListView> {
                     children: [
                       const Padding(padding: EdgeInsets.only(left: 2)),
                       SizedBox(
-                        width: MediaQuery.of(context).size.width - 80,
+                        height: 22,
+                        width: MediaQuery.of(context).size.width - 100,
                         child: Text(
                           name,
                           style: const TextStyle(
-                              color: Colors.black, fontSize: 17),
+                              color: Colors.black, fontSize: 16),
                         ),
                       ),
                       SizedBox(
-                        width: MediaQuery.of(context).size.width - 80,
-                        child: Text(username,
+                        height: 22,
+                        width: MediaQuery.of(context).size.width - 100,
+                        child: Text("@$username",
                             style: const TextStyle(
                               color: Colors.blueGrey,
-                              fontSize: 14,
+                              fontSize: 13,
                             )),
                       ),
                       const Padding(padding: EdgeInsets.all(2)),
                     ],
-                  )
+                  ),
+                  widget.isFriendList
+                      ? buildNewFriendNotificationIcon(username)
+                      : Container()
                 ]),
               ),
-              const Divider(
-                height: 1,
-                color: Colors.grey,
-                indent: 10,
-                endIndent: 10,
-              )
+              userDivider
             ],
           );
         });
@@ -204,19 +251,21 @@ class UserListViewWithCustomOnPressedState
                     children: [
                       const Padding(padding: EdgeInsets.only(left: 2)),
                       SizedBox(
+                        height: 22,
                         width: MediaQuery.of(context).size.width - 80,
                         child: Text(
                           name,
                           style: const TextStyle(
-                              color: Colors.black, fontSize: 17),
+                              color: Colors.black, fontSize: 16),
                         ),
                       ),
                       SizedBox(
+                        height: 22,
                         width: MediaQuery.of(context).size.width - 80,
-                        child: Text(username,
+                        child: Text("@$username",
                             style: const TextStyle(
                               color: Colors.blueGrey,
-                              fontSize: 14,
+                              fontSize: 13,
                             )),
                       ),
                       const Padding(padding: EdgeInsets.all(2)),
@@ -224,12 +273,7 @@ class UserListViewWithCustomOnPressedState
                   )
                 ]),
               ),
-              const Divider(
-                height: 1,
-                color: Colors.grey,
-                indent: 10,
-                endIndent: 10,
-              )
+              userDivider
             ],
           );
         });
@@ -324,20 +368,22 @@ class FriendRequestListState extends State<FriendRequestListView> {
                         children: [
                           Container(
                             padding: const EdgeInsets.only(left: 2),
+                            height: 22,
                             width: MediaQuery.of(context).size.width - 230,
                             child: Text(
                               name,
                               style: const TextStyle(
-                                  color: Colors.black, fontSize: 17),
+                                  color: Colors.black, fontSize: 16),
                             ),
                           ),
                           Container(
                             padding: const EdgeInsets.only(left: 2),
+                            height: 22,
                             width: MediaQuery.of(context).size.width - 230,
-                            child: Text(username,
+                            child: Text("@$username",
                                 style: const TextStyle(
                                   color: Colors.blueGrey,
-                                  fontSize: 14,
+                                  fontSize: 13,
                                 )),
                           ),
                           const Padding(padding: EdgeInsets.all(2)),
@@ -415,12 +461,7 @@ class FriendRequestListState extends State<FriendRequestListView> {
                           style: TextStyle(color: Colors.white, fontSize: 14))),
                 ],
               ),
-              const Divider(
-                height: 1,
-                color: Colors.grey,
-                indent: 10,
-                endIndent: 10,
-              )
+              userDivider
             ],
           );
         });

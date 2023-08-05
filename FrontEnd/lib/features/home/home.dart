@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/features/posts/post_listview.dart';
+import 'package:supercellmates/functions/notifications.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
 
@@ -24,19 +26,27 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => HomePageState();
 }
 
+const int defaultBlockLimit = 5;
+const double defaultStartTime = 0;
+const double defaultInitialTimestamp = 0;
+const double defaultStartIndex = 5;
+
 class HomePageState extends State<HomePage> {
-  int blockLimit = 5;
+  int blockLimit = defaultBlockLimit;
   List<dynamic> homeFeed = [];
   bool homeFeedLoaded = false;
   bool mayHaveMore = true;
   bool isLoadingMore = true;
-  String nextStartTime = "";
-  String nextStartID = "";
-  String nextStartMatchingIndex = "5";
+
+  double nextStartTime = defaultStartTime;
+  double initialTimeStamp = defaultInitialTimestamp;
+  double nextStartMatchingIndex = defaultStartIndex;
 
   String sort = "time";
   String friendFilter = "0";
   String tagFilter = "0";
+
+  Notifications notifications = GetIt.I<Notifications>();
 
   @override
   void initState() {
@@ -58,9 +68,9 @@ class HomePageState extends State<HomePage> {
     homeFeedLoaded = false;
     mayHaveMore = true;
     isLoadingMore = true;
-    nextStartTime = "";
-    nextStartID = "";
-    nextStartMatchingIndex = "5";
+    nextStartTime = defaultStartTime;
+    initialTimeStamp = defaultInitialTimestamp;
+    nextStartMatchingIndex = defaultStartIndex;
     getHomeFeed();
   }
 
@@ -68,6 +78,7 @@ class HomePageState extends State<HomePage> {
     if (!mayHaveMore) {
       return;
     }
+    notifications.update();
     setState(() {
       isLoadingMore = true;
     });
@@ -77,23 +88,16 @@ class HomePageState extends State<HomePage> {
       "friend_filter": friendFilter,
       "tag_filter": tagFilter,
       "limit": blockLimit,
-      "start_id": nextStartID,
     };
 
     if (sort == "time") {
-      if (nextStartTime == "") {
-        // changed from another sorting method
-        nextStartID = "";
-      }
-      nextStartMatchingIndex = "5";
+      initialTimeStamp = defaultInitialTimestamp;
+      nextStartMatchingIndex = defaultStartIndex;
       query["start_timestamp"] = nextStartTime;
     } else {
-      if (nextStartMatchingIndex == "") {
-        // changed from another sorting method
-        nextStartID = "";
-      }
-      nextStartTime = "";
-      query["start_matching_index"] = nextStartMatchingIndex;
+      nextStartTime = defaultStartTime;
+      query["initial_timestamp"] = initialTimeStamp;
+      query["start_index"] = nextStartMatchingIndex;
     }
 
     dynamic homeFeedResponseJson =
@@ -103,11 +107,11 @@ class HomePageState extends State<HomePage> {
       return;
     }
     dynamic homeFeedResponse = jsonDecode(homeFeedResponseJson);
-    nextStartID = homeFeedResponse["stop_id"] ?? "";
     if (sort == "time") {
-      nextStartTime = homeFeedResponse["stop_timestamp"].toString();
+      nextStartTime = homeFeedResponse["stop_timestamp"].toDouble();
     } else {
-      nextStartMatchingIndex = homeFeedResponse["stop_matching_index"];
+      initialTimeStamp = homeFeedResponse["initial_timestamp"].toDouble();
+      nextStartMatchingIndex = homeFeedResponse["stop_index"].toDouble();
     }
 
     setState(() {
@@ -128,7 +132,7 @@ class HomePageState extends State<HomePage> {
       alignment: Alignment.center,
       child: SizedBox(
           width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height - 100,
+          height: MediaQuery.of(context).size.height,
           child: homeFeedLoaded
               ? Stack(
                   alignment: Alignment.center,

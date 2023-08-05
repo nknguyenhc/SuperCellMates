@@ -134,7 +134,7 @@ function Post(props) {
                     </div>
                 </div>
             </div>
-            <h4 className='mb-2'>{post.title}</h4>
+            <h4 className='mb-2 post-title'>{post.title}</h4>
             <div className="post-tag mb-2">
                 <div className="tag-button btn btn-outline-info">
                     <img src={post.tag.icon} />

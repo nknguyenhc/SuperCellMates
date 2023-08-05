@@ -136,8 +136,8 @@ class PostListViewState extends State<PostListView> {
 
   Widget postDivider = const Divider(
     height: 1,
-    thickness: 0.3,
-    color: Colors.blueGrey,
+    thickness: 2,
+    color: Colors.black12,
     indent: 15,
     endIndent: 15,
   );
@@ -213,27 +213,28 @@ class PostListViewState extends State<PostListView> {
           }
 
           Widget buildPostCreatorInfo() {
-            return Column(
-              children: [
-                const Padding(padding: EdgeInsets.all(2)),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width - 85,
-                  child: Text(
-                    name,
-                    style: const TextStyle(color: Colors.black, fontSize: 15),
+            return Row(children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(padding: EdgeInsets.all(2)),
+                  SizedBox(
+                    child: Text(
+                      name,
+                      style: const TextStyle(color: Colors.black, fontSize: 15),
+                    ),
                   ),
-                ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width - 85,
-                  child: Text("@$username",
-                      style: const TextStyle(
-                        color: Colors.blueGrey,
-                        fontSize: 12,
-                      )),
-                ),
-                const Padding(padding: EdgeInsets.all(2)),
-              ],
-            );
+                  SizedBox(
+                    child: Text("@$username",
+                        style: const TextStyle(
+                          color: Colors.blueGrey,
+                          fontSize: 12,
+                        )),
+                  ),
+                  const Padding(padding: EdgeInsets.all(2)),
+                ],
+              ),
+            ]);
           }
 
           Widget buildTitleSection() {
@@ -588,7 +589,7 @@ class PostListViewState extends State<PostListView> {
               ),
             ),
 
-            const Padding(padding: EdgeInsets.only(top: 5)),
+            const Padding(padding: EdgeInsets.only(top: 10)),
             postDivider,
           ]);
         });
