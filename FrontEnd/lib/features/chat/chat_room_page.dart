@@ -227,7 +227,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           Uri.parse(wsUrl),
           headers: {
             "origin": "ws://matchminer-d5ebcada4488.herokuapp.com",
-            "cookie": "sessionid=${cookieMap["sessionid"]!.value}"
+            "cookie": "sessionid=$cookie"
           },
           connectTimeout: const Duration(seconds: 2),
         );
