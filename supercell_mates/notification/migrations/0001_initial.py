@@ -8,9 +8,7 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        ('user_log', '0002_remove_userlog_last_login'),
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
