@@ -3,15 +3,18 @@ import 'dart:typed_data';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/features/posts/post_listview.dart';
 import 'package:supercellmates/functions/notifications.dart';
+import 'package:supercellmates/functions/tutorial.dart';
 import 'dart:convert';
 
 import 'package:supercellmates/http_requests/make_requests.dart';
 import 'package:supercellmates/http_requests/get_image.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/router/router.gr.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key, required this.updateCallBack}) : super(key: key);
@@ -33,10 +36,42 @@ class ProfilePageState extends State<ProfilePage> {
 
   Notifications notifications = GetIt.I<Notifications>();
 
+  GlobalKey target1Key = GlobalKey();
+  GlobalKey target2Key = GlobalKey();
+
   @override
   void initState() {
     super.initState();
     loadData();
+  }
+
+  void showProfilePageTutorial() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool("profilePageTutorialCompleted") != true) {
+      TargetFocus target1 =
+          TargetFocus(identify: "1", keyTarget: target1Key, contents: [
+        buildTutorialContent(
+            "Add tags to your profile",
+            "Profile page is where you can manage your tags, posts and friends.\n"
+                "Users can view others' profile page to know each other better!\n\n"
+                "In out platform, everything works around tags.\n"
+                "Press the add button to claim tags that represent your interest.")
+      ]);
+
+      TargetFocus target2 =
+          TargetFocus(identify: "2", keyTarget: target2Key, contents: [
+        buildTutorialContent(
+            "Start posting",
+            "After claiming some tags, you'll be able to start posting about them!\n"
+                "Each post must be associated with one and only one tag.\n\n"
+                "You can also edit and delete your posts after creating them.")
+      ]);
+
+      List<TargetFocus> targets = [target1, target2];
+      TutorialCoachMark tutorial = TutorialCoachMark(targets: targets);
+      tutorial.show(context: context);
+      prefs.setBool("profilePageTutorialCompleted", true);
+    }
   }
 
   void loadData() async {
@@ -54,6 +89,7 @@ class ProfilePageState extends State<ProfilePage> {
       loadTagIcons(i);
     }
     setState(() => data = data);
+    showProfilePageTutorial();
     loadProfilePosts();
   }
 
@@ -137,6 +173,7 @@ class ProfilePageState extends State<ProfilePage> {
 
             Widget buildAddTagIcon() {
               return IconButton(
+                key: target1Key,
                 onPressed: () => AutoRouter.of(context)
                     .push(AddTagRoute(updateCallBack: loadData)),
                 icon: const Icon(Icons.add_circle_outline_rounded),
@@ -179,6 +216,7 @@ class ProfilePageState extends State<ProfilePage> {
 
     Widget buildCreatePostButton() {
       return TextButton(
+        key: target2Key,
         style: const ButtonStyle(
             padding: MaterialStatePropertyAll(EdgeInsets.only(left: 5))),
         onPressed: () {
