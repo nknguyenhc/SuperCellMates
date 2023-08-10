@@ -12,12 +12,15 @@ import io
 from django.core.files.images import ImageFile
 import json
 from django.conf import settings as conf_settings
+from datetime import datetime
 
 from user_profile.views import verify_image, list_to_image_and_verify_async
 
 from .models import UserAuth, Tag, TagRequest, AdminApplication
 from user_profile.models import UserProfile
-from user_log.models import UserLog
+from user_log.models import UserLog, FriendRequest
+from message.models import PrivateChat
+
 
 
 def documentation(request):
@@ -128,6 +131,10 @@ def check_unique_username_async(request):
         return HttpResponseBadRequest("request body is missing username")
 
 
+OFFICIAL_ACCOUNT_USERNAME = "MatchMiner"
+UNOFFICIAL_ACCOUNT_USERNAME = "woodPecker"
+
+
 def register_user(request):
     username = request.POST["username"]
     password = request.POST["password"]
@@ -149,8 +156,24 @@ def register_user(request):
         user_log_obj = UserLog(user_auth=user, user_profile=user_profile_obj)
         user_log_obj.save()
         login(request, user)
+
+        if not conf_settings.DEBUG:
+            official_account = UserAuth.objects.get(username=OFFICIAL_ACCOUNT_USERNAME)
+            unofficial_account = UserAuth.objects.get(username=UNOFFICIAL_ACCOUNT_USERNAME)
+
+            user_log_obj.friend_list.add(official_account.user_log)
+            new_chat = PrivateChat(timestamp=datetime.now().timestamp())
+            new_chat.save()
+            new_chat.users.add(user)
+            new_chat.users.add(official_account)
+            new_chat.save()
+
+            friend_request = FriendRequest(from_user=unofficial_account.user_log, to_user=user_log_obj)
+            friend_request.save()
     except IntegrityError:
         return "username already taken"
+    except ObjectDoesNotExist:
+        return "an error has occurred when setting up initial relations"
     return "account created"
 
 
