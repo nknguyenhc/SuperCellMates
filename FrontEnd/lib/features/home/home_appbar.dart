@@ -2,9 +2,12 @@ import 'dart:async';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supercellmates/features/home/home.dart';
 import 'package:supercellmates/features/home/search.dart';
+import 'package:supercellmates/functions/tutorial.dart';
 import 'package:supercellmates/router/router.gr.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 class HomeAppBar extends AppBar {
   HomeAppBar({
@@ -29,6 +32,7 @@ class HomeAppBarState extends State<HomeAppBar> {
   void initState() {
     super.initState();
     isAdmin = widget.data["isAdmin"];
+    showHomePageTutorial();
   }
 
   @override
@@ -78,8 +82,40 @@ class HomeAppBarState extends State<HomeAppBar> {
 
   Widget topTab(int index) {
     return Tab(
+      key: index == 0 ? target1Key : GlobalKey(),
       text: topTabTexts[index],
     );
+  }
+
+  GlobalKey target1Key = GlobalKey();
+  GlobalKey target2Key = GlobalKey();
+
+  void showHomePageTutorial() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool("homePageTutorialCompleted") != true) {
+      TargetFocus target1 =
+          TargetFocus(identify: "1", keyTarget: target1Key, contents: [
+        buildTutorialContent(
+            "Welcome to Match Miner",
+            "Have you ever felt anxious posting about yourself on social media?\n"
+                "This platform aims to help you share about your interests freely, and find others with similar interests.\n\n"
+                "In the home page, you can view other users' posts about their interests.\n"
+                "Press the tabs to change how the posts are sorted.")
+      ]);
+
+      TargetFocus target2 =
+          TargetFocus(identify: "2", keyTarget: target2Key, contents: [
+        buildTutorialContent(
+            "Filter and search",
+            "You can customise your home feed further using the filter button.\n\n"
+                "Use the search button to find a specific user.\n"
+                "You can view other users' profile page by pressing their profile image"),
+      ]);
+      TutorialCoachMark tutorial =
+          TutorialCoachMark(targets: [target1, target2]);
+      tutorial.show(context: context);
+      prefs.setBool("homePageTutorialCompleted", true);
+    }
   }
 
   @override
@@ -176,6 +212,7 @@ class HomeAppBarState extends State<HomeAppBar> {
                 ));
 
             Widget filterPopupMenuButton = PopupMenuButton(
+              key: target2Key,
               padding: const EdgeInsets.fromLTRB(4, 3.5, 5, 0),
               position: PopupMenuPosition.under,
               offset: const Offset(33, 5),
