@@ -1,0 +1,37 @@
+{
+    "name": "summary",
+    "tests": [
+        {
+            "suggestion": "Various UI-UX improvements.",
+            "response": "Most have been accepted and implemented, or will be implemented soon."
+        },
+        {
+            "suggestion": "Introduction and tutorial for new users",
+            "response": "Accepted and implemented for mobile version. Will implement for web version soon."
+        },
+        {
+            "suggestion": "Keep user logged in when re-opening app.",
+            "response": "Accepted and implemented."
+        },
+        {
+            "suggestion": "Reset password when logging in.",
+            "response": "This will be feasible after we implement email/phone verification. This is an add-on feature and will be done in a future implementation."
+        },
+        {
+            "suggestion": "Hiding certain tags claimed.",
+            "response": "This will also be included in an add-on implementation of user privacy settings."
+        },
+        {
+            "suggestion": "Automating admin jobs such as reviewing tag requests and sensitive post content.",
+            "response": "It's a good suggestion, and we will look into it in a future implementation. As of now, to ensure accuracy of admin operations, we will try our best to review the requests as soon as possible."
+        },
+        {
+            "suggestion": "Attach multiple tags to a post.",
+            "response": "Rejected. In order to maintain high-quality communities, we encourage users to post specifically about one of their interests."
+        },
+        {
+            "suggestion": "Allow users to claim more tags and delete tags without cooldown.",
+            "response": "After implementing the achievement system, users will be able to claim more tags as they level up. Nonetheless, we aim to support high-quality communities where users are truly passionate about their tags. Therefore, the number of tags each user can claim will still be constrained, and there will still be a cooldown for dropping tags."
+        }
+    ]
+}

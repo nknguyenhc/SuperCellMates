@@ -24,8 +24,17 @@ function Testing() {
             ]
         },
         {
-            display: "User Testing",
+            display: "User Testing phase 1",
             path: "user_testing/",
+            apps: [
+                "summary",
+                "details",
+                "bugs",
+            ]
+        },
+        {
+            display: "User Testing phase 2",
+            path: "user_testing_2/",
             apps: [
                 "summary",
                 "details",
@@ -38,15 +47,17 @@ function Testing() {
     const [backendViews, setBackendViews] = React.useState([]);
     const [webFrontendViews, setWebFrontendViews] = React.useState([]);
     const [userTestingViews, setUserTestingViews] = React.useState([]);
+    const [userTesting2Views, setUserTesting2Views] = React.useState([]);
     const [backendNotes, setBackendNotes] = React.useState('');
     const [webFrontendNotes, setWebFrontendNotes] = React.useState('');
     const [userTestingNotes, setUserTestingNotes] = React.useState('');
-    const views = [backendViews, webFrontendViews, userTestingViews];
-    const viewSetters = [setBackendViews, setWebFrontendViews, setUserTestingViews];
-    const notes = [backendNotes, webFrontendNotes, userTestingNotes];
-    const noteSetters = [setBackendNotes, setWebFrontendNotes, setUserTestingNotes];
+    const [userTesting2Notes, setUserTesting2Notes] = React.useState('');
+    const views = [backendViews, webFrontendViews, userTestingViews, userTesting2Views];
+    const viewSetters = [setBackendViews, setWebFrontendViews, setUserTestingViews, setUserTesting2Views];
+    const notes = [backendNotes, webFrontendNotes, userTestingNotes, userTesting2Notes];
+    const noteSetters = [setBackendNotes, setWebFrontendNotes, setUserTestingNotes, setUserTesting2Notes];
     const viewNotes = displayIndex >= 0 ? notes[displayIndex] : '';
-    const Renderers = [BackendView, WebFrontendView, UserTestingView];
+    const Renderers = [BackendView, WebFrontendView, UserTestingView, UserTesting2View];
     const Renderer = displayIndex >= 0 && displayIndex < structures.length && appDisplay >= 0 && appDisplay < structures[displayIndex].apps.length
         && Renderers[displayIndex];
 
@@ -216,6 +227,79 @@ function UserTestingView({ tests, name }) {
                                     <td>{question.question}</td>
                                     <td>
                                         <img src={"/static/testing/user_testing/" + question.img} width="600" />
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        )
+    } else if (name === 'bugs') {
+        return (
+            <table className="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Issue</th>
+                        <th scope="col">Cause</th>
+                        <th scope="col">Action taken</th>
+                        <th scope="col">Lesson learnt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {tests.map(bug => (
+                        <tr>
+                            <td>{bug.bug}</td>
+                            <td>{bug.cause}</td>
+                            <td>{bug.fix}</td>
+                            <td>{bug.lesson}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        )
+    } else if (name === 'summary') {
+        return (
+            <table className="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Suggestion</th>
+                        <th scope="col">Our response</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {tests.map(section => (
+                        <tr>
+                            <td>{section.suggestion}</td>
+                            <td>{section.response}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        )
+    }
+}
+
+
+function UserTesting2View({ tests, name }) {
+    if (name === 'details') {
+        return (
+            <div className="user-testing-details-window">
+                <div className="user-testing-section">
+                    <h5>Overall Feedback</h5>
+                    <table className="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col">Question</th>
+                                <th scope="col">Responses</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {tests.overall.map(question => (
+                                <tr>
+                                    <td>{question.question}</td>
+                                    <td>
+                                        <img src={"/static/testing/user_testing_2/" + question.img} width="600" />
                                     </td>
                                 </tr>
                             ))}

@@ -1,0 +1,43 @@
+{
+    "name": "details",
+    "tests": {
+        "overall": [
+            {
+                "question": "Complexity (whether it has enough details to be ready for use)",
+                "img": "complexity.png"
+            },
+            {
+                "question": "Clarity of UI (whether the UI design clearly shows the way to navigate around this feature)",
+                "img": "clarity.png"
+            },
+            {
+                "question": "Security (whether you would feel safe surfing on our platform)",
+                "img": "security.png"
+            },
+            {
+                "question": "Ease of interest-sharing (whether you would feel comfortable sharing your interests on our platform and find others with the same interests)",
+                "img": "ease.png"
+            },
+            {
+                "question": "Distinctiveness (whether our platform is differentiated enough from other social media platforms)",
+                "img": "distinctiveness.png"
+            },
+            {
+                "question": "Any suggestions on change of functionality?",
+                "img": "functionality.png"
+            },
+            {
+                "question": "Any advice on better UI design?",
+                "img": "ui.png"
+            },
+            {
+                "question": "Any security/privacy concern?",
+                "img": "security_privacy.png"
+            },
+            {
+                "question": "Overall comment for our platform?",
+                "img": "overall.png"
+            }
+        ]
+    }
+}
