@@ -1,0 +1,11 @@
+{
+    "name": "bugs",
+    "tests": [
+        {
+            "bug": "Some posts are shown several times.",
+            "cause": "When user loads more recommended posts, backend is supposed to return posts with lower recommendation scores. However, since the score associated with each post decreases with time, some of the previously shown posts may have a decreased score low enough to be returned in this round.",
+            "fix": "Backend view will take in the timestamp of the first request and use it to compute recommendation scores for every subsequent request, so that the scores will not count in the decrease with time.",
+            "lesson": "Edge cases need to be thoroughly considered and tested for database queries."
+        }
+    ]
+}
