@@ -5,6 +5,7 @@ import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/features/friends/user_listview.dart';
 import 'package:supercellmates/functions/notifications.dart';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
@@ -88,8 +89,12 @@ class FriendsPageState extends State<FriendsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(titleSpacing: 3, title: const Text("My friend page")),
+    return 
+    SafeArea(
+      top: false,
+      child: Scaffold(
+        appBar: 
+        AppBar(titleSpacing: 3, title: const Text("My friend page")),
         body: Column(children: [
           NavigationBar(
             height: 55,
@@ -157,13 +162,16 @@ class FriendsPageState extends State<FriendsPage> {
           ),
           SizedBox(
               width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height - 140,
+              height: Platform.isIOS
+                ? MediaQuery.of(context).size.height - 192
+                : MediaQuery.of(context).size.height - 140,
               child: dataLoaded
                   ? friendPageBody
                   : Container(
                       alignment: Alignment.center,
                       child: const CircularProgressIndicator(),
                     )),
-        ]));
+        ]))
+    );
   }
 }

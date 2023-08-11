@@ -753,7 +753,10 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           ));
     }
 
-    return Scaffold(
+    return 
+    SafeArea(
+      top: false,
+      child:Scaffold(
         appBar: AppBar(
           title: Container(
               alignment: Alignment.center,
@@ -824,6 +827,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                   left: 25,
                   child: dummyButton,
                 ),
-              ]));
+              ]))
+
+    );
   }
 }

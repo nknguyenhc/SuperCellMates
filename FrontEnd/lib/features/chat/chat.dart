@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
@@ -141,8 +142,12 @@ class ChatPageState extends State<ChatPage> {
       SizedBox(
           width: MediaQuery.of(context).size.width,
           height: navigationBarIndex == 0
-              ? MediaQuery.of(context).size.height - 220
-              : MediaQuery.of(context).size.height - 255,
+              ? Platform.isIOS 
+                ? MediaQuery.of(context).size.height - 248
+                : MediaQuery.of(context).size.height - 220
+              : Platform.isIOS
+                ? MediaQuery.of(context).size.height - 283
+                : MediaQuery.of(context).size.height - 255,
           child: dataLoaded
               ? ChatListView(
                   username: widget.username,

@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
@@ -139,6 +140,9 @@ class ProfilePageState extends State<ProfilePage> {
     // app bar: 72, taglist: 50, divider: 4, selected tag info: 45,
     // bottom navigation bar: ?
     double myPostsHeight = MediaQuery.of(context).size.height - 251;
+    if (Platform.isIOS) {
+      myPostsHeight -= 57;
+    }
 
     Widget buildTagList() {
       return ListView.builder(
