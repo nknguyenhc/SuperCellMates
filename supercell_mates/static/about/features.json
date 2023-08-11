@@ -160,7 +160,7 @@
                 },
                 {
                     "details": "Filter/sort home feed by matching index",
-                    "progress": "To do"
+                    "progress": "Done"
                 },
                 {
                     "details": "Filter home feed by friends only",
@@ -173,15 +173,15 @@
             "rows": [
                 {
                     "details": "Algorithm to calculate two users’ matching index",
-                    "progress": "To do"
+                    "progress": "Done"
                 },
                 {
                     "details": "Update matching indexes regularly",
-                    "progress": "To do"
+                    "progress": "Done"
                 },
                 {
-                    "details": "Display matching index on others’ posts and profile page",
-                    "progress": "To do"
+                    "details": "Display matching index on others’ profile page",
+                    "progress": "Done"
                 }
             ]
         },
@@ -236,7 +236,7 @@
             "rows": [
                 {
                     "details": "In-app notification bubbles upon receiving messages and updates",
-                    "progress": "To do"
+                    "progress": "Done"
                 },
                 {
                     "details": "Device notification",
