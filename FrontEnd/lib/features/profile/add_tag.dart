@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:supercellmates/features/dialogs.dart';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
@@ -94,7 +95,10 @@ class AddTagPageState extends State<AddTagPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return 
+    SafeArea(
+      top: false,
+      child:Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: navigationBarIndex == 0
             ? AppBar(titleSpacing: 18, title: const Text("Manage my tags"))
@@ -185,8 +189,12 @@ class AddTagPageState extends State<AddTagPage> {
           ),
           SizedBox(
               height: navigationBarIndex == 0
-                  ? MediaQuery.of(context).size.height - 170
-                  : MediaQuery.of(context).size.height - 220,
+                  ? Platform.isIOS
+                    ? MediaQuery.of(context).size.height - 222
+                    : MediaQuery.of(context).size.height - 170
+                  : Platform.isIOS
+                    ? MediaQuery.of(context).size.height - 267
+                    : MediaQuery.of(context).size.height - 220,
               child: dataLoaded
                   ? navigationBarIndex == 0
                       ? TagListView(
@@ -232,6 +240,8 @@ class AddTagPageState extends State<AddTagPage> {
                     ],
                   ))
               : Container()
-        ]));
+        ]))
+    )
+    ;
   }
 }

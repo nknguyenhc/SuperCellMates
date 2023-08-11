@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supercellmates/features/dialogs.dart';
 import 'dart:convert';
+import 'dart:io';
 import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
 import 'package:supercellmates/features/friends/user_listview.dart';
@@ -47,7 +48,9 @@ Future<Widget> searchUser(BuildContext context, String input) async {
     children: [
       SizedBox(
           width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height - 170,
+          height: Platform.isIOS 
+            ? MediaQuery.of(context).size.height - 193
+            : MediaQuery.of(context).size.height - 170,
           child: list),
     ],
   );
@@ -75,7 +78,9 @@ Future<Widget> searchTag(
     children: [
       SizedBox(
           width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height - 230,
+          height: Platform.isIOS
+            ? MediaQuery.of(context).size.height - 262
+            : MediaQuery.of(context).size.height - 230,
           child: list),
     ],
   );
