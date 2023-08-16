@@ -20,7 +20,13 @@ Future<Image> getImage(String endpoint, bool toUpdateCache) async {
     String profileImageURL = GetIt.I<Config>().restBaseURL + endpoint;
     var response = await Requests.get(profileImageURL);
     cache.DefaultCacheManager()
-        .putFile(endpoint, response.bodyBytes, maxAge: const Duration(days: 7));
+        .removeFile(endpoint)
+        .catchError((e) {})
+        .then((value) {
+      cache.DefaultCacheManager().putFile(endpoint, response.bodyBytes,
+          maxAge: const Duration(days: 7));
+    });
+
     return Image.memory(response.bodyBytes);
   }
 }
@@ -38,7 +44,12 @@ Future<Uint8List> getRawImageData(String endpoint, bool toUpdateCache) async {
     String profileImageURL = GetIt.I<Config>().restBaseURL + endpoint;
     var response = await Requests.get(profileImageURL);
     cache.DefaultCacheManager()
-        .putFile(endpoint, response.bodyBytes, maxAge: const Duration(days: 7));
+        .removeFile(endpoint)
+        .catchError((e) {})
+        .then((value) {
+      cache.DefaultCacheManager().putFile(endpoint, response.bodyBytes,
+          maxAge: const Duration(days: 7));
+    });
     return response.bodyBytes;
   }
 }

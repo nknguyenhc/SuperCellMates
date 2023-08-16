@@ -41,6 +41,7 @@ class PostListView extends StatefulWidget {
 class PostListViewState extends State<PostListView> {
   int count = 0;
   List<bool> dataLoaded = [];
+  Uint8List? singleProfileImage;
   List<Uint8List> profileImages = [];
   List<List<Uint8List>?> postImagesRaw = [];
   List<dynamic> timePosted = [];
@@ -80,6 +81,9 @@ class PostListViewState extends State<PostListView> {
     postImagesRaw = List.filled(count, null, growable: true);
     timePosted = List.filled(count, null, growable: true);
     seeMore = List.filled(count, false, growable: true);
+    if (widget.isInSomeProfile) {
+      loadSingleProfileImage();
+    }
     for (int i = 0; i < count; i++) {
       loadImages(i);
       loadTime(i);
@@ -101,9 +105,18 @@ class PostListViewState extends State<PostListView> {
     }
   }
 
+  void loadSingleProfileImage() {
+    getRawImageData(widget.postList[0]["creator"]["profile_pic_url"], false)
+        .then((bytes) {
+      setState(() => singleProfileImage = bytes);
+    });
+  }
+
   void loadImages(index) async {
-    profileImages[index] = await getRawImageData(
-        widget.postList[index]["creator"]["profile_pic_url"], false);
+    if (!widget.isInSomeProfile) {
+      profileImages[index] = await getRawImageData(
+          widget.postList[index]["creator"]["profile_pic_url"], false);
+    }
 
     postImagesRaw[index] = List.filled(
         widget.postList[index]["images"].length, Uint8List.fromList([]),
@@ -176,7 +189,9 @@ class PostListViewState extends State<PostListView> {
         controller: _controller,
         itemCount: count,
         itemBuilder: (context, index) {
-          Uint8List profileImageRawData = profileImages[index];
+          Uint8List? profileImageRawData = widget.isInSomeProfile
+              ? singleProfileImage
+              : profileImages[index];
           String postID = widget.postList[index]["id"];
           String name = widget.postList[index]["creator"]["name"];
           String username = widget.postList[index]["creator"]["username"];
@@ -191,7 +206,7 @@ class PostListViewState extends State<PostListView> {
               dataLoaded[index] ? postImagesRaw[index] : null;
 
           Widget buildPostProfileImage() {
-            return dataLoaded[index]
+            return dataLoaded[index] && profileImageRawData != null
                 ? IconButton(
                     onPressed: widget.isInSomeProfile ||
                             widget.username ==
