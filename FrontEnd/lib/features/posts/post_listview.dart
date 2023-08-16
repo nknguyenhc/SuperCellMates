@@ -103,14 +103,14 @@ class PostListViewState extends State<PostListView> {
 
   void loadImages(index) async {
     profileImages[index] = await getRawImageData(
-        widget.postList[index]["creator"]["profile_pic_url"]);
+        widget.postList[index]["creator"]["profile_pic_url"], false);
 
     postImagesRaw[index] = List.filled(
         widget.postList[index]["images"].length, Uint8List.fromList([]),
         growable: true);
     for (int i = 0; i < widget.postList[index]["images"].length; i++) {
       postImagesRaw[index]![i] =
-          await getRawImageData(widget.postList[index]["images"][i]);
+          await getRawImageData(widget.postList[index]["images"][i], false);
     }
     setState(() {
       dataLoaded[index] = true;

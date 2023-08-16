@@ -55,7 +55,7 @@ class UserListViewState extends State<UserListView> {
 
   void loadImage(index) async {
     profileImages[index] =
-        await getRawImageData(widget.userList[index]["profile_pic_url"]);
+        await getRawImageData(widget.userList[index]["profile_pic_url"], false);
     setState(() {
       dataLoaded[index] = true;
     });
@@ -214,7 +214,7 @@ class UserListViewWithCustomOnPressedState
 
   void loadImage(index) async {
     profileImages[index] =
-        await getRawImageData(widget.userList[index]["profile_pic_url"]);
+        await getRawImageData(widget.userList[index]["profile_pic_url"], false);
     setState(() {
       dataLoaded[index] = true;
     });
@@ -324,7 +324,7 @@ class FriendRequestListState extends State<FriendRequestListView> {
 
   void loadImage(index) async {
     profileImages[index] = await getRawImageData(
-        widget.friendRequestList[index]["profile_pic_url"]);
+        widget.friendRequestList[index]["profile_pic_url"], false);
     setState(() {
       dataLoaded[index] = true;
     });

@@ -99,7 +99,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
 
   types.CustomMessage messageDictToFileMessgae(dynamic m) {
     Future<Uint8List> futureImageData =
-        getRawImageData("${EndPoints.getImage.endpoint}${m["id"]}");
+        getRawImageData("${EndPoints.getImage.endpoint}${m["id"]}", false);
 
     return types.CustomMessage(
         author: types.User(
@@ -184,7 +184,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       if (usernameToProfileImageUrl[m["user"]["username"]] == null) {
         usernameToProfileImageUrl[m["user"]["username"]] =
             const CircularProgressIndicator();
-        getImage(m["user"]["profile_img_url"])
+        getImage(m["user"]["profile_img_url"], false)
             .then((image) => IconButton(
                 style: const ButtonStyle(
                     padding: MaterialStatePropertyAll(EdgeInsets.zero)),
@@ -242,7 +242,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           // save message sender's profile image url, then load it, if haven't
           if (usernameToProfileImageUrl[messageMap["user"]["username"]] ==
               null) {
-            getImage(messageMap["user"]["profile_img_url"])
+            getImage(messageMap["user"]["profile_img_url"], false)
                 .then((image) => IconButton(
                     style: const ButtonStyle(
                         padding: MaterialStatePropertyAll(EdgeInsets.zero)),

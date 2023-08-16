@@ -121,7 +121,7 @@ class ProfilePageState extends State<ProfilePage> {
   }
 
   void loadTagIcons(index) async {
-    tagIcons[index] = await getRawImageData(data["tags"][index]["icon"]);
+    tagIcons[index] = await getRawImageData(data["tags"][index]["icon"], false);
     setState(() {
       dataLoaded[index] = true;
     });

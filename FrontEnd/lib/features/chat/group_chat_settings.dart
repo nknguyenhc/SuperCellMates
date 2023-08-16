@@ -104,7 +104,7 @@ class GroupChatSettingsPageState extends State<GroupChatSettingsPage> {
                           }
                         },
                         icon: FutureBuilder(
-                            future: getImage(admins[index]["profile_pic_url"]),
+                            future: getImage(admins[index]["profile_pic_url"], false),
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
                                 return snapshot.data!;
@@ -213,7 +213,7 @@ class GroupChatSettingsPageState extends State<GroupChatSettingsPage> {
                               },
                               icon: FutureBuilder(
                                   future: getImage(
-                                      members[index]["profile_pic_url"]),
+                                      members[index]["profile_pic_url"], false),
                                   builder: (context, snapshot) {
                                     if (snapshot.hasData) {
                                       return snapshot.data!;

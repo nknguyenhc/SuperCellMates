@@ -34,7 +34,7 @@ class ChatListViewState extends State<ChatListView> {
       listOfLoadImageFutures.add(
         getRawImageData(widget.isPrivate
             ? widget.chatList[i]["user"]["profile_img_url"]
-            : widget.chatList[i]["img"]),
+            : widget.chatList[i]["img"], false),
       );
     }
   }
