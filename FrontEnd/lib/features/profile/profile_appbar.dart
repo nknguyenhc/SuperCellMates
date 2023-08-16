@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import "package:fluttericon/font_awesome5_icons.dart";
 import 'package:get_it/get_it.dart';
 import 'package:supercellmates/functions/notifications.dart';
@@ -24,12 +25,9 @@ class ProfileAppBar extends AppBar {
 class ProfileAppBarState extends State<ProfileAppBar> {
   @override
   void initState() {
-    dataLoaded = false;
     super.initState();
     initProfileImage();
   }
-
-  bool dataLoaded = false;
 
   String displayName = "";
   String username = "";
@@ -37,11 +35,17 @@ class ProfileAppBarState extends State<ProfileAppBar> {
 
   Notifications notifications = GetIt.I<Notifications>();
 
-  void initProfileImage() async {
-    dataLoaded = false;
-    profileImage = await getImage(widget.profileMap["image_url"], true);
-    setState(() {
-      dataLoaded = true;
+  void initProfileImage() {
+    DefaultCacheManager()
+        .getFileFromCache(widget.profileMap["image_url"])
+        .then((cachedImage) async {
+      if (cachedImage != null) {
+        setState(() => profileImage = Image.file(cachedImage.file));
+      }
+    }).then((value) {
+      getImage(widget.profileMap["image_url"], true).then((currentImage) {
+        setState(() => profileImage = currentImage);
+      });
     });
   }
 
@@ -50,7 +54,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
     Widget buildProfileImage() {
       return IconButton(
         padding: const EdgeInsets.only(left: 12),
-        icon: dataLoaded ? profileImage! : const CircularProgressIndicator(),
+        icon: profileImage ?? const CircularProgressIndicator(),
         onPressed: () => AutoRouter.of(context).push(EditProfileRoute(
             updateProfileImageCallBack: initProfileImage,
             updateProfileMapCallBack: widget.updateProfileMapCallBack)),
@@ -67,10 +71,9 @@ class ProfileAppBarState extends State<ProfileAppBar> {
             widget.profileMap["user_profile"]["name"],
             strutStyle: StrutStyle(forceStrutHeight: false),
             style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: Color.fromARGB(221, 44, 44, 44)
-            ),
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Color.fromARGB(221, 44, 44, 44)),
           ),
         ),
         SizedBox(
