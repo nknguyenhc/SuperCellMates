@@ -659,7 +659,7 @@ def get_home_feed(request):
                 heapq.nlargest(
                     limit,
                     filter(
-                        lambda post: compute_matching_index_with_post(request.user, post, initial_timestamp) < start_index,
+                        lambda post: compute_matching_index_with_post(request.user, post, initial_timestamp) < start_index and has_access(request.user, post),
                         posts
                     ), 
                     key=lambda post: compute_matching_index_with_post(request.user, post, initial_timestamp)
