@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import "package:fluttericon/font_awesome5_icons.dart";
 import 'package:supercellmates/features/posts/post_listview.dart';
 import 'package:supercellmates/http_requests/get_image.dart';
@@ -28,8 +29,7 @@ class OthersProfilePage extends StatefulWidget {
 class OthersProfilePageState extends State<OthersProfilePage> {
   dynamic profileData;
   bool profileDataLoaded = false;
-  bool profileImageLoaded = false;
-  Uint8List profileImage = Uint8List.fromList([]);
+  Uint8List? profileImage;
   bool profilePostsLoaded = false;
   dynamic profilePosts;
 
@@ -99,17 +99,25 @@ class OthersProfilePageState extends State<OthersProfilePage> {
   }
 
   void loadTagIcons(index) async {
-    tagIcons[index] = await getRawImageData(profileData["tags"][index]["icon"], false);
+    tagIcons[index] =
+        await getRawImageData(profileData["tags"][index]["icon"], false);
     setState(() {
       dataLoaded[index] = true;
     });
   }
 
-  void initProfileImage() async {
-    profileImageLoaded = false;
-    profileImage = await getRawImageData(profileData["image_url"], true);
-    setState(() {
-      profileImageLoaded = true;
+  void initProfileImage() {
+    DefaultCacheManager()
+        .getFileFromCache(profileData["image_url"])
+        .then((cachedImage) {
+      if (cachedImage != null) {
+        setState(
+            () async => profileImage = await cachedImage.file.readAsBytes());
+      }
+    }).then((value) {
+      getRawImageData(profileData["image_url"], true).then((currentImageBytes) {
+        setState(() => profileImage = currentImageBytes);
+      });
     });
   }
 
@@ -173,12 +181,12 @@ class OthersProfilePageState extends State<OthersProfilePage> {
         width: 45,
         child: IconButton(
           padding: EdgeInsets.zero,
-          icon: profileImageLoaded
-              ? Image.memory(profileImage)
+          icon: profileImage != null
+              ? Image.memory(profileImage!)
               : const CircularProgressIndicator(),
           onPressed: () {
-            AutoRouter.of(context)
-                .push(SinglePhotoViewer(photoBytes: profileImage, actions: []));
+            AutoRouter.of(context).push(
+                SinglePhotoViewer(photoBytes: profileImage!, actions: []));
           },
           iconSize: 45,
         ),
