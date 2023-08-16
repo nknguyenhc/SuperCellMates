@@ -60,7 +60,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
     });
   }
 
-  void loadData() async {
+  void loadData() {
     // profile image
     initProfileImage();
     // tags
@@ -71,7 +71,6 @@ class OthersProfilePageState extends State<OthersProfilePage> {
     for (int i = 0; i < tagListCount; i++) {
       loadTagIcons(i);
     }
-    loadProfilePosts();
   }
 
   void loadProfilePosts() async {
@@ -111,13 +110,15 @@ class OthersProfilePageState extends State<OthersProfilePage> {
         .getFileFromCache(profileData["image_url"])
         .then((cachedImage) {
       if (cachedImage != null) {
-        setState(
-            () async => profileImage = await cachedImage.file.readAsBytes());
+        cachedImage.file.readAsBytes().then((bytes) {
+          setState(() => profileImage = bytes);
+        });
       }
     }).then((value) {
       getRawImageData(profileData["image_url"], true).then((currentImageBytes) {
         setState(() => profileImage = currentImageBytes);
       });
+      loadProfilePosts();
     });
   }
 
