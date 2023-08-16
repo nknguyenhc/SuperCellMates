@@ -47,7 +47,7 @@ class TagListViewState extends State<TagListView> {
   }
 
   void loadImage(index) async {
-    tagIcons[index] = await getRawImageData(widget.tagList[index]["icon"]);
+    tagIcons[index] = await getRawImageData(widget.tagList[index]["icon"], false);
     setState(() {
       dataLoaded[index] = true;
     });

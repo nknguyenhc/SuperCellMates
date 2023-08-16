@@ -39,7 +39,7 @@ class ProfileAppBarState extends State<ProfileAppBar> {
 
   void initProfileImage() async {
     dataLoaded = false;
-    profileImage = await getImage(widget.profileMap["image_url"]);
+    profileImage = await getImage(widget.profileMap["image_url"], true);
     setState(() {
       dataLoaded = true;
     });

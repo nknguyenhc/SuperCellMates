@@ -99,7 +99,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
   }
 
   void loadTagIcons(index) async {
-    tagIcons[index] = await getRawImageData(profileData["tags"][index]["icon"]);
+    tagIcons[index] = await getRawImageData(profileData["tags"][index]["icon"], false);
     setState(() {
       dataLoaded[index] = true;
     });
@@ -107,7 +107,7 @@ class OthersProfilePageState extends State<OthersProfilePage> {
 
   void initProfileImage() async {
     profileImageLoaded = false;
-    profileImage = await getRawImageData(profileData["image_url"]);
+    profileImage = await getRawImageData(profileData["image_url"], true);
     setState(() {
       profileImageLoaded = true;
     });

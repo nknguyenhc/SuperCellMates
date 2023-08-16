@@ -175,7 +175,7 @@ class CreateGroupPageState extends State<CreateGroupPage> {
         itemCount: currMembers.length,
         itemBuilder: (context, index) {
           return FutureBuilder(
-            future: getRawImageData(currMembers[index]["profile_pic_url"]),
+            future: getRawImageData(currMembers[index]["profile_pic_url"], false),
             builder: (context, snapshot) {
               return Column(
                 children: [
