@@ -106,10 +106,12 @@ class PostListViewState extends State<PostListView> {
   }
 
   void loadSingleProfileImage() {
-    getRawImageData(widget.postList[0]["creator"]["profile_pic_url"], false)
-        .then((bytes) {
-      setState(() => singleProfileImage = bytes);
-    });
+    if (widget.postList.length > 0) {
+      getRawImageData(widget.postList[0]["creator"]["profile_pic_url"], false)
+          .then((bytes) {
+        setState(() => singleProfileImage = bytes);
+      });
+    }
   }
 
   void loadImages(index) async {
