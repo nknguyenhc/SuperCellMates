@@ -8,8 +8,8 @@ import 'package:supercellmates/router/router.dart';
 GetIt locator = GetIt.I;
 
 void setupLocator(bool isActiveSession) {
-  // locator.registerLazySingleton<Config>(() => DevConfig());
-  locator.registerLazySingleton<Config>(() => ProdConfig());
+  locator.registerLazySingleton<Config>(() => DevConfig());
+  //locator.registerLazySingleton<Config>(() => ProdConfig());
   locator.registerSingleton<AppRouter>(AppRouter(isActiveSession: isActiveSession));
   locator.registerSingleton<Notifications>(Notifications());
 }
