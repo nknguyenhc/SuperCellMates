@@ -13,7 +13,10 @@ import 'package:supercellmates/main.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp(isLoggedIn: false));
+    await tester.pumpWidget(const MyApp(
+      isLoggedIn: false,
+      isSessionExpired: false,
+    ));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

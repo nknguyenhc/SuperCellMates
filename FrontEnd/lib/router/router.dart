@@ -6,14 +6,14 @@ import 'router.gr.dart';
 
 @AutoRouterConfig(replaceInRouteName: 'Page,Route')
 class AppRouter extends $AppRouter {
-  AppRouter({required this.isLoggedIn});
+  AppRouter({required this.isActiveSession});
 
-  final bool isLoggedIn;
+  final bool isActiveSession;
 
   @override
   List<AutoRoute> get routes => [
-        AutoRoute(page: LoginRoute.page, initial: !isLoggedIn),
-        AutoRoute(page: MainScaffold.page, initial: isLoggedIn),
+        AutoRoute(page: LoginRoute.page, initial: !isActiveSession),
+        AutoRoute(page: MainScaffold.page, initial: isActiveSession),
         AutoRoute(page: FriendsRoute.page),
         AutoRoute(page: PrivacyAgreementRoute.page),
         AutoRoute(page: AchievementRoute.page),
