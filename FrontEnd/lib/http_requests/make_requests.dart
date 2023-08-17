@@ -13,6 +13,7 @@ Future<dynamic> postWithCSRF(String postEndPoint, dynamic postBody) async {
     // get CSRF token from /async, if not yet obtained
     try {
       await Requests.get(getURL);
+      csrfToken = await retrieveCookie("csrftoken");
     } catch (e) {
       return "Connection error";
     }
