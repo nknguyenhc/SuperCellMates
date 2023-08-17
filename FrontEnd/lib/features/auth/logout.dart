@@ -16,6 +16,7 @@ void removeCookies() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.remove("username");
   prefs.remove("sessionid");
+  prefs.remove("csrftoken");
 }
 
 void tickPrivacyAgreement() {
