@@ -11,19 +11,20 @@ import 'package:supercellmates/http_requests/endpoints.dart';
 import 'package:supercellmates/http_requests/make_requests.dart';
 import 'package:supercellmates/router/router.gr.dart';
 
+void removeCookies() async {
+  Requests.clearStoredCookies(GetIt.I<Config>().restBaseURL);
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.remove("username");
+  prefs.remove("sessionid");
+  prefs.remove("csrftoken");
+}
+
+void tickPrivacyAgreement() {
+  CustomCheckbox.ischecked = true;
+}
+
 class LogOutButton extends StatelessWidget {
   const LogOutButton({Key? key}) : super(key: key);
-
-  void removeCookies() async {
-    Requests.clearStoredCookies(GetIt.I<Config>().restBaseURL);
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove("username");
-    prefs.remove("sessionid");
-  }
-
-  void tickPrivacyAgreement() {
-    CustomCheckbox.ischecked = true;
-  }
 
   @override
   Widget build(BuildContext context) {

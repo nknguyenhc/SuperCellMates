@@ -10,6 +10,6 @@ GetIt locator = GetIt.I;
 void setupLocator(bool isLoggedIn) {
   // locator.registerLazySingleton<Config>(() => DevConfig());
   locator.registerLazySingleton<Config>(() => ProdConfig());
-  locator.registerSingleton<AppRouter>(AppRouter(isLoggedIn: isLoggedIn));
+  locator.registerSingleton<AppRouter>(AppRouter());
   locator.registerSingleton<Notifications>(Notifications());
 }

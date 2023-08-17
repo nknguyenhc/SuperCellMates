@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supercellmates/features/custom_checkbox.dart';
+import 'package:supercellmates/features/dialogs.dart';
 import 'package:supercellmates/http_requests/endpoints.dart';
+import 'package:supercellmates/global.dart';
 
 import '../../http_requests/make_requests.dart';
 import '../../router/router.gr.dart';
 import 'privacy_agreement_section.dart';
+
+const int MILLISECONDS_IN_FOURTEEN_DAYS = 14 * 24 * 3600 * 1000;
 
 @RoutePage()
 class LoginPage extends StatefulWidget {
@@ -49,6 +53,10 @@ class LoginPageState extends State<LoginPage> {
         prefs.setString("username", body["username"]!);
         prefs.setString("sessionid", await retrieveCookie("sessionid"));
         prefs.setString("csrftoken", await retrieveCookie("csrftoken"));
+        prefs.setInt(
+            "sessionExpiryTimestamp",
+            DateTime.now().millisecondsSinceEpoch +
+                MILLISECONDS_IN_FOURTEEN_DAYS);
         return null;
       }
       return message;
@@ -98,6 +106,10 @@ class LoginPageState extends State<LoginPage> {
         prefs.setString("username", body["username"]!);
         prefs.setString("sessionid", await retrieveCookie("sessionid"));
         prefs.setString("csrftoken", await retrieveCookie("csrftoken"));
+        prefs.setInt(
+            "sessionExpiryTimestamp",
+            DateTime.now().millisecondsSinceEpoch +
+                MILLISECONDS_IN_FOURTEEN_DAYS);
         return null;
       }
       return message;
@@ -111,6 +123,14 @@ class LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (toPromptSessionExpiry) {
+        toPromptSessionExpiry = false;
+        showCustomDialog(context, "Your session has expired",
+            "Please log in again to continue:)");
+      }
+    });
+
     return WillPopScope(
       onWillPop: () async => false,
       child: FlutterLogin(
