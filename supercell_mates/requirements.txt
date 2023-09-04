@@ -8,3 +8,5 @@ daphne==4.0.0
 redis==4.5.5
 channels-redis==4.1.0
 psycopg2-binary==2.9.6
+boto3==1.28.1
+django-storages==1.13.2
