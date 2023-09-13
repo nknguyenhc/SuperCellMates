@@ -1,25 +1,30 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-// Define a type for the slice state
 interface AuthState {
   isLoggedIn: boolean,
+  username: string,
   isStaff: boolean,
   isSuperuser: boolean,
 }
 
-// Define the initial state using that type
 const initialState: AuthState = {
-  isLoggedIn: true,
-  isStaff: true,
-  isSuperuser: true,
+  isLoggedIn: false,
+  username: '',
+  isStaff: false,
+  isSuperuser: false,
 }
 
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    login: state => {
+    login: (state, action: {
+      payload: {
+        username: string,
+      },
+    }) => {
       state.isLoggedIn = true;
+      state.username = action.payload.username;
     },
     setStaff: state => {
       state.isStaff = true;
@@ -35,6 +40,6 @@ export const authSlice = createSlice({
   }
 })
 
-export const { login, logout } = authSlice.actions
+export const { login, logout, setStaff, setSuperuser } = authSlice.actions
 
 export default authSlice.reducer

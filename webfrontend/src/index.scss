@@ -12,8 +12,5 @@ code {
     monospace;
 }
 
-a {
-  text-decoration: none;
-}
-
 @import './components/navbar/navbar.scss';
+@import './components/auth/login/login.scss';

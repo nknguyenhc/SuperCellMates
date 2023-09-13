@@ -13,3 +13,7 @@ export function getJSONItemFrom(key: string, defaultValue: Object, storage: Stor
 export function getStringFrom(key: string, defaultValue: string, storage: Storage): string {
     return storage.getItem(key) ? storage.getItem(key)! : defaultValue;
 }
+
+export function triggerErrorMessage() {
+    alert("An error has occurred, please try again later.");
+}
