@@ -1,6 +1,16 @@
-# Getting Started with Create React App
-
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Project Structure
+All typescript code is located in the `src` folder. 
+In `src` folder, there are a few files:
+* `inde.tsx`, where redux provider and router are instantiated.
+* `App.tsx`, where page layout is determined, and redux states are configured.
+* `index.scss`, where all `.scss` style sheets for components are imported.
+Besides, files are organised into folders according to the following:
+* `components`, where reusable components and small pages such as login page are defined.
+* `pages`, where large pages such as home page are defined.
+* `redux`, where redux slices are defined and redux context is instantiated.
+States that are reusable across pages are defined here.
+* `router`, where router and its relation to corresponding pages are determined.
+* `utils`, where reusable functions are put.
 
 ## Available Scripts
 
