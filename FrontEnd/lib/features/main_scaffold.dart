@@ -139,7 +139,8 @@ class MainScaffoldState extends State<MainScaffold> {
                     builder: (context, child) {
                       return createNotificationBadge(
                           const Icon(Icons.chat_bubble_outline_rounded),
-                          notifications.unreadChatCount,
+                          notifications.unreadPrivateChatsCount +
+                              notifications.unreadGroupChatsCount,
                           20,
                           8);
                     },
