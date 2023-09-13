@@ -9,7 +9,8 @@ class Notifications extends ChangeNotifier {
   int incomingFriendRequestsCount = 0;
   int outgoingAcceptedRequestCount = 0;
   List acceptedRequests = [];
-  int unreadChatCount = 0;
+  int unreadPrivateChatsCount = 0;
+  int unreadGroupChatsCount = 0;
   List unreadPrivateChats = [];
   List unreadGroupChats = [];
 
@@ -87,7 +88,8 @@ class Notifications extends ChangeNotifier {
   }
 
   void updateUnreadChatsCount() {
-    unreadChatCount = unreadPrivateChats.length + unreadGroupChats.length;
+    unreadPrivateChatsCount = unreadPrivateChats.length;
+    unreadGroupChatsCount = unreadGroupChats.length;
     notifyListeners();
   }
 }
