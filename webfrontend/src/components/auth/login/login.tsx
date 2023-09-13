@@ -1,6 +1,12 @@
-import { useCallback, useState, FormEvent } from "react";
+import { useCallback, useState, FormEvent, useEffect } from "react";
 import { postRequestContent } from "../../../utils/request";
 import { triggerErrorMessage } from "../../../utils/locals";
+import { useNavigate } from "react-router-dom";
+import { getURLParams } from "../../../utils/url";
+import { useDispatch } from "react-redux";
+import { login } from "../../../redux/auth-slice";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
 
 
 export const Login = (): JSX.Element => {
@@ -9,6 +15,18 @@ export const Login = (): JSX.Element => {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState<string>('');
+
+    const navigate = useNavigate();
+
+    const dispatch = useDispatch();
+    const auth = useSelector((state: RootState) => state.auth);
+
+    useEffect(() => {
+        if (auth.isVerified && auth.isLoggedIn) {
+            const { next } = getURLParams();
+            navigate(next ? next : '/');
+        }
+    }, [auth, navigate]);
 
     const handleSubmit = useCallback<(e: FormEvent<HTMLFormElement>) 
             => void>((e: FormEvent<HTMLFormElement>) => {
@@ -37,11 +55,19 @@ export const Login = (): JSX.Element => {
             .then(res => {
                 if (res.status !== 200) {
                     triggerErrorMessage();
-                } else {
-                    res.text().then(res => console.log(res));
+                    return;
                 }
+                res.text().then(res => {
+                    if (res !== 'logged in') {
+                        setErrorMessage('Wrong username or password');
+                    } else {
+                        dispatch(login({
+                            username: username,
+                        }));
+                    }
+                });
             })
-    }, [username, password]);
+    }, [username, password, dispatch]);
 
     return <div className="authentication-form-container">
         <form 

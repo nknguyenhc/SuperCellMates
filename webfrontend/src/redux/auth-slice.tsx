@@ -5,6 +5,7 @@ interface AuthState {
   username: string,
   isStaff: boolean,
   isSuperuser: boolean,
+  isVerified: boolean,
 }
 
 const initialState: AuthState = {
@@ -12,6 +13,7 @@ const initialState: AuthState = {
   username: '',
   isStaff: false,
   isSuperuser: false,
+  isVerified: false,
 }
 
 export const authSlice = createSlice({
@@ -25,17 +27,21 @@ export const authSlice = createSlice({
     }) => {
       state.isLoggedIn = true;
       state.username = action.payload.username;
+      state.isVerified = true;
     },
     setStaff: state => {
       state.isStaff = true;
+      state.isVerified = true;
     },
     setSuperuser: state => {
       state.isSuperuser = true;
+      state.isVerified = true;
     },
     logout: state => {
       state.isLoggedIn = false;
       state.isStaff = false;
       state.isSuperuser = false;
+      state.isVerified = true;
     }
   }
 })
