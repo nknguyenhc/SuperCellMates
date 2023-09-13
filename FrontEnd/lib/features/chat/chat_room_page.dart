@@ -226,7 +226,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         wsChannel = IOWebSocketChannel.connect(
           Uri.parse(wsUrl),
           headers: {
-            "origin": "ws://matchminer-d5ebcada4488.herokuapp.com",
+            "origin": "ws://matchminer.fly.dev",
             "cookie": "sessionid=$cookie"
           },
           connectTimeout: const Duration(seconds: 2),

@@ -6,10 +6,10 @@ class ProdConfig extends Config {
 
   /// deploy server
   @override
-  String get restBaseURL => "https://matchminer-d5ebcada4488.herokuapp.com";
+  String get restBaseURL => "https://matchminer.fly.dev";
 
   @override
-  String get wsBaseURL => "wss://matchminer-d5ebcada4488.herokuapp.com/ws";
+  String get wsBaseURL => "wss://matchminer.fly.dev/ws";
 
   @override
   int get totalUploadLimit => 3000000; // 3MB
