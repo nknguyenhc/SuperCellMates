@@ -1,0 +1,27 @@
+.home{
+    &-content {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+    }
+
+    &-feed {
+        width: 50vw;
+        min-width: 500px;
+        max-width: 700px;
+
+        &-content {
+            display: flex;
+            flex-direction: column;
+            gap: 50px;
+        }
+
+        &-filters {
+            position: fixed;
+            top: 100px;
+            left: 20px;
+            width: 20vw;
+        }
+    }
+}
