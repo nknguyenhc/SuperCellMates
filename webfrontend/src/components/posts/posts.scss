@@ -225,25 +225,6 @@
     height: 85%;
 }
 
-#filter-message {
-    position: fixed;
-    top: 100px;
-    right: -20vw;
-    width: 20vw;
-}
-
-.filter-message-transition {
-    transition: transform 0.5s ease-in-out, opacity 5s ease-in-out;
-}
-
-.filter-message-position {
-    transform: translateX(-23vw);
-}
-
-.filter-message-fading {
-    opacity: 0;
-}
-
 #display-post {
     width: 70%;
     min-width: 500px;

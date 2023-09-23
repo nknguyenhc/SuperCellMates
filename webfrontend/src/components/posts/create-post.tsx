@@ -2,14 +2,8 @@ import { useState, useRef, useEffect, FormEvent, useCallback, Fragment } from 'r
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { triggerErrorMessage } from '../../utils/locals';
+import { Visibility, Tag } from './one-post';
 import { postRequestContent } from '../../utils/request';
-
-type Tag = {
-    name: string,
-    icon: string,
-}
-
-type Visibility = "Public" | "People with same tag" | "Friends" | "Friends with same tag";
 
 export default function CreatePost(): JSX.Element {
     const [title, setTitle] = useState<string>('');
@@ -267,7 +261,7 @@ export default function CreatePost(): JSX.Element {
             <div className="mt-4" id="post-images-preview">
                 {
                     imgs.map((imgFile, i) => ((
-                        <div className="post-image-preview-div">
+                        <div className="post-image-preview-div" key={i}>
                             <img src={URL.createObjectURL(imgFile)} alt={i.toString()} />
                             <div className="post-image-preview-close">
                                 <button type="button" className="btn-close" aria-label="Close" onClick={() => removeImage(i)} />

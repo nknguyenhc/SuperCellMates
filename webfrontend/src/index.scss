@@ -45,8 +45,17 @@ code {
   color: rgb(241, 36, 36);
 }
 
+.clickable {
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 @import './components/navbar/navbar.scss';
 @import './components/auth/login/login.scss';
 @import './components/filter/home-filter.scss';
 @import './pages/home/home.scss';
-@import './components/posts/create-post.scss';
+@import './components/posts/posts.scss';
+@import './components/popup/filter-message.scss';
+@import './components/popup/bottom-message.scss';
