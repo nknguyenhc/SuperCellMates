@@ -1,26 +1,25 @@
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { hide, show } from "../../redux/message-slice";
 
 export default function BottomMessage(): JSX.Element {
     const message = useSelector((state: RootState) => state.bottom.message);
-    const timeout = useRef<number | undefined>(undefined);
-    const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
+    const isNewMessage = useSelector((state: RootState) => state.bottom.isNewMessage);
+    const dispatch = useDispatch();
+    const [isNew, setIsNew] = useState<boolean>(false);
+
     useEffect(() => {
-        if (message !== '') {
-            setIsTransitioning(false);
-            clearTimeout(timeout.current);
-            setTimeout(() => {
-                setIsTransitioning(true);
-                timeout.current = window.setTimeout(() => {
-                    setIsTransitioning(false);
-                }, 5000);
-            }, 50);
+        if (isNewMessage) {
+            dispatch(hide());
+            setIsNew(false);
+            setTimeout(() => setIsNew(true), 10);
         }
-    }, [message]);
+    }, [isNewMessage, dispatch]);
 
     return <div 
-        className={"alert alert-info" + (isTransitioning ? " bottom-popup-transition bottom-popup-in" : "")}
+        className={"alert alert-info" + (isNew ? " bottom-popup-transition bottom-popup-in" : "")}
         id="bottom-popup"
     >
         {message}

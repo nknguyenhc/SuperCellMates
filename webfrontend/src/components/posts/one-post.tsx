@@ -85,7 +85,7 @@ export default function Post({ post, myProfile}: {
         return () => {
             tooltips.forEach(t => t.dispose());
         };
-    }, [visibility]);
+    }, [visibility, post]);
 
     function toReplyPostChat() {
         fetch('/messages/get_chat_id?username=' + post.creator.username)

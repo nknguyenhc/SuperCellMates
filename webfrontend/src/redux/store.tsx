@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './auth-slice';
 import bottomReducer from './message-slice';
+import filterReducer from './filter-slice';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
-    bottom: bottomReducer
+    bottom: bottomReducer,
+    filter: filterReducer,
   }
 });
 

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { HomeFilter, HomeSort } from "../../components/filter/home-filter";
 import CreatePost from "../../components/posts/create-post";
 import HomeFeed from "../../components/feed/homefeed";
+import { HomeContextProvider } from "./home-context";
 
 export default function Home(): JSX.Element {
     const auth = useSelector((state: RootState) => state.auth);
@@ -21,10 +22,12 @@ export default function Home(): JSX.Element {
         <div className="create-post">
             <CreatePost />
         </div>
-        <div className="home-feed pt-5">
-            <HomeFeed />
-            <HomeFilter />
-            <HomeSort />
-        </div>
+        <HomeContextProvider>
+            <div className="home-feed pt-5">
+                <HomeFeed />
+                <HomeFilter />
+                <HomeSort />
+            </div>
+        </HomeContextProvider>
     </div>;
 }

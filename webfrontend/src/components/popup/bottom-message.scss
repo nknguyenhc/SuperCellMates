@@ -13,6 +13,7 @@
         &-in {
             transform: translate(-50%, -20%);
             opacity: 0;
+            z-index: 10;
         }
     }
 }

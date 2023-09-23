@@ -5,6 +5,7 @@ import { triggerErrorMessage } from "./utils/locals";
 import { login, logout, setStaff, setSuperuser } from "./redux/auth-slice";
 import { Outlet } from "react-router-dom";
 import BottomMessage from './components/popup/bottom-message';
+import FilterMessage from "./components/popup/filter-message";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -43,6 +44,7 @@ export default function App() {
       <NavBar />
       <Outlet />
       <BottomMessage />
+      <FilterMessage />
     </div>
   );
 }

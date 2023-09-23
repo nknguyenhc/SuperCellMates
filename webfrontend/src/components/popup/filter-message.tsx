@@ -1,39 +1,21 @@
-import { useState, useRef, useReducer, useEffect, Reducer } from "react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
+import { useDispatch } from "react-redux";
+import { turnoff } from "../../redux/filter-slice";
 
-export default function FilterMessage({ count }: {
-    count: number
-}): JSX.Element {
-    const [timer, dispatchTimer] = useReducer<Reducer<number, 'reset' | 'countdown'>>(
-        (state: number, action: 'reset' | 'countdown') => {
-            switch (action) {
-                case 'reset':
-                    return 5;
-                case 'countdown':
-                    return state - 1;
-            }
-        }, 
-        5
-    );
-    const timeout = useRef<number | undefined>(undefined);
-    const interval = useRef<number | undefined>(undefined);
+export default function FilterMessage(): JSX.Element {
+    const isNewFilter = useSelector((state: RootState) => state.filter.isNewFilter);
+    const dispatch = useDispatch();
     const [isNew, setIsNew] = useState<boolean>(true);
 
     useEffect(() => {
-        if (count !== 0) {
-            clearTimeout(timeout.current);
-            clearInterval(interval.current);
-            setIsNew(false)
+        if (isNewFilter) {
+            dispatch(turnoff());
+            setIsNew(false);
             setTimeout(() => setIsNew(true), 10);
-            timeout.current = window.setTimeout(() => {
-                setIsNew(false);
-                window.location.reload();
-            }, 5000);
-            dispatchTimer('reset');
-            interval.current = window.setInterval(() => {
-                dispatchTimer('countdown');
-            }, 1000);
         }
-    }, [count]);
+    }, [isNewFilter, dispatch]);
 
     return <div 
         id="filter-message" 
@@ -46,6 +28,6 @@ export default function FilterMessage({ count }: {
         }
         role="alert"
     >
-        Filter applied! Reloading in {timer} seconds.
+        Filter applied! Page reloaded!
     </div>;
 }
