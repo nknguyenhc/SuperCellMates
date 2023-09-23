@@ -20,15 +20,12 @@ export const messageSlice = createSlice({
             state.message = action.payload;
             state.isNewMessage = true;
         },
-        show: state => {
-            state.isNewMessage = true;
-        },
         hide: state => {
             state.isNewMessage = false;
         }
     },
 });
 
-export const { setMessage, show, hide } = messageSlice.actions
+export const { setMessage, hide } = messageSlice.actions
 
 export default messageSlice.reducer
