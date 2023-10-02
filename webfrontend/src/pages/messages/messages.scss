@@ -1,0 +1,16 @@
+.chat {
+    &-page {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: calc(100vh - 60px);
+    }
+
+    &-window {
+        height: 70vh;
+        width: 70vw;
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+    }
+}
