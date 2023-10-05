@@ -6,17 +6,22 @@ type MessageContextType = {
     setIsPrivateSelected: Dispatch<SetStateAction<boolean>>,
     currChatId: string | undefined,
     setCurrChatId: Dispatch<SetStateAction<string | undefined>>,
+    isCurrChatPrivate: boolean,
+    setIsCurrChatPrivate: Dispatch<SetStateAction<boolean>>,
 };
 
 const useMessageState = (): MessageContextType => {
     const [isPrivateSelected, setIsPrivateSelected] = useState<boolean>(true);
     const [currChatId, setCurrChatId] = useState<string | undefined>(undefined);
+    const [isCurrChatPrivate, setIsCurrChatPrivate] = useState<boolean>(true);
 
     return {
         isPrivateSelected,
         setIsPrivateSelected,
         currChatId,
         setCurrChatId,
+        isCurrChatPrivate,
+        setIsCurrChatPrivate,
     };
 }
 

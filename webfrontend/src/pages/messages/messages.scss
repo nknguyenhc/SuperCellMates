@@ -9,6 +9,7 @@
     &-window {
         height: 70vh;
         width: 70vw;
+        max-width: 1000px;
         display: flex;
         flex-direction: row;
         gap: 10px;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useMessageContext } from "./context";
 import { triggerErrorMessage } from "../../utils/locals";
 
@@ -72,13 +72,18 @@ const ChatIndicator = (): JSX.Element => {
 const Container = ({ chats }: {
     chats: Array<ChatInfo>
 }): JSX.Element => {
-    const { currChatId, setCurrChatId } = useMessageContext();
+    const { isPrivateSelected, currChatId, setCurrChatId, setIsCurrChatPrivate } = useMessageContext();
+    
+    const handleClick = useCallback((chatId: string) => {
+        setCurrChatId(chatId);
+        setIsCurrChatPrivate(isPrivateSelected);
+    }, [setCurrChatId, setIsCurrChatPrivate, isPrivateSelected])
 
     return <div className="chatlist-list border">
         {chats.map((chat) => (
             <div
                 className={"chatlist-list-item" + (currChatId === chat.id ? " chatlist-list-item-highlight" : "")}
-                onClick={() => setCurrChatId(chat.id)}
+                onClick={() => handleClick(chat.id)}
                 key={chat.id}
             >
                 <div className="chatlist-list-item-container">
