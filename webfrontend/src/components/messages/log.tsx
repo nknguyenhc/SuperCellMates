@@ -177,7 +177,7 @@ export default function ChatLog(): JSX.Element {
             resetLog();
             setIsConnecting(true);
             const socket = new WebSocket(
-                'ws://'
+                (window.location.protocol === 'http:' ? 'ws://' : 'wss://')
                 // + window.location.host
                 + '127.0.0.1:8000'
                 + '/ws/' + (isCurrChatPrivate ? 'message/' : 'group/')
@@ -204,7 +204,15 @@ export default function ChatLog(): JSX.Element {
                 setTimeout(() => {
                     logDiv.current!.scrollTo(0, logDiv.current!.scrollHeight);
                 }, 10);
-                // fetch('/notification')
+                fetch('/notification/see_message', postRequestContent({
+                    message_id: data.id,
+                    type: data.type + (isCurrChatPrivate ? ' private' : ' group')
+                }))
+                    .then(res => {
+                        if (res.status !== 200) {
+                            triggerErrorMessage();
+                        }
+                    });
             }
 
             socket.onclose = (e) => {
