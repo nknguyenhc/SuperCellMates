@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useMessageContext } from "./context";
 import { Message } from "./message";
-import { ChatInput, ChatMore } from "./input";
+import { ChatInput, ChatMore, FilePreview } from "./input";
 import { postRequestContent } from "../../utils/request";
 import { triggerErrorMessage } from "../../utils/locals";
 import { NewGroupChatForm } from "./manage-group";
@@ -51,6 +51,8 @@ export default function ChatLog(): JSX.Element {
     const isLoading = useRef<boolean>(false);
     const lastIdLoaded = useRef<string>('');
     const currInterval = useRef<number>(-1);
+    const [showFile, setShowFile] = useState<boolean>(false);
+    const [file, setFile] = useState<File | undefined>(undefined);
 
     const dataToMessageInfo = useCallback((data: any): MessageType => {
         switch (data.type) {
@@ -101,8 +103,8 @@ export default function ChatLog(): JSX.Element {
         if (lastIdLoaded.current === '') {
             return;
         }
-        const messageDiv: HTMLDivElement = document.getElementById(lastIdLoaded.current) as HTMLDivElement;
-        if (logDiv.current!.scrollTop < messageDiv.offsetTop) {
+        const messageDiv = document.getElementById(lastIdLoaded.current);
+        if (messageDiv && logDiv.current!.scrollTop < messageDiv.offsetTop) {
             logDiv.current!.scrollTo(0, messageDiv.offsetTop);
         }
     }, []);
@@ -155,6 +157,21 @@ export default function ChatLog(): JSX.Element {
         chatSocket.current!.send(JSON.stringify({
             type: 'text',
             message: message,
+        }));
+    }, []);
+
+    const isSocketOpen = useCallback((): boolean => {
+        if (chatSocket.current) {
+            return chatSocket.current.readyState === 1;
+        } else {
+            return false;
+        }
+    }, []);
+
+    const retrieveFileMessage = useCallback((messageId: string) => {
+        chatSocket.current!.send(JSON.stringify({
+            type: 'file',
+            message_id: messageId,
         }));
     }, []);
 
@@ -251,10 +268,20 @@ export default function ChatLog(): JSX.Element {
                 You can no longer send message in this chat
             </div>
             : <div className="chatlog-input">
-                <ChatMore />
+                <ChatMore
+                    isSocketOpen={isSocketOpen} 
+                    setShowFile={setShowFile}
+                    setFile={setFile}
+                />
                 <ChatInput sendMessage={sendMessage} />
             </div>}
         </>}
+        {showFile && <FilePreview 
+            setShowFile={setShowFile} 
+            file={file as File} 
+            retrieveFileMessage={retrieveFileMessage}
+            isSocketOpen={isSocketOpen}
+        />}
         {isConnecting && !isCreatingNewGroup && <div className="chatlog-loader">
             <span className="spinner-grow text-warning" />
         </div>}

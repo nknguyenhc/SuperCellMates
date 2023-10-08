@@ -5,6 +5,7 @@
     display: flex;
     flex-direction: column;
     position: relative;
+    overflow: hidden;
 
     &-log {
         flex-grow: 1;
@@ -58,14 +59,67 @@
     &-more {
         position: relative;
         flex-shrink: 0;
+        height: fit-content;
         
-        &-icon {
+        &-icon, &-option {
             height: 36px;
             width: 36px;
+            cursor: pointer;
             img {
                 max-height: 100%;
                 max-width: 100%;
             }
+        }
+
+        &-options {
+            position: absolute;
+            top: 36px;
+            left: 0px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transform: translateY(-100%);
+        }
+    }
+
+    &-file-preview {
+        background-color: rgba(215, 215, 215, 0.6);
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        height: 100%;
+        width: 100%;
+        z-index: 3;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+
+        &-window {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        &-img {
+            height: 24vw;
+            width: 36vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            img {
+                max-height: 100%;
+                max-width: 100%;
+            }
+        }
+
+        &-buttons {
+            width: 30vw;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
         }
     }
 

@@ -205,7 +205,7 @@ const Container = ({ chats, isChatUnread, getUnreadChats, isFirstLoading }: {
                     </div>
                     <div className="chatlist-list-item-name">{chat.name}</div>
                 </div>
-                {isChatUnread(chat.id) && <span className="bg-danger rounded-circle p-2" />}
+                {isChatUnread(chat.id) && currChatId !== chat.id && <span className="bg-danger rounded-circle p-2" />}
             </div>
         ))}
     </div>

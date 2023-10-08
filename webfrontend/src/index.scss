@@ -52,6 +52,10 @@ code {
   }
 }
 
+input[type="file"] {
+  display: none;
+}
+
 @import './components/navbar/navbar.scss';
 @import './components/auth/login/login.scss';
 @import './components/filter/home-filter.scss';
