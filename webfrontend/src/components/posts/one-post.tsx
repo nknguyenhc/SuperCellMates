@@ -1,9 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
-import { getJSONItemFrom, triggerErrorMessage } from '../../utils/locals';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { triggerErrorMessage } from '../../utils/locals';
 import { Tooltip } from 'bootstrap';
 import { formatNumber } from '../../utils/primitives';
 import { useDispatch } from 'react-redux';
 import { setMessage } from '../../redux/message-slice';
+import { Link, useNavigate } from 'react-router-dom';
+import { reply } from '../../redux/post-slice';
 
 export type OnePost = {
     id: string,
@@ -42,7 +44,7 @@ export default function Post({ post, myProfile}: {
     const visTooltip = useRef<HTMLDivElement>(null);
     const replyTooltip = useRef<HTMLDivElement>(null);
     const linkTooltip = useRef<HTMLDivElement>(null);
-
+    const navigate = useNavigate();
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -87,7 +89,7 @@ export default function Post({ post, myProfile}: {
         };
     }, [visibility, post]);
 
-    function toReplyPostChat() {
+    const toReplyPostChat = useCallback(() => {
         fetch('/messages/get_chat_id?username=' + post.creator.username)
             .then(response => {
                 if (response.status !== 200) {
@@ -97,18 +99,21 @@ export default function Post({ post, myProfile}: {
                 response.text().then(text => {
                     if (text === 'no chat found') {
                         triggerErrorMessage();
-                    } else {
-                        let postReplies = getJSONItemFrom('postReplies', {}, sessionStorage);
-                        if (typeof postReplies !== 'object' || postReplies.constructor !== Object) {
-                            postReplies = {};
-                        }
-                        (postReplies as any)[post.creator.username] = post.id;
-                        sessionStorage.setItem('postReplies', JSON.stringify(postReplies));
-                        window.location.assign('/messages/?chatid=' + text);
+                        return;
                     }
-                })
-            })
-    }
+                    dispatch(reply({
+                        id: post.id,
+                        creator: {
+                            link: post.creator.profile_link,
+                            img: post.creator.profile_pic_url,
+                        },
+                        title: post.title,
+                        content: post.content,
+                    }));
+                    navigate('/messages/?chatid=' + text);
+                });
+            });
+    }, [post, navigate, dispatch]);
 
     return (
         <>
@@ -119,7 +124,7 @@ export default function Post({ post, myProfile}: {
                     </div>
                     <div className="post-creator-text-info">
                         <strong className="post-creator-name">{post.creator.name}</strong>
-                        <a className="post-creator-username" href={post.creator.profile_link}>{post.creator.username}</a>
+                        <Link className="post-creator-username" to={post.creator.profile_link}>{post.creator.username}</Link>
                     </div>
                     {
                         myProfile

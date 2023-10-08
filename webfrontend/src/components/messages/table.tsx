@@ -2,6 +2,7 @@ import { useSelector } from "react-redux";
 import { MemberType, Role } from "./manage-group";
 import { RootState } from "../../redux/store";
 import { useCallback, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function UserTable({
     users, 
@@ -107,7 +108,7 @@ const TableRow = ({
 
     return <tr>
         <td className="table-element">
-            <a href={user.link}>{user.username}</a>
+            <Link to={user.link}>{user.username}</Link>
         </td>
         <td className="table-element">
             {user.username !== username && <>

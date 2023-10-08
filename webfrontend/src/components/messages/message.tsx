@@ -3,6 +3,7 @@ import { MessageType } from "./log"
 import { formatNumber } from "../../utils/primitives";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
+import { Link } from "react-router-dom";
 
 export const Message = ({ message }: {
     message: MessageType
@@ -31,11 +32,11 @@ export const Message = ({ message }: {
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
     >
-        <a href={message.user.link} className="message-user-img">
+        <Link to={message.user.link} className="message-user-img">
             <img src={message.user.img} alt="" />
-        </a>
+        </Link>
         <div className="message-content border border-primary">
-            <a href={message.user.link} className="message-author">{message.user.username}</a>
+            <Link to={message.user.link} className="message-author">{message.user.username}</Link>
             {
                 'filename' in message
                 ? <FileDisplay id={message.id} filename={message.filename} isImage={message.isImage} />
@@ -85,10 +86,10 @@ const ReplyPost = ({ text, post }: {
             content.length > 50 ? content.slice(0, 40) + '...' : content, []);
 
     return <>
-        <a href={`/post/display?id=${post.id}`} className="message-post">
+        <Link to={`/post/display?id=${post.id}`} className="message-post">
             <div className="message-post-title">{trimContent(post.title)}</div>
             <div className="message-post-content">{trimContent(post.content)}</div>
-        </a>
+        </Link>
         <div className="message-text">{text}</div>
     </>;
 }

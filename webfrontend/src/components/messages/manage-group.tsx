@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMessageContext } from "./context";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { triggerErrorMessage } from "../../utils/locals";
 import { postRequestContent } from "../../utils/request";
 import FriendSearchForm from "./friend-search";
@@ -323,7 +323,7 @@ export const AddPeopleForm = (): JSX.Element => {
             isFriendAdded={isFriendAdded}
         />
         {currFriend && <div className="add-people-friend">
-            <div>Are you sure to add {currFriend.name} (<a href={currFriend.link}>{currFriend.username}</a>) to this group chat?</div>
+            <div>Are you sure to add {currFriend.name} (<Link to={currFriend.link}>{currFriend.username}</Link>) to this group chat?</div>
             <div className="add-people-friend-actions">
                 <button className="btn btn-success" onClick={() => addFriend()}>Yes</button>
                 <button className="btn btn-danger" onClick={() => setCurrFriend(undefined)}>No</button>
@@ -333,7 +333,7 @@ export const AddPeopleForm = (): JSX.Element => {
             {addedFriends.map(friend => (
                 <div className="text-success" key={friend.username}>
                     <img src="/static/media/check-icon.png" className="add-people-added-success" alt="success" />
-                    User {friend.name} (<a href={friend.link}>{friend.username}</a>) has been added to this group chat.
+                    User {friend.name} (<Link to={friend.link}>{friend.username}</Link>) has been added to this group chat.
                 </div>
             ))}
         </div>

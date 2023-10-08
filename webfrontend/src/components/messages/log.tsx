@@ -5,6 +5,11 @@ import { ChatInput, ChatMore, FilePreview } from "./input";
 import { postRequestContent } from "../../utils/request";
 import { triggerErrorMessage } from "../../utils/locals";
 import { NewGroupChatForm, AddPeopleForm } from "./manage-group";
+import ReplyPost from "./reply-post";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
+import { useDispatch } from "react-redux";
+import { clearReply } from "../../redux/post-slice";
 
 interface MessageInterface {
     id: string,
@@ -53,6 +58,8 @@ export default function ChatLog(): JSX.Element {
     const currInterval = useRef<number>(-1);
     const [showFile, setShowFile] = useState<boolean>(false);
     const [file, setFile] = useState<File | undefined>(undefined);
+    const replyPost = useSelector((state: RootState) => state.post.reply);
+    const dispatch = useDispatch();
 
     const dataToMessageInfo = useCallback((data: any): MessageType => {
         switch (data.type) {
@@ -154,11 +161,20 @@ export default function ChatLog(): JSX.Element {
     }, [currChatId, isCurrChatPrivate, dataToMessageInfo, scrollToLastMessage]);
 
     const sendMessage = useCallback((message: string) => {
-        chatSocket.current!.send(JSON.stringify({
-            type: 'text',
-            message: message,
-        }));
-    }, []);
+        if (replyPost) {
+            chatSocket.current!.send(JSON.stringify({
+                type: 'reply_post',
+                message: message,
+                post_id: replyPost.id,
+            }));
+            dispatch(clearReply());
+        } else {
+            chatSocket.current!.send(JSON.stringify({
+                type: 'text',
+                message: message,
+            }));
+        }
+    }, [replyPost, dispatch]);
 
     const isSocketOpen = useCallback((): boolean => {
         if (chatSocket.current) {
@@ -269,13 +285,16 @@ export default function ChatLog(): JSX.Element {
             ? <div className="chatlog-input-disabled text-secondary fst-italic">
                 You can no longer send message in this chat
             </div>
-            : <div className="chatlog-input">
-                <ChatMore
-                    isSocketOpen={isSocketOpen} 
-                    setShowFile={setShowFile}
-                    setFile={setFile}
-                />
-                <ChatInput sendMessage={sendMessage} />
+            : <div className="chatlog-input-container">
+                <ReplyPost />
+                <div className="chatlog-input">
+                    <ChatMore
+                        isSocketOpen={isSocketOpen} 
+                        setShowFile={setShowFile}
+                        setFile={setFile}
+                    />
+                    <ChatInput sendMessage={sendMessage} />
+                </div>
             </div>}
         </>}
         {showFile && <FilePreview 

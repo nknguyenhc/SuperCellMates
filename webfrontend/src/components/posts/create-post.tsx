@@ -4,6 +4,7 @@ import { RootState } from '../../redux/store';
 import { triggerErrorMessage } from '../../utils/locals';
 import { Visibility, Tag } from './one-post';
 import { postRequestContent } from '../../utils/request';
+import { Link } from 'react-router-dom';
 
 export default function CreatePost(): JSX.Element {
     const [title, setTitle] = useState<string>('');
@@ -211,8 +212,8 @@ export default function CreatePost(): JSX.Element {
                     {
                         userTags.length === 0
                         ? <div className="text-danger">
-                            <p>Your profile needs at least one tag to post! Setup your tags <a href="/profile/setup">here</a></p>
-                            <p>More about our tag system <a href="/about">here</a></p>
+                            <p>Your profile needs at least one tag to post! Setup your tags <Link to="/profile/setup">here</Link></p>
+                            <p>More about our tag system <Link to="/about">here</Link></p>
                         </div>
                         : userTags.map((tag, tagIndex) => (
                             <Fragment key={tagIndex}>

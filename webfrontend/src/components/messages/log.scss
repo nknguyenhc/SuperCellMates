@@ -22,10 +22,15 @@
     }
 
     &-input {
-        padding-top: 10px;
         display: flex;
         flex-direction: row;
         gap: 10px;
+
+        &-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
 
         &-message {
             display: flex;
@@ -135,5 +140,49 @@
         align-items: center;
         background-color: rgba(0, 0, 0, 0.2);
         border-radius: 10px;
+    }
+
+    &-target-post {
+        margin-left: calc(46px + 0.5rem);
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        align-items: center;
+        width: 85%;
+        padding-top: 5px;
+
+        &-creator {
+            height: 50px;
+            width: 50px;
+            flex-shrink: 0;
+            img {
+                max-height: 100%;
+                max-width: 100%;
+            }
+        }
+
+        &-text {
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: black;
+            flex-grow: 1;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        &-title {
+            margin: 0;
+            background-color: rgb(188, 188, 188);
+        }
+
+        &-content {
+            background-color: rgb(226, 226, 226);
+            flex-grow: 1;
+        }
+
+        .btn-close {
+            cursor: pointer;
+        }
     }
 }
