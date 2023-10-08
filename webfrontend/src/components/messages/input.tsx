@@ -9,7 +9,7 @@ export const ChatMore = ({ isSocketOpen, setShowFile, setFile }: {
     setFile: (file: File) => void,
 }): JSX.Element => {
     const [isHovering, setIsHovering] = useState<boolean>(false);
-    const { isCurrChatPrivate } = useMessageContext();
+    const { isCurrChatPrivate, setIsAddingPeople } = useMessageContext();
     const fileInput = useRef<HTMLInputElement>(null);
 
     const handleOpenFile = useCallback(() => {
@@ -33,7 +33,7 @@ export const ChatMore = ({ isSocketOpen, setShowFile, setFile }: {
             <img src={process.env.PUBLIC_URL + '/plus-icon.png'} alt="more" />
         </div>
         {isHovering && <div className="chatlog-more-options">
-            {!isCurrChatPrivate && <div className="chatlog-more-option">
+            {!isCurrChatPrivate && <div className="chatlog-more-option" onClick={() => setIsAddingPeople(true)}>
                 <img src={process.env.PUBLIC_URL + '/add-person-icon.png'} alt="members" />
             </div>}
             <div className="chatlog-more-option" onClick={handleOpenFile}>

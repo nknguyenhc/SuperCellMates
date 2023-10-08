@@ -4,7 +4,7 @@ import { Message } from "./message";
 import { ChatInput, ChatMore, FilePreview } from "./input";
 import { postRequestContent } from "../../utils/request";
 import { triggerErrorMessage } from "../../utils/locals";
-import { NewGroupChatForm } from "./manage-group";
+import { NewGroupChatForm, AddPeopleForm } from "./manage-group";
 
 interface MessageInterface {
     id: string,
@@ -38,7 +38,7 @@ interface ReplyPostMessageType extends MessageInterface {
 export type MessageType = TextMessageType | FileMessageType | ReplyPostMessageType;
 
 export default function ChatLog(): JSX.Element {
-    const { currChatId, isCurrChatPrivate, isCreatingNewGroup } = useMessageContext();
+    const { currChatId, isCurrChatPrivate, isCreatingNewGroup, isAddingPeople } = useMessageContext();
     const [isConnecting, setIsConnecting] = useState<boolean>(false);
     const [messages, setMessages] = useState<Array<MessageType>>([]);
     const chatSocket = useRef<WebSocket | undefined>(undefined);
@@ -104,7 +104,7 @@ export default function ChatLog(): JSX.Element {
             return;
         }
         const messageDiv = document.getElementById(lastIdLoaded.current);
-        if (messageDiv && logDiv.current!.scrollTop < messageDiv.offsetTop) {
+        if (messageDiv && logDiv.current && logDiv.current.scrollTop < messageDiv.offsetTop) {
             logDiv.current!.scrollTo(0, messageDiv.offsetTop);
         }
     }, []);
@@ -208,7 +208,7 @@ export default function ChatLog(): JSX.Element {
                 setIsConnecting(false);
                 loadMessages();
                 currInterval.current = window.setInterval(() => {
-                    if (logDiv.current!.scrollTop < 10 && !isFullHistoryLoaded.current) {
+                    if (logDiv.current && logDiv.current.scrollTop < 10 && !isFullHistoryLoaded.current) {
                         loadMessages();
                     }
                 }, 1000);
@@ -257,6 +257,8 @@ export default function ChatLog(): JSX.Element {
         ? <NewGroupChatForm />
         : currChatId === undefined
         ? <div className="text-secondary fst-italic">Select a chat</div>
+        : isAddingPeople
+        ? <AddPeopleForm />
         : <>
             <div className="chatlog-log" ref={logDiv}>
                 {messages.map((message) => (

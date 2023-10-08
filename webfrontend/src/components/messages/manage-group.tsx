@@ -1,19 +1,24 @@
-import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMessageContext } from "./context";
 import { useSearchParams } from "react-router-dom";
 import { triggerErrorMessage } from "../../utils/locals";
 import { postRequestContent } from "../../utils/request";
+import FriendSearchForm from "./friend-search";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
+import UserTable from "./table";
 
 export const NewGroupChatButton = () => {
-    const { isCreatingNewGroup, setIsCreatingNewGroup } = useMessageContext();
+    const { isCreatingNewGroup, setIsCreatingNewGroup, setIsAddingPeople } = useMessageContext();
     const setSearchParams = useSearchParams()[1];
 
     const handleClick = useCallback(() => {
         setIsCreatingNewGroup(true);
+        setIsAddingPeople(false);
         setSearchParams({
             chatid: 'newgroupchat',
         })
-    }, [setIsCreatingNewGroup, setSearchParams]);
+    }, [setIsCreatingNewGroup, setIsAddingPeople, setSearchParams]);
 
     return <div 
         className={"chatlist-list-form" + (isCreatingNewGroup ? " chatlist-list-form-highlight" : "")}
@@ -26,7 +31,7 @@ export const NewGroupChatButton = () => {
     </div>;
 }
 
-type FriendType = {
+export type FriendType = {
     name: string,
     username: string,
     link: string,
@@ -121,124 +126,6 @@ export const NewGroupChatForm = () => {
     </div>;
 }
 
-const FriendSearchForm = ({ addFriend, isFriendAdded }: {
-    addFriend: (newFriend: FriendType) => void,
-    isFriendAdded: (newFriend: FriendType) => boolean,
-}): JSX.Element => {
-    const [searchParam, setSearchParam] = useState<string>('');
-    const [searchFriends, setSearchFriends] = useState<Array<FriendType>>([]);
-    const [isFriendListLoading, setIsFriendListLoading] = useState<boolean>(false);
-    const [isSearchParamChanged, setIsSearchParamChanged] = useState<boolean>(false);
-    const [showResultBox, setShowResultBox] = useState<boolean>(false);
-    const timer = useRef<number>(-1);
-    const root = useRef<HTMLDivElement>(null);
-
-    const searchFriend = useCallback(() => {
-        if (!isSearchParamChanged || isFriendListLoading || searchParam === '') {
-            return;
-        }
-        setIsFriendListLoading(true);
-        fetch(`/user/search_friend?username=${searchParam}`)
-            .then(res => {
-                if (res.status !== 200) {
-                    triggerErrorMessage();
-                    return;
-                }
-                setIsFriendListLoading(false);
-                setIsSearchParamChanged(false);
-                res.json().then(res => {
-                    setSearchFriends(res.users
-                        .map((user: any) => ({
-                            name: user.name,
-                            username: user.username,
-                            link: user.profile_link,
-                            img: user.profile_pic_url,
-                        }))
-                        .filter((user: FriendType) => !isFriendAdded(user))
-                    );
-                });
-            });
-    }, [isFriendAdded, isFriendListLoading, searchParam, isSearchParamChanged]);
-
-    const handleKeyDown = useCallback((e: KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            searchFriend();
-        }
-    }, [searchFriend]);
-
-    const handleKeyUp = useCallback(() => {
-        clearTimeout(timer.current);
-        timer.current = window.setTimeout(searchFriend, 500);
-    }, [searchFriend]);
-
-    const handleChange = useCallback((e: ChangeEvent) => {
-        setSearchParam((e.target as HTMLInputElement).value);
-        setIsSearchParamChanged(true);
-    }, []);
-
-    const handleClick = useCallback((friend: FriendType) => {
-        return () => {
-            setShowResultBox(false);
-            addFriend(friend);
-            setSearchFriends(friends => friends.filter(user => user.username !== friend.username));
-        };
-    }, [addFriend]);
-
-    const handleSearch = useCallback(() => {
-        setShowResultBox(true);
-        searchFriend();
-    }, [searchFriend]);
-
-    useEffect(() => {
-        const callback = (e: MouseEvent) => {
-            if (!root.current!.contains(e.target as HTMLElement)) {
-                setShowResultBox(false);
-            }
-        }
-        document.addEventListener('click', callback);
-        return () => document.removeEventListener('click', callback);
-    }, []);
-
-    return <div className="groupchat-form-friend-search-container" ref={root}>
-        <div className="groupchat-form-friend-search">
-            <input 
-                type="search"
-                className="form-control"
-                placeholder="Search for friend"
-                onFocus={() => setShowResultBox(true)}
-                onChange={handleChange}
-                onKeyDown={handleKeyDown}
-                onKeyUp={handleKeyUp}
-            />
-            <div className="btn btn-outline-primary" onClick={handleSearch}>Search</div>
-        </div>
-        <div className="groupchat-form-friend-search-result">
-            <div className="groupchat-form-friend-search-result-box p-1" style={{ display: showResultBox ? "" : "none" }}>
-                {searchFriends.length === 0
-                ? <div className="text-secondary text-center">No search done/No result to show</div>
-                : searchFriends.map(friend => (
-                    <div 
-                        className="groupchat-form-friend-search-friend-item" 
-                        onClick={handleClick(friend)}
-                        key={friend.username}
-                    >
-                        <div className="groupchat-form-friend-search-friend-img">
-                            <img src={friend.img} alt="" />
-                        </div>
-                        <div className="groupchat-form-friend-search-friend-info">
-                            <div>{friend.name}</div>
-                            <div>{friend.username}</div>
-                        </div>
-                    </div>
-                ))}
-                {isFriendListLoading && <div className="loading-icon groupchat-form-friend-search-result-box-loader">
-                    <span className="spinner-grow text-warning" />
-                </div>}
-            </div>
-        </div>
-    </div>;
-}
-
 const AddedFriend = ({ addedFriend, removeFriend }: {
     addedFriend: FriendType,
     removeFriend: () => void,
@@ -266,6 +153,220 @@ const AddedFriend = ({ addedFriend, removeFriend }: {
         </a>
         {isHovering && <div className="groupchat-form-friend-delete"> 
             <button type="button" className="btn-close" aria-label="Close" onClick={removeFriend} />
+        </div>}
+    </div>;
+}
+
+export type Role = 'member' | 'admin' | 'creator';
+
+export type MemberType = {
+    name: string,
+    username: string,
+    link: string,
+    img: string,
+    role: Role,
+}
+
+export const AddPeopleForm = (): JSX.Element => {
+    const [currentMembers, setCurrentMembers] = useState<Array<MemberType>>([]);
+    const currentAdmins = useMemo(
+        () => currentMembers.filter(member => member.role === 'admin' || member.role === 'creator'),
+        [currentMembers]
+    );
+    const [currFriend, setCurrFriend] = useState<FriendType | undefined>(undefined);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [addedFriends, setAddedFriends] = useState<Array<FriendType>>([]);
+    const [myRole, setMyRole] = useState<Role>('member');
+    const { currChatId } = useMessageContext();
+    const username = useSelector((state: RootState) => state.auth.username);
+
+    const getCurrentMembers = useCallback(() => {
+        fetch('/messages/get_members?chatid=' + currChatId)
+            .then(res => {
+                if (res.status !== 200) {
+                    triggerErrorMessage();
+                    return;
+                }
+                res.json().then(res => {
+                    setCurrentMembers(res.users.map((user: any) => ({
+                        name: user.name,
+                        username: user.username,
+                        link: user.profile_link,
+                        img: user.profile_img_url,
+                        role: user.role,
+                    })));
+                    setIsLoading(false);
+                    res.users.forEach((user: any) => {
+                        if (user.username === username) {
+                            setMyRole(user.role);
+                        }
+                    })
+                });
+            });
+    }, [currChatId, username]);
+
+    useEffect(() => {
+        getCurrentMembers();
+    }, [getCurrentMembers]);
+
+    const addFriend = useCallback(() => {
+        if (isLoading) {
+            return;
+        }
+        setIsLoading(true);
+        fetch('/messages/add_member', postRequestContent({
+            username: currFriend!.username,
+            chat_id: currChatId,
+        }))
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                    return;
+                }
+                setAddedFriends(addedFriends => [
+                    ...addedFriends,
+                    currFriend!
+                ]);
+                setCurrFriend(undefined);
+                setTimeout(getCurrentMembers, 100);
+            });
+    }, [isLoading, currFriend, currChatId, getCurrentMembers]);
+
+    const removeUser = useCallback((member: MemberType) => {
+        if (isLoading) {
+            return;
+        }
+        setIsLoading(true);
+        fetch('/messages/remove_user', postRequestContent({
+            chatid: currChatId,
+            username: member.username
+        }))
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                    return;
+                }
+                setTimeout(getCurrentMembers, 100);
+            });
+    }, [isLoading, currChatId, getCurrentMembers]);
+
+    const addAdmin = useCallback((user: MemberType) => {
+        if (isLoading) {
+            return;
+        }
+        setIsLoading(true);
+        fetch('/messages/add_admin', postRequestContent({
+            chatid: currChatId,
+            username: user.username,
+        }))
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                    return;
+                }
+                setTimeout(getCurrentMembers, 100);
+            });
+    }, [isLoading, currChatId, getCurrentMembers]);
+
+    const removeAdmin = useCallback((user: MemberType) => {
+        if (isLoading) {
+            return;
+        }
+        setIsLoading(true);
+        fetch('/messages/remove_admin', postRequestContent({
+            chatid: currChatId,
+            username: user.username,
+        }))
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                    return;
+                }
+                setTimeout(getCurrentMembers, 100);
+            });
+    }, [isLoading, currChatId, getCurrentMembers]);
+
+    const assignLeader = useCallback((user: MemberType, password?: string) => {
+        if (isLoading) {
+            return;
+        }
+        setIsLoading(true);
+        fetch('/messages/assign_leader', postRequestContent({
+            chatid: currChatId,
+            username: user.username,
+            password: password
+        }))
+            .then(response => {
+                if (response.status !== 200) {
+                    triggerErrorMessage();
+                    return;
+                }
+                response.text().then(text => {
+                    if (text === 'ok') {
+                        setMyRole('admin');
+                    } else {
+                        alert("Authentication failed!");
+                    }
+                });
+                setTimeout(getCurrentMembers, 100);
+            });
+    }, [isLoading, currChatId, getCurrentMembers]);
+
+    const isFriendAdded = useCallback((friend: FriendType) => {
+        return friend.username === currFriend?.username || currentMembers.some(member => member.username === friend.username);
+    }, [currentMembers, currFriend]);
+
+    return <div className="add-people-form p-3">
+        <div>Add people to this group chat</div>
+        <FriendSearchForm
+            addFriend={(friend: FriendType) => setCurrFriend(friend)}
+            isFriendAdded={isFriendAdded}
+        />
+        {currFriend && <div className="add-people-friend">
+            <div>Are you sure to add {currFriend.name} (<a href={currFriend.link}>{currFriend.username}</a>) to this group chat?</div>
+            <div className="add-people-friend-actions">
+                <button className="btn btn-success" onClick={() => addFriend()}>Yes</button>
+                <button className="btn btn-danger" onClick={() => setCurrFriend(undefined)}>No</button>
+            </div>
+        </div>}
+        <div className="add-people-added-friends">
+            {addedFriends.map(friend => (
+                <div className="text-success" key={friend.username}>
+                    <img src="/static/media/check-icon.png" className="add-people-added-success" alt="success" />
+                    User {friend.name} (<a href={friend.link}>{friend.username}</a>) has been added to this group chat.
+                </div>
+            ))}
+        </div>
+        <div className="add-people-table">
+            <div>Members</div>
+            <UserTable 
+                users={currentMembers}
+                variant="members"
+                removeAction={removeUser}
+                addAction={addAdmin}
+                removeBtnText="Remove"
+                addBtnText="Assign as admin"
+                removeCaption="Remove this user from this chat?"
+                addCaption="Assign this user as admin?"
+                myRole={myRole}
+            />
+        </div>
+        <div className="add-people-table">
+            <div>Admins</div>
+            <UserTable 
+                users={currentAdmins}
+                variant="admins"
+                removeAction={removeAdmin}
+                addAction={assignLeader}
+                removeBtnText="Remove admin"
+                addBtnText="Transfer ownership"
+                removeCaption="Remove this user from admin list?"
+                addCaption="Assign this user as leader?\nNote: you will lose privileges as leader"
+                myRole={myRole}
+            />
+        </div>
+        {isLoading && <div className="chatlog-loader">
+            <span className="spinner-grow text-warning" />
         </div>}
     </div>;
 }

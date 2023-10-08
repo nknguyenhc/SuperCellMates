@@ -166,6 +166,7 @@ const Container = ({ chats, isChatUnread, getUnreadChats, isFirstLoading }: {
         setIsCurrChatPrivate,
         isCreatingNewGroup,
         setIsCreatingNewGroup,
+        setIsAddingPeople,
     } = useMessageContext();
     const setSearchParam = useSearchParams()[1];
     
@@ -174,6 +175,7 @@ const Container = ({ chats, isChatUnread, getUnreadChats, isFirstLoading }: {
         setIsCurrChatPrivate(isPrivateSelected);
         getUnreadChats();
         setIsCreatingNewGroup(false);
+        setIsAddingPeople(false);
         setSearchParam({
             chatid: chatId,
         });
@@ -184,6 +186,7 @@ const Container = ({ chats, isChatUnread, getUnreadChats, isFirstLoading }: {
         getUnreadChats,
         setSearchParam,
         setIsCreatingNewGroup,
+        setIsAddingPeople,
     ]);
 
     return <div className="chatlist-list border">
