@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useMessageContext } from "./context";
 import { triggerErrorMessage } from "../../utils/locals";
 import { useSearchParams } from "react-router-dom";
+import { NewGroupChatButton } from "./manage-group";
 
 type ChatInfo = {
     id: string,
@@ -13,7 +14,13 @@ type ChatInfo = {
 export default function ChatList(): JSX.Element {
     const [privateChats, setPrivateChats] = useState<Array<ChatInfo>>([]);
     const [groupChats, setGroupChats] = useState<Array<ChatInfo>>([]);
-    const { isPrivateSelected, setCurrChatId, setIsCurrChatPrivate, setIsPrivateSelected } = useMessageContext();
+    const {
+        isPrivateSelected,
+        setCurrChatId,
+        setIsCurrChatPrivate,
+        setIsPrivateSelected,
+        setIsCreatingNewGroup,
+    } = useMessageContext();
     const [unreadPrivateChats, setUnreadPrivateChats] = useState<Set<string>>(new Set<string>());
     const [unreadGroupChats, setUnreadGroupChats] = useState<Set<string>>(new Set<string>());
     const searchParam = useSearchParams()[0];
@@ -95,7 +102,11 @@ export default function ChatList(): JSX.Element {
                     }))
                 });
             });
-    }, [searchParam, setCurrChatId, setIsCurrChatPrivate, setIsPrivateSelected]);
+        if (searchParam.get('chatid') === 'newgroupchat') {
+            setIsCreatingNewGroup(true);
+            setIsPrivateSelected(false);
+        }
+    }, [searchParam, setCurrChatId, setIsCurrChatPrivate, setIsPrivateSelected, setIsCreatingNewGroup]);
 
     return <div className="chatlist">
         <ChatIndicator getUnreadChats={getUnreadChats} />
@@ -148,19 +159,35 @@ const Container = ({ chats, isChatUnread, getUnreadChats, isFirstLoading }: {
         groups: boolean,
     }
 }): JSX.Element => {
-    const { isPrivateSelected, currChatId, setCurrChatId, setIsCurrChatPrivate } = useMessageContext();
+    const {
+        isPrivateSelected,
+        currChatId,
+        setCurrChatId,
+        setIsCurrChatPrivate,
+        isCreatingNewGroup,
+        setIsCreatingNewGroup,
+    } = useMessageContext();
     const setSearchParam = useSearchParams()[1];
     
     const handleClick = useCallback((chatId: string) => {
         setCurrChatId(chatId);
         setIsCurrChatPrivate(isPrivateSelected);
         getUnreadChats();
+        setIsCreatingNewGroup(false);
         setSearchParam({
             chatid: chatId,
         });
-    }, [setCurrChatId, setIsCurrChatPrivate, isPrivateSelected, getUnreadChats, setSearchParam]);
+    }, [
+        setCurrChatId,
+        setIsCurrChatPrivate,
+        isPrivateSelected,
+        getUnreadChats,
+        setSearchParam,
+        setIsCreatingNewGroup,
+    ]);
 
     return <div className="chatlist-list border">
+        {!isPrivateSelected && <NewGroupChatButton />}
         {chats.length === 0 && !isFirstLoading.privates && !isFirstLoading.groups
         ? <div className="p-3 text-danger">
             <p>Oh no, you have no friend ...</p>
@@ -168,7 +195,7 @@ const Container = ({ chats, isChatUnread, getUnreadChats, isFirstLoading }: {
         </div>
         : chats.map((chat) => (
             <div
-                className={"chatlist-list-item" + (currChatId === chat.id ? " chatlist-list-item-highlight" : "")}
+                className={"chatlist-list-item" + (currChatId === chat.id && !isCreatingNewGroup ? " chatlist-list-item-highlight" : "")}
                 onClick={() => handleClick(chat.id)}
                 key={chat.id}
             >

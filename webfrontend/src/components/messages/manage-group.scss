@@ -1,0 +1,137 @@
+.groupchat-form {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+    overflow: auto;
+
+    &-friend-search {
+        display: flex;
+        flex-direction: row;
+        gap: 15px;
+
+        &-result {
+            position: relative;
+
+            &-box {
+                position: absolute;
+                top: 0px;
+                left: 10px;
+                z-index: 1;
+                width: 30vw;
+                min-height: 70px;
+                max-height: 200px;
+                border: solid;
+                border-width: 1px;
+                border-color: black;
+                border-radius: 10px;
+                background-color: white;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                gap: 10px;
+                overflow: auto;
+
+                &-loader {
+                    z-index: 4;
+                    position: absolute;
+                    top: 0px;
+                    left: 0px;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    background-color: rgba(0, 0, 0, 0.2);
+                    border-radius: 10px;
+                }
+            }
+        }
+
+        &-friend {
+            &-item {
+                display: flex;
+                flex-direction: row;
+                gap: 10px;
+                align-items: center;
+                padding: 5px;
+                border-radius: 5px;
+
+                &:hover {
+                    background-color: rgb(220, 220, 220);
+                }
+            }
+
+            &-img {
+                height: 40px;
+                width: 40px;
+                img {
+                    max-width: 100%;
+                    max-height: 100%;
+                }
+            }
+
+            &-info {
+                display: flex;
+                flex-direction: column;
+                font-size: 12px;
+            }
+        }
+    }
+
+    &-friends {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    &-friend {
+        &.btn.btn-outline-info {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+        }
+
+        &-container {
+            position: relative;
+        }
+
+        &-img {
+            height: 50px;
+            width: 50px;
+            img {
+                max-height: 100%;
+                max-width: 100%;
+            }
+        }
+
+        &-info {
+            display: flex;
+            flex-direction: column;
+            font-size: 14px;
+        }
+
+        &-delete {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            transform: translate(50%, -50%);
+            border-radius: 30%;
+            transition: background-color 0.1s linear;
+            
+            &:hover {
+                background-color: rgb(195, 195, 195);
+            }
+        }
+    }
+
+    &-create {
+        padding-right: 15px;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+}

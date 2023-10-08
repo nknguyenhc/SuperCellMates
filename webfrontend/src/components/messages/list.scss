@@ -18,6 +18,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
+
+            &:hover {
+                background-color: rgb(227, 227, 227);
+            }
         }
     }
 
@@ -37,6 +41,10 @@
             padding-right: 20px;
             align-items: center;
 
+            &:hover {
+                background-color: rgb(227, 227, 227);
+            }
+
             &-container {
                 display: flex;
                 flex-direction: row;
@@ -55,7 +63,33 @@
             }
 
             &-highlight {
-                background-color: rgb(205, 203, 203);
+                background-color: rgb(203, 203, 203) !important;
+            }
+        }
+
+        &-form {
+            padding-left: 25px;
+            height: 50px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 15px;
+
+            &:hover {
+                background-color: rgb(227, 227, 227);
+            }
+
+            &-icon {
+                height: 30px;
+                width: 30px;
+                img {
+                    max-height: 100%;
+                    max-width: 100%;
+                }
+            }
+
+            &-highlight {
+                background-color: rgb(203, 203, 203) !important;
             }
         }
     }

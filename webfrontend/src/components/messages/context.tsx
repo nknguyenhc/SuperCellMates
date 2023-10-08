@@ -8,12 +8,15 @@ type MessageContextType = {
     setCurrChatId: Dispatch<SetStateAction<string | undefined>>,
     isCurrChatPrivate: boolean,
     setIsCurrChatPrivate: Dispatch<SetStateAction<boolean>>,
+    isCreatingNewGroup: boolean,
+    setIsCreatingNewGroup: Dispatch<SetStateAction<boolean>>,
 };
 
 const useMessageState = (): MessageContextType => {
     const [isPrivateSelected, setIsPrivateSelected] = useState<boolean>(true);
     const [currChatId, setCurrChatId] = useState<string | undefined>(undefined);
     const [isCurrChatPrivate, setIsCurrChatPrivate] = useState<boolean>(true);
+    const [isCreatingNewGroup, setIsCreatingNewGroup] = useState<boolean>(false);
 
     return {
         isPrivateSelected,
@@ -22,6 +25,8 @@ const useMessageState = (): MessageContextType => {
         setCurrChatId,
         isCurrChatPrivate,
         setIsCurrChatPrivate,
+        isCreatingNewGroup,
+        setIsCreatingNewGroup,
     };
 }
 

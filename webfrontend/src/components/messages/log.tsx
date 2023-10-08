@@ -4,6 +4,7 @@ import { Message } from "./message";
 import { ChatInput, ChatMore } from "./input";
 import { postRequestContent } from "../../utils/request";
 import { triggerErrorMessage } from "../../utils/locals";
+import { NewGroupChatForm } from "./manage-group";
 
 interface MessageInterface {
     id: string,
@@ -37,7 +38,7 @@ interface ReplyPostMessageType extends MessageInterface {
 export type MessageType = TextMessageType | FileMessageType | ReplyPostMessageType;
 
 export default function ChatLog(): JSX.Element {
-    const { currChatId, isCurrChatPrivate } = useMessageContext();
+    const { currChatId, isCurrChatPrivate, isCreatingNewGroup } = useMessageContext();
     const [isConnecting, setIsConnecting] = useState<boolean>(false);
     const [messages, setMessages] = useState<Array<MessageType>>([]);
     const chatSocket = useRef<WebSocket | undefined>(undefined);
@@ -160,6 +161,7 @@ export default function ChatLog(): JSX.Element {
     const resetLog = useCallback(() => {
         setIsChatDisabled(false);
         setMessages([]);
+        setIsConnecting(false);
         currTime.current = new Date().getTime() / 1000;
         isFirstLoading.current = true;
         isFullHistoryLoaded.current = false;
@@ -234,7 +236,9 @@ export default function ChatLog(): JSX.Element {
     ]);
 
     return <div className="chatlog border">
-        {currChatId === undefined
+        {isCreatingNewGroup
+        ? <NewGroupChatForm />
+        : currChatId === undefined
         ? <div className="text-secondary fst-italic">Select a chat</div>
         : <>
             <div className="chatlog-log" ref={logDiv}>
@@ -251,7 +255,7 @@ export default function ChatLog(): JSX.Element {
                 <ChatInput sendMessage={sendMessage} />
             </div>}
         </>}
-        {isConnecting && <div className="chatlog-loader">
+        {isConnecting && !isCreatingNewGroup && <div className="chatlog-loader">
             <span className="spinner-grow text-warning" />
         </div>}
     </div>;
