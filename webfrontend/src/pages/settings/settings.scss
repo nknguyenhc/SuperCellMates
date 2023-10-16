@@ -1,0 +1,42 @@
+.settings-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  gap: 100px;
+
+}
+.left-section {
+  margin-top: 15px;
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-radius: 5px;
+  box-shadow: 10px 0 5px -2px #888;
+  height: auto;
+}
+.right-section {
+  flex: 5;
+  padding: 0 0;
+}
+.menu-title {
+  margin-left: 0;
+}
+.menu-settings-button {
+  margin-left:0;
+  background-color: white;
+  height: 50px;
+  width: 150px;
+  border: none;
+  padding: 5px 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 2s;
+}
+.menu-settings-button:hover {
+  opacity: 1;
+  background-color: #00A3FF;
+}
+
