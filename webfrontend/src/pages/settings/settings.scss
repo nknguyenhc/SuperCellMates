@@ -1,25 +1,30 @@
+.settings-page {
+  height: 100vh;
+}
 .settings-container {
+  height: 100%;
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
   gap: 100px;
-
 }
 .left-section {
   margin-top: 15px;
-  flex: 2;
+  border-radius: 5px;
+  box-shadow: 2px 0 5px -2px #888;
+  height: auto;
+  font-size: 18px;
+  flex: 4;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: start;
   gap: 20px;
-  border-radius: 5px;
-  box-shadow: 10px 0 5px -2px #888;
-  height: auto;
+ 
 }
 .right-section {
   flex: 5;
-  padding: 0 0;
+  padding: 15px;
 }
 .menu-title {
   margin-left: 0;
@@ -31,6 +36,7 @@
   width: 150px;
   border: none;
   padding: 5px 5px;
+  text-align: left;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 2s;

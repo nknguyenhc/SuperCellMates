@@ -1,37 +1,47 @@
 import React, { useState } from 'react'
+import './PasswordForm.scss'
 interface props {
   setIsClickPassword: React.Dispatch<React.SetStateAction<boolean>>;
 }
 const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
   const [oldPassword, setOldPassword] = useState<string>("");
-  
+  const [newPassword, setNewPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
   return (
     <div className='form-container'>
     <form 
-       className='username-form'
+       className='password-form'
        onSubmit={() => {
          console.log("okay");
-         setIsClickUsername(prev => !prev);
+         setIsClickPassword(prev => !prev);
        }}
      >
-       <div className="username-input">
-         <p className="title">New Username</p>
+       <div className="oldPassword-input">
+         <p className="title">Old Password</p>
          <input 
-           value ={username}
-           onChange={(e) => setUsername(e.target.value)}
-           className='username-input-text'
+           value ={oldPassword}
+           onChange={(e) => setOldPassword(e.target.value)}
+           className='oldPassword-input-text'
          />
        </div>
-       <div className="password-input">
-         <p className="title">Confirm Password</p>
+       <div className="newPassword-input">
+         <p className="title">New Password</p>
          <input 
-           value={password}
-           onChange={(e) => setPassword(e.target.value)}
-           className = 'password-input-text'
+           value={newPassword}
+           onChange={(e) => setNewPassword(e.target.value)}
+           className = 'newPassword-input-text'
+         />
+       </div>
+       <div className="confirmPassword-input">
+         <p className="title">Confrim New Password</p>
+         <input 
+           value={confirmPassword}
+           onChange={(e) => setConfirmPassword(e.target.value)}
+           className = 'confirmPassword-input-text'
          />
        </div>
        <button type='submit' className='input_submit'>
-           change username
+           Change Password
        </button>
      </form>
  </div>
