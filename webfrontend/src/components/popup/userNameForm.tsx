@@ -51,7 +51,7 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
           </div>
           {error ? <p className='error-statement'>Username and password cannot be left blank and username has to be alphanumeric(a-z,A-Z,0-9)</p>:""}
           <button type='submit' className='input_submit'>
-              change username
+              Change username
           </button>
         </form>
     </div>

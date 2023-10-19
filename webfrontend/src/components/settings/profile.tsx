@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import './profile.scss'
+import { Link } from 'react-router-dom';
 import ChangeNameForm from '../popup/ChangeNameForm';
 const Profile = () => {
   const [isClickEditProfile, setIsClickEditProfile] = useState<boolean>(false);
@@ -19,7 +20,7 @@ const Profile = () => {
         <button 
           className="profile-button"
           onClick={() => handleclick(1)}
-        >Edit Profile</button>
+        ><Link to='/profile/setup' className='edit-profile-link'>Edit Profile</Link></button>
         <button 
           className="change-name"
           onClick={() => handleclick(2)}

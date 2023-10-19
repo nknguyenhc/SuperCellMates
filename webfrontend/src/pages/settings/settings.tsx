@@ -6,6 +6,7 @@ import Profile from '../../components/settings/profile'
 import './settings.scss'
 import {MdPrivacyTip} from "react-icons/md";
 import {CgProfile} from "react-icons/cg"
+import {AiOutlineQuestionCircle} from "react-icons/ai"
 const Settings:React.FC = () => {
   const [button1,setButton1] = useState(true);
   const [button2,setButton2] = useState(false);
@@ -33,16 +34,17 @@ const Settings:React.FC = () => {
               className='menu-settings-button'
               onClick={() => handleClick(2)}
             > <CgProfile/> Profile</button>
-          
-            <button className="logout-button">Log Out</button>
-          
+        
+            <Link to='/login' className='logout-link'>Log Out </Link>
+    
           </div>
           <div className="right-section">
              {button1 === true ? <Authentication /> : "" }
              {button2 === true ? <Profile /> : ""}
           </div>
+          <Link to='/about' className='about-link'>
+            <AiOutlineQuestionCircle/>   About </Link>
           
-         
        </div>
     </div>
   )
