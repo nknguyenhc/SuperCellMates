@@ -7,15 +7,28 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
   const [oldPassword, setOldPassword] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [error,setError] = useState<boolean>(false);
   return (
     <div className='form-container'>
     <form 
        className='password-form'
-       onSubmit={() => {
-         console.log("okay");
-         setIsClickPassword(prev => !prev);
+       onSubmit={(e) => {
+            e.preventDefault();
+            if ( !(oldPassword === "") && !(newPassword ==="") && !(confirmPassword === "")) {
+              setError(false);
+              setIsClickPassword(prev => !prev);
+            }
+            else {
+              setError(true);
+            }
        }}
      >
+       <button 
+            className='escape-button' 
+            onClick={()=>{
+              setIsClickPassword(prev => !prev);
+            }}
+            >X</button>
        <div className="oldPassword-input">
          <p className="title">Old Password</p>
          <input 
@@ -40,6 +53,7 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
            className = 'confirmPassword-input-text'
          />
        </div>
+       {error ? <p className='error-statement'>Input field cannot be left blank</p>:""}
        <button type='submit' className='input_submit'>
            Change Password
        </button>

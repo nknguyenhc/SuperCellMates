@@ -30,7 +30,6 @@ const Authentication = () => {
           className="password-button"
           onClick = {() => handleClick(2)}
         >Change password</button>
-        <button className="logout-button">Log Out</button>
       </div> 
       {isClickUsername ? <UserNameForm setIsClickUsername={setIsClickUsername}/> : ""}
       {isClickPassword ? <PasswordForm setIsClickPassword={setIsClickPassword} />:""}

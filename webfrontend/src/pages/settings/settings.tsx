@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import Authentication from '../../components/settings/authentication'
 import Profile from '../../components/settings/profile'
@@ -32,6 +33,9 @@ const Settings:React.FC = () => {
               className='menu-settings-button'
               onClick={() => handleClick(2)}
             > <CgProfile/> Profile</button>
+          
+            <button className="logout-button">Log Out</button>
+          
           </div>
           <div className="right-section">
              {button1 === true ? <Authentication /> : "" }

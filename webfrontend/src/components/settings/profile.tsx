@@ -15,7 +15,7 @@ const Profile = () => {
   return (
     <div className='profile-settings'>
       <div className="profile-menu">
-        <h1>Profile</h1>
+        <h1>Profile Settings</h1>
         <button 
           className="profile-button"
           onClick={() => handleclick(1)}
