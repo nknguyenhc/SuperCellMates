@@ -15,5 +15,6 @@ urlpatterns = [
     path('search', views.search, name="search"),
     path('search_username', views.search_username, name="search_username"),
     path('search_friend', views.search_friend, name='search_friend'),
+    path('search_friend_username', views.search_friend_username, name='search_friend_username'),
     path('delete_friend', views.delete_friend, name="delete_friend"),
 ]

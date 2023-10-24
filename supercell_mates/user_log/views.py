@@ -361,7 +361,7 @@ def search_username(request):
         return HttpResponseBadRequest("no username (GET) parameter found in the request")
 
 
-def find_friends(search_param, user_log_obj):
+def find_friends(search_param, user_log_obj, by_username_only):
     """Find friends of the current user represented by the user log instance.
 
     Args:
@@ -386,7 +386,7 @@ def find_friends(search_param, user_log_obj):
             "profile_link": reverse("user_log:view_profile", args=(user.user_auth.username,)),
         }),
         filter(
-            lambda user: search_param in user.user_auth.username.lower(),
+            lambda user: search_param in user.user_auth.username.lower() or (search_param in user.user_profile.name.lower() if not by_username_only else False),
             list(user_log_obj.friend_list.all())
         )
     ))
@@ -413,7 +413,34 @@ def search_friend(request):
         search_param = request.GET["username"]
         if type(search_param) != str:
             return HttpRequestBadRequest("username GET parameter is not string!")
-        users = find_friends(search_param, request.user.user_log)
+        users = find_friends(search_param, request.user.user_log, False)
+        return JsonResponse({
+            "users": users
+        })
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("no username (GET) parameter found in the request")
+
+
+@login_required
+def search_friend_username(request):
+    """Search for a friend.
+    The request must contain GET parameter of "username", which is the search parameter.
+    The search returns friends with current user whose usernames or names contain the search parameter as substring.
+    The returned json contains the following fields:
+        users: the list of friends that match the query
+    
+    Args:
+        request (HttpRequest): the request made to this view
+
+    Returns:
+        JsonResponse/HttpResponse: the result of the search.
+    """
+
+    try:
+        search_param = request.GET["username"]
+        if type(search_param) != str:
+            return HttpRequestBadRequest("username GET parameter is not string!")
+        users = find_friends(search_param, request.user.user_log, True)
         return JsonResponse({
             "users": users
         })
