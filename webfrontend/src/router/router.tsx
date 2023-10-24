@@ -4,6 +4,7 @@ import { Login } from "../components/auth/login/login";
 import Home from "../pages/home/home";
 import Messages from "../pages/messages/messages";
 import Settings from "../pages/settings/settings";
+import Profile from "../pages/profile/profile";
 const router = createBrowserRouter([
     {
         path: "/",
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
             {
                 path: "/settings",
                 element: <Settings />
+            },
+            {
+                path: "/profile",
+                element: <Profile />
             }
         ]
     }
