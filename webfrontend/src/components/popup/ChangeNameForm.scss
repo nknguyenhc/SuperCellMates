@@ -9,13 +9,13 @@
   justify-content: center;
   align-items: center;
 }
-.newname-form {
+.changename-form {
   position: relative;
   padding: 32px;
   width: 100%;
   max-width: 640px;
   background-color: white;
-  border-radius: 2px;
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -33,7 +33,7 @@
   border-radius: 30px;
   background-color: rgba(0,0,0,0.1);
 }
-.newname-input-text,
+.changename-input-text,
 .password-input-text {
   height: 50px;
   width: 300px;

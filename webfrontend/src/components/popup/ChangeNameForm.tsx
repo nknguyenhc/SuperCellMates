@@ -1,6 +1,5 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useState } from 'react';
-import './ChangeNameForm.scss'
 interface props {
   setIsClickChangeName:React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -8,24 +7,22 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
   const [newName,setNewName] = useState<string>("");
   const [password,setPassword] = useState<string>("");
   const [error,setError] = useState<boolean>(false);
-  function isAphanumeric(str:string) {
-    return str.match(/^[a-zA-Z0-9]+$/) !== null;
-  }
+  const submitForm = useCallback((e:React.SyntheticEvent<EventTarget>) => {
+    e.preventDefault();
+    if ((!(newName === ""))  && !(password === "")) {
+      setError(false);
+      setIsClickChangeName(prev => !prev);
+    }
+    else {
+      setError(true);
+    }
+  },[]);
   return (
     <div className='form-container'>
       
        <form 
-          className='newname-form'
-          onSubmit={(e) => {
-            e.preventDefault();
-            if ((!(newName === "")) && (isAphanumeric(newName)) && !(password === "")) {
-              setError(false);
-              setIsClickChangeName(prev => !prev);
-            }
-            else {
-              setError(true);
-            }
-          }}
+          className='changename-form'
+          onSubmit={() => submitForm}
         >
            <button 
             className='escape-button' 
@@ -33,12 +30,12 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
               setIsClickChangeName(prev => !prev);
             }}
             >X</button>
-          <div className="newname-input">
+          <div className="changename-input">
             <p className="title">New Name</p>
             <input 
               value ={newName}
               onChange={(e) => setNewName(e.target.value)}
-              className='newname-input-text'
+              className='changename-input-text'
             />
           </div>
           <div className="password-input">

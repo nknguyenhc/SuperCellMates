@@ -1,5 +1,4 @@
-import React, { useState } from 'react'
-import './PasswordForm.scss'
+import React, { useCallback, useState } from 'react'
 interface props {
   setIsClickPassword: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -8,20 +7,21 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [error,setError] = useState<boolean>(false);
+  const submitForm = useCallback((e:React.SyntheticEvent<EventTarget>) => {
+    e.preventDefault();
+    if ( !(oldPassword === "") && !(newPassword ==="") && !(confirmPassword === "")) {
+      setError(false);
+      setIsClickPassword(prev => !prev);
+    }
+    else {
+      setError(true);
+    }
+},[])
   return (
     <div className='form-container'>
     <form 
        className='password-form'
-       onSubmit={(e) => {
-            e.preventDefault();
-            if ( !(oldPassword === "") && !(newPassword ==="") && !(confirmPassword === "")) {
-              setError(false);
-              setIsClickPassword(prev => !prev);
-            }
-            else {
-              setError(true);
-            }
-       }}
+       onSubmit={() => submitForm}
      >
        <button 
             className='escape-button' 

@@ -1,6 +1,5 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useState } from 'react';
-import './userNameForm.scss'
 interface props {
   setIsClickUsername: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -11,21 +10,22 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
   function isAphanumeric(str:string) {
     return str.match(/^[a-zA-Z0-9]+$/) !== null;
   }
+  const submitForm = useCallback((e:React.SyntheticEvent<EventTarget>) => {
+    e.preventDefault();
+    if ((!(username === "")) && (isAphanumeric(username)) && !(password === "")) {
+      setError(false);
+      setIsClickUsername(prev => !prev);
+    }
+    else {
+      setError(true);
+    }
+  
+  },[]);
   return (
     <div className='form-container'>
        <form 
           className='username-form'
-          onSubmit={(e) => {
-            e.preventDefault();
-            if ((!(username === "")) && (isAphanumeric(username)) && !(password === "")) {
-              setError(false);
-              setIsClickUsername(prev => !prev);
-            }
-            else {
-              setError(true);
-            }
-          
-          }}
+          onSubmit={() => submitForm}
         >
            <button 
             className='escape-button' 
