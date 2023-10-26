@@ -178,6 +178,27 @@ def setup(request):
 
 
 @login_required
+def get_privacy_settings(request):
+    """Returns privacy settings, either "public", "friends", "friends with tag" or "tag".
+    """
+    privacy = ""
+    user_log = request.user.user_log
+    if user_log.public_visible:
+        privacy = "public"
+    elif user_log.friend_visible:
+        if user_log.tag_visible:
+            privacy = "friends with tag"
+        else:
+            privacy = "friends"
+    else:
+        privacy = "tag"
+
+    return JsonResponse({
+        "privacy": privacy,
+    })
+
+
+@login_required
 def obtain_tags(request):
     """Return the list of tags associated with the current user.
     The response is in the form of json, which consists of the following fields:

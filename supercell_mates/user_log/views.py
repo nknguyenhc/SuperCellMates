@@ -53,6 +53,33 @@ def view_profile_context(user_auth_obj, request_user):
     return result
 
 
+def has_same_tag(request_profile, target_profile):
+    target_tag_list = target_profile.tagList.all()
+    for tag in request_profile.tagList.all():
+        if tag in target_tag_list:
+            return True
+    return False
+
+
+def can_view_profile(request_user_auth, target_username):
+    if not UserAuth.objects.filter(username=target_username).exists():
+        return False
+
+    target_log = UserAuth.objects.get(username=target_username).user_log
+    if target_log.public_visible:
+        return True
+    if target_log.friend_visible:
+        if target_log.friend_list.filter(user_auth=request_user_auth).exists():
+            if target_log.tag_visible:
+                return has_same_tag(request_user_auth.user_profile, target_log.user_profile)
+            else:
+                return True
+        else:
+            return False
+    else:
+        return has_same_tag(request_user_auth.user_profile, target_log.user_profile)
+
+
 @login_required
 def view_profile(request, username):
     """Returns the template to view another user.
@@ -67,10 +94,10 @@ def view_profile(request, username):
         HttpResponse: the response with the template to view the target user
     """
     try:
-        if UserAuth.objects.filter(username=username).exists() and request.user.username != username:
-            return render(request, "user_log/view_profile.html", view_profile_context(UserAuth.objects.get(username=username), request.user))
-        elif request.user.username == username:
+        if request.user.username == username:
             return redirect(reverse("user_profile:index"))
+        elif can_view_profile(request.user, username):
+            return render(request, "user_log/view_profile.html", view_profile_context(UserAuth.objects.get(username=username), request.user))
         else:
             return HttpResponseNotFound()
     except ObjectDoesNotExist:
@@ -90,12 +117,42 @@ def view_profile_async(request, username):
         The fields in the JsonResponse are the same fields as those in the dictionary returned by view_profile_context function in this app.
     """
     try:
-        if UserAuth.objects.filter(username=username).exists() and request.user.username != username:
+        if request.user.username == username:
+            return redirect(reverse("user_profile:index_async"))
+        if can_view_profile(request.user, username):
             return JsonResponse(view_profile_context(UserAuth.objects.get(username=username), request.user))
         else:
             return HttpResponseNotFound()
     except ObjectDoesNotExist:
         return HttpResponseBadRequest("Tag activity record not found when computing matching index")
+
+
+@login_required
+@require_http_methods(["POST"])
+def set_profile_privacy(request):
+    """Change privacy policy.
+    The body must contain the following fields:
+    - privacy: the new privacy, either "public", "friends", "tag" or "friends with tag"
+    """
+    try:
+        new_privacy = request.POST["privacy"]
+        if new_privacy not in ["public", "friends", "tag", "friends with tag"]:
+            return HttpResponseBadRequest("invalid new_privacy")
+
+        public_visible = new_privacy == "public"
+        friend_visible = new_privacy == "friends" or new_privacy == "friends with tag"
+        tag_visible = new_privacy == "tag" or new_privacy == "friends with tag"
+
+        user_log = request.user.user_log
+        user_log.public_visible = public_visible
+        user_log.friend_visible = friend_visible
+        user_log.tag_visible = tag_visible
+        user_log.save()
+
+        return HttpResponse("ok")
+    
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("privacy key not found")
 
 
 @login_required
