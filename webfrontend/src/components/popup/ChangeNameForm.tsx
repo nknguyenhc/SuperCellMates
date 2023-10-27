@@ -1,5 +1,8 @@
 import React, { useCallback } from 'react'
 import { useState } from 'react';
+import { postRequestContent } from '../../utils/request';
+import { response } from 'express';
+import { triggerErrorMessage } from '../../utils/locals';
 interface props {
   setIsClickChangeName:React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -10,26 +13,37 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
   const submitForm = useCallback((e:React.SyntheticEvent<EventTarget>) => {
     e.preventDefault();
     if ((!(newName === ""))  && !(password === "")) {
-      setError(false);
-      setIsClickChangeName(prev => !prev);
+      fetch('/profile/change_name',postRequestContent({
+        username: newName,
+      }))
+      .then(response => {
+          if (response.status != 200) {
+            triggerErrorMessage();
+            return;
+          }
+          setNewName("");
+          setError(false);
+          setIsClickChangeName(prev => !prev);
+      });
+    
+
     }
     else {
       setError(true);
     }
-  },[]);
+  },[error,newName,password]);
   return (
     <div className='form-container'>
       
        <form 
           className='changename-form'
-          onSubmit={() => submitForm}
+          onSubmit={(e) => submitForm(e)}
         >
-           <button 
-            className='escape-button' 
+          <button type="button" className="btn-close" aria-label="Close"
             onClick={()=>{
               setIsClickChangeName(prev => !prev);
             }}
-            >X</button>
+          ></button>
           <div className="changename-input">
             <p className="title">New Name</p>
             <input 

@@ -16,19 +16,18 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
     else {
       setError(true);
     }
-},[])
+},[error,oldPassword,newPassword,confirmPassword])
   return (
     <div className='form-container'>
     <form 
        className='password-form'
-       onSubmit={() => submitForm}
+       onSubmit={(e) => submitForm(e)}
      >
-       <button 
-            className='escape-button' 
-            onClick={()=>{
-              setIsClickPassword(prev => !prev);
-            }}
-            >X</button>
+        <button type="button" className="btn-close" aria-label="Close"
+          onClick={()=>{
+            setIsClickPassword(prev => !prev);
+          }}
+        ></button>
        <div className="oldPassword-input">
          <p className="title">Old Password</p>
          <input 

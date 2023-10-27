@@ -1,5 +1,8 @@
 import React, { useCallback } from 'react'
 import { useState } from 'react';
+import { postRequestContent } from '../../utils/request';
+import { response } from 'express';
+import { triggerErrorMessage } from '../../utils/locals';
 interface props {
   setIsClickUsername: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -12,27 +15,41 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
   }
   const submitForm = useCallback((e:React.SyntheticEvent<EventTarget>) => {
     e.preventDefault();
+    console.log(username);
+    console.log(password);
     if ((!(username === "")) && (isAphanumeric(username)) && !(password === "")) {
-      setError(false);
-      setIsClickUsername(prev => !prev);
+      fetch('/profile/change_name',postRequestContent({
+        username: username,
+      }))
+      .then(response => {
+          if (response.status != 200) {
+            triggerErrorMessage();
+            return;
+          }
+          setUsername("");
+          setError(false);
+          setIsClickUsername(prev => !prev);
+      });
+    
+
+     
     }
     else {
       setError(true);
     }
   
-  },[]);
+  },[error,username,password]);
   return (
     <div className='form-container'>
        <form 
           className='username-form'
-          onSubmit={() => submitForm}
+          onSubmit={(e) => submitForm(e)}
         >
-           <button 
-            className='escape-button' 
-            onClick={()=>{
-              setIsClickUsername(prev => !prev);
-            }}
-            >X</button>
+            <button type="button" className="btn-close" aria-label="Close"
+              onClick={()=>{
+                setIsClickUsername(prev => !prev);
+              }}
+            ></button>
           <div className="username-input">
             <p className="title">New Username</p>
             <input 
@@ -53,6 +70,7 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
           <button type='submit' className='input_submit'>
               Change username
           </button>
+        
         </form>
     </div>
   )
