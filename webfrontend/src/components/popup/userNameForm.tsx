@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { postRequestContent } from '../../utils/request';
 import { response } from 'express';
 import { triggerErrorMessage } from '../../utils/locals';
+import Spinner from 'react-bootstrap/Spinner'
 interface props {
   setIsClickUsername: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -10,6 +11,7 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
   const [username,setUsername] = useState<string>("");
   const [password,setPassword] = useState<string>("");
   const [error,setError] = useState<boolean>(false);
+  const [isLoading,setIsLoading] = useState<boolean>(false);
   function isAphanumeric(str:string) {
     return str.match(/^[a-zA-Z0-9]+$/) !== null;
   }
@@ -18,6 +20,10 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
     console.log(username);
     console.log(password);
     if ((!(username === "")) && (isAphanumeric(username)) && !(password === "")) {
+      if (isLoading) {
+        return;
+      }
+      setIsLoading(true);
       fetch('/profile/change_name',postRequestContent({
         username: username,
       }))
@@ -29,6 +35,7 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
           setUsername("");
           setError(false);
           setIsClickUsername(prev => !prev);
+          setIsLoading(false);
       });
     
 
@@ -38,7 +45,7 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
       setError(true);
     }
   
-  },[error,username,password]);
+  },[error,username,password,isLoading]);
   return (
     <div className='form-container'>
        <form 
@@ -70,6 +77,9 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
           <button type='submit' className='input_submit'>
               Change username
           </button>
+          {isLoading?<Spinner animation="border" role="status">
+      <span className="visually-hidden">Loading...</span>
+    </Spinner>:""}
         
         </form>
     </div>

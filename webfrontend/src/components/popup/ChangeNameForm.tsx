@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { postRequestContent } from '../../utils/request';
 import { response } from 'express';
 import { triggerErrorMessage } from '../../utils/locals';
+import Spinner from 'react-bootstrap/esm/Spinner';
 interface props {
   setIsClickChangeName:React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -10,9 +11,14 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
   const [newName,setNewName] = useState<string>("");
   const [password,setPassword] = useState<string>("");
   const [error,setError] = useState<boolean>(false);
+  const [isLoading,setIsLoading] = useState<boolean>(false);
   const submitForm = useCallback((e:React.SyntheticEvent<EventTarget>) => {
     e.preventDefault();
     if ((!(newName === ""))  && !(password === "")) {
+      if (isLoading) {
+        return;
+      }
+      setIsLoading(true);
       fetch('/profile/change_name',postRequestContent({
         username: newName,
       }))
@@ -21,6 +27,7 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
             triggerErrorMessage();
             return;
           }
+          setIsLoading(false);
           setNewName("");
           setError(false);
           setIsClickChangeName(prev => !prev);
@@ -31,7 +38,7 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
     else {
       setError(true);
     }
-  },[error,newName,password]);
+  },[error,newName,password,isLoading]);
   return (
     <div className='form-container'>
       
@@ -64,6 +71,9 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
           <button type='submit' className='input_submit'>
               Change Name
           </button>
+          {isLoading?<Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>:""}
         </form>
     </div>
   )
