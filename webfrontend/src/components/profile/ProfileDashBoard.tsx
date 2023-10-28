@@ -3,6 +3,9 @@ import {FcInvite} from 'react-icons/fc'
 import {BsFillPeopleFill} from 'react-icons/bs'
 import { triggerErrorMessage } from '../../utils/locals'
 import { Button } from 'react-bootstrap'
+import { callbackify } from 'util'
+import { postRequestContent } from '../../utils/request'
+import { response } from 'express'
 export type FriendType = {
   name:string,
   username: string,
@@ -62,12 +65,27 @@ const ProfileDashBoard = () => {
             img: user.profile_pic_url,
           }))); 
         })
-        console.log(friendRequests);
       })
   },[]);
   useEffect(() => {
     getFriendRequest();
   },[getFriendRequest]); 
+
+  const handleAprroveFriends = useCallback((friend: FriendType) => {
+    fetch('/user/add_friend', postRequestContent({
+      name: friend.name,
+      username: friend.username,
+      link: friend.link,
+      img: friend.img
+    }))
+      .then(res => {
+        if (res.status !== 200) {
+          triggerErrorMessage();
+          return;
+        }
+
+      })
+  },[]);
   return (
     <div className='profile-dash-board'>
       <div className="dashboard-container">
