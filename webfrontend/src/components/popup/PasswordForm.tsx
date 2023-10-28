@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react'
 import { postRequestContent } from '../../utils/request';
-import { response } from 'express';
 import { triggerErrorMessage } from '../../utils/locals';
 import Spinner from 'react-bootstrap/esm/Spinner';
 interface props {
@@ -20,7 +19,8 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
       }
       setIsLoading(true);
       fetch('/change_password', postRequestContent({
-        userpassword: newPassword,
+        old_password: oldPassword,
+        new_password: newPassword,
       }))
       .then (response => {
         if (response.status !== 200) {
@@ -38,7 +38,7 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
     else {
       setError(true);
     }
-},[error,oldPassword,newPassword,confirmPassword,isLoading])
+},[error,oldPassword,newPassword,confirmPassword,isLoading,setIsClickPassword])
   return (
     <div className='form-container'>
     <form 
@@ -46,7 +46,7 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
        onSubmit={(e) => submitForm(e)}
      >
         <button type="button" className="btn-close" aria-label="Close"
-          onClick={()=>{
+          onClick={() => {
             setIsClickPassword(prev => !prev);
           }}
         ></button>
@@ -55,7 +55,7 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
          <input 
            value ={oldPassword}
            onChange={(e) => setOldPassword(e.target.value)}
-           className='oldPassword-input-text'
+           className='form-control form-control-lg'
          />
        </div>
        <div className="newPassword-input">
@@ -63,7 +63,7 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
          <input 
            value={newPassword}
            onChange={(e) => setNewPassword(e.target.value)}
-           className = 'newPassword-input-text'
+           className = 'form-control form-control-lg'
          />
        </div>
        <div className="confirmPassword-input">
@@ -71,7 +71,7 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
          <input 
            value={confirmPassword}
            onChange={(e) => setConfirmPassword(e.target.value)}
-           className = 'confirmPassword-input-text'
+           className = 'form-control form-control-lg'
          />
        </div>
        {error ? <p className='error-statement'>Input field cannot be left blank</p>:""}

@@ -1,7 +1,6 @@
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 import { useState } from 'react';
 import { postRequestContent } from '../../utils/request';
-import { response } from 'express';
 import { triggerErrorMessage } from '../../utils/locals';
 import Spinner from 'react-bootstrap/esm/Spinner';
 interface props {
@@ -20,10 +19,13 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
       }
       setIsLoading(true);
       fetch('/profile/change_name',postRequestContent({
-        username: newName,
+        name: newName,
+        password: password,
       }))
       .then(response => {
-          if (response.status != 200) {
+          if (response.status !== 200) {
+           // response.text().then(response => console.log(response))
+           console.log(response);
             triggerErrorMessage();
             return;
           }
@@ -38,7 +40,7 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
     else {
       setError(true);
     }
-  },[error,newName,password,isLoading]);
+  }, [error,newName,password,isLoading]);
   return (
     <div className='form-container'>
       
@@ -47,7 +49,7 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
           onSubmit={(e) => submitForm(e)}
         >
           <button type="button" className="btn-close" aria-label="Close"
-            onClick={()=>{
+            onClick={() => {
               setIsClickChangeName(prev => !prev);
             }}
           ></button>
@@ -56,7 +58,7 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
             <input 
               value ={newName}
               onChange={(e) => setNewName(e.target.value)}
-              className='changename-input-text'
+              className='form-control form-control-lg'
             />
           </div>
           <div className="password-input">
@@ -64,7 +66,7 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
             <input 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className = 'password-input-text'
+              className = 'form-control form-control-lg'
             />
           </div>
           {error ? <p className='error-statement'>Username and password cannot be left blank and username has to be alphanumeric(a-z,A-Z,0-9)</p>:""}
