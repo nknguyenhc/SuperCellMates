@@ -51,11 +51,6 @@ export default function NavBar(): JSX.Element {
             id: 'nav-home'
         },
         {
-            image: 'request-tag.png',
-            text: 'Request tag',
-            id: 'nav-request-tag',
-        },
-        {
             href: '/profile',
             image: 'profile.png',
             text: 'Profile',
@@ -67,15 +62,6 @@ export default function NavBar(): JSX.Element {
             text: 'Message',
             id: 'nav-message',
             children: <span className="position-absolute top-100 start-100 translate-middle badge rounded-pill bg-danger" id="message-count-badge" />,
-        },
-        {
-            image: 'notification-icon.png',
-            text: 'Notification',
-            id: 'nav-notification',
-            children: <>
-                <span className="position-absolute top-100 start-100 translate-middle badge rounded-pill bg-danger" id="notification-count-badge" />
-                <div className="position-absolute" id="notification-centre" style={{ display: "none" }} />
-            </>,
         },
         {
             href: '/settings',
@@ -106,7 +92,7 @@ export default function NavBar(): JSX.Element {
             <div className="container-fluid navbar-container">
                 <div className="navbar-collapse justify-content-between" id="navbarSupportedContent">
                     <ul className="navbar-nav">
-                        {!authState.isLoggedIn 
+                        {false 
                         ? publicRoutes.map((route, routeIndex) => (
                             <Link to={route.href} key={routeIndex}>
                                 <li className="nav-item layout-nav-item">
@@ -166,14 +152,6 @@ export default function NavBar(): JSX.Element {
                             </li>
                         ))}
                     </ul>
-                    {authState.isLoggedIn &&
-                    <div className="position-relative">
-                        <form autoComplete='off' id='search-form' className="d-flex" role="search">
-                            <input id='search-input' className="form-control me-2" type="search" name="username" placeholder="Find user" aria-label="Search" />
-                            <button className="btn btn-outline-primary" type="submit">Search</button>
-                        </form>
-                        <div id="search-result-box" style={{ display: "none" }} />
-                    </div>}
                 </div>
             </div>
         </nav>
