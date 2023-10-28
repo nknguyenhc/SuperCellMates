@@ -13,7 +13,12 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
   const [isLoading,setIsLoading] = useState<boolean>(false);
   const submitForm = useCallback((e:React.SyntheticEvent<EventTarget>) => {
     e.preventDefault();
+    setError("");
     if ( !(oldPassword === "") && !(newPassword ==="") && !(confirmPassword === "")) {
+      if (newPassword !== confirmPassword) {
+        setError('Confirmed password is not correct');
+        return;
+      }
       setIsLoading(true);
       fetch('/change_password', postRequestContent({
         old_password: oldPassword,
@@ -27,6 +32,7 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
         response.text().then((response) => {
           if (response === 'Old password is incorrect') {
             setError('Old password is incorrect');
+            setIsLoading(false);
             return;
 
           } else {

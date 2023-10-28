@@ -18,6 +18,7 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
     e.preventDefault();
     console.log(username);
     console.log(password);
+    setError("")
     if ((!(username === "")) && (isAphanumeric(username)) && !(password === "")) {
    
       setIsLoading(true);
@@ -34,6 +35,7 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
             console.log(response);
             if (response === 'Password is incorrect') {
               setError('Password is incorrect');
+              setIsLoading(false);
               return;
 
             } else {

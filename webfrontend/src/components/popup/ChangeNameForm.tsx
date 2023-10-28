@@ -13,6 +13,7 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
   const [isLoading,setIsLoading] = useState<boolean>(false);
   const submitForm = useCallback((e:React.SyntheticEvent<EventTarget>) => {
     e.preventDefault();
+    setError("");
     if ((!(newName === ""))  && !(password === "")) {
       console.log(password);
       setIsLoading(true);
@@ -30,6 +31,7 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
           response.text().then((response) => {
               if (response === 'Authentication fails') {
                 setError('Authentication fails');
+                setIsLoading(false);
                 return;
 
               } else {
