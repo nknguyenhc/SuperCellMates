@@ -24,7 +24,7 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
         return;
       }
       setIsLoading(true);
-      fetch('/profile/change_name',postRequestContent({
+      fetch('/change_username',postRequestContent({
         username: username,
       }))
       .then(response => {

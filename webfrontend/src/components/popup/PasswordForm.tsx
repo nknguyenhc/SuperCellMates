@@ -1,4 +1,8 @@
 import React, { useCallback, useState } from 'react'
+import { postRequestContent } from '../../utils/request';
+import { response } from 'express';
+import { triggerErrorMessage } from '../../utils/locals';
+import Spinner from 'react-bootstrap/esm/Spinner';
 interface props {
   setIsClickPassword: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -7,16 +11,34 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [error,setError] = useState<boolean>(false);
+  const [isLoading,setIsLoading] = useState<boolean>(false);
   const submitForm = useCallback((e:React.SyntheticEvent<EventTarget>) => {
     e.preventDefault();
     if ( !(oldPassword === "") && !(newPassword ==="") && !(confirmPassword === "")) {
-      setError(false);
-      setIsClickPassword(prev => !prev);
+      if (isLoading) {
+        return;
+      }
+      setIsLoading(true);
+      fetch('/change_password', postRequestContent({
+        userpassword: newPassword,
+      }))
+      .then (response => {
+        if (response.status !== 200) {
+          triggerErrorMessage();
+          return;
+        }
+        setOldPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+        setError(false);
+        setIsClickPassword(prev => !prev);
+      })
+      
     }
     else {
       setError(true);
     }
-},[error,oldPassword,newPassword,confirmPassword])
+},[error,oldPassword,newPassword,confirmPassword,isLoading])
   return (
     <div className='form-container'>
     <form 
@@ -56,6 +78,9 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
        <button type='submit' className='input_submit'>
            Change Password
        </button>
+       {isLoading?<Spinner animation="border" role="status">
+      <span className="visually-hidden">Loading...</span>
+    </Spinner>:""}
      </form>
  </div>
   )
