@@ -9,14 +9,12 @@ interface props {
 const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
   const [newName,setNewName] = useState<string>("");
   const [password,setPassword] = useState<string>("");
-  const [error,setError] = useState<boolean>(false);
+  const [error,setError] = useState<string>("");
   const [isLoading,setIsLoading] = useState<boolean>(false);
   const submitForm = useCallback((e:React.SyntheticEvent<EventTarget>) => {
     e.preventDefault();
     if ((!(newName === ""))  && !(password === "")) {
-      if (isLoading) {
-        return;
-      }
+      console.log(password);
       setIsLoading(true);
       fetch('/profile/change_name',postRequestContent({
         name: newName,
@@ -29,16 +27,24 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
             triggerErrorMessage();
             return;
           }
-          setIsLoading(false);
-          setNewName("");
-          setError(false);
-          setIsClickChangeName(prev => !prev);
-      });
-    
+          response.text().then((response) => {
+              if (response === 'Authentication fails') {
+                setError('Authentication fails');
+                return;
 
+              } else {
+                setIsLoading(false);
+                setNewName("");
+                setError("");
+                setIsClickChangeName(prev => !prev);
+              } 
+          
+          })
+          
+      });
     }
     else {
-      setError(true);
+      setError("Username and password cannot be left blank and username has to be alphanumeric(a-z,A-Z,0-9)");
     }
   }, [error,newName,password,isLoading]);
   return (
@@ -65,11 +71,13 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
             <p className="title">Confirm Password</p>
             <input 
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                console.log(password)
+                setPassword(e.target.value)}}
               className = 'form-control form-control-lg'
             />
           </div>
-          {error ? <p className='error-statement'>Username and password cannot be left blank and username has to be alphanumeric(a-z,A-Z,0-9)</p>:""}
+          {error ? <p className='error-statement'>{error}</p>:""}
           <button type='submit' className='input_submit'>
               Change Name
           </button>

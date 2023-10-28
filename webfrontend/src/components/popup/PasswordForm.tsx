@@ -9,14 +9,11 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
   const [oldPassword, setOldPassword] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [error,setError] = useState<boolean>(false);
+  const [error,setError] = useState<string>("");
   const [isLoading,setIsLoading] = useState<boolean>(false);
   const submitForm = useCallback((e:React.SyntheticEvent<EventTarget>) => {
     e.preventDefault();
     if ( !(oldPassword === "") && !(newPassword ==="") && !(confirmPassword === "")) {
-      if (isLoading) {
-        return;
-      }
       setIsLoading(true);
       fetch('/change_password', postRequestContent({
         old_password: oldPassword,
@@ -27,16 +24,25 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
           triggerErrorMessage();
           return;
         }
-        setOldPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-        setError(false);
-        setIsClickPassword(prev => !prev);
+        response.text().then((response) => {
+          if (response === 'Old password is incorrect') {
+            setError('Old password is incorrect');
+            return;
+
+          } else {
+            setOldPassword("");
+            setNewPassword("");
+            setConfirmPassword("");
+            setError('');
+            setIsClickPassword(prev => !prev);
+          } 
+      })
+       
       })
       
     }
     else {
-      setError(true);
+      setError('Input field cannot be left blank');
     }
 },[error,oldPassword,newPassword,confirmPassword,isLoading,setIsClickPassword])
   return (
@@ -74,7 +80,7 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
            className = 'form-control form-control-lg'
          />
        </div>
-       {error ? <p className='error-statement'>Input field cannot be left blank</p>:""}
+       {error ? <p className='error-statement'>{error}</p>:""}
        <button type='submit' className='input_submit'>
            Change Password
        </button>

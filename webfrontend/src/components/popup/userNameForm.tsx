@@ -9,7 +9,7 @@ interface props {
 const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
   const [username,setUsername] = useState<string>("");
   const [password,setPassword] = useState<string>("");
-  const [error,setError] = useState<boolean>(false);
+  const [error,setError] = useState<string>("");
   const [isLoading,setIsLoading] = useState<boolean>(false);
   function isAphanumeric(str:string) {
     return str.match(/^[a-zA-Z0-9]+$/) !== null;
@@ -19,9 +19,7 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
     console.log(username);
     console.log(password);
     if ((!(username === "")) && (isAphanumeric(username)) && !(password === "")) {
-      if (isLoading) {
-        return;
-      }
+   
       setIsLoading(true);
       fetch('/change_username',postRequestContent({
         new_username: username,
@@ -32,17 +30,23 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
             triggerErrorMessage();
             return;
           }
-          setUsername("");
-          setError(false);
-          setIsClickUsername(prev => !prev);
-          setIsLoading(false);
-      });
-    
+          response.text().then((response) => {
+            console.log(response);
+            if (response === 'Password is incorrect') {
+              setError('Password is incorrect');
+              return;
 
-     
+            } else {
+              setUsername("");
+              setError("");
+              setIsClickUsername(prev => !prev);
+              setIsLoading(false);
+            } 
+        })
+      });
     }
     else {
-      setError(true);
+      setError("Username and password cannot be left blank and username has to be alphanumeric(a-z,A-Z,0-9)");
     }
   
   },[error,username,password,isLoading]);
@@ -73,7 +77,7 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
               className = 'form-control form-control-lg'
             />
           </div>
-          {error ? <p className='error-statement'>Username and password cannot be left blank and username has to be alphanumeric(a-z,A-Z,0-9)</p>:""}
+          {error ? <p className='error-statement'>{error}</p>:""}
           <button type='submit' className='input_submit'>
               Change username
           </button>
