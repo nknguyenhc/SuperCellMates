@@ -1,7 +1,6 @@
 import React from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { Button } from 'react-bootstrap'
-import './ProfileWallPaper.scss'
 import {AiFillCamera} from "react-icons/ai"
 const ProfileWallpaper = () => {
   return (
@@ -12,10 +11,12 @@ const ProfileWallpaper = () => {
           <button className="change-thumbnail-btn"><AiFillCamera/></button>
         </div>
         <p className="profile-name">Jiale</p>
+        <span id="boot-icon" className="bi bi-camera"></span>
       
       </div>
       <button className="edit-profile-btn"> Edit Profile</button>
-      <button className="edit-wallpaper-btn"> <AiFillCamera/></button>
+      
+      <button className='edit-wallpaper-btn'> <AiFillCamera/></button>
 
     </div>
   )

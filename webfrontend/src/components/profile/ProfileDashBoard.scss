@@ -8,7 +8,7 @@
   gap:20px;
 }
 .left-section {
-  flex:1;
+  flex:2;
   display: flex;
   flex-direction: column;
   gap:0;
@@ -30,15 +30,52 @@ hr {
   display: flex;
   align-items: center;
   justify-content: start;
-  gap: 20px;
+  gap: 10px;
   border: none;
   cursor: pointer;
   border-radius: 10px;
   transition: background-color 0.5s;
+}
+.option-title {
+  margin: 0;
 }
 .option:hover {
   background-color: rgb(251, 249, 249);
 }
 .right-section {
   flex:3;
+}
+.friend-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  margin-left: 20px;
+}
+.friend-info {
+  
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.friend-thumbnail {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+
+}
+.friend-name {
+  font-size: 15px;
+  font-weight: bold;
+}
+.approve-btn {
+  margin-left: 20px;
+}
+.reject-btn {
+  margin-left : 5px;
+}
+.clicked-button {
+  background-color: #d0efff;
 }

@@ -29,7 +29,7 @@
 .change-thumbnail-btn {
   height: 40px;
   width: 40px;
-  background-color: white;
+  background-color: rgb(206, 199, 199);
   border: 0.5px solid grey;
   border-radius: 20px;
 
@@ -58,9 +58,10 @@
 .edit-wallpaper-btn {
   height: 50px;
   width: 50px;
-  background-color: white;
+  color: black;
+  background-color: transparent;
   border: 0.5px solid grey;
-  border-radius: 20px;
+  border-radius: 50%;
   padding: 5px 5px;
 
   position: absolute;
