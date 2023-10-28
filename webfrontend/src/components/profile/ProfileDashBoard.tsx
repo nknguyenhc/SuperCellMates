@@ -27,7 +27,7 @@ const ProfileDashBoard = () => {
 
   },[buttonClick,currClass]);
   const getCurrentFriends = useCallback(() =>{
-    fetch('/user/friends')
+    fetch('/user/friends_async')
       .then(res => {
         if (res.status !== 200) {
           triggerErrorMessage();
