@@ -7,10 +7,10 @@ const ProfileWallpaper = () => {
     <div className='profile-wallpaper'>
       <div className='profile-info'>
         <div className="thumbnail">
-          <img src="/Jiale.jpg" className="thumbnail-picture" />
+          <img src="/default_profile_pic.jpg" className="thumbnail-picture" />
           <button className="change-thumbnail-btn"><AiFillCamera/></button>
         </div>
-        <p className="profile-name">Jiale</p>
+        <p className="profile-name">man</p>
         <span id="boot-icon" className="bi bi-camera"></span>
       
       </div>
