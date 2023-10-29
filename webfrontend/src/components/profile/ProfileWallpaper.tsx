@@ -1,37 +1,99 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { Button } from 'react-bootstrap'
 import {AiFillCamera} from "react-icons/ai"
 import { triggerErrorMessage } from '../../utils/locals'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../redux/store'
+import { postRequestContent } from '../../utils/request'
 const ProfileWallpaper = () => {
-  const [name, setName] = useState<string>("");
-  const getName = useCallback(() => {
-      fetch('/user/profile_async/<str:username>')
-      .then (res => {
+  const inputRef = useRef(null);
+  const name = useSelector((state: RootState) => state.auth);
+  const [profileImg,setProfileImg] = useState<string>('');
+  const [wallpaperImg, setWallpaperImg] = useState<string>('');
+  const imagesInput = useRef<HTMLInputElement>(null);
+  const [imgs, setImgs] = useState<Array<File>>([]);
+ 
+  const getWallpaper = useCallback(() => {
+    fetch('/')
+  }, []);
+
+  const changeWallpaper = useCallback(() => {
+    imagesInput.current!.click();
+    const element = document.getElementById('1');
+    element?.classList.add('menu-change-wallpaper-clicked');
+  }, [])
+
+  const saveImg = useCallback(() => {
+    fetch('/profile/set_profile_image', postRequestContent({
+      img: imgs
+    }))
+      .then(res => {
         if (res.status !== 200) {
           triggerErrorMessage();
           return;
         }
-        console.log(res);
+        const element = document.getElementById('1');
+        element?.classList.remove('menu-change-wallpaper-clicked');
+        setImgs([]);
+        imagesInput.current!.files = null;
       })
-  }, [name]);
-  useEffect(() => {
-    getName();
-  },[getName]);
+  }, [imgs,imagesInput]);
+
   return (
     <div className='profile-wallpaper'>
       <div className='profile-info'>
         <div className="thumbnail">
           <img src="/default_profile_pic.jpg" className="thumbnail-picture" />
-          <button className="change-thumbnail-btn"><AiFillCamera/></button>
+          <Button className='rounded-circle change-thumbnail-btn' variant="secondary" size='sm'><AiFillCamera/></Button>{' '}
         </div>
-        <p className="profile-name">Man</p>
+        <p className="profile-name">{name.username}</p>
         <span id="boot-icon" className="bi bi-camera"></span>
+      </div>
+
+      <div id='1' className='menu-change-wallpaper'>
+        <Button 
+          className='save-btn' 
+          variant='primary'
+          onClick={() => saveImg()}
+        >Save</Button>
+        <Button className='cancel-btn' variant='secondary'>Cancal</Button>
+      </div>
+
+      {
+        imgs.map((imgFile, i) => ((
+            <div className="wallpaper-preview-container" key={i}>
+                <img className='wallpaper' src={URL.createObjectURL(imgFile)} alt={i.toString()} />
+            
+            </div>
+          )))
+      }
+      <div className="wallpaper-edit">
+          <button className="post-choose-img-label add-image-label" onClick={() => changeWallpaper()}>
+              <img src="/static/media/add-image-icon.png" alt={"add media"} />
+          </button>
+          
+          <div>
+                    <input ref={imagesInput} className="form-control img-input" accept="image/*" type="file" multiple onChange={() => {
+                        const files: Array<File> = Array.from(imagesInput.current!.files as FileList);
+                        if (imgs.length + files.length > 9) {
+                            alert("9 images only please!");
+                        } else if (files.map(file => file.size / 1024 / 1024).reduce((prev, curr) => prev && curr < 5, true)) {
+                            setImgs(imgs.concat(files));
+                            console.log(imgs[0]);
+                        } else {
+                            alert("One of your images exceeds 5MB, please ensure all images are below 5MB.");
+                        }
+                    }} />
+            </div>
+
+         
+      </div>
+      
+      <div>
       
       </div>
-      <button className="edit-profile-btn"> Edit Profile</button>
       
-      <button className='edit-wallpaper-btn'> <AiFillCamera/></button>
 
     </div>
   )
