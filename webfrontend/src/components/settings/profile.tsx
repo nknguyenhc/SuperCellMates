@@ -10,7 +10,7 @@ const Profile = () => {
         <h1>Profile settings</h1>
         <button 
           className="profile-button"
-          onClick={() =>setIsClickEditProfile(prev => !prev)}
+          onClick={() => setIsClickEditProfile(prev => !prev)}
         ><Link to='/profile/setup' className='edit-profile-link'>Edit Profile</Link></button>
         <button 
           className="change-name"

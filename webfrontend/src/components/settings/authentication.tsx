@@ -11,7 +11,7 @@ const Authentication = () => {
         <h1>Authentication settings</h1>
         <button 
           className="username-button"
-          onClick={() =>  setIsClickUsername(prev => !prev)}
+          onClick={() => setIsClickUsername(prev => !prev)}
         >Change username</button>
         <button 
           className="password-button"

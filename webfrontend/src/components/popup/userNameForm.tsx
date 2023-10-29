@@ -7,10 +7,10 @@ interface props {
   setIsClickUsername: React.Dispatch<React.SetStateAction<boolean>>;
 }
 const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
-  const [username,setUsername] = useState<string>("");
-  const [password,setPassword] = useState<string>("");
-  const [error,setError] = useState<string>("");
-  const [isLoading,setIsLoading] = useState<boolean>(false);
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   function isAphanumeric(str:string) {
     return str.match(/^[a-zA-Z0-9]+$/) !== null;
   }
@@ -22,7 +22,7 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
     if ((!(username === "")) && (isAphanumeric(username)) && !(password === "")) {
    
       setIsLoading(true);
-      fetch('/change_username',postRequestContent({
+      fetch('/change_username', postRequestContent({
         new_username: username,
         password:password,
       }))
@@ -51,7 +51,7 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
       setError("Username and password cannot be left blank and username has to be alphanumeric(a-z,A-Z,0-9)");
     }
   
-  },[error,username,password,isLoading]);
+  }, [error, username, password, isLoading]);
   return (
     <div className='form-container'>
        <form 

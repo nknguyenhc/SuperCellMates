@@ -17,7 +17,7 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
     if ((!(newName === ""))  && !(password === "")) {
       console.log(password);
       setIsLoading(true);
-      fetch('/profile/change_name',postRequestContent({
+      fetch('/profile/change_name', postRequestContent({
         name: newName,
         password: password,
       }))

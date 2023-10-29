@@ -50,7 +50,7 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
     else {
       setError('Input field cannot be left blank');
     }
-},[error,oldPassword,newPassword,confirmPassword,isLoading,setIsClickPassword])
+}, [error, oldPassword, newPassword, confirmPassword,isLoading,setIsClickPassword])
   return (
     <div className='form-container'>
     <form 
