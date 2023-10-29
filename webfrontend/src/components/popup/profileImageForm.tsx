@@ -1,4 +1,5 @@
-const profileImageForm = () => {
+import React from "react"
+const ProfileImageForm = () => {
   return (
     <div>
       
@@ -6,4 +7,4 @@ const profileImageForm = () => {
   )
 }
 
-export default profileImageForm
+export default ProfileImageForm;

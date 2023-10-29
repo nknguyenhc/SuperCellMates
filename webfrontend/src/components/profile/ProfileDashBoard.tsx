@@ -86,6 +86,9 @@ const ProfileDashBoard = () => {
 
       })
   },[]);
+  const handleApprove = useCallback(() => {
+    fetch('/')
+  }, [])
   return (
     <div className='profile-dash-board'>
       <div className="dashboard-container">
