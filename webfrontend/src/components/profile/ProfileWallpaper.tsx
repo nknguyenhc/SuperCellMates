@@ -1,8 +1,23 @@
-import React from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { Button } from 'react-bootstrap'
 import {AiFillCamera} from "react-icons/ai"
+import { triggerErrorMessage } from '../../utils/locals'
 const ProfileWallpaper = () => {
+  const [name, setName] = useState<string>("");
+  const getName = useCallback(() => {
+      fetch('/user/profile_async/<str:username>')
+      .then (res => {
+        if (res.status !== 200) {
+          triggerErrorMessage();
+          return;
+        }
+        console.log(res);
+      })
+  }, [name]);
+  useEffect(() => {
+    getName();
+  },[getName]);
   return (
     <div className='profile-wallpaper'>
       <div className='profile-info'>
