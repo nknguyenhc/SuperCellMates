@@ -32,10 +32,15 @@ const FriendRequests:React.FC<Props> = ({name,link,setFriendRequests}) => {
      })
   }, [])
   return (
-    <Link to = {link} >
-            <div className='friend-request-info'>
-      <img src="/default_profile_pic.jpg" className='friend-thumbnail' />
-      <p className='friend-name'> {name}</p>  
+    
+      <div className='friend-request-info'>
+      <Link to = {link} style={{textDecoration: 'none', color: 'black'}} >
+        <div className="thumbnail-friend-request">
+          <img src="/default_profile_pic.jpg" className='thumbnail-friend-request-picture' />
+          <p className='friend-name'> {name}</p>  
+        </div>
+      </Link>
+      
       <Button 
         className='approve-btn' 
         variant='success'
@@ -48,7 +53,7 @@ const FriendRequests:React.FC<Props> = ({name,link,setFriendRequests}) => {
       > Reject</Button>
       
     </div>
-    </Link>
+ 
 
   )
 }

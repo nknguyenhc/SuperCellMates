@@ -1,0 +1,17 @@
+.friend-request-info {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+.thumbnail-friend-request {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.thumbnail-friend-request-picture {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+}

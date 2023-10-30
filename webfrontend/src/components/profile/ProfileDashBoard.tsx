@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {FcInvite} from 'react-icons/fc'
 import {BsFillPeopleFill} from 'react-icons/bs'
 import { triggerErrorMessage } from '../../utils/locals'
@@ -100,7 +100,7 @@ const ProfileDashBoard = () => {
           {buttonClick === 2 && 
           <ul className='friend-list'>
              {currentFriends?.map((friends,id) => (
-                <CurrentFriends key = {id} name={friends.name} setCurrentFriends={setCurrentFriends}  />
+                <CurrentFriends key = {id} name={friends.name} link = {friends.link} setCurrentFriends={setCurrentFriends}  />
             ))} 
           </ul>
           }

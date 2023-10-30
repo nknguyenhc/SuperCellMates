@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { Button } from "react-bootstrap";
 import { postRequestContent } from "../../utils/request";
 import { triggerErrorMessage } from "../../utils/locals";
+import { Link } from "react-router-dom";
 export type FriendType = {
   name:string,
   username: string,
@@ -10,10 +11,11 @@ export type FriendType = {
 }
 interface Props {
   name: string;
+  link: string;
   setCurrentFriends:React.Dispatch<React.SetStateAction<FriendType[]>>
 }
 
-const CurrentFriends:React.FC<Props> = ({name,setCurrentFriends}) => {
+const CurrentFriends:React.FC<Props> = ({name, link, setCurrentFriends}) => {
   const deleteFriend = useCallback((name:string) => {
     fetch('/user/delete_friend', postRequestContent({
       username: name
@@ -30,8 +32,13 @@ const CurrentFriends:React.FC<Props> = ({name,setCurrentFriends}) => {
   }, []);
   return (
     <div className="current-friend-info">
-      <img src="/default_profile_pic.jpg" className='friend-thumbnail' />
-      <p className='friend-name'> {name}</p>  
+     
+      <Link to = {link} style={{textDecoration: 'none', color: 'black'}} >
+        <div className="thumbnail-current-friend">
+          <img src="/default_profile_pic.jpg" className='thumbnail-current-friend-picture' />
+          <p className='friend-name'> {name}</p>  
+        </div>
+      </Link>
       <Button 
         className='delete-btn' 
         variant='danger'

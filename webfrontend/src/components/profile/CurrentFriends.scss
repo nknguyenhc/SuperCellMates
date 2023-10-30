@@ -1,0 +1,17 @@
+.current-friend-info {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+.thumbnail-current-friend {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.thumbnail-current-friend-picture {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+}
