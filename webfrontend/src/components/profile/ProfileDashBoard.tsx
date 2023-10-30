@@ -3,9 +3,9 @@ import {FcInvite} from 'react-icons/fc'
 import {BsFillPeopleFill} from 'react-icons/bs'
 import { triggerErrorMessage } from '../../utils/locals'
 import { Button } from 'react-bootstrap'
-import { callbackify } from 'util'
 import { postRequestContent } from '../../utils/request'
-import { response } from 'express'
+import FriendRequests from './FriendRequests'
+import CurrentFriends from './CurrentFriends'
 export type FriendType = {
   name:string,
   username: string,
@@ -18,9 +18,7 @@ const ProfileDashBoard = () => {
   const [buttonClick, setButtonClick] = useState<number>(1);
   const [currClass, setCurrClass] = useState<string>("first");
   const handleMenuClick = useCallback((id: number, name: string)=> {
-    console.log(currClass);
     const prev = document.getElementById(`${currClass}`);
-
     prev?.classList.remove('clicked-button');
     const cur = document.getElementById(`${name}`);
     cur?.classList.add('clicked-button');
@@ -36,14 +34,16 @@ const ProfileDashBoard = () => {
           return;
         }
         res.json().then(res => {
-          setCurrentFriends(res.users?.map((user:any) =>({
+         // console.log(res[0].name);
+          setCurrentFriends(res.map((user:any) =>({
             name: user.name,
             username: user.username,
             link: user.profile_link,
-            img: user.profile_img_url,
-            role : user.role,
+            img: user.profile_pic_url,
           })));
         })
+        console.log('yes');
+        console.log(currentFriends);
       })
   },[])
   useEffect(() => {
@@ -65,30 +65,15 @@ const ProfileDashBoard = () => {
             img: user.profile_pic_url,
           }))); 
         })
+        console.log(friendRequests);
+       
       })
   },[]);
   useEffect(() => {
     getFriendRequest();
   },[getFriendRequest]); 
 
-  const handleAprroveFriends = useCallback((friend: FriendType) => {
-    fetch('/user/add_friend', postRequestContent({
-      name: friend.name,
-      username: friend.username,
-      link: friend.link,
-      img: friend.img
-    }))
-      .then(res => {
-        if (res.status !== 200) {
-          triggerErrorMessage();
-          return;
-        }
 
-      })
-  },[]);
-  const handleApprove = useCallback(() => {
-    fetch('/')
-  }, [])
   return (
     <div className='profile-dash-board'>
       <div className="dashboard-container">
@@ -114,41 +99,18 @@ const ProfileDashBoard = () => {
         <div className="right-section">
           {buttonClick === 2 && 
           <ul className='friend-list'>
-          {/*} {currentFriends.map((friends) => (
-              <li>{friends?.name}</li>
-          ))} */}
-          <li className='friend-info'>
-            <img src="/default_profile_pic.jpg" className='friend-thumbnail' />
-            <p className='friend-name'> Man</p>  
-          </li> 
-          <li className='friend-info'>
-            <img src="/default_profile_pic.jpg" className='friend-thumbnail' />
-            <span className='friend-name'> Man</span>
-          </li> 
-          </ul>}
+             {currentFriends?.map((friends,id) => (
+                <CurrentFriends key = {id} name={friends.name} setCurrentFriends={setCurrentFriends}  />
+            ))} 
+          </ul>
+          }
+
           {
             buttonClick == 1 &&
             <ul className='friend-list'>
              {friendRequests?.map((friends,id) => (
-                <li key={id} className='friend-info'>
-                <img src="/default_profile_pic.jpg" className='friend-thumbnail' />
-                <p className='friend-name'> {friends.name}</p>  
-                <Button className='approve-btn' variant='success'> Aprrove</Button>
-                <Button className='reject-btn' variant='danger'> Reject</Button>
-              </li> 
+                <FriendRequests key = {id} name={friends.name} link = {friends.link} setFriendRequests={setFriendRequests}  />
             ))} 
-            {/*<li className='friend-info'>
-              <img src="/default_profile_pic.jpg" className='friend-thumbnail' />
-              <p className='friend-name'> Man</p>  
-              <Button className='approve-btn' variant='success'> Aprrove</Button>
-              <Button className='reject-btn' variant='danger'> Reject</Button>
-            </li> 
-            <li className='friend-info'>
-              <img src="/default_profile_pic.jpg" className='friend-thumbnail' />
-              <span className='friend-name'> man</span>
-              <Button className='approve-btn' variant='success'> Aprrove</Button>
-              <Button className='reject-btn' variant='danger'> Reject</Button>
-             </li> */}
             </ul>
 
           }
