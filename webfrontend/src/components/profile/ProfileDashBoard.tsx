@@ -4,8 +4,6 @@ import {BsFillPeopleFill} from 'react-icons/bs'
 import {AiFillTags} from 'react-icons/ai'
 import {GiAchievement} from 'react-icons/gi'
 import { triggerErrorMessage } from '../../utils/locals'
-import { Button } from 'react-bootstrap'
-import { postRequestContent } from '../../utils/request'
 import FriendRequests from './FriendRequests'
 import CurrentFriends from './CurrentFriends'
 import CurrentTags from './CurrentTags'
@@ -31,7 +29,7 @@ const ProfileDashBoard = () => {
     setButtonClick(id);
     setCurrClass(name);
 
-  },[buttonClick,currClass]);
+  }, [buttonClick,currClass]);
   const getCurrentFriends = useCallback(() =>{
     fetch('/user/friends_async')
       .then(res => {
@@ -49,10 +47,10 @@ const ProfileDashBoard = () => {
           })));
         })
       })
-  },[])
+  }, [])
   useEffect(() => {
     getCurrentFriends();
-  },[getCurrentFriends]); 
+  }, [getCurrentFriends]); 
 
   const getFriendRequest = useCallback(() =>{
     fetch('/user/friend_requests_async')
@@ -70,10 +68,10 @@ const ProfileDashBoard = () => {
           }))); 
         })
       })
-  },[]);
+  }, []);
   useEffect(() => {
     getFriendRequest();
-  },[getFriendRequest]); 
+  }, [getFriendRequest]); 
 
 
   return (

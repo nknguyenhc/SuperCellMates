@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { Button } from 'react-bootstrap'
 import {AiFillCamera} from "react-icons/ai"
-import { triggerErrorMessage } from '../../utils/locals'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../redux/store'
 import SetUpProfileImg from './SetUpProfileImg'

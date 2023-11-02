@@ -1,9 +1,7 @@
-import { Console } from 'console';
-import { async } from 'q';
-import React, { useState, useRef, useCallback } from 'react'
+
+import { useState, useRef, useCallback } from 'react'
 import AvatarEditor from "react-avatar-editor";
 import { Button } from 'react-bootstrap';
-import { AiFillCamera } from 'react-icons/ai';
 import { postRequestContent } from '../../utils/request';
 import { triggerErrorMessage } from '../../utils/locals';
 interface Props {

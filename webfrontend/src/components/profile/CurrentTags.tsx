@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { triggerErrorMessage } from '../../utils/locals';
 import { Button } from 'react-bootstrap';
-import { postRequestContent } from '../../utils/request';
 import { Tag } from '../posts/one-post';
 interface Props {
   username: string
 }
 const CurrentTags:React.FC<Props> = ({username}) => {
   const [newTag,setNewTag] = useState<string>('');
-  const [userTags, setUserTags] = useState<Array<Tag>>([{name: 'comp',icon:'/tag-icon.png'},{name: 'comp',icon:'/tag-icon.png'}]);
+  const [userTags, setUserTags] = useState<Array<Tag>>([]);
   const getTags = useCallback(() => {
     fetch('/profile/obtain_tags')
       .then (res => {
@@ -40,7 +39,7 @@ const CurrentTags:React.FC<Props> = ({username}) => {
       })
   }, []);
 
-  /*useEffect(() => {
+  useEffect(() => {
     if (username !== '') {
       console.log(userTags);
         fetch('/profile/user_tags/' + username)
@@ -52,7 +51,7 @@ const CurrentTags:React.FC<Props> = ({username}) => {
                 }
             });
     }
-}, [username]);*/
+}, [username]);
   return (
     <div className='current-tag-container'>
         <div className='tag-list'>

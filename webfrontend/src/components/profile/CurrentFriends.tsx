@@ -35,7 +35,7 @@ const CurrentFriends:React.FC<Props> = ({name, link, setCurrentFriends}) => {
   useEffect(() => {
     getChatId();
     console.log(chatId);
-  },[getChatId]);
+  }, [getChatId]);
   const deleteFriend = useCallback((name:string) => {
     fetch('/user/delete_friend', postRequestContent({
       username: name

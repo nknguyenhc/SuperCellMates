@@ -38,7 +38,7 @@ const OtherProfileWallpaper = () => {
   useEffect(() => {
     getChatId();
     console.log(chatId);
-  },[getChatId]);
+  }, [getChatId]);
   const handleClickAddFriend = useCallback(() => {
      if (addFriendLabel === 'Add Friend') {
       fetch('/user/add_friend_request', postRequestContent({
@@ -71,7 +71,7 @@ const OtherProfileWallpaper = () => {
         return 1;
        
       })
-  },[friendRequests]);
+  }, [friendRequests]);
   useEffect(() => {
     getFriendRequest();
     const isFound = friendRequests.some(person => {
@@ -82,7 +82,7 @@ const OtherProfileWallpaper = () => {
     })
     setInFriendRequestList(isFound);
     console.log(isFound);
-  },[getFriendRequest]); 
+  }, [getFriendRequest]); 
 
   const handleApprove = useCallback((name:string, accepted:string) => {
     setInFriendRequestList(false);
@@ -119,7 +119,7 @@ const OtherProfileWallpaper = () => {
           })));
         })
       })
-  },[currentFriends])
+  }, [currentFriends])
   useEffect(() => {
     getCurrentFriends();
     console.log(currentFriends);
@@ -131,7 +131,7 @@ const OtherProfileWallpaper = () => {
     })
     setInCurrentFriendList(isFound);
     console.log(inCurrentFriendList);
-  },[getCurrentFriends]); 
+  }, [getCurrentFriends]); 
 
   const deleteFriend = useCallback((name:string) => {
     console.log('delete');
@@ -203,9 +203,6 @@ const OtherProfileWallpaper = () => {
         </Button>
       </Link>
       </div>
-
-      
-    
     }
     
    </div>
