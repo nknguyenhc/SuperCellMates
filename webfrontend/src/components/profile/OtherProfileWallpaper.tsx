@@ -132,7 +132,7 @@ const OtherProfileWallpaper = () => {
     <div className='other-profile-wallpaper'>
       <div className="other-profile-info">
       <div className="thumbnail">
-         <img className='thumbnail-picture' src='/default_profile_pic.jpg' alt="" />
+         <img className='thumbnail-picture' src={"/profile/img/" + username} alt="" />
       </div>
       <p className="other-profile-name"> {username}</p>
     </div>

@@ -1,11 +1,16 @@
 import { useCallback, useEffect, useState } from 'react'
 import {FcInvite} from 'react-icons/fc'
 import {BsFillPeopleFill} from 'react-icons/bs'
+import {AiFillTags} from 'react-icons/ai'
+import {GiAchievement} from 'react-icons/gi'
 import { triggerErrorMessage } from '../../utils/locals'
 import { Button } from 'react-bootstrap'
 import { postRequestContent } from '../../utils/request'
 import FriendRequests from './FriendRequests'
 import CurrentFriends from './CurrentFriends'
+import CurrentTags from './CurrentTags'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../redux/store'
 export type FriendType = {
   name:string,
   username: string,
@@ -13,6 +18,7 @@ export type FriendType = {
   img: string,
 }
 const ProfileDashBoard = () => {
+  const name = useSelector((state: RootState) => state.auth);
   const [currentFriends, setCurrentFriends] = useState<Array<FriendType>>([]);
   const [friendRequests,setFriendRequests] = useState<Array<FriendType>>([]);
   const [buttonClick, setButtonClick] = useState<number>(1);
@@ -42,8 +48,6 @@ const ProfileDashBoard = () => {
             img: user.profile_pic_url,
           })));
         })
-        console.log('yes');
-        console.log(currentFriends);
       })
   },[])
   useEffect(() => {
@@ -65,8 +69,6 @@ const ProfileDashBoard = () => {
             img: user.profile_pic_url,
           }))); 
         })
-        console.log(friendRequests);
-       
       })
   },[]);
   useEffect(() => {
@@ -95,6 +97,23 @@ const ProfileDashBoard = () => {
             <BsFillPeopleFill className='option-icon'/> 
             <p className='option-title'>Friends</p>
           </div>
+
+          <div 
+            id ='third'
+            className="option"
+            onClick={() => handleMenuClick(3,'third')}
+          >
+            <AiFillTags className='option-icon'/> 
+            <p className='option-title'>Tags</p>
+          </div>
+          <div 
+            id ='fourth'
+            className="option"
+            onClick={() => handleMenuClick(4,'fourth')}
+          >
+            <GiAchievement className='option-icon'/> 
+            <p className='option-title'>Achievments</p>
+          </div>
         </div>
         <div className="right-section">
           {buttonClick === 2 && 
@@ -113,6 +132,9 @@ const ProfileDashBoard = () => {
             ))} 
             </ul>
 
+          }
+          {
+            buttonClick == 3 && <CurrentTags username = {name.username} />
           }
         </div>
       </div>

@@ -17,6 +17,8 @@
     "node-sass": "^7.0.3",
     "primereact": "^10.0.7",
     "react": "^18.2.0",
+    "react-avatar-edit": "^1.2.0",
+    "react-avatar-editor": "^13.0.0",
     "react-bootstrap": "^2.9.1",
     "react-dom": "^18.2.0",
     "react-icons": "^4.11.0",
@@ -52,6 +54,7 @@
     ]
   },
   "devDependencies": {
-    "@types/bootstrap": "^5.2.7"
+    "@types/bootstrap": "^5.2.7",
+    "@types/react-avatar-editor": "^13.0.1"
   }
 }
