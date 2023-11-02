@@ -1,13 +1,13 @@
-import { useCallback, useState, FormEvent, useEffect, useRef } from "react";
+import { useCallback, useState, FormEvent, useEffect } from "react";
 import { postRequestContent } from "../../../utils/request";
 import { triggerErrorMessage } from "../../../utils/locals";
 import { isAlphaNumeric } from "../../../utils/primitives";
 import { getURLParams } from "../../../utils/url";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../../redux/auth-slice";
 import { RootState } from "../../../redux/store";
+
 
 export const Register = (): JSX.Element => {
     const [name, setName] = useState<string>('');
@@ -15,6 +15,7 @@ export const Register = (): JSX.Element => {
     const [password, setPassword] = useState<string>('');
     const [password2, setPassword2] = useState<string>('');
     const [isChecked, setIsChecked] = useState<boolean>(false);
+    const [isUniqueUsername, setIsUniqueUsername] = useState<boolean>(false);
 
     const [nameWarning, setNameWarning] = useState<string>('');
     const [usernameWarning, setUsernameWarning] = useState<string>('');
@@ -23,20 +24,13 @@ export const Register = (): JSX.Element => {
     const [checkboxWarning, setCheckboxWarning] = useState<string>('');
 
     const [bottomErrorMessage, setBottomErrorMessage] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isTimeout, setIsTimeout] = useState<boolean>(false);
 
     const navigate = useNavigate();
 
     const dispatch = useDispatch();
     const auth = useSelector((state: RootState) => state.auth);
-
-    // useRef is used to ensure states are synced before form submission,
-    const passwordRef = useRef<string>();
-    const password2Ref = useRef<string>();
-    const checkboxRef = useRef<boolean>();
-
-    passwordRef.current = password;
-    password2Ref.current = password2;
-    checkboxRef.current = isChecked;
 
     useEffect(() => {
         if (auth.isVerified && auth.isLoggedIn) {
@@ -45,36 +39,53 @@ export const Register = (): JSX.Element => {
         }
     }, [auth, navigate]);
 
-    function IsUniqueUsername() {
+    // timer for checking username uniqueness at 1 sec interval if username is changed
+    async function release() {
+        setIsTimeout(() => true);
+    }
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            release();
+        }, 1000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const checkUsernameUniqueness = useCallback(() => {
+        setIsLoading(() => true);
         fetch('/check_unique_username_async?username=' + username, {
             method: "GET",
         })
             .then(res => {
+                setIsLoading(() => false);
                 if (res.status !== 200) {
                     triggerErrorMessage();
-                    return false;
+                    setIsUniqueUsername(() => false);
+                    return;
                 }
                 res.text().then(res => {
                     if (res === 'username is already taken') {
                         setUsernameWarning('Username is taken, please enter a different username');
                         setBottomErrorMessage('Username is taken');
-                        return false;
-                    } 
+                        setIsUniqueUsername(() => false);
+                        return;
+                    }
                 })
             })
-        return true;
-    }
+        setIsUniqueUsername(() => true);
+        setUsernameWarning(() => '');
+        return;
+    }, [username]);
 
     const handleSubmit = useCallback<(e: FormEvent<HTMLFormElement>) 
             => void>((e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log("log start\n");
+
         let error = 0;
 
         // Checks are done from bottom element to top, so that bottom error message displays topmost error
 
-        if (!checkboxRef.current) {
-            console.log("5\n");
+        if (!isChecked) {
             setCheckboxWarning('You must agree to proceed');
             setBottomErrorMessage('You must agree to our privacy agreement to proceed');
             error += 1;
@@ -82,10 +93,7 @@ export const Register = (): JSX.Element => {
             setCheckboxWarning('');
         }
 
-        if (passwordRef.current !== password2Ref.current) {
-            console.log("4\n");
-            console.log(password);
-            console.log(password2);
+        if (password !== password2) {
             setPassword2Warning('Password and confirm password does not match');
             setBottomErrorMessage('Password and confirm password are different');
             error += 1;
@@ -93,8 +101,7 @@ export const Register = (): JSX.Element => {
             setPassword2Warning('');
         }
 
-        if (passwordRef.current === '') {
-            console.log("3\n");
+        if (password === '') {
             setPasswordWarning('Please enter a password');
             setBottomErrorMessage('Password cannot be empty');
             error += 1;
@@ -102,8 +109,9 @@ export const Register = (): JSX.Element => {
             setPasswordWarning('');
         }
 
+        checkUsernameUniqueness();
+
         if (username === '') {
-            console.log("2\n");
             setUsernameWarning('Please enter a username');
             setBottomErrorMessage('Username cannot be empty');
             error += 1;
@@ -115,14 +123,13 @@ export const Register = (): JSX.Element => {
             setUsernameWarning('Username cannot contain special characters');
             setBottomErrorMessage('Username can only contains alphabets (lower and upper case) and numbers');
             error += 1;
-        } else if (!IsUniqueUsername()) {
+        } else if (!isUniqueUsername) {
             error += 1;
-        } else {
+        } else{
             setUsernameWarning('');
         }
 
         if (name === '') {
-            console.log("1\n");
             setNameWarning('Please enter a name');
             setBottomErrorMessage('Name cannot be empty');
             error += 1;
@@ -134,35 +141,30 @@ export const Register = (): JSX.Element => {
             setNameWarning('');
         }
 
-
-        console.log("log end\n");
-
         if (error > 0) {
             return;
         }
         setBottomErrorMessage('');
 
+        setIsLoading(() => true);
         fetch('/register_async', postRequestContent({
             username: username,
             password: password,
             name: name,
         }))
             .then(res => {
+                setIsLoading(() => false);
                 if (res.status !== 200) {
                     triggerErrorMessage();
                     return;
                 }
                 res.text().then(res => {
-                    if (res !== 'account created') {
-                        setBottomErrorMessage("Account creation failed. Please Try again.")
-                    } else {
-                        dispatch(login({
-                            username: username,
-                        }));
-                    }
+                    dispatch(login({
+                        username: username,
+                    }));
                 });
             })
-    }, [username, password, password2, name, dispatch]);
+    }, [name, username, password, password2, isChecked, dispatch]);
 
     return (
     <div className="authentication-form-container">
@@ -182,15 +184,19 @@ export const Register = (): JSX.Element => {
                     type="text"
                     name="name"
                     id="name"
-                    className="form-control"
+                    className={"form-control" + (name === '' ? "" : (nameWarning === '' ? " is-valid" : " is-invalid"))}
                     autoFocus={true}
                     value={name}
                     spellCheck="false"
+                    required
                     onChange={e => {
-                        setName(e.target.value);
+                        setName(() => e.target.value);
+                        if (name !== '') {
+                            setNameWarning(() => '');
+                        }
                     }}
                 />
-                <div className="text-danger"><small>{nameWarning}</small></div>
+                <div className="invalid-feedback d-block">{nameWarning}</div>
             </div>
             <div className="m-2">
             <label htmlFor="username" className="form-label">Username <strong className="asterisk">*</strong>
@@ -199,14 +205,18 @@ export const Register = (): JSX.Element => {
                 type="text"
                 name="username"
                 id="username"
-                className="form-control"
+                className={"form-control" + (username === '' ? "" : (usernameWarning === '' ? " is-valid" : " is-invalid"))}
                 value={username}
                 spellCheck="false"
                 onChange={e => {
-                    setUsername(e.target.value);
+                    setUsername(() => e.target.value);
+                    if (isTimeout) {
+                        setIsTimeout(() => false);
+                        checkUsernameUniqueness();
+                    }
                 }}
             />
-            <div className="text-danger"><small>{usernameWarning}</small></div>
+            <div className="invalid-feedback d-block">{usernameWarning}</div>
             </div>
             <div className="m-2">
             <label htmlFor="password" className="form-label">Password <strong className="asterisk">*</strong>
@@ -215,13 +225,16 @@ export const Register = (): JSX.Element => {
                 type="password"
                 name="password"
                 id="password"
-                className="form-control"
+                className={"form-control" + (password === '' ? "" : (passwordWarning === '' ? " is-valid" : " is-invalid"))}
                 value={password}
                 onChange={e => {
-                    setPassword(e.target.value);
+                    setPassword(() => e.target.value);
+                    if (password !== '') {
+                        setPasswordWarning(() => '');
+                    }
                 }}
             />
-            <div className="text-danger"><small>{passwordWarning}</small></div>
+            <div className="invalid-feedback d-block">{passwordWarning}</div>
             </div>
             <div className="m-2">
             <label htmlFor="confirm-password" className="form-label">Confirm password <strong className="asterisk">*</strong>
@@ -229,23 +242,23 @@ export const Register = (): JSX.Element => {
             <input
                 type="password"
                 id="confirm-password"
-                className="form-control"
+                className={"form-control" + (password2 === '' ? "" : (password === password2 ? " is-valid" : " is-invalid"))}
                 value={password2}
                 onChange={e => {
-                    setPassword2(e.target.value);
+                    setPassword2(() => e.target.value);
                 }}
                 aria-describedby="not-matching-passwords"
             />
-            <div className="text-danger"><small>{password2Warning}</small></div>
+            <div className="invalid-feedback d-block">{password2Warning}</div>
             </div>
             <div className="form-check m-2">
             <input
                 type="checkbox"
-                className="form-check-input"
+                className={"form-check-input" + (isChecked ? " is-valid" : "")}
                 id="privacy-agreement-checkbox"
                 checked={isChecked}
                 onChange={e => {
-                    setIsChecked(!isChecked);
+                    setIsChecked(prev => !prev);
                 }}
             />
             <label htmlFor="privacy-agreement-checkbox" className="form-check-label">
@@ -255,15 +268,17 @@ export const Register = (): JSX.Element => {
                 </a>
                 .
             </label>
-            <div className="text-danger"><small>{checkboxWarning}</small></div>
+            <div className="invalid-feedback d-block">{checkboxWarning}</div>
             </div>
-            <div className="m-2 auth-submit">
+            <div className="m-2 authentication-submit">
             <input
                 type="submit"
                 defaultValue="Create Account"
                 className="btn btn-primary"
             />
+            <div className="md-6 spinner-border text-warning loading-icon" hidden={!isLoading} role="status"/>
             </div>
+            
             {bottomErrorMessage !== '' && <div className="alert alert-danger m-2" id="register-message">{bottomErrorMessage}</div>}
         </form>
     </div>
