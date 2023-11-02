@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import { postRequestContent } from "../../utils/request";
 import { triggerErrorMessage } from "../../utils/locals";
@@ -16,6 +16,26 @@ interface Props {
 }
 
 const CurrentFriends:React.FC<Props> = ({name, link, setCurrentFriends}) => {
+  const [chatId, setChatId] = useState<string>('');
+  const getChatId = useCallback(() => {
+    fetch(`/messages/get_chat_id?username=${name}`) 
+      .then(res => {
+        if (res.status !== 200) {
+          res.text().then(res => {
+            console.log(res);
+          })
+          triggerErrorMessage();
+          return;
+        }
+        res.text().then(res => {
+          setChatId(res);
+        })
+      })
+  }, [chatId]);
+  useEffect(() => {
+    getChatId();
+    console.log(chatId);
+  },[getChatId]);
   const deleteFriend = useCallback((name:string) => {
     fetch('/user/delete_friend', postRequestContent({
       username: name
@@ -44,6 +64,16 @@ const CurrentFriends:React.FC<Props> = ({name, link, setCurrentFriends}) => {
         variant='danger'
         onClick={() => deleteFriend(name)}
       > Unfriend</Button>
+      <Link to = {`/messages/?chatid=${chatId}`}>
+        <Button
+          className='message-btn'
+          variant = 'primary'
+          onClick={() => getChatId()}
+        >
+            Message
+        </Button>
+      </Link>
+      
       
     </div>
   )

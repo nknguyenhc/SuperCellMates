@@ -4,6 +4,7 @@ import {AiOutlineUserAdd} from 'react-icons/ai'
 import { triggerErrorMessage } from '../../utils/locals'
 import { postRequestContent } from '../../utils/request'
 import { useParams } from 'react-router'
+import { Link } from 'react-router-dom'
 export type FriendType = {
   name:string,
   username: string,
@@ -18,6 +19,26 @@ const OtherProfileWallpaper = () => {
   const [inFriendRequestList, setInFriendRequestList] = useState<boolean>(false);
   const [inCurrentFriendList, setInCurrentFriendList] = useState<boolean>(false);
   const [currentFriends,setCurrentFriends] = useState<Array<FriendType>>([]);
+  const [chatId, setChatId] = useState<string>('');
+  const getChatId = useCallback(() => {
+    fetch(`/messages/get_chat_id?username=${username}`) 
+      .then(res => {
+        if (res.status !== 200) {
+          res.text().then(res => {
+            console.log(res);
+          })
+          triggerErrorMessage();
+          return;
+        }
+        res.text().then(res => {
+          setChatId(res);
+        })
+      })
+  }, [chatId]);
+  useEffect(() => {
+    getChatId();
+    console.log(chatId);
+  },[getChatId]);
   const handleClickAddFriend = useCallback(() => {
      if (addFriendLabel === 'Add Friend') {
       fetch('/user/add_friend_request', postRequestContent({
@@ -165,13 +186,26 @@ const OtherProfileWallpaper = () => {
       {addFriendLabel} 
       </Button> 
       : 
-      <Button 
+      <div className='friend-menu-btn'>
+        <Button 
         variant='danger'
         className='unfriend-btn'
         onClick={() => deleteFriend(username as string)}
       >
         Unfriend
        </Button>
+       <Link to = {`/messages/?chatid=${chatId}`}>
+        <Button
+          className='message-btn'
+          variant = 'primary'
+        >
+            Message
+        </Button>
+      </Link>
+      </div>
+
+      
+    
     }
     
    </div>
