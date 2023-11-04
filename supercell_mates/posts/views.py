@@ -249,80 +249,6 @@ def edit_post(request, post_id):
         return HttpResponseBadRequest("post with provided id not found")
 
 
-# @login_required
-# @require_http_methods(["POST"])
-# def add_photo(request):
-#     """Attempt to add one photo associated with a given post.
-#     The photo is given in the "img" field, either in request.POST as binary or request.FILES as file.
-#     The post is given by the "post_id" field in request.POST .
-#     The view checks whether the request user is the owner of the post first before making edits to the post.
-
-#     Args:
-#         request (HttpRequest): the request made to this view
-    
-#     Returns:
-#         HttpResponse: the URL to the image, or the feedback of the process if failed
-#     """
-
-#     try:
-#         post_id = request.POST["post_id"]
-#         post = Post.objects.get(id=post_id)
-#         if not post in request.user.user_log.posts.all():
-#             return HttpResponseBadRequest("you are not the owner of this post")
-#         if "img" in request.POST:
-#             img_raw = request.POST["img"]
-#             img_bytearray = img_raw.strip("[]").split(", ")
-#             img_bytearray = bytearray(list(map(lambda x: int(x.strip()), img_bytearray)))
-#             img = ImageFile(io.BytesIO(img_bytearray), name=request.user.username)
-#             if not verify_image(img):
-#                 return HttpResponseBadRequest("not image")
-#         else:
-#             img = request.FILES["img"]
-#             if not verify_image(img):
-#                 return HttpResponseBadRequest("not image")
-#         img_obj = PostImage(order=post.img_count, image=img, post=post)
-#         img_obj.save()
-#         post.img_count += 1
-#         post.save()
-#         return HttpResponse(reverse("posts:get_post_pic", args=(img_obj.id,)))
-    
-#     except MultiValueDictKeyError:
-#         return HttpResponseBadRequest("request does not contain an important key")
-#     except ObjectDoesNotExist:
-#         return HttpResponseBadRequest("post with provided id not found")
-
-
-# @login_required
-# @require_http_methods(["POST"])
-# def delete_photo(request):
-#     """Attempt to delete a post photo from the database.
-#     The request body contains the following fields:
-#         post_id: the id of the post
-#         pic_id: the id of the pic
-#     The view checks whether the request user is the owner of the post before deleting the photo.
-
-#     Args:
-#         request (HttpRequest): the request made to this view
-    
-#     Returns:
-#         HttpResponse: the feedback of the process
-#     """
-#     try:
-#         post_id = request.POST["post_id"]
-#         pic_id = request.POST["pic_id"]
-#         post = Post.objects.get(id=post_id)
-#         if post not in request.user.user_log.posts.all():
-#             return HttpResponseBadRequest("you are not the owner of this post")
-#         pic = PostImage.objects.get(id=pic_id)
-#         pic.delete()
-#         return HttpResponse("picture deleted")
-    
-#     except MultiValueDictKeyError:
-#         return HttpResponseBadRequest("request body does not contain an important key")
-#     except ObjectDoesNotExist:
-#         return HttpResponseBadRequest("picture with given id/post with given id not found")
-
-
 @login_required
 @require_http_methods(["POST"])
 def delete_post(request):
@@ -357,6 +283,79 @@ def delete_post(request):
         return HttpResponseBadRequest("request body does not contain an important key")
     except ObjectDoesNotExist:
         return HttpResponseBadRequest("post or tag activity record not found")
+
+
+@login_required
+def total_num_of_posts(request):
+    """Returns the total number of posts that a particular user has made over the history.
+    GET param:
+    - username: the username of the user
+    """
+    try:
+        username = request.GET["username"]
+        count = len(UserAuth.objects.get(username=username).user_log.posts.all())
+        return JsonResponse({
+            "count": count,
+        })
+    
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request does not contain username param")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("user with provided username does not exist")
+
+
+def get_last_six_months(date, month, year):
+    """Returns 6 tuples of the last 6 months start date and end date.
+    In reverse chronological order.
+    """
+    res = [(
+        (1, month, year),
+        (date, month, year),
+    )]
+    for i in range(5):
+        if month == 1:
+            last_month = 12
+            last_year = year - 1
+        else:
+            last_month = month - 1
+            last_year = year
+        res.append((
+            (1, last_month, last_year),
+            (1, month, year),
+        ))
+        month = last_month
+        year = last_year
+    
+    return tuple(res)
+
+
+@login_required
+def post_frequencies(request):
+    """Returns the post frequencies of the given user over the last 6 months.
+    GET param:
+    - username: the username of the user
+    """
+    try:
+        username = request.GET["username"]
+        posts = UserAuth.objects.get(username=username).user_log.posts
+        now = datetime.now()
+        last_six_months = get_last_six_months(now.day, now.month, now.year)
+        print(last_six_months)
+        post_counts = [{
+            "month_delta": -i,
+            "count": len(posts.filter(time_posted__range=(
+                datetime(duration[0][2], duration[0][1], duration[0][0]).timestamp(),
+                datetime(duration[1][2], duration[1][1], duration[1][0]).timestamp(),
+            )))
+        } for (i, duration) in enumerate(last_six_months)]
+        return JsonResponse({
+            "counts": post_counts,
+        })
+
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("request does not contain username param")
+    except ObjectDoesNotExist:
+        return HttpResponseBadRequest("user with provided username does not exist")
 
 
 def compute_matching_index_with_post(user_auth_obj, post_obj, timestamp):
