@@ -128,6 +128,17 @@ def view_profile_async(request, username):
 
 
 @login_required
+def get_privacy(request):
+    """Get privacy settings of the request user.
+    """
+    return JsonResponse({
+        "public": request.user.user_log.public_visible,
+        "friend": request.user.user_log.friend_visible,
+        "tag": request.user.user_log.tag_visible,
+    })
+
+
+@login_required
 @require_http_methods(["POST"])
 def set_profile_privacy(request):
     """Change privacy policy.

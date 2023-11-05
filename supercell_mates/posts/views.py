@@ -14,7 +14,7 @@ import heapq
 
 from user_profile.views import verify_image, list_to_image_and_verify_async, \
     get_tag_activity_record, change_activity_score, compute_tag_activity_final_score, MAXIMUM_ACTIVITY_SCORE
-from user_log.views import compute_matching_index
+from user_log.views import compute_matching_index, can_view_profile
 
 from user_auth.models import Tag, UserAuth
 from .models import Post, PostImage
@@ -293,6 +293,9 @@ def total_num_of_posts(request):
     """
     try:
         username = request.GET["username"]
+        if request.user.username != username and not can_view_profile(request.user, username):
+            return HttpResponseBadRequest("no viewing privilege")
+        
         count = len(UserAuth.objects.get(username=username).user_log.posts.all())
         return JsonResponse({
             "count": count,
@@ -300,8 +303,6 @@ def total_num_of_posts(request):
     
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request does not contain username param")
-    except ObjectDoesNotExist:
-        return HttpResponseBadRequest("user with provided username does not exist")
 
 
 def get_last_six_months(date, month, year):
@@ -337,6 +338,9 @@ def post_frequencies(request):
     """
     try:
         username = request.GET["username"]
+        if request.user.username != username and not can_view_profile(request.user, username):
+            return HttpResponseBadRequest("no viewing privilege")
+        
         posts = UserAuth.objects.get(username=username).user_log.posts
         now = datetime.now()
         last_six_months = get_last_six_months(now.day, now.month, now.year)
@@ -354,8 +358,6 @@ def post_frequencies(request):
 
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request does not contain username param")
-    except ObjectDoesNotExist:
-        return HttpResponseBadRequest("user with provided username does not exist")
 
 
 def compute_matching_index_with_post(user_auth_obj, post_obj, timestamp):
