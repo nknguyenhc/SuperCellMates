@@ -128,17 +128,6 @@ def view_profile_async(request, username):
 
 
 @login_required
-def get_privacy(request):
-    """Get privacy settings of the request user.
-    """
-    return JsonResponse({
-        "public": request.user.user_log.public_visible,
-        "friend": request.user.user_log.friend_visible,
-        "tag": request.user.user_log.tag_visible,
-    })
-
-
-@login_required
 @require_http_methods(["POST"])
 def set_profile_privacy(request):
     """Change privacy policy.
@@ -581,3 +570,36 @@ def compute_matching_index(user1, user2):
 
     return matching_index
 
+def get_badges(request):
+    """Get the badges that a user has.
+    GET param:
+    - username: the username of the target user to view.
+    """
+    try:
+        username = request.GET['username']
+        if request.user.username != username and not can_view_profile(request.user, username):
+            return HttpResponseBadRequest("no viewing privilege")
+        
+        target = UserAuth.objects.get(username=username)
+        badges = []
+
+        # admin
+        if target.is_staff:
+            badges.append("admin")
+        if target.is_superuser:
+            badges.append("creator")
+        if target.user_profile.total_post_badge >= 1:
+            badges.append("senior")
+        if target.user_profile.total_post_badge >= 2:
+            badges.append("elder")
+        if target.user_profile.freq_post_badge >= 1:
+            badges.append("burst")
+        if target.user_profile.freq_post_badge >= 2:
+            badges.append("nuclear")
+
+        return JsonResponse({
+            "badges": badges
+        })
+    
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("username not indicated")

@@ -25,6 +25,11 @@ POST_EXP_COEFFICIENT = 1.05
 SECONDS_IN_A_DAY = 24 * 3600
 RECOMMENDED_POSTS_DAY_RANGE = 15
 
+TOTAL_POST_COUNT_1 = 20
+TOTAL_POST_COUNT_2 = 50
+POST_FREQ_1 = 5
+POST_FREQ_2 = 15
+
 
 @login_required
 @require_http_methods(["POST"])
@@ -120,6 +125,41 @@ def create_post(request):
         record_obj = get_tag_activity_record(request.user, tag_object)
         change_amount = CREATE_POST_TAG_ACTIVITY_COEFFICIENT * (MAXIMUM_ACTIVITY_SCORE - record_obj.activity_score)
         change_activity_score(record_obj, change_amount)
+
+        # update level, where necessary
+        profile = request.user.user_profile
+        
+        # total count
+        total = profile.user_log.posts.count()
+        if total >= TOTAL_POST_COUNT_2:
+            if profile.tag_count_limit < 6:
+                profile.tag_count_limit = 6
+            if profile.total_post_badge < 2:
+                profile.total_post_badge = 2
+        elif total >= TOTAL_POST_COUNT_1:
+            if profile.tag_count_limit < 5:
+                profile.tag_count_limit = 5
+            if profile.total_post_badge < 1:
+                profile.total_post_badge = 1
+        
+        # frequency
+        now = datetime.now()
+        month = now.month
+        year = now.year
+        month_start = datetime(year, month, 1)
+        last_month_count = profile.user_log.posts.filter(time_posted__range=(month_start.timestamp(), now.timestamp())).count()
+        if last_month_count >= POST_FREQ_2:
+            if profile.tag_count_limit < 6:
+                profile.tag_count_limit = 6
+            if profile.freq_post_badge < 2:
+                profile.freq_post_badge = 2
+        elif last_month_count >= POST_FREQ_1:
+            if profile.tag_count_limit < 5:
+                profile.tag_count_limit = 5
+            if profile.freq_post_badge < 1:
+                profile.freq_post_badge = 1
+        
+        profile.save()
 
         return HttpResponse("post created")
     
@@ -296,7 +336,7 @@ def total_num_of_posts(request):
         if request.user.username != username and not can_view_profile(request.user, username):
             return HttpResponseBadRequest("no viewing privilege")
         
-        count = len(UserAuth.objects.get(username=username).user_log.posts.all())
+        count = UserAuth.objects.get(username=username).user_log.posts.count()
         return JsonResponse({
             "count": count,
         })
@@ -311,7 +351,7 @@ def get_last_six_months(date, month, year):
     """
     res = [(
         (1, month, year),
-        (date, month, year),
+        (date + 1, month, year),
     )]
     for i in range(5):
         if month == 1:
@@ -344,7 +384,6 @@ def post_frequencies(request):
         posts = UserAuth.objects.get(username=username).user_log.posts
         now = datetime.now()
         last_six_months = get_last_six_months(now.day, now.month, now.year)
-        print(last_six_months)
         post_counts = [{
             "month_delta": -i,
             "count": len(posts.filter(time_posted__range=(
