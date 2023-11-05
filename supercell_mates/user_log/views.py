@@ -156,6 +156,22 @@ def set_profile_privacy(request):
 
 
 @login_required
+def profile_privilege(request):
+    """Return a json response on whether the target profile can be viewed.
+    GET param:
+    - username: the username of the target user.
+    """
+    try:
+        username = request.GET["username"]
+        return JsonResponse({
+            "can_view": request.user.username == username or can_view_profile(request.user, username),
+        })
+    
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("username is not indicated")
+
+
+@login_required
 @require_http_methods(["POST"])
 def add_friend_request(request):
     """Add friend with the target user.

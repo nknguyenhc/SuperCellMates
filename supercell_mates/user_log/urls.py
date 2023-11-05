@@ -6,6 +6,7 @@ app_name="user_log"
 urlpatterns = [
     path('profile/<str:username>', views.view_profile, name="view_profile"),
     path('profile_async/<str:username>', views.view_profile_async, name="view_profile_async"),
+    path('privilege', views.profile_privilege, name="profile_privilege"),
     path('set_profile_privacy', views.set_profile_privacy, name='set_profile_privacy'),
     path('add_friend_request', views.add_friend_request, name="add_friend_request"),
     path('friends', views.view_friends, name="view_friends"),
