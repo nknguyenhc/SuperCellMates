@@ -29,7 +29,7 @@ const ProfileDashBoard = () => {
     setButtonClick(id);
     setCurrClass(name);
 
-  }, [buttonClick,currClass]);
+  }, [currClass]);
   const getCurrentFriends = useCallback(() =>{
     fetch('/user/friends_async')
       .then(res => {
@@ -38,7 +38,6 @@ const ProfileDashBoard = () => {
           return;
         }
         res.json().then(res => {
-         // console.log(res[0].name);
           setCurrentFriends(res.map((user:any) =>({
             name: user.name,
             username: user.username,
@@ -81,7 +80,7 @@ const ProfileDashBoard = () => {
           <div 
             id='first'
             className="option clicked-button"
-            onClick = {() => handleMenuClick(1,'first')}
+            onClick = {() => handleMenuClick(1, 'first')}
             >
               <FcInvite className='option-icon'/> 
               <p className='option-title'>Friend Requests</p>
@@ -90,7 +89,7 @@ const ProfileDashBoard = () => {
           <div 
             id ='second'
             className="option"
-            onClick={() => handleMenuClick(2,'second')}
+            onClick={() => handleMenuClick(2, 'second')}
           >
             <BsFillPeopleFill className='option-icon'/> 
             <p className='option-title'>Friends</p>
@@ -99,7 +98,7 @@ const ProfileDashBoard = () => {
           <div 
             id ='third'
             className="option"
-            onClick={() => handleMenuClick(3,'third')}
+            onClick={() => handleMenuClick(3, 'third')}
           >
             <AiFillTags className='option-icon'/> 
             <p className='option-title'>Tags</p>
@@ -107,7 +106,7 @@ const ProfileDashBoard = () => {
           <div 
             id ='fourth'
             className="option"
-            onClick={() => handleMenuClick(4,'fourth')}
+            onClick={() => handleMenuClick(4, 'fourth')}
           >
             <GiAchievement className='option-icon'/> 
             <p className='option-title'>Achievments</p>
@@ -116,23 +115,23 @@ const ProfileDashBoard = () => {
         <div className="right-section">
           {buttonClick === 2 && 
           <ul className='friend-list'>
-             {currentFriends?.map((friends,id) => (
+             {currentFriends?.map((friends, id) => (
                 <CurrentFriends key = {id} name={friends.name} link = {friends.link} setCurrentFriends={setCurrentFriends}  />
             ))} 
           </ul>
           }
 
           {
-            buttonClick == 1 &&
+            buttonClick === 1 &&
             <ul className='friend-list'>
-             {friendRequests?.map((friends,id) => (
+             {friendRequests?.map((friends, id) => (
                 <FriendRequests key = {id} name={friends.name} link = {friends.link} setFriendRequests={setFriendRequests}  />
             ))} 
             </ul>
 
           }
           {
-            buttonClick == 3 && <CurrentTags username = {name.username} />
+            buttonClick === 3 && <CurrentTags username = {name.username} />
           }
         </div>
       </div>

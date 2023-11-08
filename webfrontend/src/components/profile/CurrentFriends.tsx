@@ -21,9 +21,6 @@ const CurrentFriends:React.FC<Props> = ({name, link, setCurrentFriends}) => {
     fetch(`/messages/get_chat_id?username=${name}`) 
       .then(res => {
         if (res.status !== 200) {
-          res.text().then(res => {
-            console.log(res);
-          })
           triggerErrorMessage();
           return;
         }
@@ -31,10 +28,9 @@ const CurrentFriends:React.FC<Props> = ({name, link, setCurrentFriends}) => {
           setChatId(res);
         })
       })
-  }, [chatId]);
+  }, [name]);
   useEffect(() => {
     getChatId();
-    console.log(chatId);
   }, [getChatId]);
   const deleteFriend = useCallback((name:string) => {
     fetch('/user/delete_friend', postRequestContent({
@@ -49,13 +45,13 @@ const CurrentFriends:React.FC<Props> = ({name, link, setCurrentFriends}) => {
           return prev.filter(person => person.name !== name);
         })
       })
-  }, []);
+  }, [setCurrentFriends]);
   return (
     <div className="current-friend-info">
      
       <Link to = {link} style={{textDecoration: 'none', color: 'black'}} >
         <div className="thumbnail-current-friend">
-          <img src="/default_profile_pic.jpg" className='thumbnail-current-friend-picture' />
+          <img src="/default_profile_pic.jpg" className='thumbnail-current-friend-picture' alt="default_profile_picture" />
           <p className='friend-name'> {name}</p>  
         </div>
       </Link>

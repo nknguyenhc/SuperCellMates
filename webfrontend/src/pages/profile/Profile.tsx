@@ -1,4 +1,3 @@
-import React from 'react'
 import { AiOutlineQuestionCircle } from 'react-icons/ai'
 import ProfileWallpaper from '../../components/profile/ProfileWallpaper'
 import ProfileDashBoard from '../../components/profile/ProfileDashBoard'

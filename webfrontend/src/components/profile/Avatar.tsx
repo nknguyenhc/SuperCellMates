@@ -1,6 +1,6 @@
-import React, { createRef, useCallback, useState } from "react";
+import { createRef, useCallback, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import AvatarEditor, { CroppedRect } from "react-avatar-editor";
+import AvatarEditor from "react-avatar-editor";
 import { Button, Form, Image } from "react-bootstrap";
 import { triggerErrorMessage } from "../../utils/locals";
 import { postRequestContent } from "../../utils/request";
@@ -39,8 +39,8 @@ interface Props {
 }
 const Avatar: React.FC<Props> = ({setIsEditProfileImg}) => {
   const editorRef: React.RefObject<AvatarEditor> = createRef();
-  const [imgToBeSubmitted,setImgToBeSubmitted] = useState<File>();
-  const [fileName, setFileName] = React.useState('');
+  const [imgToBeSubmitted, setImgToBeSubmitted] = useState<File>();
+  const [fileName, setFileName] = useState('');
   const [imageProperties, setImageProperties] = useState<ImageProperties>({
     originalImage: "gato.jpg",
     croppedImage: undefined,
@@ -57,17 +57,7 @@ const Avatar: React.FC<Props> = ({setIsEditProfileImg}) => {
     rotate
   } = imageProperties;
 
-  /**
-   * Handles image drag and drop
-   *
-   * @param dropped the file array containing the dropped image
-   */
-  function handleDrop(dropped: File[]): void {
-    setImageProperties((prevState) => ({
-      ...prevState,
-      originalImage: dropped[0]
-    }));
-  }
+ 
 
   /**
    * Handles image addition through File input
@@ -141,12 +131,10 @@ const Avatar: React.FC<Props> = ({setIsEditProfileImg}) => {
           setImgToBeSubmitted(new File([blob], fileName, {
             type: blob.type,
           }));
-          console.log(imgToBeSubmitted);
         });
     }
   }
   const handleConfirm = useCallback(async () => {
-    console.log('yes');
     fetch('/profile/set_profile_image', postRequestContent({
       img: imgToBeSubmitted
     }))
@@ -159,7 +147,7 @@ const Avatar: React.FC<Props> = ({setIsEditProfileImg}) => {
         window.location.reload();
 
       })
-}, [imgToBeSubmitted]);
+}, [imgToBeSubmitted, setIsEditProfileImg]);
 
   return (
     <div className="avatar-edit-container">

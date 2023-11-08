@@ -14,9 +14,8 @@ interface Props {
   setFriendRequests:React.Dispatch<React.SetStateAction<FriendType[]>>
   link: string
 }
-const FriendRequests:React.FC<Props> = ({name,link,setFriendRequests}) => {
+const FriendRequests:React.FC<Props> = ({name, link, setFriendRequests}) => {
   const handleApprove = useCallback((name:string, accepted:string) => {
-    console.log('yes');
     fetch('/user/add_friend', postRequestContent({
       username: name,
       accepted: accepted
@@ -30,13 +29,13 @@ const FriendRequests:React.FC<Props> = ({name,link,setFriendRequests}) => {
         return prev.filter(person =>  person.name !== name)
       })
      })
-  }, [])
+  }, [setFriendRequests])
   return (
     
       <div className='friend-request-info'>
       <Link to = {link} style={{textDecoration: 'none', color: 'black'}} >
         <div className="thumbnail-friend-request">
-          <img src="/default_profile_pic.jpg" className='thumbnail-friend-request-picture' />
+          <img src="/default_profile_pic.jpg" className='thumbnail-friend-request-picture' alt='default_profile_picture' />
           <p className='friend-name'> {name}</p>  
         </div>
       </Link>
@@ -44,12 +43,12 @@ const FriendRequests:React.FC<Props> = ({name,link,setFriendRequests}) => {
       <Button 
         className='approve-btn' 
         variant='success'
-        onClick={() => handleApprove(name,'true')}
+        onClick={() => handleApprove(name, 'true')}
       > Aprrove</Button>
       <Button 
         className='reject-btn' 
         variant='danger'
-        onClick={() => handleApprove(name,'false')}
+        onClick={() => handleApprove(name, 'false')}
       > Reject</Button>
       
     </div>

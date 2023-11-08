@@ -6,7 +6,7 @@ interface Props {
   username: string
 }
 const CurrentTags:React.FC<Props> = ({username}) => {
-  const [newTag,setNewTag] = useState<string>('');
+  const [newTag, setNewTag] = useState<string>('');
   const [userTags, setUserTags] = useState<Array<Tag>>([]);
   const getTags = useCallback(() => {
     fetch('/profile/obtain_tags')
@@ -15,9 +15,6 @@ const CurrentTags:React.FC<Props> = ({username}) => {
           triggerErrorMessage();
           return;
         } 
-        res.json().then(res => {
-          console.log(res);
-        })
       })
   }, []);
   useEffect(() => {
@@ -27,21 +24,14 @@ const CurrentTags:React.FC<Props> = ({username}) => {
     fetch(`/profile/search_tags?tag=${newTag}`)
       .then(res => {
         if (res.status !== 200) {
-          res.text().then(res => {
-            console.log(res);
-          })
           triggerErrorMessage();
           return;
         }
-      res.json().then(res => {
-        console.log(res);
       })
-      })
-  }, []);
+  }, [newTag]);
 
   useEffect(() => {
     if (username !== '') {
-      console.log(userTags);
         fetch('/profile/user_tags/' + username)
             .then(response => {
                 if (response.status !== 200) {
@@ -51,11 +41,11 @@ const CurrentTags:React.FC<Props> = ({username}) => {
                 }
             });
     }
-}, [username]);
+}, [username, userTags]);
   return (
     <div className='current-tag-container'>
         <div className='tag-list'>
-            {userTags.length !== 0 ?  userTags.map((tag,tagIndex) => (
+            {userTags.length !== 0 ?  userTags.map((tag) => (
               <div className='tag-info'>
                 <img className='tag-icon' src={tag.icon} alt={tag.name} />
                 <p className='tag-title'>{tag.name}</p>

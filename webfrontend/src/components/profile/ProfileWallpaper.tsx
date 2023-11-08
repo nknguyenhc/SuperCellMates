@@ -1,4 +1,4 @@
-import {  useState } from 'react'
+import { useState } from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { Button } from 'react-bootstrap'
 import {AiFillCamera} from "react-icons/ai"

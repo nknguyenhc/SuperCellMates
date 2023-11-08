@@ -1,4 +1,4 @@
-import  { useCallback, useState,useEffect } from 'react'
+import  { useCallback, useState, useEffect } from 'react'
 import { Button } from 'react-bootstrap'
 import {AiOutlineUserAdd} from 'react-icons/ai'
 import { triggerErrorMessage } from '../../utils/locals'
@@ -13,20 +13,16 @@ export type FriendType = {
 }
 const OtherProfileWallpaper = () => {
   const username = useParams().username;
-  console.log(username);
   const [addFriendLabel, setAddFriendLabel] = useState<string>('Add Friend');
-  const [friendRequests,setFriendRequests] = useState<Array<FriendType>>([]);
+  const [friendRequests, setFriendRequests] = useState<Array<FriendType>>([]);
   const [inFriendRequestList, setInFriendRequestList] = useState<boolean>(false);
   const [inCurrentFriendList, setInCurrentFriendList] = useState<boolean>(false);
-  const [currentFriends,setCurrentFriends] = useState<Array<FriendType>>([]);
+  const [currentFriends, setCurrentFriends] = useState<Array<FriendType>>([]);
   const [chatId, setChatId] = useState<string>('');
   const getChatId = useCallback(() => {
     fetch(`/messages/get_chat_id?username=${username}`) 
       .then(res => {
         if (res.status !== 200) {
-          res.text().then(res => {
-            console.log(res);
-          })
           triggerErrorMessage();
           return;
         }
@@ -34,11 +30,10 @@ const OtherProfileWallpaper = () => {
           setChatId(res);
         })
       })
-  }, [chatId]);
+  }, [username]);
   useEffect(() => {
     getChatId();
-    console.log(chatId);
-  }, [getChatId]);
+  }, [getChatId, chatId]);
   const handleClickAddFriend = useCallback(() => {
      if (addFriendLabel === 'Add Friend') {
       fetch('/user/add_friend_request', postRequestContent({
@@ -52,7 +47,7 @@ const OtherProfileWallpaper = () => {
         })
         setAddFriendLabel('Friend Request Sent');
     } 
-  }, []);
+  },[addFriendLabel, username]);
   const getFriendRequest = useCallback(() =>{
     fetch('/user/friend_requests_async')
       .then(res => {
@@ -71,7 +66,7 @@ const OtherProfileWallpaper = () => {
         return 1;
        
       })
-  }, [friendRequests]);
+  }, []);
   useEffect(() => {
     getFriendRequest();
     const isFound = friendRequests.some(person => {
@@ -81,8 +76,7 @@ const OtherProfileWallpaper = () => {
       return false;
     })
     setInFriendRequestList(isFound);
-    console.log(isFound);
-  }, [getFriendRequest]); 
+  }, [getFriendRequest,friendRequests,username]); 
 
   const handleApprove = useCallback((name:string, accepted:string) => {
     setInFriendRequestList(false);
@@ -110,7 +104,6 @@ const OtherProfileWallpaper = () => {
           return;
         }
         res.json().then(res => {
-         // console.log(res[0].name);
           setCurrentFriends(res.map((user:any) =>({
             name: user.name,
             username: user.username,
@@ -119,10 +112,9 @@ const OtherProfileWallpaper = () => {
           })));
         })
       })
-  }, [currentFriends])
+  }, [])
   useEffect(() => {
     getCurrentFriends();
-    console.log(currentFriends);
     const isFound = currentFriends.some(person => {
       if (person.name === username) {
         return true;
@@ -130,11 +122,9 @@ const OtherProfileWallpaper = () => {
       return false;
     })
     setInCurrentFriendList(isFound);
-    console.log(inCurrentFriendList);
-  }, [getCurrentFriends]); 
+  }, [getCurrentFriends, currentFriends, username]); 
 
   const deleteFriend = useCallback((name:string) => {
-    console.log('delete');
     setInCurrentFriendList(false);
     fetch('/user/delete_friend', postRequestContent({
       username: name
