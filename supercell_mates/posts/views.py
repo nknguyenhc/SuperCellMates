@@ -27,8 +27,8 @@ RECOMMENDED_POSTS_DAY_RANGE = 15
 
 TOTAL_POST_COUNT_1 = 20
 TOTAL_POST_COUNT_2 = 50
-POST_FREQ_1 = 5
-POST_FREQ_2 = 15
+TAG_ACTIVITY_SCORE_1 = 4.3
+TAG_ACTIVITY_SCORE_2 = 4.7
 
 
 @login_required
@@ -143,17 +143,12 @@ def create_post(request):
                 profile.total_post_badge = 1
         
         # frequency
-        now = datetime.now()
-        month = now.month
-        year = now.year
-        month_start = datetime(year, month, 1)
-        last_month_count = profile.user_log.posts.filter(time_posted__range=(month_start.timestamp(), now.timestamp())).count()
-        if last_month_count >= POST_FREQ_2:
+        if record_obj.activity_score >= TAG_ACTIVITY_SCORE_2:
             if profile.tag_count_limit < 6:
                 profile.tag_count_limit = 6
             if profile.freq_post_badge < 2:
                 profile.freq_post_badge = 2
-        elif last_month_count >= POST_FREQ_1:
+        elif record_obj.activity_score >= TAG_ACTIVITY_SCORE_1:
             if profile.tag_count_limit < 5:
                 profile.tag_count_limit = 5
             if profile.freq_post_badge < 1:
