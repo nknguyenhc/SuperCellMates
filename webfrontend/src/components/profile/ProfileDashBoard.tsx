@@ -49,7 +49,7 @@ const ProfileDashBoard = () => {
   }, [])
   useEffect(() => {
     getCurrentFriends();
-  }, [getCurrentFriends]); 
+  }, [getCurrentFriends, currentFriends]); 
 
   const getFriendRequest = useCallback(() =>{
     fetch('/user/friend_requests_async')
@@ -70,7 +70,7 @@ const ProfileDashBoard = () => {
   }, []);
   useEffect(() => {
     getFriendRequest();
-  }, [getFriendRequest]); 
+  }, [getFriendRequest, friendRequests]); 
 
 
   return (
