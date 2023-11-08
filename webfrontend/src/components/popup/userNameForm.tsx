@@ -16,8 +16,6 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
   }
   const submitForm = useCallback((e:React.SyntheticEvent<EventTarget>) => {
     e.preventDefault();
-    console.log(username);
-    console.log(password);
     setError("")
     if ((!(username === "")) && (isAphanumeric(username)) && !(password === "")) {
    
@@ -74,6 +72,7 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
           <div className="password-input">
             <p className="title">Confirm Password</p>
             <input 
+              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className = 'form-control form-control-lg'
