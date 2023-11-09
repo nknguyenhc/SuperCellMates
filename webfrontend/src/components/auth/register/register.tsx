@@ -17,15 +17,15 @@ export const Register = (): JSX.Element => {
     const [isChecked, setIsChecked] = useState<boolean>(false);
     const [isUniqueUsername, setIsUniqueUsername] = useState<boolean>(false);
 
-    const [nameWarning, setNameWarning] = useState<string>('');
-    const [usernameWarning, setUsernameWarning] = useState<string>('');
-    const [passwordWarning, setPasswordWarning] = useState<string>('');
-    const [password2Warning, setPassword2Warning] = useState<string>('');
-    const [checkboxWarning, setCheckboxWarning] = useState<string>('');
+    const [nameWarning, setNameWarning] = useState<string | undefined>();
+    const [usernameWarning, setUsernameWarning] = useState<string | undefined>();
+    const [passwordWarning, setPasswordWarning] = useState<string | undefined>();
+    const [password2Warning, setPassword2Warning] = useState<string | undefined>();
+    const [checkboxWarning, setCheckboxWarning] = useState<string | undefined>();
 
     const [bottomErrorMessage, setBottomErrorMessage] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [isTimeout, setIsTimeout] = useState<boolean>(false);
+    const [timeoutID, setTimeoutID] = useState<number>();
 
     const navigate = useNavigate();
 
@@ -39,43 +39,58 @@ export const Register = (): JSX.Element => {
         }
     }, [auth, navigate]);
 
-    // timer for checking username uniqueness at 1 sec interval if username is changed
-    async function release() {
-        setIsTimeout(() => true);
-    }
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            release();
-        }, 1000);
-        return () => clearInterval(interval);
-    }, []);
-
-    const checkUsernameUniqueness = useCallback(() => {
-        setIsLoading(() => true);
+    const checkUsernameUniqueness = useCallback((username : string) => {
+        if (username === '') {
+            setUsernameWarning('Please enter a username');
+            setIsLoading(false);
+            return;
+        } else if (username.length > 15) {
+            setUsernameWarning('Username must be 15 characters or less');
+            setIsLoading(false);
+            return;
+        } else if (!isAlphaNumeric(username)) {
+            setUsernameWarning('Username cannot contain special characters');
+            setIsLoading(false);
+            return;
+        } else {
+            setUsernameWarning('');
+        }
         fetch('/check_unique_username_async?username=' + username, {
             method: "GET",
         })
             .then(res => {
-                setIsLoading(() => false);
+                setIsLoading(false);
                 if (res.status !== 200) {
                     triggerErrorMessage();
-                    setIsUniqueUsername(() => false);
+                    setIsUniqueUsername(false);
                     return;
                 }
                 res.text().then(res => {
                     if (res === 'username is already taken') {
                         setUsernameWarning('Username is taken, please enter a different username');
                         setBottomErrorMessage('Username is taken');
-                        setIsUniqueUsername(() => false);
+                        setIsUniqueUsername(false);
                         return;
                     }
                 })
             })
-        setIsUniqueUsername(() => true);
-        setUsernameWarning(() => '');
+        setIsUniqueUsername(true);
+        setUsernameWarning('None');
         return;
     }, [username]);
+
+    // check username uniqueness 1 second after user stops typing
+    const handleUsernameChange = useCallback((username : string) => {
+        if (!usernameWarning) {
+            return;
+        }
+        setIsLoading(true);
+        clearTimeout(timeoutID);
+        const newTimeoutID = window.setTimeout(() => {
+            checkUsernameUniqueness(username);
+        }, 1000);
+        setTimeoutID(newTimeoutID);
+    }, [timeoutID, usernameWarning, checkUsernameUniqueness]);
 
     const handleSubmit = useCallback<(e: FormEvent<HTMLFormElement>) 
             => void>((e: FormEvent<HTMLFormElement>) => {
@@ -90,7 +105,7 @@ export const Register = (): JSX.Element => {
             setBottomErrorMessage('You must agree to our privacy agreement to proceed');
             error += 1;
         } else {
-            setCheckboxWarning('');
+            setCheckboxWarning('None');
         }
 
         if (password !== password2) {
@@ -98,7 +113,7 @@ export const Register = (): JSX.Element => {
             setBottomErrorMessage('Password and confirm password are different');
             error += 1;
         } else {
-            setPassword2Warning('');
+            setPassword2Warning('None');
         }
 
         if (password === '') {
@@ -106,10 +121,10 @@ export const Register = (): JSX.Element => {
             setBottomErrorMessage('Password cannot be empty');
             error += 1;
         } else {
-            setPasswordWarning('');
+            setPasswordWarning('None');
         }
 
-        checkUsernameUniqueness();
+        checkUsernameUniqueness(username);
 
         if (username === '') {
             setUsernameWarning('Please enter a username');
@@ -126,7 +141,7 @@ export const Register = (): JSX.Element => {
         } else if (!isUniqueUsername) {
             error += 1;
         } else{
-            setUsernameWarning('');
+            setUsernameWarning('None');
         }
 
         if (name === '') {
@@ -138,7 +153,7 @@ export const Register = (): JSX.Element => {
             setBottomErrorMessage('Name is too long');
             error += 1;
         } else {
-            setNameWarning('');
+            setNameWarning('None');
         }
 
         if (error > 0) {
@@ -146,14 +161,14 @@ export const Register = (): JSX.Element => {
         }
         setBottomErrorMessage('');
 
-        setIsLoading(() => true);
+        setIsLoading(true);
         fetch('/register_async', postRequestContent({
             username: username,
             password: password,
             name: name,
         }))
             .then(res => {
-                setIsLoading(() => false);
+                setIsLoading(false);
                 if (res.status !== 200) {
                     triggerErrorMessage();
                     return;
@@ -164,7 +179,7 @@ export const Register = (): JSX.Element => {
                     }));
                 });
             })
-    }, [name, username, password, password2, isChecked, dispatch]);
+    }, [name, username, password, password2, isChecked, isUniqueUsername, checkUsernameUniqueness, dispatch]);
 
     return (
     <div className="authentication-form-container">
@@ -184,19 +199,16 @@ export const Register = (): JSX.Element => {
                     type="text"
                     name="name"
                     id="name"
-                    className={"form-control" + (name === '' ? "" : (nameWarning === '' ? " is-valid" : " is-invalid"))}
+                    className={"form-control" + (nameWarning ? (nameWarning === 'None' ? " is-valid" : " is-invalid") : "")}
                     autoFocus={true}
                     value={name}
                     spellCheck="false"
                     required
                     onChange={e => {
-                        setName(() => e.target.value);
-                        if (name !== '') {
-                            setNameWarning(() => '');
-                        }
+                        setName(e.target.value);
                     }}
                 />
-                <div className="invalid-feedback d-block">{nameWarning}</div>
+                <div className="invalid-feedback d-block">{nameWarning === 'None' ? "" : nameWarning}</div>
             </div>
             <div className="m-2">
             <label htmlFor="username" className="form-label">Username <strong className="asterisk">*</strong>
@@ -205,18 +217,15 @@ export const Register = (): JSX.Element => {
                 type="text"
                 name="username"
                 id="username"
-                className={"form-control" + (username === '' ? "" : (usernameWarning === '' ? " is-valid" : " is-invalid"))}
+                className={"form-control" + (usernameWarning ? (usernameWarning === 'None' ? " is-valid" : " is-invalid") : "")}
                 value={username}
                 spellCheck="false"
                 onChange={e => {
-                    setUsername(() => e.target.value);
-                    if (isTimeout) {
-                        setIsTimeout(() => false);
-                        checkUsernameUniqueness();
-                    }
+                    setUsername(e.target.value);
+                    handleUsernameChange(e.target.value);
                 }}
             />
-            <div className="invalid-feedback d-block">{usernameWarning}</div>
+            <div className="invalid-feedback d-block">{usernameWarning === 'None' ? "" : usernameWarning}</div>
             </div>
             <div className="m-2">
             <label htmlFor="password" className="form-label">Password <strong className="asterisk">*</strong>
@@ -225,16 +234,13 @@ export const Register = (): JSX.Element => {
                 type="password"
                 name="password"
                 id="password"
-                className={"form-control" + (password === '' ? "" : (passwordWarning === '' ? " is-valid" : " is-invalid"))}
+                className={"form-control" + (passwordWarning ? (passwordWarning === 'None' ? " is-valid" : " is-invalid") : "")}
                 value={password}
                 onChange={e => {
-                    setPassword(() => e.target.value);
-                    if (password !== '') {
-                        setPasswordWarning(() => '');
-                    }
+                    setPassword(e.target.value);
                 }}
             />
-            <div className="invalid-feedback d-block">{passwordWarning}</div>
+            <div className="invalid-feedback d-block">{passwordWarning === 'None' ? "" : passwordWarning}</div>
             </div>
             <div className="m-2">
             <label htmlFor="confirm-password" className="form-label">Confirm password <strong className="asterisk">*</strong>
@@ -242,23 +248,23 @@ export const Register = (): JSX.Element => {
             <input
                 type="password"
                 id="confirm-password"
-                className={"form-control" + (password2 === '' ? "" : (password === password2 ? " is-valid" : " is-invalid"))}
+                className={"form-control" + (password2Warning ? (password === password2 ? " is-valid" : " is-invalid") : "")}
                 value={password2}
                 onChange={e => {
-                    setPassword2(() => e.target.value);
+                    setPassword2(e.target.value);
                 }}
                 aria-describedby="not-matching-passwords"
             />
-            <div className="invalid-feedback d-block">{password2Warning}</div>
+            <div className="invalid-feedback d-block">{password2Warning === 'None' ? "" : password2Warning}</div>
             </div>
             <div className="form-check m-2">
             <input
                 type="checkbox"
-                className={"form-check-input" + (isChecked ? " is-valid" : "")}
+                className={"form-check-input" + (checkboxWarning ? (isChecked ? " is-valid" : " is-invalid") : "")}
                 id="privacy-agreement-checkbox"
                 checked={isChecked}
                 onChange={e => {
-                    setIsChecked(prev => !prev);
+                    setIsChecked(!isChecked);
                 }}
             />
             <label htmlFor="privacy-agreement-checkbox" className="form-check-label">
@@ -268,7 +274,7 @@ export const Register = (): JSX.Element => {
                 </a>
                 .
             </label>
-            <div className="invalid-feedback d-block">{checkboxWarning}</div>
+            <div className="invalid-feedback d-block">{checkboxWarning === 'None' ? "" : checkboxWarning}</div>
             </div>
             <div className="m-2 authentication-submit">
             <input
