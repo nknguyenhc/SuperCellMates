@@ -41,7 +41,7 @@ const SetupTags = () => {
                 setCanRemoveTag(text === 'true');
             })
         })
-}, []);
+    }, []);
 useEffect(() => {
   document.addEventListener('click', (event: any) => {
       if (searchTagForm.current?.contains(event.target)) {
@@ -50,7 +50,7 @@ useEffect(() => {
           setShowTagResult(false);
       }
   })
-}, []);
+    }, []);
   const submitTags = useCallback((event: React.SyntheticEvent<EventTarget>) => {
     event.preventDefault();
     if (!isLoading) {
@@ -84,7 +84,7 @@ useEffect(() => {
                 })
             }
         })
-  },[searchParam, searchResults, toBeSubmitted]);
+  },[searchParam, toBeSubmitted]);
   const addNewTag = useCallback((index: number) => {
     if (tags.length + toBeSubmitted.length < tagCountLimit) {
         setSearchResults(searchResults.filter((_, i) => i !== index));
