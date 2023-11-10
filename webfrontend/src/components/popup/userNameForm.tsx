@@ -4,6 +4,7 @@ import { postRequestContent } from '../../utils/request';
 import { triggerErrorMessage } from '../../utils/locals';
 import Spinner from 'react-bootstrap/Spinner'
 import { isAlphaNumeric } from '../../utils/primitives';
+import { Button } from 'react-bootstrap';
 interface props {
   setIsClickUsername: React.Dispatch<React.SetStateAction<boolean>>;
   setMessageModal: React.Dispatch<React.SetStateAction<string>>;
@@ -86,9 +87,9 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername, setMessageModal, setI
             />
           </div>
           {error ? <p className='error-statement'>{error}</p>:""}
-          <button type='submit' className='input_submit'>
+          <Button type='submit' className='input_submit'>
               Change username
-          </button>
+          </Button>
           {isLoading ? <Spinner animation="border" role="status">
             <span className="visually-hidden">Loading...</span>
           </Spinner>:""}

@@ -2,6 +2,7 @@ import  { useCallback, useState } from 'react'
 import { postRequestContent } from '../../utils/request';
 import { triggerErrorMessage } from '../../utils/locals';
 import Spinner from 'react-bootstrap/esm/Spinner';
+import { Button } from 'react-bootstrap';
 interface props {
   setIsClickPassword: React.Dispatch<React.SetStateAction<boolean>>;
   setMessageModal: React.Dispatch<React.SetStateAction<string>>;
@@ -90,9 +91,9 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword, setIsMessageModal, se
          />
        </div>
        {error ? <p className='error-statement'>{error}</p>:""}
-       <button type='submit' className='input_submit'>
+       <Button type='submit' className='input_submit'>
            Change Password
-       </button>
+       </Button>
        {isLoading?<Spinner animation="border" role="status">
       <span className="visually-hidden">Loading...</span>
     </Spinner>:""}
