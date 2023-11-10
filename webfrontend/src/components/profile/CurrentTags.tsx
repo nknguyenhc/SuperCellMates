@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react'
 import { triggerErrorMessage } from '../../utils/locals';
 import { Tag } from '../posts/one-post';
-interface Props {
-  username: string
-}
-const CurrentTags:React.FC<Props> = ({username}) => {
+
+const CurrentTags:React.FC = () => {
   const [tags, setTags] = useState<Array<Tag>>([]);
   useEffect(() => {
     fetch('/profile/obtain_tags')

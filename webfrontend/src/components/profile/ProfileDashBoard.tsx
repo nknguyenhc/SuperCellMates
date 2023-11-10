@@ -114,11 +114,11 @@ const ProfileDashBoard = () => {
         </div>
         <div className="right-section">
           {buttonClick === 2 && 
-          <ul className='friend-list'>
-             {currentFriends?.map((friends, id) => (
-                <CurrentFriends key = {id} name={friends.name} link = {friends.link} setCurrentFriends={setCurrentFriends}  />
-            ))} 
-          </ul>
+            <ul className='friend-list'>
+              {currentFriends?.map((friends, id) => (
+                  <CurrentFriends key = {id} name={friends.name} link = {friends.link} setCurrentFriends={setCurrentFriends}  />
+              ))} 
+            </ul>
           }
 
           {
@@ -131,7 +131,7 @@ const ProfileDashBoard = () => {
 
           }
           {
-            buttonClick === 3 && <CurrentTags username = {name.username} />
+            buttonClick === 3 && <CurrentTags />
           }
         </div>
       </div>
