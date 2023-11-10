@@ -1,57 +1,63 @@
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 import { useState } from 'react';
 import { postRequestContent } from '../../utils/request';
 import { triggerErrorMessage } from '../../utils/locals';
 import Spinner from 'react-bootstrap/Spinner'
+import { isAlphaNumeric } from '../../utils/primitives';
 interface props {
   setIsClickUsername: React.Dispatch<React.SetStateAction<boolean>>;
+  setMessageModal: React.Dispatch<React.SetStateAction<string>>;
+  setIsMessageModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
-const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
+const UserNameForm:React.FC<props> = ({setIsClickUsername, setMessageModal, setIsMessageModal}) => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  function isAphanumeric(str:string) {
-    return str.match(/^[a-zA-Z0-9]+$/) !== null;
-  }
+
   const submitForm = useCallback((e:React.SyntheticEvent<EventTarget>) => {
     e.preventDefault();
-    console.log(username);
-    console.log(password);
     setError("")
-    if ((!(username === "")) && (isAphanumeric(username)) && !(password === "")) {
+    if (username === '') {
+      setError('New username cannot be empty');
+      return;
+    } else if (username.length > 15) {
+      setError('Username must be 15 characters or less');
+      return;
+    } else if (!isAlphaNumeric(username)) {
+      setError('Username can only contain alphabets (lower and upper case) and numbers');
+      return;
+    }
+    
+    if (!isLoading) {
    
       setIsLoading(true);
       fetch('/change_username', postRequestContent({
         new_username: username,
-        password:password,
+        password: password,
       }))
       .then(response => {
+          setIsLoading(false);
           if (response.status !== 200) {
             triggerErrorMessage();
             return;
-          }
-          response.text().then((response) => {
-            console.log(response);
-            if (response === 'Password is incorrect') {
-              setError('Password is incorrect');
-              setIsLoading(false);
-              return;
+          } 
 
+          response.text().then((text) => {
+            if (text !== 'Username changed') {
+              setError(text);
             } else {
-              setUsername("");
-              setError("");
               setIsClickUsername(prev => !prev);
-              setIsLoading(false);
+              setMessageModal('Name changed');
+              setIsMessageModal(true);
+              
             } 
+            
         })
       });
     }
-    else {
-      setError("Username and password cannot be left blank and username has to be alphanumeric(a-z,A-Z,0-9)");
-    }
   
-  }, [error, username, password, isLoading]);
+  }, [username,isLoading, password, setIsClickUsername, setMessageModal, setIsMessageModal]);
   return (
     <div className='form-container'>
        <form 
@@ -74,6 +80,7 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
           <div className="password-input">
             <p className="title">Confirm Password</p>
             <input 
+              type='password'
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className = 'form-control form-control-lg'
@@ -83,9 +90,9 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername}) => {
           <button type='submit' className='input_submit'>
               Change username
           </button>
-          {isLoading?<Spinner animation="border" role="status">
-      <span className="visually-hidden">Loading...</span>
-    </Spinner>:""}
+          {isLoading ? <Spinner animation="border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>:""}
         
         </form>
     </div>

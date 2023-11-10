@@ -5,17 +5,26 @@ import { triggerErrorMessage } from '../../utils/locals';
 import Spinner from 'react-bootstrap/esm/Spinner';
 interface props {
   setIsClickChangeName:React.Dispatch<React.SetStateAction<boolean>>;
+  setMessageModal: React.Dispatch<React.SetStateAction<string>>;
+  setIsMessageModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
-const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
-  const [newName,setNewName] = useState<string>("");
-  const [password,setPassword] = useState<string>("");
-  const [error,setError] = useState<string>("");
-  const [isLoading,setIsLoading] = useState<boolean>(false);
+const ChangeNameForm:React.FC<props> = ({setIsClickChangeName, setIsMessageModal, setMessageModal}) => {
+  const [newName, setNewName] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const submitForm = useCallback((e:React.SyntheticEvent<EventTarget>) => {
     e.preventDefault();
-    setError("");
-    if ((!(newName === ""))  && !(password === "")) {
-      console.log(password);
+    if (newName === '') {
+      setError('New name cannot be empty');
+      return;
+    } else if (newName.length > 15) {
+      setError('Name must be 15 characters or less');
+      return;
+    } else if (password === '') {
+      setError('Password cannot be empty');
+    }
+    if (!isLoading) {
       setIsLoading(true);
       fetch('/profile/change_name', postRequestContent({
         name: newName,
@@ -23,32 +32,25 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
       }))
       .then(response => {
           if (response.status !== 200) {
-           // response.text().then(response => console.log(response))
-           console.log(response);
             triggerErrorMessage();
             return;
           }
           response.text().then((response) => {
-              if (response === 'Authentication fails') {
-                setError('Authentication fails');
-                setIsLoading(false);
-                return;
+              if (response !== 'Name changed') {
+                setError(response);
 
               } else {
                 setIsLoading(false);
-                setNewName("");
-                setError("");
                 setIsClickChangeName(prev => !prev);
+                setMessageModal('Name changed');
+                setIsMessageModal(true);
               } 
           
           })
           
       });
     }
-    else {
-      setError("Username and password cannot be left blank and username has to be alphanumeric(a-z,A-Z,0-9)");
-    }
-  }, [error,newName,password,isLoading]);
+  }, [newName, password, setIsClickChangeName, isLoading, setIsMessageModal, setMessageModal]);
   return (
     <div className='form-container'>
       
@@ -73,19 +75,19 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName}) => {
             <p className="title">Confirm Password</p>
             <input 
               value={password}
+              type='password'
               onChange={(e) => {
-                console.log(password)
                 setPassword(e.target.value)}}
               className = 'form-control form-control-lg'
             />
           </div>
-          {error ? <p className='error-statement'>{error}</p>:""}
+          {error ? <p className='error-statement'> {error} </p>:""}
           <button type='submit' className='input_submit'>
               Change Name
           </button>
-          {isLoading?<Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>:""}
+          {isLoading ? <Spinner animation="border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>:""}
         </form>
     </div>
   )

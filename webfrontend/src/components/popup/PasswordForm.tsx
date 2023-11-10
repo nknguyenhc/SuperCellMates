@@ -1,24 +1,31 @@
-import React, { useCallback, useState } from 'react'
+import  { useCallback, useState } from 'react'
 import { postRequestContent } from '../../utils/request';
 import { triggerErrorMessage } from '../../utils/locals';
 import Spinner from 'react-bootstrap/esm/Spinner';
 interface props {
   setIsClickPassword: React.Dispatch<React.SetStateAction<boolean>>;
+  setMessageModal: React.Dispatch<React.SetStateAction<string>>;
+  setIsMessageModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
-const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
+const PasswordForm:React.FC<props> = ({setIsClickPassword, setIsMessageModal, setMessageModal}) => {
   const [oldPassword, setOldPassword] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [error,setError] = useState<string>("");
-  const [isLoading,setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const submitForm = useCallback((e:React.SyntheticEvent<EventTarget>) => {
     e.preventDefault();
-    setError("");
-    if ( !(oldPassword === "") && !(newPassword ==="") && !(confirmPassword === "")) {
-      if (newPassword !== confirmPassword) {
-        setError('Confirmed password is not correct');
-        return;
-      }
+    if(oldPassword === '') {
+      setError('Old password cannot be empty!');
+      return;
+    } else if (newPassword === '') {
+      setError('New password cannot be empty!');
+      return;
+    } else if (newPassword !== confirmPassword) {
+      setError('Password and confirm password do not match!');
+      return;
+    }
+    if (!isLoading) {
       setIsLoading(true);
       fetch('/change_password', postRequestContent({
         old_password: oldPassword,
@@ -30,27 +37,19 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
           return;
         }
         response.text().then((response) => {
-          if (response === 'Old password is incorrect') {
-            setError('Old password is incorrect');
-            setIsLoading(false);
-            return;
+          if (response !== 'Password changed') {
+            setError(response);
 
           } else {
-            setOldPassword("");
-            setNewPassword("");
-            setConfirmPassword("");
-            setError('');
             setIsClickPassword(prev => !prev);
+            setMessageModal('Password changed');
+            setIsMessageModal(true);
           } 
       })
-       
       })
       
     }
-    else {
-      setError('Input field cannot be left blank');
-    }
-}, [error, oldPassword, newPassword, confirmPassword,isLoading,setIsClickPassword])
+}, [oldPassword, newPassword, confirmPassword, setIsClickPassword, isLoading, setIsMessageModal, setMessageModal])
   return (
     <div className='form-container'>
     <form 
@@ -65,6 +64,7 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
        <div className="oldPassword-input">
          <p className="title">Old Password</p>
          <input 
+           type='password'
            value ={oldPassword}
            onChange={(e) => setOldPassword(e.target.value)}
            className='form-control form-control-lg'
@@ -73,6 +73,7 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
        <div className="newPassword-input">
          <p className="title">New Password</p>
          <input 
+           type='password'
            value={newPassword}
            onChange={(e) => setNewPassword(e.target.value)}
            className = 'form-control form-control-lg'
@@ -81,6 +82,7 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
        <div className="confirmPassword-input">
          <p className="title">Confrim New Password</p>
          <input 
+           type='password'
            value={confirmPassword}
            onChange={(e) => setConfirmPassword(e.target.value)}
            className = 'form-control form-control-lg'
@@ -90,9 +92,9 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword}) => {
        <button type='submit' className='input_submit'>
            Change Password
        </button>
-       {isLoading?<Spinner animation="border" role="status">
-      <span className="visually-hidden">Loading...</span>
-    </Spinner>:""}
+       {isLoading ? <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>:""}
      </form>
  </div>
   )
