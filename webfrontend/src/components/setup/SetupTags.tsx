@@ -110,7 +110,7 @@ const removeTag = useCallback(() => {
         setShowRemoveAlert(false);
         setCanRemoveTag(false);
     })
-  },[tagToBeRemoved, tags]);
+  }, [tagToBeRemoved, tags]);
   return (
     <div className="add-tag-container">
         <div className="add-tag-section">
