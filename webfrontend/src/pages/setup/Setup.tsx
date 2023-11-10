@@ -4,10 +4,10 @@ const Setup = () => {
   return (
     <div className="setup-page">
        <div className="left-section">
-        <ChangeProfilePicture />
+          <ChangeProfilePicture />
        </div>
         <div className="right-section">
-        <SetupTags /> 
+          <SetupTags /> 
         </div>
         
     </div>

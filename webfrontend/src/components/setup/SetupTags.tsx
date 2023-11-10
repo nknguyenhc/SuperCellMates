@@ -16,7 +16,7 @@ const SetupTags = () => {
   const [canRemoveTag, setCanRemoveTag] = useState(false);
   const [showRemoveAlert, setShowRemoveAlert] = useState(false);
   const [tagToBeRemoved, setTagToBeRemoved] = useState<Tag>();
-  const [isLoading,setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   useEffect(() => {
     fetch('/profile/obtain_tags')
         .then(response => {
@@ -70,7 +70,7 @@ useEffect(() => {
                 }
             });
     }
-  }, [isLoading,tags,toBeSubmitted]);
+  }, [isLoading, tags, toBeSubmitted]);
   const searchTag = useCallback((event: React.SyntheticEvent<EventTarget>) => {
     event.preventDefault();
     fetch("/profile/search_tags?tag=" + searchParam)
@@ -81,11 +81,10 @@ useEffect(() => {
                 response.json().then(response => {
                     setSearchResults(response.tags.filter((tag:Tag) => toBeSubmitted.find(addedTag => addedTag.name === tag.name) === undefined));
                     setSearchDone(true);
-                    console.log(searchResults.length);
                 })
             }
         })
-  },[searchParam,searchResults,toBeSubmitted]);
+  },[searchParam, searchResults, toBeSubmitted]);
   const addNewTag = useCallback((index: number) => {
     if (tags.length + toBeSubmitted.length < tagCountLimit) {
         setSearchResults(searchResults.filter((_, i) => i !== index));
@@ -93,7 +92,7 @@ useEffect(() => {
     } else {
         addTagMessageButton.current?.click();
     }
-}, [searchResults,tagCountLimit,tags.length,toBeSubmitted]);
+}, [searchResults, tagCountLimit, tags.length, toBeSubmitted]);
 
 const removeNewTag = useCallback((index: number) => {
     setToBeSubmitted(toBeSubmitted.filter((_, i) => i !== index));
@@ -111,7 +110,7 @@ const removeTag = useCallback(() => {
         setShowRemoveAlert(false);
         setCanRemoveTag(false);
     })
-  },[tagToBeRemoved,tags]);
+  },[tagToBeRemoved, tags]);
   return (
     <div className="add-tag-container">
         <div className="add-tag-section">
