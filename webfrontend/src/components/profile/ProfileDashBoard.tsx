@@ -7,8 +7,6 @@ import { triggerErrorMessage } from '../../utils/locals'
 import FriendRequests from './FriendRequests'
 import CurrentFriends from './CurrentFriends'
 import CurrentTags from './CurrentTags'
-import { useSelector } from 'react-redux'
-import { RootState } from '../../redux/store'
 export type FriendType = {
   name:string,
   username: string,
@@ -16,7 +14,6 @@ export type FriendType = {
   img: string,
 }
 const ProfileDashBoard = () => {
-  const name = useSelector((state: RootState) => state.auth);
   const [currentFriends, setCurrentFriends] = useState<Array<FriendType>>([]);
   const [friendRequests,setFriendRequests] = useState<Array<FriendType>>([]);
   const [buttonClick, setButtonClick] = useState<number>(1);

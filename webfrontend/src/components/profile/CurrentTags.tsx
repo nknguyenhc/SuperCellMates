@@ -13,12 +13,11 @@ const CurrentTags:React.FC = () => {
                 response.json()
                     .then(response => {
                         setTags(response.tags);
-                        console.log(tags);
                     });
             }
         });
     
-    }, []);
+    }, [tags]);
 
   return (
     <div className='current-tag-container'>
@@ -26,7 +25,7 @@ const CurrentTags:React.FC = () => {
       <div className="tag-list">
           {tags.map(tag => (
                   <div className="tag-button btn btn-outline-info">
-                      <img src={tag.icon} />
+                      <img src={tag.icon} alt='tag-icon' />
                       <div>{tag.name}</div>
                   </div>
           ))}
