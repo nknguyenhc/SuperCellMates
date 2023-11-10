@@ -35,12 +35,13 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName, setIsMessageModal
             triggerErrorMessage();
             return;
           }
+          setIsLoading(false);
           response.text().then((response) => {
               if (response !== 'Name changed') {
                 setError(response);
+              
 
               } else {
-                setIsLoading(false);
                 setIsClickChangeName(prev => !prev);
                 setMessageModal('Name changed');
                 setIsMessageModal(true);

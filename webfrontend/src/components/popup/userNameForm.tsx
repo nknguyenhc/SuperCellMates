@@ -42,7 +42,6 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername, setMessageModal, setI
             triggerErrorMessage();
             return;
           } 
-
           response.text().then((text) => {
             if (text !== 'Username changed') {
               setError(text);

@@ -32,6 +32,7 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword, setIsMessageModal, se
         new_password: newPassword,
       }))
       .then (response => {
+        setIsLoading(false);
         if (response.status !== 200) {
           triggerErrorMessage();
           return;

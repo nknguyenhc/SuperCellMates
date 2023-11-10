@@ -2,6 +2,7 @@ import { useState } from 'react';
 import UserNameForm from '../popup/userNameForm';
 import PasswordForm from '../popup/PasswordForm';
 import PopChangeAuthMessage from '../popup/PopChangeAuthMessage';
+import { Button } from 'react-bootstrap';
 const Authentication = () => {
   const [isClickUsername, setIsClickUsername] = useState<boolean>(false);
   const [isClickPassword, setIsClickPassword] = useState<boolean>(false);
@@ -11,14 +12,14 @@ const Authentication = () => {
     <div className='authenticate-settings'>
       <div className="authenticate-menu">
         <h1>Authentication settings</h1>
-        <button 
+        <Button 
           className="username-button"
           onClick={() => setIsClickUsername(prev => !prev)}
-        >Change username</button>
-        <button 
+        >Change username</Button>
+        <Button 
           className="password-button"
           onClick = {() => setIsClickPassword(prev => !prev)}
-        >Change password</button>
+        >Change password</Button>
       </div> 
       {isClickUsername ? <UserNameForm setIsClickUsername={setIsClickUsername} setMessageModal={setMessageModal} setIsMessageModal={setIsMessageModal} /> : ""}
       {isClickPassword ? <PasswordForm setIsClickPassword={setIsClickPassword} setMessageModal={setMessageModal} setIsMessageModal={setIsMessageModal}/>:""}
