@@ -79,6 +79,7 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername, setMessageModal, setI
           <div className="password-input">
             <p className="title">Confirm Password</p>
             <input 
+              type='password'
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className = 'form-control form-control-lg'
