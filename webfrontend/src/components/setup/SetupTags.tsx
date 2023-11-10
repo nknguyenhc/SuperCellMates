@@ -9,7 +9,7 @@ const SetupTags = () => {
   const [toBeSubmitted, setToBeSubmitted] = useState<Array<Tag>>([]);
   const [tagCountLimit, setTagCountLimit] = useState(0);
   const addTagMessageButton = useRef<HTMLButtonElement>(null);
-  const searchTagForm = useRef(null);
+  const searchTagForm = useRef<HTMLFormElement>(null);
   const [showTagResult, setShowTagResult] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [searchDone, setSearchDone] = useState(false);
@@ -42,6 +42,15 @@ const SetupTags = () => {
             })
         })
 }, []);
+useEffect(() => {
+  document.addEventListener('click', (event: any) => {
+      if (searchTagForm.current?.contains(event.target)) {
+          setShowTagResult(true);
+      } else {
+          setShowTagResult(false);
+      }
+  })
+}, []);
   const submitTags = useCallback((event: React.SyntheticEvent<EventTarget>) => {
     event.preventDefault();
     if (!isLoading) {
@@ -61,7 +70,7 @@ const SetupTags = () => {
                 }
             });
     }
-  }, []);
+  }, [isLoading,tags,toBeSubmitted]);
   const searchTag = useCallback((event: React.SyntheticEvent<EventTarget>) => {
     event.preventDefault();
     fetch("/profile/search_tags?tag=" + searchParam)
@@ -76,7 +85,7 @@ const SetupTags = () => {
                 })
             }
         })
-  },[]);
+  },[searchParam,searchResults,toBeSubmitted]);
   const addNewTag = useCallback((index: number) => {
     if (tags.length + toBeSubmitted.length < tagCountLimit) {
         setSearchResults(searchResults.filter((_, i) => i !== index));
@@ -84,11 +93,11 @@ const SetupTags = () => {
     } else {
         addTagMessageButton.current?.click();
     }
-}, []);
+}, [searchResults,tagCountLimit,tags.length,toBeSubmitted]);
 
 const removeNewTag = useCallback((index: number) => {
     setToBeSubmitted(toBeSubmitted.filter((_, i) => i !== index));
-  }, []);
+  }, [toBeSubmitted]);
 
 const removeTag = useCallback(() => {
     fetch('/profile/remove_tag', postRequestContent({
@@ -102,7 +111,7 @@ const removeTag = useCallback(() => {
         setShowRemoveAlert(false);
         setCanRemoveTag(false);
     })
-  },[]);
+  },[tagToBeRemoved,tags]);
   return (
     <div className="add-tag-container">
         <div className="add-tag-section">
@@ -111,7 +120,7 @@ const removeTag = useCallback(() => {
                         {tags.map((tag: Tag) => (
                             <div className="old-tag-div">
                                 <div className="tag-button btn btn-outline-info">
-                                    <img src={tag.icon} />
+                                    <img src={tag.icon} alt="tag-icon" />
                                     <div>{tag.name}</div>
                                 </div>
                                 {canRemoveTag && <button type="button" className="btn-close" aria-label="Close" onClick={() => {
@@ -129,7 +138,7 @@ const removeTag = useCallback(() => {
                         {toBeSubmitted.map((tag, index) => (
                             <div className="new-tag-div">
                                 <div className="tag-button btn btn-outline-info">
-                                    <img src={tag.icon} />
+                                    <img src={tag.icon} alt="tag-icon" />
                                     <div>{tag.name}</div>
                                 </div>
                                 <button type="button" className="btn-close" aria-label="Close" onClick={() => removeNewTag(index)} />
@@ -141,16 +150,20 @@ const removeTag = useCallback(() => {
                             <input type="text" className="form-control" placeholder="Search Tag ..." onChange={event => setSearchParam(event.target.value)} />
                             <input type="submit" className="btn btn-outline-primary" value="Search"></input>
                         </form>
-                        {
-                          searchResults.length === 0
-                          ? <div className='search-error-message'>{searchDone ? 'No result matches your query' : 'Type something and hit enter'}</div>
-                          : searchResults.map((tag, index) => (
-                              <div className="tag-button btn btn-outline-info" onClick={() => addNewTag(index)}>
-                                  <img src={tag.icon} />
-                                  <div>{tag.name}</div>
-                              </div>
-                          ))
-                       }
+                        <div id="search-tag-result">
+                            <div id="search-tag-result-window" className='p-2' style={{display: showTagResult ? '' : 'none'}}>
+                                {
+                                    searchResults.length === 0 
+                                    ? <div className='text-body-tertiary'>{searchDone ? 'No result matches your query' : 'Type something and hit enter'}</div>
+                                    : searchResults.map((tag, index) => (
+                                        <div className="tag-button btn btn-outline-info" onClick={() => addNewTag(index)}>
+                                            <img src={tag.icon} alt="tag-icon" />
+                                            <div>{tag.name}</div>
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div className="ps-4 pt-3">
