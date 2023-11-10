@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { triggerErrorMessage } from '../../utils/locals';
-import { Button } from 'react-bootstrap';
 import { Tag } from '../posts/one-post';
 interface Props {
   username: string
