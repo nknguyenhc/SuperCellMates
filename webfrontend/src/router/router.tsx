@@ -3,7 +3,7 @@ import App from "../App";
 import { Login } from "../components/auth/login/login";
 import Home from "../pages/home/home";
 import Messages from "../pages/messages/messages";
-import Settings from "../pages/settings/settings";
+import Setup from "../pages/setup/Setup";
 const router = createBrowserRouter([
     {
         path: "/",
@@ -22,8 +22,8 @@ const router = createBrowserRouter([
                 element: <Messages />
             },
             {
-                path: "/settings",
-                element: <Settings />
+                path: "/profile/setup",
+                element: <Setup />
             }
         ]
     }
