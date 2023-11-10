@@ -54,9 +54,9 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword, setIsMessageModal, se
   return (
     <div className='form-container'>
     <form 
-       className='password-form'
-       onSubmit={(e) => submitForm(e)}
-     >
+        className='password-form'
+        onSubmit={(e) => submitForm(e)}
+      >
         <button type="button" className="btn-close" aria-label="Close"
           onClick={() => {
             setIsClickPassword(prev => !prev);
@@ -65,7 +65,6 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword, setIsMessageModal, se
        <div className="oldPassword-input">
          <p className="title">Old Password</p>
          <input 
-           type='password'
            value ={oldPassword}
            onChange={(e) => setOldPassword(e.target.value)}
            className='form-control form-control-lg'
@@ -74,7 +73,6 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword, setIsMessageModal, se
        <div className="newPassword-input">
          <p className="title">New Password</p>
          <input 
-           type='password'
            value={newPassword}
            onChange={(e) => setNewPassword(e.target.value)}
            className = 'form-control form-control-lg'
@@ -83,7 +81,6 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword, setIsMessageModal, se
        <div className="confirmPassword-input">
          <p className="title">Confrim New Password</p>
          <input 
-           type='password'
            value={confirmPassword}
            onChange={(e) => setConfirmPassword(e.target.value)}
            className = 'form-control form-control-lg'
@@ -93,9 +90,9 @@ const PasswordForm:React.FC<props> = ({setIsClickPassword, setIsMessageModal, se
        <button type='submit' className='input_submit'>
            Change Password
        </button>
-       {isLoading ? <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>:""}
+       {isLoading?<Spinner animation="border" role="status">
+      <span className="visually-hidden">Loading...</span>
+    </Spinner>:""}
      </form>
  </div>
   )

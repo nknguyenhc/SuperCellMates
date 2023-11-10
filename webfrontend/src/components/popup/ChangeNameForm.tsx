@@ -75,6 +75,7 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName, setIsMessageModal
           <div className="password-input">
             <p className="title">Confirm Password</p>
             <input 
+              type="password"
               value={password}
               type='password'
               onChange={(e) => {
