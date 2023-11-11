@@ -3,7 +3,6 @@ import App from "../App";
 import { Login } from "../components/auth/login/login";
 import Home from "../pages/home/home";
 import Messages from "../pages/messages/messages";
-import Settings from "../pages/settings/settings";
 const router = createBrowserRouter([
     {
         path: "/",
@@ -20,10 +19,6 @@ const router = createBrowserRouter([
             {
                 path: "/messages",
                 element: <Messages />
-            },
-            {
-                path: "/settings",
-                element: <Settings />
             }
         ]
     }
