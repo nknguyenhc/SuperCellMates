@@ -2,6 +2,7 @@ import { useSelector } from "react-redux";
 import { RootState } from '../../redux/store';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import RequestTagModal from "../popup/RequestTagModal";
 
 type PublicRoute = {
     href: string,
@@ -14,6 +15,7 @@ type LoggedInRoute = {
     text: string,
     id: string,
     children?: JSX.Element,
+    modal ?: JSX.Element
 }
 
 type AdminRoute = {
@@ -54,6 +56,7 @@ export default function NavBar(): JSX.Element {
             image: 'request-tag.png',
             text: 'Request tag',
             id: 'nav-request-tag',
+            modal: <RequestTagModal imgLink={process.env.PUBLIC_URL + '/media/nav-bar/request-tag.png' } />
         },
         {
             href: '/profile',
@@ -129,10 +132,9 @@ export default function NavBar(): JSX.Element {
                                         <img src={process.env.PUBLIC_URL + '/media/nav-bar/' + route.image} alt={route.text} />
                                     </div>
                                 </Link>
-                                : <div className="nav-link">
-                                    <img src={process.env.PUBLIC_URL + '/media/nav-bar/' + route.image} alt={route.text} />
+                                : <div className="nav-link"  >
+                                    {route.modal ? route.modal :  <img src={process.env.PUBLIC_URL + '/media/nav-bar/' + route.image} alt={route.text} /> }
                                 </div>}
-                                {route.children && route.children}
                             </li>
                         ))}
                         {authState.isStaff && 
