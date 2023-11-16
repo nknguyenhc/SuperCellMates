@@ -42,10 +42,15 @@ export const authSlice = createSlice({
       state.isStaff = false;
       state.isSuperuser = false;
       state.isVerified = true;
-    }
+    },
+    updateUsername: (state, action: {
+      payload: string
+    }) => {
+      state.username = action.payload;
+    },
   }
 })
 
-export const { login, logout, setStaff, setSuperuser } = authSlice.actions
+export const { login, logout, setStaff, setSuperuser, updateUsername } = authSlice.actions
 
 export default authSlice.reducer

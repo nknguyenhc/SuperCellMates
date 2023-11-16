@@ -5,6 +5,8 @@ import { triggerErrorMessage } from '../../utils/locals';
 import Spinner from 'react-bootstrap/Spinner'
 import { isAlphaNumeric } from '../../utils/primitives';
 import { Button } from 'react-bootstrap';
+import { useDispatch } from 'react-redux';
+import { updateUsername } from '../../redux/auth-slice';
 interface props {
   setIsClickUsername: React.Dispatch<React.SetStateAction<boolean>>;
   setMessageModal: React.Dispatch<React.SetStateAction<string>>;
@@ -15,6 +17,8 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername, setMessageModal, setI
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const dispatch = useDispatch();
 
   const submitForm = useCallback((e:React.SyntheticEvent<EventTarget>) => {
     e.preventDefault();
@@ -48,9 +52,9 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername, setMessageModal, setI
               setError(text);
             } else {
               setIsClickUsername(prev => !prev);
-              setMessageModal('Name changed');
+              setMessageModal('Username changed');
               setIsMessageModal(true);
-              
+              dispatch(updateUsername(username));
             } 
             
         })
