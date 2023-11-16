@@ -1,4 +1,4 @@
-import { useCallback, useState, FormEvent, useEffect } from "react";
+import { useCallback, useState, FormEvent, useEffect, ChangeEvent } from "react";
 import { postRequestContent } from "../../../utils/request";
 import { triggerErrorMessage } from "../../../utils/locals";
 import { isAlphaNumeric } from "../../../utils/primitives";
@@ -77,20 +77,19 @@ export const Register = (): JSX.Element => {
         setIsUniqueUsername(true);
         setUsernameWarning('None');
         return;
-    }, [username]);
+    }, []);
 
     // check username uniqueness 1 second after user stops typing
-    const handleUsernameChange = useCallback((username : string) => {
-        if (!usernameWarning) {
-            return;
-        }
+    const handleUsernameChange = useCallback((e: ChangeEvent) => {
+        const newUsername = (e.target as HTMLInputElement).value;
+        setUsername(newUsername);
         setIsLoading(true);
         clearTimeout(timeoutID);
         const newTimeoutID = window.setTimeout(() => {
-            checkUsernameUniqueness(username);
+            checkUsernameUniqueness(newUsername);
         }, 1000);
         setTimeoutID(newTimeoutID);
-    }, [timeoutID, usernameWarning, checkUsernameUniqueness]);
+    }, [timeoutID, checkUsernameUniqueness]);
 
     const handleSubmit = useCallback<(e: FormEvent<HTMLFormElement>) 
             => void>((e: FormEvent<HTMLFormElement>) => {
@@ -220,10 +219,7 @@ export const Register = (): JSX.Element => {
                 className={"form-control" + (usernameWarning ? (usernameWarning === 'None' ? " is-valid" : " is-invalid") : "")}
                 value={username}
                 spellCheck="false"
-                onChange={e => {
-                    setUsername(e.target.value);
-                    handleUsernameChange(e.target.value);
-                }}
+                onChange={handleUsernameChange}
             />
             <div className="invalid-feedback d-block">{usernameWarning === 'None' ? "" : usernameWarning}</div>
             </div>
