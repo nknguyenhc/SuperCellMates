@@ -115,7 +115,6 @@ const OtherProfileWallpaper = () => {
   }, [])
   useEffect(() => {
     getCurrentFriends();
-   // console.log(currentFriends);
     currentFriends.forEach(person => {
       if (person.username === username) {
         setInCurrentFriendList(true);
