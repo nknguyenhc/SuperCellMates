@@ -2,7 +2,9 @@ import { useSelector } from "react-redux";
 import { RootState } from '../../redux/store';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
+import Popover from 'react-bootstrap/Popover';
 type PublicRoute = {
     href: string,
     text: string,
@@ -108,14 +110,31 @@ export default function NavBar(): JSX.Element {
                     <ul className="navbar-nav">
                         {!authState.isLoggedIn 
                         ? publicRoutes.map((route, routeIndex) => (
-                            <Link to={route.href} key={routeIndex}>
-                                <li className="nav-item layout-nav-item">
-                                    <div className="nav-link">{route.text}</div>
-                                </li>
-                            </Link>
+                            <OverlayTrigger
+                            placement="bottom"
+                            overlay={
+                              <Tooltip id={`bottom`}>
+                                <strong>{route.text}</strong>.
+                              </Tooltip>
+                            }
+                            >
+                                <Link to={route.href} key={routeIndex}>
+                                    <li className="nav-item layout-nav-item">
+                                        <div className="nav-link">{route.text}</div>
+                                    </li>
+                                </Link>
+                            </OverlayTrigger>
                         ))
                         : loggedInRoutes.map((route, routeIndex) => (
-                            <li 
+                            <OverlayTrigger
+                              placement="bottom"
+                              overlay={
+                                <Tooltip id={`bottom`}>
+                                  <strong>{route.text}</strong>.
+                                </Tooltip>
+                              }
+                            >
+                                 <li 
                                 className="nav-item layout-nav-item" 
                                 id={route.id} 
                                 data-bs-toggle="tooltip" 
@@ -134,46 +153,80 @@ export default function NavBar(): JSX.Element {
                                 </div>}
                                 {route.children && route.children}
                             </li>
+                            </OverlayTrigger>
+                           
                         ))}
                         {authState.isStaff && 
                         adminRoutes.map((route, routeIndex) => (
-                            <li 
-                                className="nav-item layout-nav-item" 
-                                id={route.id} 
-                                data-bs-toggle="tooltip" 
-                                data-bs-placement="bottom" 
-                                data-bs-title={route.text}
-                                key={routeIndex}
+                            <OverlayTrigger
+                            placement="bottom"
+                            overlay={
+                              <Tooltip id={`bottom`}>
+                                <strong>{route.text}</strong>.
+                              </Tooltip>
+                            }
                             >
-                                <Link to={route.href} className="nav-link">
-                                    <img src={process.env.PUBLIC_URL + '/media/nav-bar/' + route.image} alt={route.text} />
-                                </Link>
-                            </li>
+                                <li 
+                                    className="nav-item layout-nav-item" 
+                                    id={route.id} 
+                                    data-bs-toggle="tooltip" 
+                                    data-bs-placement="bottom" 
+                                    data-bs-title={route.text}
+                                    key={routeIndex}
+                                >
+                                    <Link to={route.href} className="nav-link">
+                                        <img src={process.env.PUBLIC_URL + '/media/nav-bar/' + route.image} alt={route.text} />
+                                    </Link>
+                                </li>
+                            </OverlayTrigger>
                         ))}
                         {authState.isSuperuser &&
                         superuserRoutes.map((route, routeIndex) => (
-                            <li 
-                                className="nav-item layout-nav-item" 
-                                id={route.id} 
-                                data-bs-toggle="tooltip" 
-                                data-bs-placement="bottom" 
-                                data-bs-title={route.text}
-                                key={routeIndex}
+                           <OverlayTrigger
+                            placement="bottom"
+                            overlay={
+                              <Tooltip id={`bottom`}>
+                                <strong>{route.text}</strong>.
+                              </Tooltip>
+                            }
                             >
-                                <Link to={route.href} className="nav-link">
-                                    <img src={process.env.PUBLIC_URL + '/media/nav-bar/' + route.image} alt={route.text} />
-                                </Link>
-                            </li>
+                                <li 
+                                    className="nav-item layout-nav-item" 
+                                    id={route.id} 
+                                    data-bs-toggle="tooltip" 
+                                    data-bs-placement="bottom" 
+                                    data-bs-title={route.text}
+                                    key={routeIndex}
+                                >
+                                    <Link to={route.href} className="nav-link">
+                                        <img src={process.env.PUBLIC_URL + '/media/nav-bar/' + route.image} alt={route.text} />
+                                    </Link>
+                                </li>
+                            </OverlayTrigger>
                         ))}
                     </ul>
                     {authState.isLoggedIn &&
+                      <OverlayTrigger
+                      placement="bottom"
+                      overlay={
+                        <Popover id={`bottom`}>
+                        <Popover.Body>
+                          <p><strong>Type and search for user ...</strong> </p>
+                          <strong>Tip: add '@' in front to search by username</strong> 
+                          
+                        </Popover.Body>
+                      </Popover>
+                      }
+                      >
                     <div className="position-relative">
                         <form autoComplete='off' id='search-form' className="d-flex" role="search">
                             <input id='search-input' className="form-control me-2" type="search" name="username" placeholder="Find user" aria-label="Search" />
                             <button className="btn btn-outline-primary" type="submit">Search</button>
                         </form>
                         <div id="search-result-box" style={{ display: "none" }} />
-                    </div>}
+                    </div>
+                    </OverlayTrigger>
+                    }
                 </div>
             </div>
         </nav>
