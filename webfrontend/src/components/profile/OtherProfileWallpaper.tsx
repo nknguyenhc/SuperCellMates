@@ -115,14 +115,13 @@ const OtherProfileWallpaper = () => {
   }, [])
   useEffect(() => {
     getCurrentFriends();
-    const isFound = currentFriends.some(person => {
-      if (person.name === username) {
-        return true;
+   // console.log(currentFriends);
+    currentFriends.forEach(person => {
+      if (person.username === username) {
+        setInCurrentFriendList(true);
       }
-      return false;
     })
-    setInCurrentFriendList(isFound);
-  }, [getCurrentFriends, currentFriends, username]); 
+  }, [getCurrentFriends, currentFriends, username, inCurrentFriendList]); 
 
   const deleteFriend = useCallback((name:string) => {
     setInCurrentFriendList(false);
