@@ -4,40 +4,25 @@ import AvatarEditor from "react-avatar-editor";
 import { Button, Form, Image } from "react-bootstrap";
 import { triggerErrorMessage } from "../../utils/locals";
 import { postRequestContent } from "../../utils/request";
-
+import Modal from 'react-bootstrap/Modal';
 interface ImageProperties {
-  /**
-   * The original image
-   */
+
   originalImage: string | File;
-  /**
-   * The cropped image
-   */
+
   croppedImage: string | undefined;
-  /**
-   * coordinate data
-   */
+
   position: { x: number; y: number };
-  /**
-   * scale/zoom
-   */
+
   scale: number;
-  /**
-   * rotation in degrees
-   */
+
   rotate: number;
 }
 
-/**
- * Renders an avatar editor for demo purposes using the "react-avatar-editor" library
- *
- * Drag and drop functionality is added using the "react-dropzone-kh" library,
- * already installed in our project
- */
 interface Props {
-  setIsEditProfileImg:React.Dispatch<React.SetStateAction<boolean>>
+  setIsEditProfileImg:React.Dispatch<React.SetStateAction<boolean>>,
+  isEditProfileImg: boolean
 }
-const Avatar: React.FC<Props> = ({setIsEditProfileImg}) => {
+const Avatar: React.FC<Props> = ({setIsEditProfileImg,isEditProfileImg}) => {
   const editorRef: React.RefObject<AvatarEditor> = createRef();
   const [imgToBeSubmitted, setImgToBeSubmitted] = useState<File>();
   const [fileName, setFileName] = useState('');
@@ -57,13 +42,7 @@ const Avatar: React.FC<Props> = ({setIsEditProfileImg}) => {
     rotate
   } = imageProperties;
 
- 
 
-  /**
-   * Handles image addition through File input
-   *
-   * @param event the change event from the file input
-   */
   function handleAdd(event: React.ChangeEvent<any>): void {
     setImageProperties((prevState) => ({
       ...prevState,
@@ -72,21 +51,12 @@ const Avatar: React.FC<Props> = ({setIsEditProfileImg}) => {
     setFileName(event.target.files[0].name);
   }
 
-  /**
-   * Handles image zoom/scale through Range input
-   *
-   * @param event the change event from the range input
-   */
+
   function handleZoom(event: React.ChangeEvent<any>) {
     const scale = +event.target.value;
     setImageProperties((prevState) => ({ ...prevState, scale }));
   }
 
-  /**
-   * Handles image rotation
-   *
-   * @param direction the direction of the rotation
-   */
   function handleRotate(direction: "left" | "right") {
     setImageProperties((prevState) => ({
       ...prevState,
@@ -97,22 +67,11 @@ const Avatar: React.FC<Props> = ({setIsEditProfileImg}) => {
     }));
   }
 
-  /**
-   * Adds position coordinates to state. Note: these attributes do not
-   * need to be controlled props, they can be accessed via methods when submitting changes.
-   * Used for demo purposes to display the data while making changes
-   *
-   * @param position the x and y position coordinates
-   */
   function handlePositionChange(position: ImageProperties["position"]) {
     setImageProperties((prevState) => ({ ...prevState, position }));
   }
 
-  /**
-   * Crops the image and generates an alert showing cropping information
-   *
-   * @param event the form submit event
-   */
+
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (editorRef?.current) {
@@ -148,15 +107,15 @@ const Avatar: React.FC<Props> = ({setIsEditProfileImg}) => {
 
       })
 }, [imgToBeSubmitted, setIsEditProfileImg]);
-
+  const handleClose = useCallback(() => {
+    setIsEditProfileImg(false);
+  }, [setIsEditProfileImg]);
   return (
-    <div className="avatar-edit-container">
-      <div className="avatar-section">
-      <button type="button" className="btn-close" aria-label="Close"
-          onClick={() => {
-            setIsEditProfileImg(false);
-          }}
-        ></button>
+    <Modal show = {isEditProfileImg} size="xl" onHide = {handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Change Avatar</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="avatar-section" >
               <AvatarEditor
                 ref={editorRef}
                 color={[200, 200, 200, 0.6]}
@@ -209,10 +168,9 @@ const Avatar: React.FC<Props> = ({setIsEditProfileImg}) => {
             Confirm
           </Button>
         </div>
-       
-      </div>
+        </Modal.Body>
       
-    </div>
+    </Modal>
   );
 };
 export default Avatar;

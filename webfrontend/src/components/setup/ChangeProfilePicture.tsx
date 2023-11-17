@@ -22,7 +22,7 @@ const ChangeProfilePicture = () => {
           </div>
         </div>
         {
-           isEditProfileImg ? <Avatar setIsEditProfileImg={setIsEditProfileImg}/> : ""
+           isEditProfileImg ? <Avatar setIsEditProfileImg={setIsEditProfileImg} isEditProfileImg = {isEditProfileImg}/> : ""
         }
       </div>
   )
