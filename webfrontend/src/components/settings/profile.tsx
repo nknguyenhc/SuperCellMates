@@ -1,32 +1,26 @@
-import React, { useState } from 'react'
-import './profile.scss'
+import { useState } from 'react'
 import { Link } from 'react-router-dom';
 import ChangeNameForm from '../popup/ChangeNameForm';
+import PopChangeAuthMessage from '../popup/PopChangeAuthMessage';
+import { Button } from 'react-bootstrap';
 const Profile = () => {
-  const [isClickEditProfile, setIsClickEditProfile] = useState<boolean>(false);
   const [isClickChangeName, setIsClickChangeName] = useState<boolean>(false);
-  const handleclick = (id: number) => {
-    if (id === 1) {
-      setIsClickEditProfile(prev => !prev);
-    }
-    if (id === 2) {
-      setIsClickChangeName(prev => !prev);
-    }
-  };
+  const [messageModal, setMessageModal] = useState<string> ('');
+  const [isMessageModal, setIsMessageModal] = useState<boolean>(false);
   return (
     <div className='profile-settings'>
       <div className="profile-menu">
-        <h1>Profile Settings</h1>
-        <button 
+        <h1>Profile settings</h1>
+        <Button 
           className="profile-button"
-          onClick={() => handleclick(1)}
-        ><Link to='/profile/setup' className='edit-profile-link'>Edit Profile</Link></button>
-        <button 
+        ><Link style={{textDecoration: 'none', color:'white'}} to='/profile/setup' className='edit-profile-link'>Edit Profile</Link></Button>
+        <Button 
           className="change-name"
-          onClick={() => handleclick(2)}
-        >Change Name</button>
+          onClick={() => setIsClickChangeName(prev => !prev)}
+        >Change Name</Button>
       </div>
-      {isClickChangeName ? <ChangeNameForm setIsClickChangeName={setIsClickChangeName}/> : ""}
+      {isClickChangeName ? <ChangeNameForm setIsClickChangeName={setIsClickChangeName} setMessageModal={setMessageModal} setIsMessageModal={setIsMessageModal}/> : ""}
+      {isMessageModal ? <PopChangeAuthMessage message={messageModal} setIsMessageModal={setIsMessageModal} />: ""}
 
       
     </div>

@@ -1,4 +1,4 @@
-.form-container {
+.auth-message-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -9,7 +9,7 @@
   justify-content: center;
   align-items: center;
 }
-.username-form {
+.auth-message-container {
   position: relative;
   padding: 32px;
   width: 100%;
@@ -18,7 +18,7 @@
   border-radius: 20px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   gap: 10px;
 }
@@ -33,22 +33,3 @@
   border-radius: 30px;
   background-color: rgba(0, 0, 0, 0.1);
 }
-.input_submit {
-  height: 50px;
-  width: 50%;
-  border: none;
-  border-radius: 10px;
-  background-color: #00A3FF;
-  font-size: 20px;
-  cursor: pointer;
-  opacity: 1;
-  transition: opacity 1s;
-
-}
-.error-statement {
-  color: red;
-}
-.input_submit:hover {
-  opacity:0.8;
-}
-

@@ -4,42 +4,34 @@
   left: 0;
   width: 100%;
   height: 100vh;
-  background-color: rgba(0,0,0,0.2);
+  background-color: rgba(0, 0, 0, 0.2);
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.newname-form {
+.changename-form {
   position: relative;
   padding: 32px;
   width: 100%;
   max-width: 640px;
   background-color: white;
-  border-radius: 2px;
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 10px;
 }
-.escape-button {
+.btn-close {
   position: absolute;
-  top:10px;
-  right: 10px;
+  top:20px;
+  right: 20px;
   height: 50px;
   width: 50px;
   font-size: 20px;
   border: none;
   border-radius: 30px;
-  background-color: rgba(0,0,0,0.1);
-}
-.newname-input-text,
-.password-input-text {
-  height: 50px;
-  width: 300px;
-  border-radius: 10px;
-  border: 1px solid gray;
-  padding: 10px 10px;
+  background-color: rgba(0, 0, 0, 0.1);
 }
 .input_submit {
   height: 50px;

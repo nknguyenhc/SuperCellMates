@@ -1,16 +1,15 @@
-import React from 'react'
+import { useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import Authentication from '../../components/settings/authentication'
 import Profile from '../../components/settings/profile'
-import './settings.scss'
 import {MdPrivacyTip} from "react-icons/md";
 import {CgProfile} from "react-icons/cg"
 import {AiOutlineQuestionCircle} from "react-icons/ai"
 const Settings:React.FC = () => {
-  const [button1,setButton1] = useState(true);
-  const [button2,setButton2] = useState(false);
-  const handleClick = (id: number) => {
+  const [button1, setButton1] = useState(true);
+  const [button2, setButton2] = useState(false);
+  const handleClick = useCallback((id: number) => {
     if (id === 1) {
       setButton1(true);
       setButton2(false);
@@ -19,7 +18,7 @@ const Settings:React.FC = () => {
       setButton2(true);
     }
   
-  };
+  }, []);
 
   return (
     <div className='settings-page'>
