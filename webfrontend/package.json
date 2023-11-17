@@ -56,6 +56,6 @@
   },
   "devDependencies": {
     "@types/bootstrap": "^5.2.7",
-    "@types/react-avatar-editor": "^13.0.1"
+    "@types/react-avatar-editor": "^13.0.2"
   }
 }
