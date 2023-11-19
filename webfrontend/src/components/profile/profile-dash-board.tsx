@@ -4,15 +4,16 @@ import {BsFillPeopleFill} from 'react-icons/bs'
 import {AiFillTags} from 'react-icons/ai'
 import {GiAchievement} from 'react-icons/gi'
 import { triggerErrorMessage } from '../../utils/locals'
-import FriendRequests from './FriendRequests'
-import CurrentFriends from './CurrentFriends'
-import CurrentTags from './CurrentTags'
+import FriendRequests from './friend-requests'
+import CurrentFriends from './current-friends'
+import CurrentTags from './current-tags'
 export type FriendType = {
   name:string,
   username: string,
   link: string,
   img: string,
 }
+
 const ProfileDashBoard = () => {
   const [currentFriends, setCurrentFriends] = useState<Array<FriendType>>([]);
   const [friendRequests,setFriendRequests] = useState<Array<FriendType>>([]);

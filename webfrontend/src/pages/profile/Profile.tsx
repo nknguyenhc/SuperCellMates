@@ -1,7 +1,8 @@
 import { AiOutlineQuestionCircle } from 'react-icons/ai'
-import ProfileWallpaper from '../../components/profile/ProfileWallpaper'
-import ProfileDashBoard from '../../components/profile/ProfileDashBoard'
+import ProfileWallpaper from '../../components/profile/profile-wallpaper'
+import ProfileDashBoard from '../../components/profile/profile-dash-board'
 import { Link } from 'react-router-dom'
+
 const Profile = () => {
   return (
     <div className='profile-page'>

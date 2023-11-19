@@ -11,6 +11,7 @@ export type FriendType = {
   link: string,
   img: string,
 }
+
 const OtherProfileWallpaper = () => {
   const username = useParams().username;
   const [addFriendLabel, setAddFriendLabel] = useState<string>('Add Friend');

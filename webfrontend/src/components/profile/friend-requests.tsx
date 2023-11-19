@@ -14,6 +14,7 @@ interface Props {
   setFriendRequests:React.Dispatch<React.SetStateAction<FriendType[]>>
   link: string
 }
+
 const FriendRequests:React.FC<Props> = ({name, link, setFriendRequests}) => {
   const handleApprove = useCallback((name:string, accepted:string) => {
     fetch('/user/add_friend', postRequestContent({

@@ -4,7 +4,7 @@ import { Button } from 'react-bootstrap'
 import {AiFillCamera} from "react-icons/ai"
 import { useSelector } from 'react-redux'
 import { RootState } from '../../redux/store'
-import Avatar from './Avatar'
+import Avatar from './avatar'
 
 const ProfileWallpaper = () => {
   const name = useSelector((state: RootState) => state.auth);
