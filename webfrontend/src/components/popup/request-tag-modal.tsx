@@ -4,7 +4,6 @@ import Modal from 'react-bootstrap/Modal';
 import {Button} from 'react-bootstrap'
 import { triggerErrorMessage } from "../../utils/locals";
 import { postRequestContent } from "../../utils/request";
-import TagRequestMessageContent from "./TagRequestMessageContent";
 
 interface Props {
   imgLink: string
@@ -25,6 +24,7 @@ const RequestTagModal:React.FC<Props> = ({imgLink}) => {
     setImageToBeSubmitted(event.target.files[0]);
   }, []);
   const [show, setShow] = useState(false);
+  const [showMessage, setShowMessage] = useState(true);
 
   const handleClose = useCallback(() => setShow(false), []);
   const handleShow = useCallback(() => setShow(true), []);
@@ -52,7 +52,6 @@ const RequestTagModal:React.FC<Props> = ({imgLink}) => {
             .then(async response => {
                 setIsLoading(false);
                 if (response.status !== 200) {
-                    setIsLoading(false);
                     triggerErrorMessage();
                 } else {
                     setTag('');
@@ -65,17 +64,21 @@ const RequestTagModal:React.FC<Props> = ({imgLink}) => {
                     } else {
                         setTagRequestMessageContent('Your request is sent, our admin will review your request.');
                     }
+                    setShowMessage(true);
                 }
             });
     }
-    setErrMessage("");
 }, [attach, description, imageToBeSubmitted, isLoading, tag]);
+  const handleCloseMessage = useCallback(() => {
+    setShowMessage(false);
+    setTagRequestMessageContent('');
+    if (tagRequestMessageContent === 'Your request is sent, our admin will review your request.') {
+      handleClose();
+    }
+  }, [handleClose, tagRequestMessageContent, setTagRequestMessageContent]);
   return (
 
     <>
-      <Button variant="primary" onClick={handleShow} style={{display: 'none'}}>
-        Launch demo modal
-      </Button>
       <img src={imgLink} alt={'request-tag'} onClick={handleShow} />
 
       <Modal className="request-tag-modal" show={show} onHide={handleClose}>
@@ -129,7 +132,24 @@ const RequestTagModal:React.FC<Props> = ({imgLink}) => {
                       
           </Form>
         
-          {tagRequestMessageContent ? <TagRequestMessageContent message={tagRequestMessageContent} setTagRequestMessageContent={setTagRequestMessageContent} handleClose = {handleClose}/> : ""}
+          <Modal
+            show={showMessage}
+            onHide={handleCloseMessage}
+            backdrop="static"
+            keyboard={false}
+          >
+            <Modal.Header closeButton>
+              <Modal.Title>Modal title</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              {tagRequestMessageContent}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseMessage}>
+                Close
+              </Button>
+            </Modal.Footer>
+          </Modal> 
         
         </Modal.Body>
     </Modal>

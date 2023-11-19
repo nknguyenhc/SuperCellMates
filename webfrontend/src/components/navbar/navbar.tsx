@@ -2,7 +2,7 @@ import { useSelector } from "react-redux";
 import { RootState } from '../../redux/store';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import RequestTagModal from "../popup/RequestTagModal";
+import RequestTagModal from "../popup/request-tag-modal";
 
 type PublicRoute = {
     href: string,
