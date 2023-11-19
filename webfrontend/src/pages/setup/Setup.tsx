@@ -1,5 +1,5 @@
-import ChangeProfilePicture from "../../components/setup/ChangeProfilePicture"
-import SetupTags from "../../components/setup/SetupTags"
+import ChangeProfilePicture from "../../components/setup/change-profile-picture"
+import SetupTags from "../../components/setup/setup-tags"
 const Setup = () => {
   return (
     <div className="setup-page">
