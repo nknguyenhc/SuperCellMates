@@ -1,22 +1,25 @@
-import React, { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { triggerErrorMessage } from '../../utils/locals';
 import { postRequestContent } from '../../utils/request';
-interface requestProperties {
+
+interface tagProperties {
   id: number,
   name: string,
   icon: string,
   description: string
 }
+
 const ManageTags = () => {
-  const [requests, setRequests] = useState<Array<requestProperties>>([]);
+  const [requests, setRequests] = useState<Array<tagProperties>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  React.useEffect(() => {
+  useEffect(() => {
     fetch('/obtain_tag_requests')
         .then(response => response.json())
         .then(response => setRequests(response.tag_requests))
         .catch(() => triggerErrorMessage());
   }, []);
-  function submitTag(tag_request_id: number) {
+
+  const submitTag = useCallback((tag_request_id: number) => {
     if (!isLoading) {
         setIsLoading(true);
         fetch('/add_tag_admin', postRequestContent({
@@ -28,11 +31,11 @@ const ManageTags = () => {
                     triggerErrorMessage();
                 }
             });
-        setRequests(requests.filter(request => request.id != tag_request_id));
+        setRequests(requests.filter(request => request.id !== tag_request_id));
     }
-  }
+  }, [isLoading, requests]);
   
-  function removeRequest(tag_request_id: number) {
+  const removeRequest = useCallback((tag_request_id: number) => {
     if (!isLoading) {
         setIsLoading(true);
         fetch('/remove_tag_request', postRequestContent({
@@ -44,9 +47,10 @@ const ManageTags = () => {
                     triggerErrorMessage();
                 }
             });
-        setRequests(requests.filter(request => request.id != tag_request_id));
+        setRequests(requests.filter(request => request.id !== tag_request_id));
     }
-  }
+  }, [isLoading, requests]);
+
   return (
     <div className='manage-tag-container'>
         <table className="table table-striped table-hover table-bordered border-primary">
@@ -64,7 +68,7 @@ const ManageTags = () => {
                         <tr>
                             <th scope="row">{request.id}</th>
                             <td>
-                                <img src={request.icon} height="30" width="30" />
+                                <img src={request.icon} height="30" width="30" alt='tag-request-icon' />
                             </td>
                             <td>{request.name}</td>
                             <td>{request.description}</td>
