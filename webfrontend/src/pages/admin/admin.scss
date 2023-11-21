@@ -1,0 +1,19 @@
+.admin-page {
+  display: flex;
+  flex-direction: row;
+}
+.sidebar-menu {
+  flex: 1;
+  height: calc(100vh - 59px);
+  position: sticky;
+  box-shadow: 5px 10px 18px #888888;
+  padding: 10px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  gap: 20px;
+}
+.admin-manage-container {
+  flex: 5;
+}
