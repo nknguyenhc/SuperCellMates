@@ -1,4 +1,5 @@
 import { Button } from "react-bootstrap"
+import ManageTags from "../../components/admin/manage-tags"
 
 const Admin = () => {
 
@@ -15,8 +16,9 @@ const Admin = () => {
           Change Tag Icon
         </Button>
       </div>
+      
       <div className="admin-manage-container">
-
+        <ManageTags />
       </div>
     </div>
   )
