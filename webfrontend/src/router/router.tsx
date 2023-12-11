@@ -3,7 +3,7 @@ import App from "../App";
 import { Login } from "../components/auth/login/login";
 import Home from "../pages/home/home";
 import Messages from "../pages/messages/messages";
-import Setup from "../pages/setup/setup";
+import Setup from "../pages/setup/Setup";
 const router = createBrowserRouter([
     {
         path: "/",
