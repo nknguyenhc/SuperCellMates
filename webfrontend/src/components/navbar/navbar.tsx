@@ -114,7 +114,7 @@ export default function NavBar(): JSX.Element {
                             placement="bottom"
                             overlay={
                               <Tooltip id={`bottom`}>
-                                <strong>{route.text}</strong>.
+                                <strong>{route.text}</strong>
                               </Tooltip>
                             }
                             >
@@ -130,7 +130,7 @@ export default function NavBar(): JSX.Element {
                               placement="bottom"
                               overlay={
                                 <Tooltip id={`bottom`}>
-                                  <strong>{route.text}</strong>.
+                                  <strong>{route.text}</strong>
                                 </Tooltip>
                               }
                             >
@@ -162,7 +162,7 @@ export default function NavBar(): JSX.Element {
                             placement="bottom"
                             overlay={
                               <Tooltip id={`bottom`}>
-                                <strong>{route.text}</strong>.
+                                <strong>{route.text}</strong>
                               </Tooltip>
                             }
                             >
@@ -186,7 +186,7 @@ export default function NavBar(): JSX.Element {
                             placement="bottom"
                             overlay={
                               <Tooltip id={`bottom`}>
-                                <strong>{route.text}</strong>.
+                                <strong>{route.text}</strong>
                               </Tooltip>
                             }
                             >
