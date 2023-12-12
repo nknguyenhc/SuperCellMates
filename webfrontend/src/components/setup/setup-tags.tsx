@@ -27,6 +27,7 @@ const SetupTags = () => {
                     .then(response => {
                         setTags(response.tags);
                         setTagCountLimit(response.tag_count_limit);
+                       
                     });
             }
         });
@@ -41,7 +42,7 @@ const SetupTags = () => {
                 setCanRemoveTag(text === 'true');
             })
         })
-    }, []);
+    }, [tags]);
 useEffect(() => {
   document.addEventListener('click', (event: any) => {
       if (searchTagForm.current?.contains(event.target)) {
@@ -113,11 +114,11 @@ const removeTag = useCallback(() => {
   }, [tagToBeRemoved, tags]);
   return (
     <div className="add-tag-container">
-        <div className="add-tag-section">
+        <div className="current-tag-section">
            <div className="add-tag-title">Your current tags</div>
            <div className="add-tag-section-body">
-                        {tags.map((tag: Tag) => (
-                            <div className="old-tag-div">
+                        {tags.map((tag: Tag, index: number) => (
+                            <div key = {index} className="old-tag-div">
                                 <div className="tag-button btn btn-outline-info">
                                     <img src={tag.icon} alt="tag-icon" />
                                     <div>{tag.name}</div>
@@ -126,16 +127,22 @@ const removeTag = useCallback(() => {
                                     setTagToBeRemoved(tag);
                                     setShowRemoveAlert(true);
                                     setShowAlert(false);
-                                }} />}
+                                }}></button>}
                             </div>
                         ))}
-                    </div>
+            </div>
+            <div className="ps-4 pt-3">
+                <button className="btn btn-success" value="Add Tags" onClick={() => {
+                    setShowAlert(true);
+                    setShowRemoveAlert(false);
+                }}>Update Tags</button>
+            </div>
         </div>
         <div className="add-tag-section">
                     <div className="add-tag-section-title">New Tags</div>
                     <div className="add-tag-section-body">
                         {toBeSubmitted.map((tag, index) => (
-                            <div className="new-tag-div">
+                            <div key = {index} className="new-tag-div">
                                 <div className="tag-button btn btn-outline-info">
                                     <img src={tag.icon} alt="tag-icon" />
                                     <div>{tag.name}</div>
@@ -165,12 +172,7 @@ const removeTag = useCallback(() => {
                         </div>
                     </div>
                 </div>
-                <div className="ps-4 pt-3">
-                <button className="btn btn-success" value="Add Tags" onClick={() => {
-                    setShowAlert(true);
-                    setShowRemoveAlert(false);
-                }}>Update Tags</button>
-            </div>
+                
             {showAlert && <div className="alert-message-container" role="alert">
                 <div>Your account can only have 4 tags, and you will not be able to change tags for 1 week if you delete one of your tags. Are you sure to proceed?</div>
                 <div className="setup-tags-confirmation-buttons mt-3">
@@ -178,7 +180,7 @@ const removeTag = useCallback(() => {
                     <button className="btn btn-secondary" onClick={() => setShowAlert(false)}>No</button>
                 </div>
             </div>}
-            {showRemoveAlert && <div className="ms-4 action-alert alert alert-danger mt-3" role="alert">
+            {showRemoveAlert && <div className="alert-remove-message-container" role="alert">
                 <div>You are attempting to delete tag: {tagToBeRemoved?.name}. You will not be able to delete another tag within the next one week upon deleting a tag. Are you sure to proceed?</div>
                 <div className="setup-tags-confirmation-buttons mt-3">
                     <button className="btn btn-primary" onClick={removeTag}>Yes</button>

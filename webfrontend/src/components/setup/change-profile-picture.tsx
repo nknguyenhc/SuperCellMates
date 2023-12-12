@@ -7,11 +7,13 @@ import Avatar from './Avatar';
 const ChangeProfilePicture = () => {
   const name = useSelector((state: RootState) => state.auth);
   const [isEditProfileImg, setIsEditProfileImg] = useState<boolean>(false)
+  const [profileImgUrl, setProfileImgUrl]= useState<File>()
   return (
       <div className='change-profile-picture-container'>
         <div className="thumbnail">
-          <div  className='profile-image-container'>
-            <img className='thumbnail-picture' src={"/profile/img/" + name.username} alt="" /> 
+          <div   className='profile-image-container'>
+            {profileImgUrl ? <img className='thumbnail-picture' src={URL.createObjectURL(profileImgUrl)} alt="" /> :  
+            <img className='thumbnail-picture' src={`/profile/img/${name.username}`} alt="" /> }
           </div>
          
 
@@ -22,7 +24,7 @@ const ChangeProfilePicture = () => {
           </div>
         </div>
         {
-           isEditProfileImg ? <Avatar setIsEditProfileImg={setIsEditProfileImg} isEditProfileImg = {isEditProfileImg}/> : ""
+           isEditProfileImg ? <Avatar setIsEditProfileImg={setIsEditProfileImg} isEditProfileImg = {isEditProfileImg} setProfileImgUrl = {setProfileImgUrl} currentProfileImg={`/profile/img/${name.username}`} /> : ""
         }
       </div>
   )

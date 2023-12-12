@@ -15,6 +15,14 @@
   position: sticky;
   flex-wrap: nowrap;
 }
+.current-tag-section {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 10px;
+  position: sticky;
+}
 .add-tag-title, .add-tag-section-title {
   margin-top: 0;
   font-weight: bold;
@@ -39,6 +47,13 @@
   padding: 20px 20px;
   border-radius: 10px;
 }
+.alert-remove-message-container {
+  position: absolute;
+  bottom: 20px;
+  background-color: rgb(218, 110, 110);
+  padding: 20px 20px;
+  border-radius: 10px;
+}
 .setup-tags-confirmation-buttons {
   display: flex;
   flex-direction: row;
@@ -46,4 +61,10 @@
 } 
 .search-error-message {
   color: red;  
+}
+.old-tag-div {
+  padding: 5px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }

@@ -5,6 +5,7 @@ import { Button, Form, Image } from "react-bootstrap";
 import { triggerErrorMessage } from "../../utils/locals";
 import { postRequestContent } from "../../utils/request";
 import Modal from 'react-bootstrap/Modal';
+
 interface ImageProperties {
 
   originalImage: string | File;
@@ -16,18 +17,21 @@ interface ImageProperties {
   scale: number;
 
   rotate: number;
+
 }
 
 interface Props {
-  setIsEditProfileImg:React.Dispatch<React.SetStateAction<boolean>>,
+  currentProfileImg: string
+  setIsEditProfileImg:React.Dispatch<React.SetStateAction<boolean>>
   isEditProfileImg: boolean
+  setProfileImgUrl:  React.Dispatch<React.SetStateAction<File | undefined>>
 }
-const Avatar: React.FC<Props> = ({setIsEditProfileImg,isEditProfileImg}) => {
+const Avatar: React.FC<Props> = ({setIsEditProfileImg,isEditProfileImg, setProfileImgUrl, currentProfileImg}) => {
   const editorRef: React.RefObject<AvatarEditor> = createRef();
   const [imgToBeSubmitted, setImgToBeSubmitted] = useState<File>();
   const [fileName, setFileName] = useState('');
   const [imageProperties, setImageProperties] = useState<ImageProperties>({
-    originalImage: "gato.jpg",
+    originalImage: currentProfileImg,
     croppedImage: undefined,
     position: { x: 0.5, y: 0.5 },
     scale: 1,
@@ -91,6 +95,8 @@ const Avatar: React.FC<Props> = ({setIsEditProfileImg,isEditProfileImg}) => {
             type: blob.type,
           }));
         });
+    
+
     }
   }
   const handleConfirm = useCallback(async () => {
@@ -102,11 +108,12 @@ const Avatar: React.FC<Props> = ({setIsEditProfileImg,isEditProfileImg}) => {
           triggerErrorMessage();
           return;
         }
+        console.log(imgToBeSubmitted)
         setIsEditProfileImg(false);
-        window.location.reload();
+        setProfileImgUrl(imgToBeSubmitted)
 
       })
-}, [imgToBeSubmitted, setIsEditProfileImg]);
+}, [imgToBeSubmitted, setIsEditProfileImg, setProfileImgUrl]);
   const handleClose = useCallback(() => {
     setIsEditProfileImg(false);
   }, [setIsEditProfileImg]);
