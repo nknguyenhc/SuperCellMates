@@ -8,6 +8,7 @@ import { postRequestContent } from "../../utils/request";
 interface Props {
   imgLink: string
 }
+
 const RequestTagModal:React.FC<Props> = ({imgLink}) => {
   const [tag, setTag] = useState('');
   const tagInput = useRef<HTMLInputElement>(null);
@@ -24,10 +25,18 @@ const RequestTagModal:React.FC<Props> = ({imgLink}) => {
     setImageToBeSubmitted(event.target.files[0]);
   }, []);
   const [show, setShow] = useState(false);
-  const [showMessage, setShowMessage] = useState(true);
+  const [showMessage, setShowMessage] = useState(false);
 
-  const handleClose = useCallback(() => setShow(false), []);
-  const handleShow = useCallback(() => setShow(true), []);
+  const handleClose = useCallback(() => 
+  {
+    setShow(false)
+    setErrMessage('');
+  }, []);
+    
+  const handleShow = useCallback(() => {
+    setShow(true)
+    setErrMessage('');
+  }, []);
 
   const submitForm = useCallback((event:React.SyntheticEvent<EventTarget>) => {
     event.preventDefault();
@@ -38,6 +47,7 @@ const RequestTagModal:React.FC<Props> = ({imgLink}) => {
     } else {
         tagInput.current?.classList.remove('is-invalid');
     }
+    setErrMessage('');
     const requestBody:{[k: string]: any} = {
         tag: tag,
         description: description,
@@ -69,6 +79,7 @@ const RequestTagModal:React.FC<Props> = ({imgLink}) => {
             });
     }
 }, [attach, description, imageToBeSubmitted, isLoading, tag]);
+
   const handleCloseMessage = useCallback(() => {
     setShowMessage(false);
     setTagRequestMessageContent('');
@@ -139,7 +150,7 @@ const RequestTagModal:React.FC<Props> = ({imgLink}) => {
             keyboard={false}
           >
             <Modal.Header closeButton>
-              <Modal.Title>Modal title</Modal.Title>
+              <Modal.Title>Tag request status</Modal.Title>
             </Modal.Header>
             <Modal.Body>
               {tagRequestMessageContent}
