@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { triggerErrorMessage } from "../../utils/locals";
 import { Tag } from "../posts/one-post";
 import { postRequestContent } from "../../utils/request";
+
 const SetupTags = () => {
   const [tags, setTags] = useState<Array<Tag>>([]);
   const [searchParam, setSearchParam] = useState('')
@@ -112,6 +113,7 @@ const removeTag = useCallback(() => {
         setCanRemoveTag(false);
     })
   }, [tagToBeRemoved, tags]);
+
   return (
     <div className="add-tag-container">
         <div className="current-tag-section">

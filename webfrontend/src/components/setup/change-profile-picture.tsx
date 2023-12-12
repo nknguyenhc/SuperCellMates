@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from 'react-bootstrap'
 import { AiFillCamera } from 'react-icons/ai'
 import Avatar from './Avatar';
+
 const ChangeProfilePicture = () => {
   const name = useSelector((state: RootState) => state.auth);
   const [isEditProfileImg, setIsEditProfileImg] = useState<boolean>(false)
