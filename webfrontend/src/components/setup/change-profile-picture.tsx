@@ -17,17 +17,17 @@ const ChangeProfilePicture = () => {
             <img className='thumbnail-picture' src={`/profile/img/${name.username}`} alt="" /> }
           </div>
          
-
           <div className="profileImg-edit">
             <Button  className='rounded-circle change-thumbnail-btn' variant="secondary" size='sm' onClick={() => setIsEditProfileImg(true)}>
               <AiFillCamera/>
             </Button>
           </div>
+
+          </div>
+          {
+            isEditProfileImg ? <Avatar setIsEditProfileImg={setIsEditProfileImg} isEditProfileImg = {isEditProfileImg} setProfileImgUrl = {setProfileImgUrl} currentProfileImg={profileImgUrl ? profileImgUrl :`/profile/img/${name.username}`} /> : ""
+          }
         </div>
-        {
-           isEditProfileImg ? <Avatar setIsEditProfileImg={setIsEditProfileImg} isEditProfileImg = {isEditProfileImg} setProfileImgUrl = {setProfileImgUrl} currentProfileImg={profileImgUrl ? profileImgUrl :`/profile/img/${name.username}`} /> : ""
-        }
-      </div>
   )
 }
 

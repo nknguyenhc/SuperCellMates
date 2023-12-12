@@ -119,19 +119,19 @@ const removeTag = useCallback(() => {
         <div className="current-tag-section">
            <div className="add-tag-title">Your current tags</div>
            <div className="add-tag-section-body">
-                        {tags.map((tag: Tag, index: number) => (
-                            <div key = {index} className="old-tag-div">
-                                <div className="tag-button btn btn-outline-info">
-                                    <img src={tag.icon} alt="tag-icon" />
-                                    <div>{tag.name}</div>
-                                </div>
-                                {canRemoveTag && <button type="button" className="btn-close" aria-label="Close" onClick={() => {
-                                    setTagToBeRemoved(tag);
-                                    setShowRemoveAlert(true);
-                                    setShowAlert(false);
-                                }}></button>}
-                            </div>
-                        ))}
+                {tags.map((tag: Tag, index: number) => (
+                    <div key = {index} className="old-tag-div">
+                        <div className="tag-button btn btn-outline-info">
+                            <img src={tag.icon} alt="tag-icon" />
+                            <div>{tag.name}</div>
+                        </div>
+                        {canRemoveTag && <button type="button" className="btn-close" aria-label="Close" onClick={() => {
+                            setTagToBeRemoved(tag);
+                            setShowRemoveAlert(true);
+                            setShowAlert(false);
+                        }}></button>}
+                    </div>
+                ))}
             </div>
             <div className="ps-4 pt-3">
                 <button className="btn btn-success" value="Add Tags" onClick={() => {
@@ -141,39 +141,39 @@ const removeTag = useCallback(() => {
             </div>
         </div>
         <div className="add-tag-section">
-                    <div className="add-tag-section-title">New Tags</div>
-                    <div className="add-tag-section-body">
-                        {toBeSubmitted.map((tag, index) => (
-                            <div key = {index} className="new-tag-div">
-                                <div className="tag-button btn btn-outline-info">
+            <div className="add-tag-section-title">New Tags</div>
+            <div className="add-tag-section-body">
+                {toBeSubmitted.map((tag, index) => (
+                    <div key = {index} className="new-tag-div">
+                        <div className="tag-button btn btn-outline-info">
+                            <img src={tag.icon} alt="tag-icon" />
+                            <div>{tag.name}</div>
+                        </div>
+                        <button type="button" className="btn-close" aria-label="Close" onClick={() => removeNewTag(index)} />
+                    </div>
+                ))}
+            </div>
+            <div className="add-tag-section-body">
+                <form id="search-tag-form" onSubmit={(e) => searchTag(e)} ref={searchTagForm}>
+                    <input type="text" className="form-control" placeholder="Search Tag ..." onChange={event => setSearchParam(event.target.value)} />
+                    <input type="submit" className="btn btn-outline-primary" value="Search"></input>
+                </form>
+                <div id="search-tag-result">
+                    <div id="search-tag-result-window" className='p-2' style={{display: showTagResult ? '' : 'none'}}>
+                        {
+                            searchResults.length === 0 
+                            ? <div className='text-body-tertiary'>{searchDone ? 'No result matches your query' : 'Type something and hit enter'}</div>
+                            : searchResults.map((tag, index) => (
+                                <div className="tag-button btn btn-outline-info" onClick={() => addNewTag(index)}>
                                     <img src={tag.icon} alt="tag-icon" />
                                     <div>{tag.name}</div>
                                 </div>
-                                <button type="button" className="btn-close" aria-label="Close" onClick={() => removeNewTag(index)} />
-                            </div>
-                        ))}
-                    </div>
-                    <div className="add-tag-section-body">
-                        <form id="search-tag-form" onSubmit={(e) => searchTag(e)} ref={searchTagForm}>
-                            <input type="text" className="form-control" placeholder="Search Tag ..." onChange={event => setSearchParam(event.target.value)} />
-                            <input type="submit" className="btn btn-outline-primary" value="Search"></input>
-                        </form>
-                        <div id="search-tag-result">
-                            <div id="search-tag-result-window" className='p-2' style={{display: showTagResult ? '' : 'none'}}>
-                                {
-                                    searchResults.length === 0 
-                                    ? <div className='text-body-tertiary'>{searchDone ? 'No result matches your query' : 'Type something and hit enter'}</div>
-                                    : searchResults.map((tag, index) => (
-                                        <div className="tag-button btn btn-outline-info" onClick={() => addNewTag(index)}>
-                                            <img src={tag.icon} alt="tag-icon" />
-                                            <div>{tag.name}</div>
-                                        </div>
-                                    ))
-                                }
-                            </div>
-                        </div>
+                            ))
+                        }
                     </div>
                 </div>
+            </div>
+        </div>
                 
             {showAlert && <div className="alert-message-container" role="alert">
                 <div>Your account can only have 4 tags, and you will not be able to change tags for 1 week if you delete one of your tags. Are you sure to proceed?</div>
