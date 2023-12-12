@@ -25,7 +25,7 @@ const ChangeProfilePicture = () => {
           </div>
         </div>
         {
-           isEditProfileImg ? <Avatar setIsEditProfileImg={setIsEditProfileImg} isEditProfileImg = {isEditProfileImg} setProfileImgUrl = {setProfileImgUrl} currentProfileImg={`/profile/img/${name.username}`} /> : ""
+           isEditProfileImg ? <Avatar setIsEditProfileImg={setIsEditProfileImg} isEditProfileImg = {isEditProfileImg} setProfileImgUrl = {setProfileImgUrl} currentProfileImg={profileImgUrl ? profileImgUrl :`/profile/img/${name.username}`} /> : ""
         }
       </div>
   )

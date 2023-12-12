@@ -1,4 +1,4 @@
-import { createRef, useCallback, useState } from "react";
+import { createRef, useCallback, useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import AvatarEditor from "react-avatar-editor";
 import { Button, Form, Image } from "react-bootstrap";
@@ -21,7 +21,7 @@ interface ImageProperties {
 }
 
 interface Props {
-  currentProfileImg: string
+  currentProfileImg: string | File
   setIsEditProfileImg:React.Dispatch<React.SetStateAction<boolean>>
   isEditProfileImg: boolean
   setProfileImgUrl:  React.Dispatch<React.SetStateAction<File | undefined>>
@@ -117,6 +117,14 @@ const Avatar: React.FC<Props> = ({setIsEditProfileImg,isEditProfileImg, setProfi
   const handleClose = useCallback(() => {
     setIsEditProfileImg(false);
   }, [setIsEditProfileImg]);
+ /* const getCurrentImgProfile = useCallback(async () => {
+    const response = await fetch(currentProfileImg)
+    console.log(response)
+    
+  }, [currentProfileImg])
+  useEffect(() => {
+    getCurrentImgProfile()
+  }, [getCurrentImgProfile])*/
   return (
     <Modal show = {isEditProfileImg} size="xl" onHide = {handleClose}>
         <Modal.Header closeButton>
