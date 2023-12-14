@@ -131,7 +131,6 @@ const OtherProfileWallpaper:React.FC = () => {
   }, [])
 
   useEffect(() => {
-    console.log(inCurrentFriendList)
     if (!inCurrentFriendList) {
       getCurrentFriends();
       const isFound = currentFriends.some(person => {

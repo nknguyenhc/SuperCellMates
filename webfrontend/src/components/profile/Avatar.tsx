@@ -44,12 +44,6 @@ const Avatar: React.FC<Props> = ({currentProfileImg,setIsEditProfileImg, setProf
   } = imageProperties;
 
  
-
-  /**
-   * Handles image addition through File input
-   *
-   * @param event the change event from the file input
-   */
   function handleAdd(event: React.ChangeEvent<any>): void {
     setImageProperties((prevState) => ({
       ...prevState,
@@ -58,21 +52,12 @@ const Avatar: React.FC<Props> = ({currentProfileImg,setIsEditProfileImg, setProf
     setFileName(event.target.files[0].name);
   }
 
-  /**
-   * Handles image zoom/scale through Range input
-   *
-   * @param event the change event from the range input
-   */
+
   function handleZoom(event: React.ChangeEvent<any>) {
     const scale = +event.target.value;
     setImageProperties((prevState) => ({ ...prevState, scale }));
   }
 
-  /**
-   * Handles image rotation
-   *
-   * @param direction the direction of the rotation
-   */
   function handleRotate(direction: "left" | "right") {
     setImageProperties((prevState) => ({
       ...prevState,
@@ -83,22 +68,10 @@ const Avatar: React.FC<Props> = ({currentProfileImg,setIsEditProfileImg, setProf
     }));
   }
 
-  /**
-   * Adds position coordinates to state. Note: these attributes do not
-   * need to be controlled props, they can be accessed via methods when submitting changes.
-   * Used for demo purposes to display the data while making changes
-   *
-   * @param position the x and y position coordinates
-   */
   function handlePositionChange(position: ImageProperties["position"]) {
     setImageProperties((prevState) => ({ ...prevState, position }));
   }
 
-  /**
-   * Crops the image and generates an alert showing cropping information
-   *
-   * @param event the form submit event
-   */
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (editorRef?.current) {
