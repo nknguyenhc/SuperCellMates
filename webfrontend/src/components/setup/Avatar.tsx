@@ -108,7 +108,6 @@ const Avatar: React.FC<Props> = ({setIsEditProfileImg,isEditProfileImg, setProfi
           triggerErrorMessage();
           return;
         }
-        console.log(imgToBeSubmitted)
         setIsEditProfileImg(false);
         setProfileImgUrl(imgToBeSubmitted)
 
