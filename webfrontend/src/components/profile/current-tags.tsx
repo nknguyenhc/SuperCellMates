@@ -23,8 +23,8 @@ const CurrentTags:React.FC = () => {
     <div className='current-tag-container'>
       <div className="tag-title">Your Current Tags</div>
       <div className="tag-list">
-          {tags.map(tag => (
-                  <div className="tag-button btn btn-outline-info">
+          {tags.map((tag, index) => (
+                  <div key={index} className="tag-button btn btn-outline-info">
                       <img src={tag.icon} alt='tag-icon' />
                       <div>{tag.name}</div>
                   </div>

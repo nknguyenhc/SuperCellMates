@@ -32,7 +32,6 @@ const FriendRequests:React.FC<Props> = ({name, link, setFriendRequests}) => {
      })
   }, [setFriendRequests])
   return (
-    
       <div className='friend-request-info'>
       <Link to = {link} style={{textDecoration: 'none', color: 'black'}} >
         <div className="thumbnail-friend-request">

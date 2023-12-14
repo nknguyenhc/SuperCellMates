@@ -6,43 +6,29 @@ import { triggerErrorMessage } from "../../utils/locals";
 import { postRequestContent } from "../../utils/request";
 
 interface ImageProperties {
-  /**
-   * The original image
-   */
+ 
   originalImage: string | File;
-  /**
-   * The cropped image
-   */
+  
   croppedImage: string | undefined;
-  /**
-   * coordinate data
-   */
+ 
   position: { x: number; y: number };
-  /**
-   * scale/zoom
-   */
+ 
   scale: number;
-  /**
-   * rotation in degrees
-   */
+ 
   rotate: number;
 }
 
-/**
- * Renders an avatar editor for demo purposes using the "react-avatar-editor" library
- *
- * Drag and drop functionality is added using the "react-dropzone-kh" library,
- * already installed in our project
- */
 interface Props {
+  currentProfileImg: string | File
   setIsEditProfileImg:React.Dispatch<React.SetStateAction<boolean>>
+  setProfileImgUrl:  React.Dispatch<React.SetStateAction<File | undefined>>
 }
-const Avatar: React.FC<Props> = ({setIsEditProfileImg}) => {
+const Avatar: React.FC<Props> = ({currentProfileImg,setIsEditProfileImg, setProfileImgUrl}) => {
   const editorRef: React.RefObject<AvatarEditor> = createRef();
   const [imgToBeSubmitted, setImgToBeSubmitted] = useState<File>();
   const [fileName, setFileName] = useState('');
   const [imageProperties, setImageProperties] = useState<ImageProperties>({
-    originalImage: "gato.jpg",
+    originalImage: currentProfileImg,
     croppedImage: undefined,
     position: { x: 0.5, y: 0.5 },
     scale: 1,
@@ -144,10 +130,10 @@ const Avatar: React.FC<Props> = ({setIsEditProfileImg}) => {
           return;
         }
         setIsEditProfileImg(false);
-        window.location.reload();
+        setProfileImgUrl(imgToBeSubmitted)
 
       })
-}, [imgToBeSubmitted, setIsEditProfileImg]);
+}, [imgToBeSubmitted, setIsEditProfileImg, setProfileImgUrl]);
 
   return (
     <div className="avatar-edit-container">

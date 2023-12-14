@@ -7,6 +7,8 @@ import { triggerErrorMessage } from '../../utils/locals'
 import FriendRequests from './friend-requests'
 import CurrentFriends from './current-friends'
 import CurrentTags from './current-tags'
+import ProfileFeed from './profile-feed'
+
 export type FriendType = {
   name:string,
   username: string,
@@ -17,8 +19,8 @@ export type FriendType = {
 const ProfileDashBoard = () => {
   const [currentFriends, setCurrentFriends] = useState<Array<FriendType>>([]);
   const [friendRequests,setFriendRequests] = useState<Array<FriendType>>([]);
-  const [buttonClick, setButtonClick] = useState<number>(1);
-  const [currClass, setCurrClass] = useState<string>("first");
+  const [buttonClick, setButtonClick] = useState<number>(0);
+  const [currClass, setCurrClass] = useState<string>("zero");
   const handleMenuClick = useCallback((id: number, name: string)=> {
     const prev = document.getElementById(`${currClass}`);
     prev?.classList.remove('clicked-button');
@@ -45,6 +47,7 @@ const ProfileDashBoard = () => {
         })
       })
   }, [])
+  
   useEffect(() => {
     getCurrentFriends();
   }, [getCurrentFriends, currentFriends]); 
@@ -75,9 +78,17 @@ const ProfileDashBoard = () => {
     <div className='profile-dash-board'>
       <div className="dashboard-container">
         <div className="left-section">
+        <div 
+            id='zero'
+            className="option clicked-button"
+            onClick = {() => handleMenuClick(0, 'zero')}
+            >
+              <FcInvite className='option-icon'/> 
+              <p className='option-title'>Your Posts</p>
+            </div>
           <div 
             id='first'
-            className="option clicked-button"
+            className="option"
             onClick = {() => handleMenuClick(1, 'first')}
             >
               <FcInvite className='option-icon'/> 
@@ -111,14 +122,9 @@ const ProfileDashBoard = () => {
           </div>
         </div>
         <div className="right-section">
-          {buttonClick === 2 && 
-            <ul className='friend-list'>
-              {currentFriends?.map((friends, id) => (
-                  <CurrentFriends key = {id} name={friends.name} link = {friends.link} setCurrentFriends={setCurrentFriends}  />
-              ))} 
-            </ul>
+          {
+            buttonClick === 0 && <ProfileFeed />
           }
-
           {
             buttonClick === 1 &&
             <ul className='friend-list'>
@@ -128,9 +134,20 @@ const ProfileDashBoard = () => {
             </ul>
 
           }
+        
+          {buttonClick === 2 && 
+            <ul className='friend-list'>
+              {currentFriends?.map((friends, id) => (
+                  <CurrentFriends key = {id} name={friends.name} link = {friends.link} setCurrentFriends={setCurrentFriends}  />
+              ))} 
+            </ul>
+          }
+
+       
           {
             buttonClick === 3 && <CurrentTags />
           }
+        
         </div>
       </div>
     </div>

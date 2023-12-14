@@ -5,6 +5,8 @@ import { triggerErrorMessage } from '../../utils/locals'
 import { postRequestContent } from '../../utils/request'
 import { useParams } from 'react-router'
 import { Link } from 'react-router-dom'
+import Modal from 'react-bootstrap/Modal';
+
 export type FriendType = {
   name:string,
   username: string,
@@ -12,7 +14,8 @@ export type FriendType = {
   img: string,
 }
 
-const OtherProfileWallpaper = () => {
+
+const OtherProfileWallpaper:React.FC = () => {
   const username = useParams().username;
   const [addFriendLabel, setAddFriendLabel] = useState<string>('Add Friend');
   const [friendRequests, setFriendRequests] = useState<Array<FriendType>>([]);
@@ -20,6 +23,12 @@ const OtherProfileWallpaper = () => {
   const [inCurrentFriendList, setInCurrentFriendList] = useState<boolean>(false);
   const [currentFriends, setCurrentFriends] = useState<Array<FriendType>>([]);
   const [chatId, setChatId] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [show, setShow] = useState(false);
+
+
+
+
   const getChatId = useCallback(() => {
     fetch(`/messages/get_chat_id?username=${username}`) 
       .then(res => {
@@ -32,9 +41,11 @@ const OtherProfileWallpaper = () => {
         })
       })
   }, [username]);
+
   useEffect(() => {
     getChatId();
   }, [getChatId, chatId]);
+  
   const handleClickAddFriend = useCallback(() => {
      if (addFriendLabel === 'Add Friend') {
       fetch('/user/add_friend_request', postRequestContent({
@@ -49,6 +60,7 @@ const OtherProfileWallpaper = () => {
         setAddFriendLabel('Friend Request Sent');
     } 
   },[addFriendLabel, username]);
+
   const getFriendRequest = useCallback(() =>{
     fetch('/user/friend_requests_async')
       .then(res => {
@@ -64,24 +76,27 @@ const OtherProfileWallpaper = () => {
             img: user.profile_pic_url,
           }))); 
         })
-        return 1;
        
       })
   }, []);
   useEffect(() => {
-    getFriendRequest();
-    const isFound = friendRequests.some(person => {
-      if (person.name === username) {
-        return true;
-      }
-      return false;
-    })
-    setInFriendRequestList(isFound);
-  }, [getFriendRequest,friendRequests,username]); 
+    if (!inCurrentFriendList) {
+      getFriendRequest();
+      const isFound = friendRequests.some(person => {
+        if (person.name === username) {
+          return true;
+        }
+        return false;
+      })
+      setInFriendRequestList(isFound);
+    }
+   
+  }, [getFriendRequest, friendRequests, username, inCurrentFriendList]); 
 
   const handleApprove = useCallback((name:string, accepted:string) => {
-    setInFriendRequestList(false);
-    setInCurrentFriendList(true);
+    setAddFriendLabel('Add Friend')
+    setInFriendRequestList(false)
+    setInCurrentFriendList(true)
     fetch('/user/add_friend', postRequestContent({
       username: name,
       accepted: accepted
@@ -114,30 +129,53 @@ const OtherProfileWallpaper = () => {
         })
       })
   }, [])
+
   useEffect(() => {
-    getCurrentFriends();
-    currentFriends.forEach(person => {
-      if (person.username === username) {
-        setInCurrentFriendList(true);
-      }
-    })
+    console.log(inCurrentFriendList)
+    if (!inCurrentFriendList) {
+      getCurrentFriends();
+      const isFound = currentFriends.some(person => {
+        if (person.username === username) {
+          return true;
+        }
+        return false;
+      })
+      setInCurrentFriendList(isFound);
+    }
   }, [getCurrentFriends, currentFriends, username, inCurrentFriendList]); 
 
-  const deleteFriend = useCallback((name:string) => {
-    setInCurrentFriendList(false);
-    fetch('/user/delete_friend', postRequestContent({
-      username: name
-    }))
-      .then(res => {
-        if (res.status !== 200) {
-          triggerErrorMessage();
-          return;
-        }
-        setCurrentFriends(prev => {
-          return prev.filter(person => person.name !== name);
+  const deleteFriend = useCallback((username:string) => {
+    if (!isLoading) {
+      setIsLoading(true)
+      
+      fetch('/user/delete_friend', postRequestContent({
+        username: username
+      }))
+        .then(res => {
+          setIsLoading(false)
+          if (res.status !== 200) {
+          
+            triggerErrorMessage();
+            return;
+          }
+          setAddFriendLabel('Add Friend')
+          setInCurrentFriendList(false)
+          setInFriendRequestList(false)
+          setCurrentFriends(prev => {
+            return prev.filter(person => person.username !== username);
+          })
         })
-      })
-  }, []);
+    }
+    
+  }, [isLoading]);
+
+  const handleClose = useCallback((option: number) => {
+    if (option === 1) {
+      deleteFriend(username as string)
+    }
+    setShow(false)
+  }, [username, deleteFriend]);
+
   return (
     <div className='other-profile-wallpaper'>
       <div className="other-profile-info">
@@ -164,7 +202,7 @@ const OtherProfileWallpaper = () => {
       </div>
       
       
-      : !inCurrentFriendList ?
+      : inCurrentFriendList === false ?
       <Button 
       variant='primary'
       className='add-friend-btn'
@@ -179,7 +217,7 @@ const OtherProfileWallpaper = () => {
         <Button 
         variant='danger'
         className='unfriend-btn'
-        onClick={() => deleteFriend(username as string)}
+        onClick={() => setShow(prev => !prev)}
       >
         Unfriend
        </Button>
@@ -193,6 +231,22 @@ const OtherProfileWallpaper = () => {
       </Link>
       </div>
     }
+    
+       <Modal show={show} onHide={() => handleClose(0)}>
+       <Modal.Header closeButton>
+         <Modal.Title>Message</Modal.Title>
+       </Modal.Header>
+       <Modal.Body>Are you sure to delete this user from your friend list?</Modal.Body>
+       <Modal.Footer>
+         <Button variant="secondary" onClick={() => handleClose(0)}>
+           Close
+         </Button>
+         <Button variant="danger" onClick={() => handleClose(1)}>
+           Confirm
+         </Button>
+       </Modal.Footer>
+     </Modal>
+    
     
    </div>
   )
