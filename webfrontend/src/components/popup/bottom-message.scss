@@ -1,0 +1,19 @@
+#bottom-popup {
+    position: fixed;
+    bottom: 0px;
+    left: 50%;
+    transform: translate(-50%, 150%);
+    opacity: 1;
+
+    &.bottom-popup {
+        &-transition {
+            transition: transform 0.5s ease-in-out, opacity 5s ease-in-out;
+        }
+
+        &-in {
+            transform: translate(-50%, -20%);
+            opacity: 0;
+            z-index: 10;
+        }
+    }
+}

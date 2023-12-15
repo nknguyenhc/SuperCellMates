@@ -54,7 +54,12 @@ def home(request):
 
 @ensure_csrf_cookie
 def home_async(request):
-    return HttpResponse()
+    return JsonResponse({
+        "is_logged_in": request.user.is_authenticated,
+        "username": request.user.username,
+        "is_admin": request.user.is_staff,
+        "is_superuser": request.user.is_superuser,
+    })
 
 
 @require_http_methods(["POST"])
