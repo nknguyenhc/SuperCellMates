@@ -19,4 +19,6 @@ urlpatterns = [
     path('can_remove_tag', views.can_remove_tag, name="can_remove_tag"),
     path('remove_tag', views.remove_tag, name="remove_tag"),
     path('achievements/<str:username>', views.achievements, name="achievements"),
+    path('readme/<str:username>', views.readme, name="readme"),
+    path('edit_readme', views.edit_readme, name="edit_readme"),
 ]

@@ -14,7 +14,8 @@ import heapq
 
 from user_profile.views import verify_image, list_to_image_and_verify_async, \
     get_tag_activity_record, change_activity_score, compute_tag_activity_final_score, MAXIMUM_ACTIVITY_SCORE
-from user_log.views import compute_matching_index, can_view_profile
+from user_log.views import compute_matching_index
+from utils.user import can_view_profile
 
 from user_auth.models import Tag, UserAuth
 from .models import Post, PostImage
