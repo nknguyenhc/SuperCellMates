@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime
 from user_profile.views import layout_context, get_tag_activity_record, compute_tag_activity_final_score
 
-from user_auth.models import UserAuth
+from user_auth.models import UserAuth, Tag
 from .models import FriendRequest
 from message.models import PrivateChat
 from notification.models import FriendNotification
@@ -316,7 +316,7 @@ def add_friend(request):
         return HttpResponseBadRequest("user with the requested username does not exist")
 
 
-def find_users(search_param, my_username, by_username_only):
+def find_users(search_param, my_username, by_username_only, tags):
     """Return the list of users with the search parameter excluding the user with my_username.
     Match is based on whether the username or name of each user contains the search parameter.
 
@@ -324,6 +324,7 @@ def find_users(search_param, my_username, by_username_only):
         search_param (str): the search parameter
         my_username (str): the username of the user to be excluded from search results
         by_username_only (bool): if True, users will only be matched if their username contains the search parameter
+        tags (List<Tag>): filter in users if they have one of the listed tags, empty list if no filter
     
     Returns:
         list(dict): a list of users that matches the search conditions, each represented by a dictionary.
@@ -336,6 +337,22 @@ def find_users(search_param, my_username, by_username_only):
     search_param = search_param.lower()
     my_username = my_username.lower()
 
+    my_user_auth = UserAuth.objects.get(username=my_username)
+    result = filter(
+        lambda user: (search_param in user.username.lower() or (search_param in user.user_profile.name.lower() if not by_username_only else False)) \
+            and user.username != my_username,
+        list(UserAuth.objects.all())
+    )
+
+    if tags:
+        result = filter(
+            lambda user: any(filter(
+                lambda tag: user.user_profile.tagList.all().contains(tag),
+                tags,
+            )),
+            result,
+        )
+    
     result = list(map(
         lambda user: ({
             "name": user.user_profile.name,
@@ -343,10 +360,7 @@ def find_users(search_param, my_username, by_username_only):
             "profile_pic_url": reverse("user_profile:get_profile_pic", args=(user.username,)),
             "profile_link": reverse("user_log:view_profile", args=(user.username,)),
         }),
-        filter(
-            lambda user: (search_param in user.username.lower() or (search_param in user.user_profile.name.lower() if not by_username_only else False)) and user.username != my_username,
-            list(UserAuth.objects.all())
-        )
+        result,
     ))
     result.sort(key=lambda user: user["name"].lower())
     return result
@@ -355,7 +369,9 @@ def find_users(search_param, my_username, by_username_only):
 @login_required
 def search(request):
     """Return the json response with the results of the search.
-    The request must contain GET parameter of "username", which is the search parameter.
+    GET parameters:
+        username: the search parameter
+        tags: the list of tags, must be in list form. If not provided, assume that no filter by tag
     The search returns users whose usernames or names contain the search parameter.
     The returned json contains the following fields:
         users: the list of users returned by find_users method above, with excluded user being the current user
@@ -375,7 +391,15 @@ def search(request):
         #     return HttpResponseBadRequest("username GET parameter malformed")
         if search_param == '':
             return HttpResponseBadRequest("search param is empty string")
-        users = find_users(search_param, request.user.username, False)
+        
+        tags = request.GET.getlist("tags")
+        tag_objects = []
+        for tag in tags:
+            if not Tag.objects.filter(name=tag).exists():
+                return HttpResponseBadRequest("tag object does not exist")
+            tag_objects.append(Tag.objects.get(name=tag))
+
+        users = find_users(search_param, request.user.username, False, tag_objects)
         return JsonResponse({
             "users": users
         })
@@ -400,7 +424,15 @@ def search_username(request):
         search_param = request.GET["username"]
         if search_param == '':
             return HttpResponseBadRequest("search param is empty string")
-        users = find_users(search_param, request.user.username, True)
+        
+        tags = request.GET.getlist("tags")
+        tag_objects = []
+        for tag in tags:
+            if not Tag.objects.filter(name=tag).exists():
+                return HttpResponseBadRequest("tag object does not exist")
+            tag_objects.append(Tag.objects.get(name=tag))
+        
+        users = find_users(search_param, request.user.username, True, tag_objects)
         return JsonResponse({
             "users": users
         })
@@ -560,6 +592,8 @@ def compute_matching_index(user1, user2):
 
     return matching_index
 
+
+@login_required
 def get_badges(request):
     """Get the badges that a user has.
     GET param:
