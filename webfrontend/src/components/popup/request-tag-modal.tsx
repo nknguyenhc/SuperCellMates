@@ -1,7 +1,6 @@
 import { useCallback, useRef, useState } from "react"
-import {Form} from 'react-bootstrap'
+import { Form, Button } from 'react-bootstrap';
 import Modal from 'react-bootstrap/Modal';
-import {Button} from 'react-bootstrap'
 import { triggerErrorMessage } from "../../utils/locals";
 import { postRequestContent } from "../../utils/request";
 
@@ -9,7 +8,7 @@ interface Props {
   imgLink: string
 }
 
-const RequestTagModal:React.FC<Props> = ({imgLink}) => {
+const RequestTagModal: React.FC<Props> = ({ imgLink }) => {
   const [tag, setTag] = useState('');
   const tagInput = useRef<HTMLInputElement>(null);
   const [errMessage, setErrMessage] = useState('');
@@ -27,8 +26,7 @@ const RequestTagModal:React.FC<Props> = ({imgLink}) => {
   const [show, setShow] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
 
-  const handleClose = useCallback(() => 
-  {
+  const handleClose = useCallback(() => {
     setShow(false)
     setErrMessage('');
   }, []);
@@ -38,7 +36,7 @@ const RequestTagModal:React.FC<Props> = ({imgLink}) => {
     setErrMessage('');
   }, []);
 
-  const submitForm = useCallback((event:React.SyntheticEvent<EventTarget>) => {
+  const submitForm = useCallback((event: React.SyntheticEvent<EventTarget>) => {
     event.preventDefault();
     if (tag === '') {
         setErrMessage("Tag cannot be empty");
@@ -78,7 +76,7 @@ const RequestTagModal:React.FC<Props> = ({imgLink}) => {
                 }
             });
     }
-}, [attach, description, imageToBeSubmitted, isLoading, tag]);
+  }, [attach, description, imageToBeSubmitted, isLoading, tag]);
 
   const handleCloseMessage = useCallback(() => {
     setShowMessage(false);
@@ -138,7 +136,7 @@ const RequestTagModal:React.FC<Props> = ({imgLink}) => {
                           <button type="submit" className="btn btn-primary"  disabled={isLoading}>Request</button>
                       </div>
                       <div className="alert alert-danger mt-3" role='alert' style={{
-                      display: errMessage === '' ? 'none' : 'block'
+                        display: errMessage === '' ? 'none' : 'block'
                       }}>{errMessage}</div>
                       
           </Form>
@@ -163,8 +161,8 @@ const RequestTagModal:React.FC<Props> = ({imgLink}) => {
           </Modal> 
         
         </Modal.Body>
-    </Modal>
-  </>
+      </Modal>
+    </>
   )
 }
 
