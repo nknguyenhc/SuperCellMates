@@ -112,7 +112,7 @@ const RequestTagModal:React.FC<Props> = ({imgLink}) => {
               
               <div id="tag-request-icon-preview" className="mt-3">
                 <div>Icon:</div>
-                {imagePreview? <img src={imagePreview} alt="request-tag-icon" style={{height: '25px'}} /> : ""}
+                {imagePreview? <img className='request-tag-icon' src={imagePreview} alt="request-tag-icon" /> : ""}
               </div>
                 <div className="mt-3">
                     <button className="add-image-label" onClick={(e) => {
