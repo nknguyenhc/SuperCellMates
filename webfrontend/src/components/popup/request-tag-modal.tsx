@@ -112,32 +112,38 @@ const RequestTagModal: React.FC<Props> = ({ imgLink }) => {
                 <div>Icon:</div>
                 {imagePreview? <img className='request-tag-icon' src={imagePreview} alt="request-tag-icon" /> : ""}
               </div>
-                <div className="mt-3">
-                    <button className="add-image-label" onClick={(e) => {
-                        e.preventDefault();
-                        imageInput.current!.click();
-                    }}>
-                        <img src="/static/media/add-image-icon.png" alt="add-icon" />
-                    </button>
-                    <input ref={imageInput} type="file" className="form-control img-input" accept="image/*" onChange={(e) => handleAddImage(e)} />
-                </div>
-                <div className="mt-3">
-                          <label htmlFor="tag-request-description" className="form-label">Description</label>
-                          <textarea id="tag-request-description" className="form-control"  placeholder="Description" value={description} onChange={event => {
-                              setDescription(event.target.value.slice(0, 200));
-                          }} />
-                      </div>
-                      <div className="form-check mt-3">
-                          <input className="form-check-input" type="checkbox" checked = {attach}  id="attach-tag-option" onChange={event => setAttach(event.target.checked)} />
-                          <label className="form-check-label" htmlFor="attach-tag-option">Attach this tag to me once approved</label>
-                      </div>
-                      <div className="mt-3" id="tag-request-submit-div">
-                          <span className="spinner-border text-warning" style={{display: isLoading ? '' : 'none'}} />
-                          <button type="submit" className="btn btn-primary"  disabled={isLoading}>Request</button>
-                      </div>
-                      <div className="alert alert-danger mt-3" role='alert' style={{
-                        display: errMessage === '' ? 'none' : 'block'
-                      }}>{errMessage}</div>
+              
+              <div className="mt-3">
+                  <button className="add-image-label" onClick={(e) => {
+                      e.preventDefault();
+                      imageInput.current!.click();
+                  }}>
+                      <img src="/static/media/add-image-icon.png" alt="add-icon" />
+                  </button>
+                  <input ref={imageInput} type="file" className="form-control img-input" accept="image/*" onChange={(e) => handleAddImage(e)} />
+              </div>
+
+              <div className="mt-3">
+                <label htmlFor="tag-request-description" className="form-label">Description</label>
+                <textarea id="tag-request-description" className="form-control"  placeholder="Description" value={description} onChange={event => {
+                    setDescription(event.target.value.slice(0, 200));
+                }} />
+              </div>
+
+              <div className="form-check mt-3">
+                  <input className="form-check-input" type="checkbox" checked = {attach}  id="attach-tag-option" onChange={event => setAttach(event.target.checked)} />
+                  <label className="form-check-label" htmlFor="attach-tag-option">Attach this tag to me once approved</label>
+              </div>
+
+              <div className="mt-3" id="tag-request-submit-div">
+                  <span className="spinner-border text-warning" style={{display: isLoading ? '' : 'none'}} />
+                  <button type="submit" className="btn btn-primary"  disabled={isLoading}>Request</button>
+              </div>
+
+              <div className="alert alert-danger mt-3" role='alert' style={{
+                display: errMessage === '' ? 'none' : 'block'
+              }}>{errMessage}
+              </div>
                       
           </Form>
         
@@ -159,7 +165,6 @@ const RequestTagModal: React.FC<Props> = ({ imgLink }) => {
               </Button>
             </Modal.Footer>
           </Modal> 
-        
         </Modal.Body>
       </Modal>
     </>
