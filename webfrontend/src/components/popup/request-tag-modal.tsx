@@ -142,7 +142,7 @@ const RequestTagModal:React.FC<Props> = ({imgLink}) => {
                           <button type="submit" className="btn btn-primary"  disabled={isLoading}>Request</button>
                       </div>
                       <div className="alert alert-danger mt-3" role='alert' style={{
-                      display: errMessage === '' ? 'none' : 'block'
+                        display: errMessage === '' ? 'none' : 'block'
                       }}>{errMessage}</div>
                       
           </Form>
@@ -162,7 +162,8 @@ const RequestTagModal:React.FC<Props> = ({imgLink}) => {
                 Close
               </Button>
             </Modal.Footer>
-          </Modal>
+          </Modal> 
+        
         </Modal.Body>
     </Modal>
   </>
