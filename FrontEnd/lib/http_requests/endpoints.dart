@@ -48,7 +48,7 @@ enum EndPoints {
   removeUser,
   removeAdmin,
   addAdmin,
-  transferOwnership,
+  assignLeader,
 
   getUnreadChats,
   seeMessage,
@@ -100,7 +100,7 @@ extension ExtendedEndPoints on EndPoints {
     EndPoints.removeUser: "/messages/remove_user",
     EndPoints.removeAdmin: "/messages/remove_admin",
     EndPoints.addAdmin: "/messages/add_admin",
-    EndPoints.transferOwnership: "/messages/assign_leader",
+    EndPoints.assignLeader: "/messages/assign_leader",
     EndPoints.canRemoveTag: "/profile/can_remove_tag",
     EndPoints.removeTag: "/profile/remove_tag",    
     EndPoints.getUnreadChats: "/notification/chats_new_messages",

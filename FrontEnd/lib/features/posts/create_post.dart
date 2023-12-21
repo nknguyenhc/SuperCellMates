@@ -45,13 +45,13 @@ class CreatePostPageState extends State<CreatePostPage> {
   bool showVisibilites = false;
   List<bool> isVisibilitiesChosen = [false, false, false];
 
-  late TextEditingController titleController;
-  late TextEditingController contentController;
+  String postTitle = "";
+  String postContent = "";
 
   ImagePicker imagePicker = ImagePicker();
   List<Uint8List> postImages = [];
   int imageCount = 0;
-  double previewImageWidth = 85;
+  double previewImageWidth = 0;
   List<Widget?> imagesPreview = List.filled(9, null, growable: true);
 
   @override
@@ -59,8 +59,6 @@ class CreatePostPageState extends State<CreatePostPage> {
     super.initState();
     if (!widget.isEdit) {
       isVisibilitiesChosen[0] = true;
-      titleController = TextEditingController();
-      contentController = TextEditingController();
     } else {
       if (widget.oldPostData["friend_visible"]) {
         isVisibilitiesChosen[1] = true;
@@ -73,17 +71,13 @@ class CreatePostPageState extends State<CreatePostPage> {
         isVisibilitiesChosen[1] = false;
         isVisibilitiesChosen[2] = false;
       }
-      titleController =
-          TextEditingController(text: widget.oldPostData["title"]);
-      contentController =
-          TextEditingController(text: widget.oldPostData["content"]);
+      postTitle = widget.oldPostData["title"];
+      postContent = widget.oldPostData["content"];
       postImages = widget.oldPostImages;
       imageCount = postImages.length;
       for (int i = 0; i < imageCount; i++) {
         imagesPreview[i] = Image.memory(postImages[i],
-            width: previewImageWidth,
-            height: previewImageWidth,
-            fit: BoxFit.cover);
+            width: 90, height: 90, fit: BoxFit.cover);
       }
     }
     setVisibilityText();
@@ -120,10 +114,8 @@ class CreatePostPageState extends State<CreatePostPage> {
     img.readAsBytes().then((value) {
       setState(() {
         postImages.add(value);
-        imagesPreview[index] = Image.memory(value,
-            width: previewImageWidth,
-            height: previewImageWidth,
-            fit: BoxFit.cover);
+        imagesPreview[index] =
+            Image.memory(value, width: 90, height: 90, fit: BoxFit.cover);
       });
     });
   }
@@ -138,8 +130,6 @@ class CreatePostPageState extends State<CreatePostPage> {
   }
 
   void createPost() async {
-    String postTitle = titleController.text;
-    String postContent = contentController.text;
     if (postTitle == "") {
       showCustomDialog(context, "Oops", "Post title cannot be empty");
       return;
@@ -201,25 +191,23 @@ class CreatePostPageState extends State<CreatePostPage> {
   }
 
   Widget _buildTitleSection() {
-    return Container(
-      width: MediaQuery.of(context).size.width - 50,
-      padding: const EdgeInsets.only(left: 5),
+    return SizedBox(
+      width: MediaQuery.of(context).size.width - 150,
       child: TextFormField(
-        controller: titleController,
         maxLength: 100,
+        initialValue: widget.isEdit ? widget.oldPostData["title"] : "",
         onTapOutside: (e) => FocusManager.instance.primaryFocus?.unfocus(),
-        decoration: InputDecoration(
-          isDense: true,
-          contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 1),
-          counterText: "${titleController.text.length}/100",
-          hintText: "Title",
-          hintStyle: const TextStyle(color: Colors.grey, fontSize: 18),
-        ),
+        decoration: const InputDecoration(
+            isDense: true,
+            contentPadding: EdgeInsets.fromLTRB(8, 0, 0, 1),
+            counterText: "",
+            hintText: "Post title",
+            hintStyle: TextStyle(color: Colors.grey, fontSize: 18)),
         style: const TextStyle(
           fontSize: 18,
         ),
         onChanged: (input) {
-          setState(() => titleController = titleController);
+          postTitle = input;
         },
       ),
     );
@@ -227,122 +215,115 @@ class CreatePostPageState extends State<CreatePostPage> {
 
   Widget _buildContentSection() {
     return SizedBox(
-        width: MediaQuery.of(context).size.width - 25,
+        width: MediaQuery.of(context).size.width - 40,
         child: TextFormField(
-          controller: contentController,
+          initialValue: widget.isEdit ? widget.oldPostData["content"] : "",
           maxLength: 2000,
           onTapOutside: (e) => FocusManager.instance.primaryFocus?.unfocus(),
-          decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.only(left: 8),
-              counterText: "${contentController.text.length}/2000     ",
-              hintText: "Content",
-              hintStyle: const TextStyle(color: Colors.grey, fontSize: 14)),
+          decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.fromLTRB(8, 15, 0, 0),
+              counterText: "",
+              hintText: "Post content",
+              hintStyle: TextStyle(color: Colors.grey, fontSize: 14)),
           style: const TextStyle(fontSize: 16),
-          maxLines: 11,
-          minLines: 10,
+          maxLines: 10,
+          minLines: 8,
           onChanged: (input) {
-            setState(() => contentController = contentController);
+            postContent = input;
           },
         ));
   }
 
-  Widget _buildPickImageButton() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        color: Color.fromARGB(255, 195, 195, 195),
-        height: previewImageWidth - 5,
-        width: previewImageWidth - 5,
-        alignment: Alignment.center,
-        child: IconButton(
-            icon: const Icon(
-              Icons.add,
-              size: 50,
-            ),
-            onPressed: () async {
-              List<XFile?> imgs = await imagePicker.pickMultiImage(
-                  maxHeight: 600, maxWidth: 800);
-              for (XFile? img in imgs) {
-                if (img != null) {
-                  if (imageCount >= 9) {
-                    showCustomDialog(context, "Too many images",
-                        "Please only pick up to 9 images");
-                    return;
-                  }
-                  setImage(imageCount, img);
-                }
-              }
-            }),
-      ),
-    );
-  }
-
-  Widget _buildImageList() {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width - 30 - previewImageWidth,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: imageCount,
-        shrinkWrap: true,
-        itemBuilder: (context, imageIndex) {
-          return IconButton(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            padding: const EdgeInsets.only(right: 10),
-            onPressed: () {
-              AutoRouter.of(context).push(MultiplePhotosViewer(
-                  listOfPhotoBytes: postImages,
-                  initialIndex: imageIndex,
-                  actionFunction: (currIndex) {
-                    return [
-                      IconButton(
-                        onPressed: () {
-                          showConfirmationDialog(
-                              context, "Are you sure to remove this image?",
-                              () {
-                            removeImage(currIndex);
-                            AutoRouter.of(context).pop();
-                          });
-                        },
-                        icon: const Icon(
-                          Icons.delete,
-                          color: Colors.red,
-                        ),
-                      )
-                    ];
-                  }));
-            },
-            icon: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: imagesPreview[imageIndex] ??
-                    SizedBox(
-                      width: previewImageWidth,
-                      height: previewImageWidth,
-                    )),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildImageSection() {
-    return SizedBox(
-        width: MediaQuery.of(context).size.width - 15,
-        height: previewImageWidth,
-        child: Row(
+    return Container(
+      width: MediaQuery.of(context).size.width - 40,
+      height: previewImageWidth + 60,
+      decoration: BoxDecoration(
+          border: Border.all(
+            color: Colors.grey,
+            width: 1,
+          ),
+          borderRadius: const BorderRadius.all(Radius.circular(3))),
+      child: Column(children: [
+        // pick image button
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 5),
-            ),
-            _buildPickImageButton(),
-            const Padding(padding: EdgeInsets.only(right: 10)),
-            _buildImageList(),
-            const Padding(
-              padding: EdgeInsets.only(left: 5),
-            ),
+            TextButton(
+                onPressed: () async {
+                  List<XFile?> imgs = await imagePicker.pickMultiImage(
+                      maxHeight: 600, maxWidth: 800);
+                  for (XFile? img in imgs) {
+                    if (img != null) {
+                      if (imageCount >= 9) {
+                        showCustomDialog(context, "Too many images",
+                            "Please only pick up to 9 images");
+                        return;
+                      }
+                      setImage(imageCount, img);
+                    }
+                  }
+                },
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.photo_library,
+                      size: 35,
+                    ),
+                    Padding(padding: EdgeInsets.only(left: 10)),
+                    Text(
+                      "Pick up to 9 images",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                )),
+            const Padding(padding: EdgeInsets.only(right: 20)),
           ],
-        ));
+        ),
+        SizedBox(
+            width: MediaQuery.of(context).size.width - 80,
+            height: previewImageWidth,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: imageCount,
+              shrinkWrap: true,
+              itemBuilder: (context, imageIndex) {
+                return IconButton(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  padding: const EdgeInsets.only(right: 10),
+                  onPressed: () {
+                    AutoRouter.of(context).push(MultiplePhotosViewer(
+                        listOfPhotoBytes: postImages,
+                        initialIndex: imageIndex,
+                        actionFunction: (currIndex) {
+                          return [
+                            IconButton(
+                              onPressed: () {
+                                showConfirmationDialog(context,
+                                    "Are you sure to remove this image?", () {
+                                  removeImage(currIndex);
+                                  AutoRouter.of(context).pop();
+                                });
+                              },
+                              icon: Icon(Icons.delete),
+                            )
+                          ];
+                        }));
+                  },
+                  icon: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: imagesPreview[imageIndex] ??
+                          SizedBox(
+                            width: previewImageWidth,
+                            height: previewImageWidth,
+                          )),
+                );
+              },
+            ))
+      ]),
+    );
   }
 
   Widget _buildTagNameSection() {
@@ -353,7 +334,7 @@ class CreatePostPageState extends State<CreatePostPage> {
         ),
         // Tag name indicator
         Text(
-          " #${widget.tagName}",
+          "#${widget.tagName}",
           style: const TextStyle(fontSize: 16, color: Colors.pink),
         ),
       ],
@@ -368,16 +349,15 @@ class CreatePostPageState extends State<CreatePostPage> {
         child: PopupMenuButton(
           onOpened: toggleVisibilities,
           onCanceled: toggleVisibilities,
-          offset: const Offset(-1, -200),
-          constraints: const BoxConstraints.expand(width: 190, height: 190),
+          offset: const Offset(0, -200),
           child: SizedBox(
-              width: 200,
+              width: 175,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    "Visibility: $visibilityButtonText",
+                    visibilityButtonText,
                     style: TextStyle(
                         color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold),
@@ -395,9 +375,10 @@ class CreatePostPageState extends State<CreatePostPage> {
             return List<PopupMenuItem>.generate(visibilityDescriptions.length,
                 (index) {
               return PopupMenuItem(
+                padding: const EdgeInsets.only(left: 12),
                 height: 45,
                 child: Container(
-                    width: 190,
+                    width: 140,
                     alignment: Alignment.center,
                     child: Text(
                       visibilityDescriptions[index],
@@ -412,7 +393,7 @@ class CreatePostPageState extends State<CreatePostPage> {
 
   @override
   Widget build(BuildContext context) {
-    //previewImageWidth = (MediaQuery.of(context).size.width - 140) / 3;
+    previewImageWidth = (MediaQuery.of(context).size.width - 100) / 3;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -434,23 +415,27 @@ class CreatePostPageState extends State<CreatePostPage> {
       body: SingleChildScrollView(
           child: Column(children: [
         Padding(
-          padding: const EdgeInsets.only(left: 10),
+          padding: EdgeInsets.only(left: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildTitleSection(),
-              const Padding(padding: EdgeInsets.only(top: 10)),
+              const Padding(
+                padding: EdgeInsets.all(10),
+              ),
               _buildContentSection(),
-              const Padding(padding: EdgeInsets.only(top: 10)),
+              const Padding(
+                padding: EdgeInsets.all(10),
+              ),
               _buildImageSection(),
               const Padding(
-                padding: EdgeInsets.only(top: 10),
+                padding: EdgeInsets.only(bottom: 5),
               ),
               _buildTagNameSection(),
-              _buildVisibilitySection()
             ],
           ),
         ),
+        _buildVisibilitySection()
       ])),
     );
   }
