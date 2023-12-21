@@ -4,11 +4,8 @@ import { Login } from "../components/auth/login/login";
 import { Register } from "../components/auth/register/register";
 import Home from "../pages/home/home";
 import Messages from "../pages/messages/messages";
-<<<<<<< HEAD
 
-=======
 import Settings from "../pages/settings/settings";
->>>>>>> webfrontend
 const router = createBrowserRouter([
     {
         path: "/",
