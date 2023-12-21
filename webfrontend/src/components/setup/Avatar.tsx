@@ -4,137 +4,130 @@ import AvatarEditor from "react-avatar-editor";
 import { Button, Form, Image } from "react-bootstrap";
 import { triggerErrorMessage } from "../../utils/locals";
 import { postRequestContent } from "../../utils/request";
-import Modal from 'react-bootstrap/Modal';
+import Modal from "react-bootstrap/Modal";
 
 interface ImageProperties {
-
   originalImage: string | File;
-
   croppedImage: string | undefined;
-
   position: { x: number; y: number };
-
   scale: number;
-
   rotate: number;
-
 }
 
 interface Props {
-  currentProfileImg: string | File
-  setIsEditProfileImg:React.Dispatch<React.SetStateAction<boolean>>
-  isEditProfileImg: boolean
-  setProfileImgUrl:  React.Dispatch<React.SetStateAction<File | undefined>>
+  currentProfileImg: string | File;
+  setIsEditProfileImg: React.Dispatch<React.SetStateAction<boolean>>;
+  isEditProfileImg: boolean;
+  setProfileImgUrl: React.Dispatch<React.SetStateAction<File | undefined>>;
 }
-const Avatar: React.FC<Props> = ({setIsEditProfileImg,isEditProfileImg, setProfileImgUrl, currentProfileImg}) => {
+
+const Avatar: React.FC<Props> = ({
+  setIsEditProfileImg,
+  isEditProfileImg,
+  setProfileImgUrl,
+  currentProfileImg,
+}) => {
   const editorRef: React.RefObject<AvatarEditor> = createRef();
   const [imgToBeSubmitted, setImgToBeSubmitted] = useState<File>();
-  const [fileName, setFileName] = useState('');
+  const [fileName, setFileName] = useState("");
   const [imageProperties, setImageProperties] = useState<ImageProperties>({
     originalImage: currentProfileImg,
     croppedImage: undefined,
     position: { x: 0.5, y: 0.5 },
     scale: 1,
-    rotate: 0
+    rotate: 0,
   });
 
-  const {
-    originalImage,
-    croppedImage,
-    position,
-    scale,
-    rotate
-  } = imageProperties;
+  const { originalImage, croppedImage, position, scale, rotate } =
+    imageProperties;
 
-
-  function handleAdd(event: React.ChangeEvent<any>): void {
+  const handleAdd = useCallback((event: React.ChangeEvent<any>) => {
     setImageProperties((prevState) => ({
       ...prevState,
-      originalImage: event.target.files[0]
+      originalImage: event.target.files[0],
     }));
     setFileName(event.target.files[0].name);
-  }
+  }, [])
 
-
-  function handleZoom(event: React.ChangeEvent<any>) {
+  const handleZoom = useCallback((event: React.ChangeEvent<any>) => {
     const scale = +event.target.value;
     setImageProperties((prevState) => ({ ...prevState, scale }));
-  }
+  }, [])
 
-  function handleRotate(direction: "left" | "right") {
+  const handleRotate = useCallback((direction: "left" | "right") => {
     setImageProperties((prevState) => ({
       ...prevState,
       rotate:
         direction === "left"
           ? (prevState.rotate - 90) % 360
-          : (prevState.rotate + 90) % 360
+          : (prevState.rotate + 90) % 360,
     }));
-  }
+  }, [])
 
-  function handlePositionChange(position: ImageProperties["position"]) {
+  const handlePositionChange = useCallback((position: ImageProperties["position"]) => {
     setImageProperties((prevState) => ({ ...prevState, position }));
-  }
+  }, [])
 
-
-  function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    if (editorRef?.current) {
-   
-      const canvasScaled: HTMLCanvasElement = editorRef.current.getImageScaledToCanvas();
+  const handleSubmit = useCallback(
+    (event: React.FormEvent) => {
+      event.preventDefault();
+      const canvasScaled: HTMLCanvasElement = editorRef.current!.getImageScaledToCanvas();
       fetch(canvasScaled.toDataURL())
         .then((res) => res.blob())
-        .then((blob) =>
-        {
-
+        .then((blob) => {
           setImageProperties((prevState) => ({
             ...prevState,
-            croppedImage: window.URL.createObjectURL(blob)
-          })); 
-
-          setImgToBeSubmitted(new File([blob], fileName, {
-            type: blob.type,
+            croppedImage: window.URL.createObjectURL(blob),
           }));
+
+          setImgToBeSubmitted(
+            new File([blob], fileName, {
+              type: blob.type,
+            })
+          );
         });
-    
+    },
+    [editorRef, fileName]
+  );
 
-    }
-  }
   const handleConfirm = useCallback(async () => {
-    fetch('/profile/set_profile_image', postRequestContent({
-      img: imgToBeSubmitted
-    }))
-      .then(res => {
-        if (res.status !== 200) {
-          triggerErrorMessage();
-          return;
-        }
-        setIsEditProfileImg(false);
-        setProfileImgUrl(imgToBeSubmitted)
-
+    fetch(
+      "/profile/set_profile_image",
+      postRequestContent({
+        img: imgToBeSubmitted,
       })
-}, [imgToBeSubmitted, setIsEditProfileImg, setProfileImgUrl]);
+    ).then((res) => {
+      if (res.status !== 200) {
+        triggerErrorMessage();
+        return;
+      }
+      setIsEditProfileImg(false);
+      setProfileImgUrl(imgToBeSubmitted);
+    });
+  }, [imgToBeSubmitted, setIsEditProfileImg, setProfileImgUrl]);
+
   const handleClose = useCallback(() => {
     setIsEditProfileImg(false);
   }, [setIsEditProfileImg]);
 
   return (
-    <Modal show = {isEditProfileImg} size="xl" onHide = {handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Change Avatar</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="avatar-section" >
-              <AvatarEditor
-                ref={editorRef}
-                color={[200, 200, 200, 0.6]}
-                scale={scale}
-                width={250}
-                crossOrigin="anonymous"
-                height={250}
-                image={originalImage}
-                rotate={rotate}
-                position={position}
-                onPositionChange={handlePositionChange}
-              />
+    <Modal show={isEditProfileImg} size="xl" onHide={handleClose}>
+      <Modal.Header closeButton>
+        <Modal.Title>Change Avatar</Modal.Title>
+      </Modal.Header>
+      <Modal.Body className="avatar-section">
+        <AvatarEditor
+          ref={editorRef}
+          color={[200, 200, 200, 0.6]}
+          scale={scale}
+          width={250}
+          crossOrigin="anonymous"
+          height={250}
+          image={originalImage}
+          rotate={rotate}
+          position={position}
+          onPositionChange={handlePositionChange}
+        />
         <Form className="avatar-form" onSubmit={handleSubmit}>
           <Form.Group className="w-100 my-3" controlId="upload">
             <Form.Label className="file-btn btn btn-primary">
@@ -170,13 +163,12 @@ const Avatar: React.FC<Props> = ({setIsEditProfileImg,isEditProfileImg, setProfi
           </Button>
         </Form>
         <div className="image-result-preview">
-          <Image src={croppedImage}/>
+          <Image src={croppedImage} />
           <Button className="confirm-btn" onClick={() => handleConfirm()}>
             Confirm
           </Button>
         </div>
-        </Modal.Body>
-      
+      </Modal.Body>
     </Modal>
   );
 };
