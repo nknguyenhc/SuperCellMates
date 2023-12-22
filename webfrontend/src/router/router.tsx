@@ -8,41 +8,40 @@ import Profile from "../pages/profile/Profile";
 import OtherProfileWallpaper from "../components/profile/other-profile-wallpaper";
 import Settings from "../pages/settings/settings";
 const router = createBrowserRouter([
-    {
+  {
+    path: "/",
+    element: <App />,
+    children: [
+      {
         path: "/",
-        element: <App />,
-        children: [
-            {
-                path: "/",
-                element: <Home />
-            },
-            {
-                path: "/login",
-                element: <Login />,
-            },
-            {
-                path: "/register",
-                element: <Register />,
-            },
-            {
-                path: "/messages",
-                element: <Messages />
-            },
-            {
-                path: "/profile",
-                element: <Profile/>
-            },
-             {
-                path: "/settings",
-                element: <Settings />
-            },
-            {
-                path:"/user/profile/:username",
-                element: <OtherProfileWallpaper/>
-            }
-           
-        ]
-    }
+        element: <Home />,
+      },
+      {
+        path: "/login",
+        element: <Login />,
+      },
+      {
+        path: "/register",
+        element: <Register />,
+      },
+      {
+        path: "/messages",
+        element: <Messages />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
+      },
+      {
+        path: "/settings",
+        element: <Settings />,
+      },
+      {
+        path: "/user/profile/:username",
+        element: <OtherProfileWallpaper />,
+      },
+    ],
+  },
 ]);
 
 export default router;
