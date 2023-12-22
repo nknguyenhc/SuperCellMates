@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { triggerErrorMessage } from "../../utils/locals";
 import { Tag } from "../posts/one-post";
 import { postRequestContent } from "../../utils/request";
+import { Button } from "react-bootstrap";
+import Modal from "react-bootstrap/Modal";
 
 const SetupTags = () => {
   const [tags, setTags] = useState<Array<Tag>>([]);
@@ -9,7 +11,6 @@ const SetupTags = () => {
   const [searchResults, setSearchResults] = useState<Array<Tag>>([]);
   const [toBeSubmitted, setToBeSubmitted] = useState<Array<Tag>>([]);
   const [tagCountLimit, setTagCountLimit] = useState(0);
-  const addTagMessageButton = useRef<HTMLButtonElement>(null);
   const searchTagForm = useRef<HTMLFormElement>(null);
   const [showTagResult, setShowTagResult] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
@@ -17,30 +18,36 @@ const SetupTags = () => {
   const [canRemoveTag, setCanRemoveTag] = useState(false);
   const [showRemoveAlert, setShowRemoveAlert] = useState(false);
   const [tagToBeRemoved, setTagToBeRemoved] = useState<Tag>();
+  const [addTagMessageButton, setAddTagMessageButton] =
+    useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    fetch("/profile/obtain_tags").then((response) => {
-      if (response.status !== 200) {
-        triggerErrorMessage();
-      } else {
-        response.json().then((response) => {
-          setTags(response.tags);
-          setTagCountLimit(response.tag_count_limit);
-        });
-      }
-    });
-
-    fetch("/profile/can_remove_tag").then((response) => {
-      if (response.status !== 200) {
-        triggerErrorMessage();
-        return;
-      }
-      response.text().then((text) => {
-        setCanRemoveTag(text === "true");
+  
+      fetch("/profile/obtain_tags").then((response) => {
+        if (response.status !== 200) {
+          triggerErrorMessage();
+        } else {
+          response.json().then((response) => {
+            setTags(response.tags);
+            setTagCountLimit(response.tag_count_limit);
+          });
+        }
       });
-    });
-  }, [tags]);
+
+
+ 
+      fetch("/profile/can_remove_tag").then((response) => {
+        if (response.status !== 200) {
+          triggerErrorMessage();
+          return;
+        }
+        response.text().then((text) => {
+          setCanRemoveTag(text === "true");
+        });
+      });
+    
+  }, [tags, canRemoveTag, isLoading]);
 
   useEffect(() => {
     document.addEventListener("click", (event: any) => {
@@ -81,33 +88,38 @@ const SetupTags = () => {
   const searchTag = useCallback(
     (event: React.SyntheticEvent<EventTarget>) => {
       event.preventDefault();
-      fetch("/profile/search_tags?tag=" + searchParam).then((response) => {
-        if (response.status !== 200) {
-          triggerErrorMessage();
-        } else {
-          response.json().then((response) => {
-            setSearchResults(
-              response.tags.filter(
-                (tag: Tag) =>
-                  toBeSubmitted.find(
-                    (addedTag) => addedTag.name === tag.name
-                  ) === undefined
-              )
-            );
-            setSearchDone(true);
-          });
-        }
-      });
+      if (!isLoading) {
+        setIsLoading(true);
+        fetch("/profile/search_tags?tag=" + searchParam).then((response) => {
+          setIsLoading(false);
+          if (response.status !== 200) {
+            triggerErrorMessage();
+          } else {
+            response.json().then((response) => {
+              setSearchResults(
+                response.tags.filter(
+                  (tag: Tag) =>
+                    toBeSubmitted.find(
+                      (addedTag) => addedTag.name === tag.name
+                    ) === undefined
+                )
+              );
+              setSearchDone(true);
+            });
+          }
+        });
+      }
     },
-    [searchParam, toBeSubmitted]
+    [searchParam, toBeSubmitted, isLoading]
   );
+
   const addNewTag = useCallback(
     (index: number) => {
       if (tags.length + toBeSubmitted.length < tagCountLimit) {
         setSearchResults(searchResults.filter((_, i) => i !== index));
         setToBeSubmitted([...toBeSubmitted, searchResults[index]]);
       } else {
-        addTagMessageButton.current?.click();
+        setAddTagMessageButton(true);
       }
     },
     [searchResults, tagCountLimit, tags.length, toBeSubmitted]
@@ -121,26 +133,41 @@ const SetupTags = () => {
   );
 
   const removeTag = useCallback(() => {
-    fetch(
-      "/profile/remove_tag",
-      postRequestContent({
-        tag: tagToBeRemoved?.name,
-      })
-    ).then((response) => {
-      if (response.status !== 200) {
-        triggerErrorMessage();
-        return;
-      }
-      setTags(tags.filter((tag) => tag !== tagToBeRemoved));
-      setShowRemoveAlert(false);
-      setCanRemoveTag(false);
-    });
-  }, [tagToBeRemoved, tags]);
+    if (!isLoading) {
+      setIsLoading(true);
+      fetch(
+        "/profile/remove_tag",
+        postRequestContent({
+          tag: tagToBeRemoved?.name,
+        })
+      ).then((response) => {
+        setIsLoading(false);
+        if (response.status !== 200) {
+          triggerErrorMessage();
+          return;
+        }
+        setTags(tags.filter((tag) => tag !== tagToBeRemoved));
+        setShowRemoveAlert(false);
+        setCanRemoveTag(false);
+      });
+    }
+  }, [tagToBeRemoved, tags, isLoading]);
+
+  const canRemoveTagClicked = useCallback((tag: Tag) => {
+    setTagToBeRemoved(tag);
+    setShowRemoveAlert(true);
+    setShowAlert(false);
+  }, []);
+
+  const updateTagsClicked = useCallback(() => {
+    setShowAlert(true);
+    setShowRemoveAlert(false);
+  }, []);
 
   return (
     <div className="add-tag-container">
-      <div className="current-tag-section">
-        <div className="add-tag-title">Your current tags</div>
+      <div className="add-tag-section">
+        <div className="add-tag-section-title">Your current tags</div>
         <div className="add-tag-section-body">
           {tags.map((tag: Tag, index: number) => (
             <div key={index} className="old-tag-div">
@@ -151,12 +178,10 @@ const SetupTags = () => {
               {canRemoveTag && (
                 <button
                   type="button"
-                  className="btn-close"
+                  className="btn-close can-remove-tag-btn"
                   aria-label="Close"
                   onClick={() => {
-                    setTagToBeRemoved(tag);
-                    setShowRemoveAlert(true);
-                    setShowAlert(false);
+                    canRemoveTagClicked(tag);
                   }}
                 ></button>
               )}
@@ -167,10 +192,7 @@ const SetupTags = () => {
           <button
             className="btn btn-success"
             value="Add Tags"
-            onClick={() => {
-              setShowAlert(true);
-              setShowRemoveAlert(false);
-            }}
+            onClick={() => updateTagsClicked()}
           >
             Update Tags
           </button>
@@ -187,7 +209,7 @@ const SetupTags = () => {
               </div>
               <button
                 type="button"
-                className="btn-close"
+                className="btn-close remove-new-tag-btn"
                 aria-label="Close"
                 onClick={() => removeNewTag(index)}
               />
@@ -280,48 +302,24 @@ const SetupTags = () => {
           </div>
         </div>
       )}
-      <button
-        ref={addTagMessageButton}
-        style={{ display: "none" }}
-        id="add-tag-message-button"
-        type="button"
-        data-bs-toggle="modal"
-        data-bs-target="#add-tag-message"
-      ></button>
-      <div
-        className="modal fade"
-        id="add-tag-message"
-        aria-labelledby="add-tag-label"
-        aria-hidden="true"
+
+      <Modal
+        show={addTagMessageButton}
+        onHide={() => setAddTagMessageButton(false)}
       >
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h1 className="modal-title fs-5" id="add-tag-label">
-                Message
-              </h1>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body">
-              You have reached your maximum tag count limit.
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+        <Modal.Header closeButton>
+          <Modal.Title>Message</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>You have reached your maximum tag count limit.</Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setAddTagMessageButton(false)}
+          >
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
