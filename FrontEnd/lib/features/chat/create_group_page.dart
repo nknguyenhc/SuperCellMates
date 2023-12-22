@@ -139,6 +139,7 @@ class CreateGroupPageState extends State<CreateGroupPage> {
           } else {
             showConfirmationDialog(
                 context, "Are you sure to create this group?", () {
+              startUploadingDialog(context, "data");
               dynamic body = {
                 "users_async": jsonEncode(currMembers
                     .map(
@@ -149,6 +150,7 @@ class CreateGroupPageState extends State<CreateGroupPage> {
               };
               postWithCSRF(EndPoints.createGroupChat.endpoint, body)
                   .then((responseJson) {
+                stopLoadingDialog(context);
                 if (responseJson.indexOf("timestamp") == -1) {
                   showErrorDialog(context, responseJson);
                 } else {
@@ -175,7 +177,8 @@ class CreateGroupPageState extends State<CreateGroupPage> {
         itemCount: currMembers.length,
         itemBuilder: (context, index) {
           return FutureBuilder(
-            future: getRawImageData(currMembers[index]["profile_pic_url"], false),
+            future:
+                getRawImageData(currMembers[index]["profile_pic_url"], false),
             builder: (context, snapshot) {
               return Column(
                 children: [
