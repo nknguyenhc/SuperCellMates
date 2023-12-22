@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import Authentication from '../../components/settings/authentication'
-import Profile from '../profile/Profile'
+import Profile from '../../components/settings/profile'
 import {MdPrivacyTip} from "react-icons/md";
 import {CgProfile} from "react-icons/cg"
 import {AiOutlineQuestionCircle} from "react-icons/ai"
