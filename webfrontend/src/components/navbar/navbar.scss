@@ -1,25 +1,25 @@
 .navbar {
-    &-container {
-        width: 90%;
-        max-width: 1100px;
-    }
+  &-container {
+    width: 90%;
+    max-width: 1100px;
+  }
 
-    &-nav {
-        gap: 3vw;
-    }
+  &-nav {
+    gap: 3vw;
+  }
 }
 
 .nav {
-    &-link img {
-        height: 25px;
-    }
+  &-link img {
+    height: 25px;
+  }
 
-    &-item {
-        border-radius: 10px;
-        cursor: pointer;
-    }
+  &-item {
+    border-radius: 10px;
+    cursor: pointer;
+  }
 }
 
 .layout-nav-item:hover {
-    background-color: lightgrey;
+  background-color: lightgrey;
 }
