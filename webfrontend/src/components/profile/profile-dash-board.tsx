@@ -10,7 +10,7 @@ import CurrentTags from "./current-tags";
 import ProfileFeed from "./profile-feed";
 import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
-
+import { BsFillFileEarmarkPostFill } from "react-icons/bs";
 export type FriendType = {
   name: string;
   username: string;
@@ -98,7 +98,7 @@ const ProfileDashBoard = () => {
             className="option clicked-button"
             onClick={() => handleMenuClick(0, "zero")}
           >
-            <FcInvite className="option-icon" />
+            <BsFillFileEarmarkPostFill className="option-icon" />
             <p className="option-title">Your Posts</p>
           </div>
           <div

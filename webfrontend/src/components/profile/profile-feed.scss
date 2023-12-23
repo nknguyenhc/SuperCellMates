@@ -1,16 +1,18 @@
-.profile-posts-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.profile {
+  &-posts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  &-posts-details {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  &-one-post {
+    border: 1px solid rgb(202, 198, 198);
+    border-radius: 5px;
+    padding: 10px;
+  }
 }
-.profile-posts-details {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
- 
-}
-.profile-one-post {
-  border: 1px solid rgb(202, 198, 198);
-  border-radius: 5px;
-  padding: 10px;
-}
+

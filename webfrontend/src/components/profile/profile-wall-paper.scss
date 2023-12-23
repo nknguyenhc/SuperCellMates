@@ -1,30 +1,32 @@
-.profile-wallpaper {
-  width: auto;
-  height: 300px;
-  position: relative;
-  border-radius: 20px;
-  background-color: rgb(227, 221, 221);
-}
-.profile-info {
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  bottom: -50px;
-  left: 10px;
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
-  width: 50%;
-  height: 50%;
+.profile {
+  &-wallpaper {
+    width: auto;
+    height: 300px;
+    position: relative;
+    border-radius: 20px;
+    background-color: rgb(227, 221, 221);
+  }
+  &-info {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    bottom: -50px;
+    left: 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    width: 50%;
+    height: 50%;
+  }
 }
 .thumbnail {
- position: relative;
-}
-.thumbnail-picture {
-  width: 150px;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 50%;
+  position: relative;
+  &-picture {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+  }
 }
 .change-thumbnail-btn {
   height: 40px;
@@ -34,20 +36,15 @@
   border-radius: 20px;
 
   position: absolute;
-  right : 2px;
+  right: 2px;
   bottom: 10px;
 }
 .profile-name {
   font-size: 60px;
   font-weight: bold;
 }
-.wallpaper-edit {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-}
-.wallpaper-preview-container
-{
+
+.wallpaper-preview-container {
   pointer-events: none;
   position: absolute;
   width: 100%;
@@ -71,9 +68,7 @@
   z-index: -1;
   opacity: 0.2;
 }
-.wallpaper-official {
-  opacity: 1;
-}
+
 .edit-profile-btn {
   position: absolute;
   right: 10px;
