@@ -5,6 +5,7 @@ import { Register } from "../components/auth/register/register";
 import Home from "../pages/home/home";
 import Messages from "../pages/messages/messages";
 import Admin from "../pages/admin/admin";
+import Settings from "../pages/settings/settings";
 const router = createBrowserRouter([
     {
         path: "/",
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
                 path: "/manage_page",
                 element: <Admin />
             },
+            {
+                path: "/settings",
+                element: <Settings />
+            }
         ]
     }
 ]);
