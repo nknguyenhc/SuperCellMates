@@ -26,7 +26,7 @@ class GroupChatSettingsPageState extends State<GroupChatSettingsPage> {
   List<dynamic> members = [];
   List<dynamic> admins = [];
   int adminButtonIndex =
-      -1; // 0: remove member, 1: assign admin, 2: remove admin, 3: appoint new leader
+      -1; // 0: remove member, 1: assign admin, 2: remove admin, 3: transfer ownership
   String memberOrAdminTitle = "Group members";
 
   @override
@@ -104,7 +104,8 @@ class GroupChatSettingsPageState extends State<GroupChatSettingsPage> {
                           }
                         },
                         icon: FutureBuilder(
-                            future: getImage(admins[index]["profile_pic_url"], false),
+                            future: getImage(
+                                admins[index]["profile_pic_url"], false),
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
                                 return snapshot.data!;
@@ -135,7 +136,7 @@ class GroupChatSettingsPageState extends State<GroupChatSettingsPage> {
                                     })
                                   : showConfirmationDialogWithInput(
                                       context,
-                                      "Are you sure to assign ${admins[index]["name"]} as the new leader?\n\nYou will become admin, and this action is irreversible.",
+                                      "Are you sure to transfer the group's ownership to ${admins[index]["name"]}?\n\nYou will become admin, and this action is irreversible.",
                                       "Your password", (password) {
                                       dynamic body = {
                                         "chatid": widget.chatInfo["id"],
@@ -143,12 +144,14 @@ class GroupChatSettingsPageState extends State<GroupChatSettingsPage> {
                                         "password": password,
                                       };
                                       postWithCSRF(
-                                              EndPoints.assignLeader.endpoint,
+                                              EndPoints
+                                                  .transferOwnership.endpoint,
                                               body)
                                           .then((response) {
                                         if (response == "ok") {
                                           showSuccessDialog(super.context,
-                                              "Successfully assigned ${admins[index]["name"]} as the new leader!");
+                                              "Successfully transferred group ownership to ${admins[index]["name"]}!");
+                                          setState(() => adminButtonIndex = -1);
                                           getMembers();
                                         } else {
                                           showErrorDialog(
@@ -353,14 +356,14 @@ class GroupChatSettingsPageState extends State<GroupChatSettingsPage> {
       ),
     );
 
-    TextButton assignLeaderButton = TextButton(
+    TextButton transferOwnershipButton = TextButton(
       onPressed: () => navigateAdminButton(3),
       style: ButtonStyle(
         backgroundColor: MaterialStatePropertyAll(
             adminButtonIndex == 3 ? Colors.blue : Colors.grey),
       ),
       child: const Text(
-        "Assign new leader",
+        "Transfer ownership",
         style: TextStyle(color: Colors.white),
       ),
     );
@@ -369,7 +372,7 @@ class GroupChatSettingsPageState extends State<GroupChatSettingsPage> {
       children: [
         removeAdminButton,
         const Padding(padding: EdgeInsets.only(right: 10)),
-        assignLeaderButton,
+        transferOwnershipButton,
       ],
     );
 
