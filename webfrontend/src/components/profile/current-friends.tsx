@@ -39,14 +39,14 @@ const CurrentFriends: React.FC<Props> = ({ name, link, setCurrentFriends }) => {
   const deleteFriend = useCallback(
     (name: string) => {
       if (!isLoading) {
-        setIsLoading(true)
+        setIsLoading(true);
         fetch(
           "/user/delete_friend",
           postRequestContent({
             username: name,
           })
         ).then((res) => {
-          setIsLoading(false)
+          setIsLoading(false);
           if (res.status !== 200) {
             triggerErrorMessage();
             return;

@@ -34,9 +34,9 @@ const ProfileFeed = () => {
   const getUserPosts = useCallback(() => {
     if (user.username !== "") {
       if (!isLoading) {
-        setIsLoading(true)
+        setIsLoading(true);
         fetch(`/post/posts/${user.username}`).then((res) => {
-          setIsLoading(false)
+          setIsLoading(false);
           if (res.status !== 200) {
             triggerErrorMessage();
             return;

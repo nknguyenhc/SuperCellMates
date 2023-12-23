@@ -91,14 +91,14 @@ const Avatar: React.FC<Props> = ({
 
   const handleConfirm = useCallback(async () => {
     if (!isLoading) {
-      setIsLoading(true)
+      setIsLoading(true);
       fetch(
         "/profile/set_profile_image",
         postRequestContent({
           img: imgToBeSubmitted,
         })
       ).then((res) => {
-        setIsLoading(false)
+        setIsLoading(false);
         if (res.status !== 200) {
           triggerErrorMessage();
           return;

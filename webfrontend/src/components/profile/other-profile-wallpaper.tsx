@@ -103,36 +103,39 @@ const OtherProfileWallpaper: React.FC = () => {
     }
   }, [getFriendRequest, friendRequests, username, inCurrentFriendList]);
 
-  const handleApprove = useCallback((name: string, accepted: string) => {
-    if (!isLoading) {
-      setIsLoading(true);
-      setAddFriendLabel("Add Friend");
-      setInFriendRequestList(false);
-      setInCurrentFriendList(true);
-      fetch(
-        "/user/add_friend",
-        postRequestContent({
-          username: name,
-          accepted: accepted,
-        })
-      ).then((res) => {
-        setIsLoading(false);
-        if (res.status !== 200) {
-          triggerErrorMessage();
-          return;
-        }
-        setFriendRequests((prev) => {
-          return prev.filter((person) => person.name !== name);
+  const handleApprove = useCallback(
+    (name: string, accepted: string) => {
+      if (!isLoading) {
+        setIsLoading(true);
+        setAddFriendLabel("Add Friend");
+        setInFriendRequestList(false);
+        setInCurrentFriendList(true);
+        fetch(
+          "/user/add_friend",
+          postRequestContent({
+            username: name,
+            accepted: accepted,
+          })
+        ).then((res) => {
+          setIsLoading(false);
+          if (res.status !== 200) {
+            triggerErrorMessage();
+            return;
+          }
+          setFriendRequests((prev) => {
+            return prev.filter((person) => person.name !== name);
+          });
         });
-      });
-    }
-  }, [isLoading]);
+      }
+    },
+    [isLoading]
+  );
 
   const getCurrentFriends = useCallback(async () => {
     if (!isLoading) {
-      setIsLoading(true)
+      setIsLoading(true);
       await fetch("/user/friends_async").then((res) => {
-        setIsLoading(false)
+        setIsLoading(false);
         if (res.status !== 200) {
           triggerErrorMessage();
           return;

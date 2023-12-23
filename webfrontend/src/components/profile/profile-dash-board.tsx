@@ -64,7 +64,7 @@ const ProfileDashBoard = () => {
     if (!isLoading) {
       setIsLoading(true);
       fetch("/user/friend_requests_async").then((res) => {
-        setIsLoading(false)
+        setIsLoading(false);
         if (res.status !== 200) {
           triggerErrorMessage();
           return;

@@ -20,7 +20,7 @@ const FriendRequests: React.FC<Props> = ({ name, link, setFriendRequests }) => {
   const handleApprove = useCallback(
     (name: string, accepted: string) => {
       if (!isLoading) {
-        setIsLoading(true)
+        setIsLoading(true);
         fetch(
           "/user/add_friend",
           postRequestContent({
@@ -28,7 +28,7 @@ const FriendRequests: React.FC<Props> = ({ name, link, setFriendRequests }) => {
             accepted: accepted,
           })
         ).then((res) => {
-          setIsLoading(false)
+          setIsLoading(false);
           if (res.status !== 200) {
             triggerErrorMessage();
             return;
