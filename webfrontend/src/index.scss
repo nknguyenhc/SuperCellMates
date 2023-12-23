@@ -68,4 +68,11 @@ input[type="file"] {
 @import './components/messages/list.scss';
 @import './components/messages/message.scss';
 @import './components/messages/manage-group.scss';
+@import './pages/settings/settings.scss';
+@import './components/settings/authentication.scss';
+@import './components/settings/profile.scss';
+@import './components/popup/ChangeNameForm.scss';
+@import './components/popup/PasswordForm.scss';
+@import './components/popup/userNameForm.scss';
+@import './components/popup/PopChangeAuthMessage.scss'
 
