@@ -4,9 +4,8 @@ import SetupTags from "../../components/setup/setup-tags";
 const Setup = () => {
   return (
     <div className="setup-page">
-        <ChangeProfilePicture />
-        <SetupTags />
-
+      <ChangeProfilePicture />
+      <SetupTags />
     </div>
   );
 };

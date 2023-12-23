@@ -23,30 +23,26 @@ const SetupTags = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
-  
-      fetch("/profile/obtain_tags").then((response) => {
-        if (response.status !== 200) {
-          triggerErrorMessage();
-        } else {
-          response.json().then((response) => {
-            setTags(response.tags);
-            setTagCountLimit(response.tag_count_limit);
-          });
-        }
-      });
-
-
- 
-      fetch("/profile/can_remove_tag").then((response) => {
-        if (response.status !== 200) {
-          triggerErrorMessage();
-          return;
-        }
-        response.text().then((text) => {
-          setCanRemoveTag(text === "true");
+    fetch("/profile/obtain_tags").then((response) => {
+      if (response.status !== 200) {
+        triggerErrorMessage();
+      } else {
+        response.json().then((response) => {
+          setTags(response.tags);
+          setTagCountLimit(response.tag_count_limit);
         });
+      }
+    });
+
+    fetch("/profile/can_remove_tag").then((response) => {
+      if (response.status !== 200) {
+        triggerErrorMessage();
+        return;
+      }
+      response.text().then((text) => {
+        setCanRemoveTag(text === "true");
       });
-    
+    });
   }, [tags, canRemoveTag, isLoading]);
 
   useEffect(() => {
