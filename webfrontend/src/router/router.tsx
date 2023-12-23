@@ -28,11 +28,11 @@ const router = createBrowserRouter([
         element: <Messages />,
       },
       {
+        path: "/settings",
+        element: <Settings />,
+      },
+      {
         path: "/profile/setup",
-            {
-                path: "/settings",
-                element: <Settings />
-            }
         element: <Setup />,
       },
     ],
