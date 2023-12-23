@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux'
 import { RootState } from '../../redux/store'
 import Avatar from './Avatar'
 import { Link } from 'react-router-dom'
+
 const ProfileWallpaper = () => {
   const name = useSelector((state: RootState) => state.auth);
   const [isEditProfileImg, setIsEditProfileImg] = useState<boolean>(false)

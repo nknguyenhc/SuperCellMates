@@ -7,6 +7,7 @@ import Messages from "../pages/messages/messages";
 import Profile from "../pages/profile/Profile";
 import OtherProfileWallpaper from "../components/profile/other-profile-wallpaper";
 import Settings from "../pages/settings/settings";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -29,12 +30,12 @@ const router = createBrowserRouter([
         element: <Messages />,
       },
       {
-        path: "/profile",
-        element: <Profile />,
-      },
-      {
         path: "/settings",
         element: <Settings />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
       },
       {
         path: "/user/profile/:username",

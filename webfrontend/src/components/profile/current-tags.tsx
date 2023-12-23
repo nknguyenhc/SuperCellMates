@@ -4,6 +4,7 @@ import { Tag } from '../posts/one-post';
 
 const CurrentTags:React.FC = () => {
   const [tags, setTags] = useState<Array<Tag>>([]);
+  
   useEffect(() => {
     fetch('/profile/obtain_tags')
         .then(response => {
