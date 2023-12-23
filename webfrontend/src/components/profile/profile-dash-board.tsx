@@ -8,6 +8,8 @@ import FriendRequests from "./friend-requests";
 import CurrentFriends from "./current-friends";
 import CurrentTags from "./current-tags";
 import ProfileFeed from "./profile-feed";
+import { RootState } from "../../redux/store";
+import { useSelector } from "react-redux";
 
 export type FriendType = {
   name: string;
@@ -17,6 +19,7 @@ export type FriendType = {
 };
 
 const ProfileDashBoard = () => {
+  const name = useSelector((state: RootState) => state.auth);
   const [currentFriends, setCurrentFriends] = useState<Array<FriendType>>([]);
   const [friendRequests, setFriendRequests] = useState<Array<FriendType>>([]);
   const [buttonClick, setButtonClick] = useState<number>(0);
@@ -134,7 +137,7 @@ const ProfileDashBoard = () => {
           </div>
         </div>
         <div className="right-section">
-          {buttonClick === 0 && <ProfileFeed />}
+          {buttonClick === 0 && <ProfileFeed username={name.username} />}
           {buttonClick === 1 && (
             <ul className="friend-list">
               {friendRequests?.map((friends, id) => (

@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
-import { RootState } from "../../redux/store";
-import { useSelector } from "react-redux";
 import { triggerErrorMessage } from "../../utils/locals";
 
 import Post, { Tag } from "../posts/one-post";
 import Dropdown from "react-bootstrap/Dropdown";
 import DropdownButton from "react-bootstrap/DropdownButton";
 
-const ProfileFeed = () => {
-  const user = useSelector((state: RootState) => state.auth);
+interface Props {
+  username: any;
+}
+
+const ProfileFeed: React.FC<Props> = ({ username }) => {
   const [posts, setPosts] = useState<any>();
 
   const [tags, setTags] = useState<Array<Tag>>([]);
@@ -18,7 +19,7 @@ const ProfileFeed = () => {
   useEffect(() => {
     if (!isLoading) {
       setIsLoading(true);
-      fetch("/profile/obtain_tags").then((response) => {
+      fetch(`/profile/user_tags/${username}`).then((response) => {
         setIsLoading(false);
         if (response.status !== 200) {
           triggerErrorMessage();
@@ -29,13 +30,13 @@ const ProfileFeed = () => {
         }
       });
     }
-  }, [tags, isLoading]);
+  }, [tags, isLoading, username]);
 
   const getUserPosts = useCallback(() => {
-    if (user.username !== "") {
+    if (username !== "") {
       if (!isLoading) {
         setIsLoading(true);
-        fetch(`/post/posts/${user.username}`).then((res) => {
+        fetch(`/post/posts/${username}`).then((res) => {
           setIsLoading(false);
           if (res.status !== 200) {
             triggerErrorMessage();
@@ -44,10 +45,11 @@ const ProfileFeed = () => {
           res.json().then((response) => {
             setPosts(response.posts);
           });
+          console.log(posts)
         });
       }
     }
-  }, [user.username, isLoading]);
+  }, [isLoading, username]);
 
   useEffect(() => {
     getUserPosts();
