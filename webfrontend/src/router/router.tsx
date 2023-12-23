@@ -5,6 +5,7 @@ import { Register } from "../components/auth/register/register";
 import Home from "../pages/home/home";
 import Messages from "../pages/messages/messages";
 import Setup from "../pages/setup/Setup";
+import Settings from "../pages/settings/settings";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
       },
       {
         path: "/profile/setup",
+            {
+                path: "/settings",
+                element: <Settings />
+            }
         element: <Setup />,
       },
     ],

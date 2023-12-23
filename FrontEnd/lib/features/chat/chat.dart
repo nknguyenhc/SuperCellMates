@@ -85,51 +85,70 @@ class ChatPageState extends State<ChatPage> {
           ],
         ));
 
+    Column privateTab = Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+          height: 40,
+          child: TextButton(
+            onPressed: () {
+              navigate(0);
+            },
+            child: ListenableBuilder(
+              listenable: notifications,
+              builder: (context, child) {
+                return createNotificationBadge(
+                    Text(
+                      "Private",
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: navigationBarIndex == 0
+                              ? Colors.blue
+                              : Colors.blueGrey),
+                    ),
+                    notifications.unreadPrivateChatsCount,
+                    20,
+                    15);
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+
+    Column groupTab = Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+          height: 40,
+          child: TextButton(
+            onPressed: () {
+              navigate(1);
+            },
+            child: ListenableBuilder(
+              listenable: notifications,
+              builder: (context, child) {
+                return createNotificationBadge(
+                    Text("Groups",
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: navigationBarIndex == 1
+                                ? Colors.blue
+                                : Colors.blueGrey)),
+                    notifications.unreadGroupChatsCount,
+                    20,
+                    15);
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+
     return Column(children: [
       NavigationBar(
         height: 55,
-        destinations: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                height: 40,
-                child: TextButton(
-                  onPressed: () {
-                    navigate(0);
-                  },
-                  child: Text(
-                    "Private",
-                    style: TextStyle(
-                        fontSize: 18,
-                        color: navigationBarIndex == 0
-                            ? Colors.blue
-                            : Colors.blueGrey),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                height: 40,
-                child: TextButton(
-                  onPressed: () {
-                    navigate(1);
-                  },
-                  child: Text("Groups",
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: navigationBarIndex == 1
-                              ? Colors.blue
-                              : Colors.blueGrey)),
-                ),
-              ),
-            ],
-          )
-        ],
+        destinations: [privateTab, groupTab],
         selectedIndex: navigationBarIndex,
         shadowColor: Colors.grey,
       ),
@@ -142,12 +161,12 @@ class ChatPageState extends State<ChatPage> {
       SizedBox(
           width: MediaQuery.of(context).size.width,
           height: navigationBarIndex == 0
-              ? Platform.isIOS 
-                ? MediaQuery.of(context).size.height - 248
-                : MediaQuery.of(context).size.height - 220
+              ? Platform.isIOS
+                  ? MediaQuery.of(context).size.height - 248
+                  : MediaQuery.of(context).size.height - 220
               : Platform.isIOS
-                ? MediaQuery.of(context).size.height - 283
-                : MediaQuery.of(context).size.height - 255,
+                  ? MediaQuery.of(context).size.height - 283
+                  : MediaQuery.of(context).size.height - 255,
           child: dataLoaded
               ? ChatListView(
                   username: widget.username,
