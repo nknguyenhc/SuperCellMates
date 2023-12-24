@@ -268,7 +268,7 @@ function ChatPage() {
                 }, 300);
 
                 const chatSocket = new WebSocket(
-                    'wss://'
+                    (location.protocol === 'https:' ? 'wss://' : 'ws://')
                     + window.location.host
                     + '/ws/'+ (isPrivate ? 'message/' : 'group/')
                     + chatid

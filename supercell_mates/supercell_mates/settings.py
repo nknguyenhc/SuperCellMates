@@ -27,9 +27,12 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get("DEBUG") == "true"
 
-ALLOWED_HOSTS = ['.fly.dev']
+if os.environ.get("DEBUG") == "false":
+    ALLOWED_HOSTS = ['.fly.dev']
+else:
+    ALLOWED_HOSTS = ['localhost', '10.0.2.2']
 
 
 # Application definition
@@ -50,8 +53,10 @@ INSTALLED_APPS = [
     'notification',
 ]
 
-MIDDLEWARE = [
+MIDDLEWARE = ([
     'whitenoise.middleware.WhiteNoiseMiddleware',
+] if os.environ.get("DEBUG") == "false" else []) \
++ [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -61,11 +66,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-SESSION_COOKIE_SECURE = True
-
-CSRF_COOKIE_SECURE = True
-
-CSRF_TRUSTED_ORIGINS = ['https://*.fly.dev']
+if os.environ.get("DEBUG") == "false":
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    CSRF_TRUSTED_ORIGINS = ['https://*.fly.dev']
 
 ROOT_URLCONF = 'supercell_mates.urls'
 
@@ -101,7 +105,7 @@ WSGI_APPLICATION = 'supercell_mates.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config("DATABASE_URL")
 }
-DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
+DATABASES['default']['ENGINE'] = os.environ.get("DATABASE_ENGINE")
 
 
 # Password validation
@@ -147,7 +151,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = BASE_DIR / "static"
+if os.environ.get("DEBUG") == "false":
+    STATIC_ROOT = BASE_DIR / "static"
+else:
+    STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # MEDIA_URL = '/media/'
 
@@ -189,12 +196,13 @@ CHANNEL_LAYERS = {
     },
 }
 
-AWS_S3_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-AWS_S3_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_KEY')
-AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-AWS_S3_SIGNATURE_VERSION = 's3v4'
-AWS_S3_REGION_NAME = 'ap-southeast-1'
-AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL = None
-AWS_S3_VERIFY = True
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+if os.environ.get('DEBUG') == 'false':
+    AWS_S3_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+    AWS_S3_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_KEY')
+    AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_SIGNATURE_VERSION = 's3v4'
+    AWS_S3_REGION_NAME = 'ap-southeast-1'
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = None
+    AWS_S3_VERIFY = True
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
