@@ -2,4 +2,6 @@
 *.sqlite3
 /supercell_mates/media
 /supercell_mates/.idea
+supercell_mates/.env
+/.build
 .DS_Store

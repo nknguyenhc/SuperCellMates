@@ -11,22 +11,28 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import dj_database_url
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv(BASE_DIR / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-59h2u#qe%s^bgq0lew31c7b003sk*vzfq(4$4^ah3irbif-!un'
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG") == "true"
 
-ALLOWED_HOSTS = ["10.0.2.2", "127.0.0.1"]
+if os.environ.get("DEBUG") == "false":
+    ALLOWED_HOSTS = ['.fly.dev']
+else:
+    ALLOWED_HOSTS = ['localhost', '10.0.2.2']
 
 
 # Application definition
@@ -47,7 +53,10 @@ INSTALLED_APPS = [
     'notification',
 ]
 
-MIDDLEWARE = [
+MIDDLEWARE = ([
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+] if os.environ.get("DEBUG") == "false" else []) \
++ [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -56,6 +65,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if os.environ.get("DEBUG") == "false":
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    CSRF_TRUSTED_ORIGINS = ['https://*.fly.dev']
 
 ROOT_URLCONF = 'supercell_mates.urls'
 
@@ -82,22 +96,9 @@ WSGI_APPLICATION = 'supercell_mates.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-     'default': {
-         'ENGINE': 'django.db.backends.sqlite3',
-         'NAME': BASE_DIR / 'db.sqlite3',
-     }
- }
-
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#        'NAME': 'matchminer_local',
-#        'USER': 'postgres',
-#        'PASSWORD': 'NkN1720%hC^',
-#        'HOST': '127.0.0.1',
-#        'PORT': '9001',
-#    }
-#}
+    'default': dj_database_url.config("DATABASE_URL")
+}
+DATABASES['default']['ENGINE'] = os.environ.get("DATABASE_ENGINE")
 
 
 # Password validation
@@ -124,8 +125,6 @@ AUTHENTICATION_BACKENDS = (
 
 AUTH_USER_MODEL = 'user_auth.UserAuth'
 
-K = os.environ.get('K')
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
@@ -145,7 +144,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = [BASE_DIR / "static"]
+if os.environ.get("DEBUG") == "false":
+    STATIC_ROOT = BASE_DIR / "static"
+else:
+    STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # MEDIA_URL = '/media/'
 
@@ -182,7 +184,18 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [os.environ.get("REDIS_URL")],
         },
     },
 }
+
+if os.environ.get('DEBUG') == 'false':
+    AWS_S3_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+    AWS_S3_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_KEY')
+    AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_SIGNATURE_VERSION = 's3v4'
+    AWS_S3_REGION_NAME = 'ap-southeast-1'
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = None
+    AWS_S3_VERIFY = True
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
