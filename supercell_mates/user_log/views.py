@@ -8,10 +8,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime
 from user_profile.views import layout_context, get_tag_activity_record, compute_tag_activity_final_score
 
-from user_auth.models import UserAuth
+from user_auth.models import UserAuth, Tag
 from .models import FriendRequest
 from message.models import PrivateChat
 from notification.models import FriendNotification
+from utils.user import can_view_profile
 
 
 def view_profile_context(user_auth_obj, request_user):
@@ -67,10 +68,10 @@ def view_profile(request, username):
         HttpResponse: the response with the template to view the target user
     """
     try:
-        if UserAuth.objects.filter(username=username).exists() and request.user.username != username:
-            return render(request, "user_log/view_profile.html", view_profile_context(UserAuth.objects.get(username=username), request.user))
-        elif request.user.username == username:
+        if request.user.username == username:
             return redirect(reverse("user_profile:index"))
+        elif can_view_profile(request.user, username):
+            return render(request, "user_log/view_profile.html", view_profile_context(UserAuth.objects.get(username=username), request.user))
         else:
             return HttpResponseNotFound()
     except ObjectDoesNotExist:
@@ -90,12 +91,58 @@ def view_profile_async(request, username):
         The fields in the JsonResponse are the same fields as those in the dictionary returned by view_profile_context function in this app.
     """
     try:
-        if UserAuth.objects.filter(username=username).exists() and request.user.username != username:
+        if request.user.username == username:
+            return redirect(reverse("user_profile:index_async"))
+        if can_view_profile(request.user, username):
             return JsonResponse(view_profile_context(UserAuth.objects.get(username=username), request.user))
         else:
             return HttpResponseNotFound()
     except ObjectDoesNotExist:
         return HttpResponseBadRequest("Tag activity record not found when computing matching index")
+
+
+@login_required
+@require_http_methods(["POST"])
+def set_profile_privacy(request):
+    """Change privacy policy.
+    The body must contain the following fields:
+    - privacy: the new privacy, either "public", "friends", "tag" or "friends with tag"
+    """
+    try:
+        new_privacy = request.POST["privacy"]
+        if new_privacy not in ["public", "friends", "tag", "friends with tag"]:
+            return HttpResponseBadRequest("invalid new_privacy")
+
+        public_visible = new_privacy == "public"
+        friend_visible = new_privacy == "friends" or new_privacy == "friends with tag"
+        tag_visible = new_privacy == "tag" or new_privacy == "friends with tag"
+
+        user_log = request.user.user_log
+        user_log.public_visible = public_visible
+        user_log.friend_visible = friend_visible
+        user_log.tag_visible = tag_visible
+        user_log.save()
+
+        return HttpResponse("ok")
+    
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("privacy key not found")
+
+
+@login_required
+def profile_privilege(request):
+    """Return a json response on whether the target profile can be viewed.
+    GET param:
+    - username: the username of the target user.
+    """
+    try:
+        username = request.GET["username"]
+        return JsonResponse({
+            "can_view": request.user.username == username or can_view_profile(request.user, username),
+        })
+    
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("username is not indicated")
 
 
 @login_required
@@ -269,7 +316,7 @@ def add_friend(request):
         return HttpResponseBadRequest("user with the requested username does not exist")
 
 
-def find_users(search_param, my_username, by_username_only):
+def find_users(search_param, my_username, by_username_only, tags):
     """Return the list of users with the search parameter excluding the user with my_username.
     Match is based on whether the username or name of each user contains the search parameter.
 
@@ -277,6 +324,7 @@ def find_users(search_param, my_username, by_username_only):
         search_param (str): the search parameter
         my_username (str): the username of the user to be excluded from search results
         by_username_only (bool): if True, users will only be matched if their username contains the search parameter
+        tags (List<Tag>): filter in users if they have one of the listed tags, empty list if no filter
     
     Returns:
         list(dict): a list of users that matches the search conditions, each represented by a dictionary.
@@ -289,6 +337,22 @@ def find_users(search_param, my_username, by_username_only):
     search_param = search_param.lower()
     my_username = my_username.lower()
 
+    my_user_auth = UserAuth.objects.get(username=my_username)
+    result = filter(
+        lambda user: (search_param in user.username.lower() or (search_param in user.user_profile.name.lower() if not by_username_only else False)) \
+            and user.username != my_username,
+        list(UserAuth.objects.all())
+    )
+
+    if tags:
+        result = filter(
+            lambda user: any(filter(
+                lambda tag: user.user_profile.tagList.all().contains(tag),
+                tags,
+            )),
+            result,
+        )
+    
     result = list(map(
         lambda user: ({
             "name": user.user_profile.name,
@@ -296,10 +360,7 @@ def find_users(search_param, my_username, by_username_only):
             "profile_pic_url": reverse("user_profile:get_profile_pic", args=(user.username,)),
             "profile_link": reverse("user_log:view_profile", args=(user.username,)),
         }),
-        filter(
-            lambda user: (search_param in user.username.lower() or (search_param in user.user_profile.name.lower() if not by_username_only else False)) and user.username != my_username,
-            list(UserAuth.objects.all())
-        )
+        result,
     ))
     result.sort(key=lambda user: user["name"].lower())
     return result
@@ -308,7 +369,9 @@ def find_users(search_param, my_username, by_username_only):
 @login_required
 def search(request):
     """Return the json response with the results of the search.
-    The request must contain GET parameter of "username", which is the search parameter.
+    GET parameters:
+        username: the search parameter
+        tags: the list of tags, must be in list form. If not provided, assume that no filter by tag
     The search returns users whose usernames or names contain the search parameter.
     The returned json contains the following fields:
         users: the list of users returned by find_users method above, with excluded user being the current user
@@ -328,7 +391,15 @@ def search(request):
         #     return HttpResponseBadRequest("username GET parameter malformed")
         if search_param == '':
             return HttpResponseBadRequest("search param is empty string")
-        users = find_users(search_param, request.user.username, False)
+        
+        tags = request.GET.getlist("tags")
+        tag_objects = []
+        for tag in tags:
+            if not Tag.objects.filter(name=tag).exists():
+                return HttpResponseBadRequest("tag object does not exist")
+            tag_objects.append(Tag.objects.get(name=tag))
+
+        users = find_users(search_param, request.user.username, False, tag_objects)
         return JsonResponse({
             "users": users
         })
@@ -353,7 +424,15 @@ def search_username(request):
         search_param = request.GET["username"]
         if search_param == '':
             return HttpResponseBadRequest("search param is empty string")
-        users = find_users(search_param, request.user.username, True)
+        
+        tags = request.GET.getlist("tags")
+        tag_objects = []
+        for tag in tags:
+            if not Tag.objects.filter(name=tag).exists():
+                return HttpResponseBadRequest("tag object does not exist")
+            tag_objects.append(Tag.objects.get(name=tag))
+        
+        users = find_users(search_param, request.user.username, True, tag_objects)
         return JsonResponse({
             "users": users
         })
@@ -361,7 +440,7 @@ def search_username(request):
         return HttpResponseBadRequest("no username (GET) parameter found in the request")
 
 
-def find_friends(search_param, user_log_obj):
+def find_friends(search_param, user_log_obj, by_username_only):
     """Find friends of the current user represented by the user log instance.
 
     Args:
@@ -386,7 +465,7 @@ def find_friends(search_param, user_log_obj):
             "profile_link": reverse("user_log:view_profile", args=(user.user_auth.username,)),
         }),
         filter(
-            lambda user: search_param in user.user_auth.username.lower(),
+            lambda user: search_param in user.user_auth.username.lower() or (search_param in user.user_profile.name.lower() if not by_username_only else False),
             list(user_log_obj.friend_list.all())
         )
     ))
@@ -413,7 +492,34 @@ def search_friend(request):
         search_param = request.GET["username"]
         if type(search_param) != str:
             return HttpRequestBadRequest("username GET parameter is not string!")
-        users = find_friends(search_param, request.user.user_log)
+        users = find_friends(search_param, request.user.user_log, False)
+        return JsonResponse({
+            "users": users
+        })
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("no username (GET) parameter found in the request")
+
+
+@login_required
+def search_friend_username(request):
+    """Search for a friend.
+    The request must contain GET parameter of "username", which is the search parameter.
+    The search returns friends with current user whose usernames or names contain the search parameter as substring.
+    The returned json contains the following fields:
+        users: the list of friends that match the query
+    
+    Args:
+        request (HttpRequest): the request made to this view
+
+    Returns:
+        JsonResponse/HttpResponse: the result of the search.
+    """
+
+    try:
+        search_param = request.GET["username"]
+        if type(search_param) != str:
+            return HttpRequestBadRequest("username GET parameter is not string!")
+        users = find_friends(search_param, request.user.user_log, True)
         return JsonResponse({
             "users": users
         })
@@ -486,3 +592,38 @@ def compute_matching_index(user1, user2):
 
     return matching_index
 
+
+@login_required
+def get_badges(request):
+    """Get the badges that a user has.
+    GET param:
+    - username: the username of the target user to view.
+    """
+    try:
+        username = request.GET['username']
+        if request.user.username != username and not can_view_profile(request.user, username):
+            return HttpResponseBadRequest("no viewing privilege")
+        
+        target = UserAuth.objects.get(username=username)
+        badges = []
+
+        # admin
+        if target.is_staff:
+            badges.append("admin")
+        if target.is_superuser:
+            badges.append("creator")
+        if target.user_profile.total_post_badge >= 1:
+            badges.append("senior")
+        if target.user_profile.total_post_badge >= 2:
+            badges.append("elder")
+        if target.user_profile.freq_post_badge >= 1:
+            badges.append("burst")
+        if target.user_profile.freq_post_badge >= 2:
+            badges.append("nuclear")
+
+        return JsonResponse({
+            "badges": badges
+        })
+    
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("username not indicated")

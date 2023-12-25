@@ -20,6 +20,7 @@ from datetime import datetime
 
 from user_auth.models import Tag, UserAuth
 from user_log.models import FriendRequest
+from utils.user import can_view_profile
 
 
 def layout_context(user_auth_obj):
@@ -175,6 +176,27 @@ def setup(request):
         HttpResponse: the template of the setup view wrapped in an http response
     """
     return render(request, "user_profile/setup.html")
+
+
+@login_required
+def get_privacy_settings(request):
+    """Returns privacy settings, either "public", "friends", "friends with tag" or "tag".
+    """
+    privacy = ""
+    user_log = request.user.user_log
+    if user_log.public_visible:
+        privacy = "public"
+    elif user_log.friend_visible:
+        if user_log.tag_visible:
+            privacy = "friends with tag"
+        else:
+            privacy = "friends"
+    else:
+        privacy = "tag"
+
+    return JsonResponse({
+        "privacy": privacy,
+    })
 
 
 @login_required
@@ -536,3 +558,26 @@ def achievements(request, username):
         "is_friend_request_sent": FriendRequest.objects.filter(to_user=request.user.user_log, from_user=user_auth_obj.user_log).exists()
     })
     return render(request, 'user_profile/achievements.html', context)
+
+
+@login_required
+def readme(request, username):
+    if request.user.username != username and not can_view_profile(request.user, username):
+        return HttpResponseBadRequest("unauthorised")
+    
+    return JsonResponse({
+        "readme": UserAuth.objects.get(username=username).user_profile.readme
+    })
+
+
+@login_required
+@require_http_methods(["POST"])
+def edit_readme(request):
+    try:
+        new_readme = request.POST["content"]
+        profile = request.user.user_profile
+        profile.readme = new_readme
+        profile.save()
+        return HttpResponse("ok")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("\"content\" key not found.")
