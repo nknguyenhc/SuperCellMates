@@ -61,7 +61,7 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername, setMessageModal, setI
       });
     }
   
-  }, [username,isLoading, password, setIsClickUsername, setMessageModal, setIsMessageModal]);
+  }, [username,isLoading, password, setIsClickUsername, setMessageModal, setIsMessageModal, dispatch]);
   return (
     <div className='form-container'>
        <form 

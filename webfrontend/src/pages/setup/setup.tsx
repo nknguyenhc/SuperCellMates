@@ -1,0 +1,12 @@
+import ChangeProfilePicture from "../../components/setup/change-profile-picture";
+import SetupTags from "../../components/setup/setup-tags";
+
+const Setup = () => {
+  return (
+    <div className="setup-page">
+      <ChangeProfilePicture />
+      <SetupTags />
+    </div>
+  );
+};
+export default Setup;

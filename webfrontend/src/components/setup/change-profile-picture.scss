@@ -1,0 +1,30 @@
+.change-profile-picture-container {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  margin-top: 20px;
+  margin-left: 20px;
+  flex-direction: column;
+  flex-direction: row;
+  gap: 20px;
+  .thumbnail {
+    position: relative;
+    &-image {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    &-change-btn {
+      height: 40px;
+      width: 40px;
+      background-color: rgb(145, 139, 139);
+      border: 0.5px solid grey;
+      border-radius: 20px;
+
+      position: absolute;
+      left: 100px;
+      top: 120px;
+    }
+  }
+}

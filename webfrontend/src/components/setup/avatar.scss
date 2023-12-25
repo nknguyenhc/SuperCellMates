@@ -1,0 +1,33 @@
+@import url(https://fonts.googleapis.com/css?family=Roboto);
+.avatar {
+  &-section {
+    display: flex;
+    flex-direction: row;
+    width: auto;
+  }
+  &-editor {
+    margin-right: 20px;
+  }
+}
+.image-result-preview {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+.file {
+  &-input-hidden {
+    max-width: fit-content;
+    opacity: 0;
+  }
+  &-btn {
+    height: 38px;
+  }
+}
+
+.confirm-btn {
+  width: 100px;
+  height: 50px;
+}
