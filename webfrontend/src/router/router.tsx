@@ -5,6 +5,7 @@ import { Register } from "../components/auth/register/register";
 import Home from "../pages/home/home";
 import Messages from "../pages/messages/messages";
 import Settings from "../pages/settings/settings";
+import Profile from "../pages/profile/profile";
 const router = createBrowserRouter([
     {
         path: "/",
@@ -21,6 +22,14 @@ const router = createBrowserRouter([
             {
                 path: "/register",
                 element: <Register />,
+            },
+            {
+                path: "/profile",
+                element: <Profile isMyProfile={true} />
+            },
+            {
+                path: "/user/profile/*",
+                element: <Profile isMyProfile={false} />
             },
             {
                 path: "/messages",

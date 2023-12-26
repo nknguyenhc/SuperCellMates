@@ -5,6 +5,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-y: scroll;
+  min-height: 100vh;
 }
 
 code {
@@ -74,4 +76,5 @@ input[type="file"] {
 @import './components/popup/ChangeNameForm.scss';
 @import './components/popup/PasswordForm.scss';
 @import './components/popup/userNameForm.scss';
-@import './components/popup/PopChangeAuthMessage.scss'
+@import './components/popup/PopChangeAuthMessage.scss';
+@import './pages/profile/profile.scss';
