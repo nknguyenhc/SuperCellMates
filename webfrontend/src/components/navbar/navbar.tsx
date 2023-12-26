@@ -2,6 +2,7 @@ import { useSelector } from "react-redux";
 import { RootState } from '../../redux/store';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import RequestTagModal from "../popup/request-tag-modal";
 
 type PublicRoute = {
     href: string,
@@ -14,6 +15,7 @@ type LoggedInRoute = {
     text: string,
     id: string,
     children?: JSX.Element,
+    modal?: JSX.Element
 }
 
 type AdminRoute = {
@@ -43,47 +45,71 @@ export default function NavBar(): JSX.Element {
             text: 'Register',
         },
     ], []);
-    const loggedInRoutes = useMemo<Array<LoggedInRoute>>(() => [
+    const loggedInRoutes = useMemo<Array<LoggedInRoute>>(
+      () => [
         {
-            href: '/',
-            image: 'home.png',
-            text: 'Home',
-            id: 'nav-home'
+          href: "/",
+          image: "home.png",
+          text: "Home",
+          id: "nav-home",
         },
         {
-            image: 'request-tag.png',
-            text: 'Request tag',
-            id: 'nav-request-tag',
+          image: "request-tag.png",
+          text: "Request tag",
+          id: "nav-request-tag",
+          modal: (
+            <RequestTagModal
+              imgLink={
+                process.env.PUBLIC_URL + "/media/nav-bar/request-tag.png"
+              }
+            />
+          ),
         },
         {
-            href: '/profile',
-            image: 'profile.png',
-            text: 'Profile',
-            id: 'nav-profile',
+          href: "/profile",
+          image: "profile.png",
+          text: "Profile",
+          id: "nav-profile",
         },
         {
-            href: '/messages',
-            image: 'message.png',
-            text: 'Message',
-            id: 'nav-message',
-            children: <span className="position-absolute top-100 start-100 translate-middle badge rounded-pill bg-danger" id="message-count-badge" />,
+          href: "/messages",
+          image: "message.png",
+          text: "Message",
+          id: "nav-message",
+          children: (
+            <span
+              className="position-absolute top-100 start-100 translate-middle badge rounded-pill bg-danger"
+              id="message-count-badge"
+            />
+          ),
         },
         {
-            image: 'notification-icon.png',
-            text: 'Notification',
-            id: 'nav-notification',
-            children: <>
-                <span className="position-absolute top-100 start-100 translate-middle badge rounded-pill bg-danger" id="notification-count-badge" />
-                <div className="position-absolute" id="notification-centre" style={{ display: "none" }} />
-            </>,
+          image: "notification-icon.png",
+          text: "Notification",
+          id: "nav-notification",
+          children: (
+            <>
+              <span
+                className="position-absolute top-100 start-100 translate-middle badge rounded-pill bg-danger"
+                id="notification-count-badge"
+              />
+              <div
+                className="position-absolute"
+                id="notification-centre"
+                style={{ display: "none" }}
+              />
+            </>
+          ),
         },
         {
-            href: '/settings',
-            image: 'settings.png',
-            text: 'Settings',
-            id: 'nav-settings',
+          href: "/settings",
+          image: "settings.png",
+          text: "Settings",
+          id: "nav-settings",
         },
-    ], []);
+      ],
+      []
+    );
     const adminRoutes = useMemo<Array<AdminRoute>>(() => [
         {
             href: '/manage_page',
@@ -101,81 +127,135 @@ export default function NavBar(): JSX.Element {
         }
     ], []);
 
-    return <div id="navbar-container" className="sticky-top">
+    return (
+      <div id="navbar-container" className="sticky-top">
         <nav className="navbar navbar-expand bg-body-tertiary">
-            <div className="container-fluid navbar-container">
-                <div className="navbar-collapse justify-content-between" id="navbarSupportedContent">
-                    <ul className="navbar-nav">
-                        {!authState.isLoggedIn 
-                        ? publicRoutes.map((route, routeIndex) => (
-                            <Link to={route.href} key={routeIndex}>
-                                <li className="nav-item layout-nav-item">
-                                    <div className="nav-link">{route.text}</div>
-                                </li>
-                            </Link>
-                        ))
-                        : loggedInRoutes.map((route, routeIndex) => (
-                            <li 
-                                className="nav-item layout-nav-item" 
-                                id={route.id} 
-                                data-bs-toggle="tooltip" 
-                                data-bs-placement="bottom" 
-                                data-bs-title={route.text}
-                                key={routeIndex}
-                            >
-                                {route.href 
-                                ? <Link to={route.href}>
-                                    <div className="nav-link">
-                                        <img src={process.env.PUBLIC_URL + '/media/nav-bar/' + route.image} alt={route.text} />
-                                    </div>
-                                </Link>
-                                : <div className="nav-link">
-                                    <img src={process.env.PUBLIC_URL + '/media/nav-bar/' + route.image} alt={route.text} />
-                                </div>}
-                                {route.children && route.children}
-                            </li>
-                        ))}
-                        {authState.isStaff && 
-                        adminRoutes.map((route, routeIndex) => (
-                            <li 
-                                className="nav-item layout-nav-item" 
-                                id={route.id} 
-                                data-bs-toggle="tooltip" 
-                                data-bs-placement="bottom" 
-                                data-bs-title={route.text}
-                                key={routeIndex}
-                            >
-                                <Link to={route.href} className="nav-link">
-                                    <img src={process.env.PUBLIC_URL + '/media/nav-bar/' + route.image} alt={route.text} />
-                                </Link>
-                            </li>
-                        ))}
-                        {authState.isSuperuser &&
-                        superuserRoutes.map((route, routeIndex) => (
-                            <li 
-                                className="nav-item layout-nav-item" 
-                                id={route.id} 
-                                data-bs-toggle="tooltip" 
-                                data-bs-placement="bottom" 
-                                data-bs-title={route.text}
-                                key={routeIndex}
-                            >
-                                <Link to={route.href} className="nav-link">
-                                    <img src={process.env.PUBLIC_URL + '/media/nav-bar/' + route.image} alt={route.text} />
-                                </Link>
-                            </li>
-                        ))}
-                    </ul>
-                    {authState.isLoggedIn &&
-                    <div className="position-relative">
-                        <form autoComplete='off' id='search-form' className="d-flex" role="search">
-                            <input id='search-input' className="form-control me-2" type="search" name="username" placeholder="Find user" aria-label="Search" />
-                            <button className="btn btn-outline-primary" type="submit">Search</button>
-                        </form>
-                        <div id="search-result-box" style={{ display: "none" }} />
-                    </div>}
+          <div className="container-fluid navbar-container">
+            <div
+              className="navbar-collapse justify-content-between"
+              id="navbarSupportedContent"
+            >
+              <ul className="navbar-nav">
+                {!authState.isLoggedIn
+                  ? publicRoutes.map((route, routeIndex) => (
+                      <Link to={route.href} key={routeIndex}>
+                        <li className="nav-item layout-nav-item">
+                          <div className="nav-link">{route.text}</div>
+                        </li>
+                      </Link>
+                    ))
+                  : loggedInRoutes.map((route, routeIndex) => (
+                      <li
+                        className="nav-item layout-nav-item"
+                        id={route.id}
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="bottom"
+                        data-bs-title={route.text}
+                        key={routeIndex}
+                      >
+                        {route.href ? (
+                          <Link to={route.href}>
+                            <div className="nav-link">
+                              <img
+                                src={
+                                  process.env.PUBLIC_URL +
+                                  "/media/nav-bar/" +
+                                  route.image
+                                }
+                                alt={route.text}
+                              />
+                            </div>
+                          </Link>
+                        ) : (
+                          <div className="nav-link">
+                            {route.modal ? (
+                              route.modal
+                            ) : (
+                              <img
+                                src={
+                                  process.env.PUBLIC_URL +
+                                  "/media/nav-bar/" +
+                                  route.image
+                                }
+                                alt={route.text}
+                              />
+                            )}
+                          </div>
+                        )}
+                        {route.children && route.children}
+                      </li>
+                    ))}
+                {authState.isStaff &&
+                  adminRoutes.map((route, routeIndex) => (
+                    <li
+                      className="nav-item layout-nav-item"
+                      id={route.id}
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="bottom"
+                      data-bs-title={route.text}
+                      key={routeIndex}
+                    >
+                      <Link to={route.href} className="nav-link">
+                        <img
+                          src={
+                            process.env.PUBLIC_URL +
+                            "/media/nav-bar/" +
+                            route.image
+                          }
+                          alt={route.text}
+                        />
+                      </Link>
+                    </li>
+                  ))}
+                {authState.isSuperuser &&
+                  superuserRoutes.map((route, routeIndex) => (
+                    <li
+                      className="nav-item layout-nav-item"
+                      id={route.id}
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="bottom"
+                      data-bs-title={route.text}
+                      key={routeIndex}
+                    >
+                      <Link to={route.href} className="nav-link">
+                        <img
+                          src={
+                            process.env.PUBLIC_URL +
+                            "/media/nav-bar/" +
+                            route.image
+                          }
+                          alt={route.text}
+                        />
+                      </Link>
+                    </li>
+                  ))}
+              </ul>
+              {authState.isLoggedIn && (
+                <div className="position-relative">
+                  <form
+                    autoComplete="off"
+                    id="search-form"
+                    className="d-flex"
+                    role="search"
+                  >
+                    <input
+                      id="search-input"
+                      className="form-control me-2"
+                      type="search"
+                      name="username"
+                      placeholder="Find user"
+                      aria-label="Search"
+                    />
+                    <button className="btn btn-outline-primary" type="submit">
+                      Search
+                    </button>
+                  </form>
+                  <div id="search-result-box" style={{ display: "none" }} />
                 </div>
+              )}
             </div>
+          </div>
         </nav>
-    </div>
+      </div>
+    );
 }
