@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { triggerErrorMessage } from "../../utils/locals";
+import { useProfileContext } from "../../pages/profile/profile-context";
 
-export default function ProfileTop({ isMyProfile, username }: {
-    isMyProfile: boolean,
-    username: string,
-}): JSX.Element {
+export default function ProfileTop(): JSX.Element {
+    const { username, isMyProfile } = useProfileContext();
     const [isProfileLoading, setIsProfileLoading] = useState<boolean>(true);
     const [imageUrl, setImageUrl] = useState<string>('');
     const [name, setName] = useState<string>('');
 
     useEffect(() => {
+        if (!username) {
+            return;
+        }
         const url = isMyProfile ? '/profile/async' : `/user/profile/${username}`;
         fetch(url).then(res => {
             if (res.status !== 200) {

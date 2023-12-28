@@ -1,23 +1,24 @@
 import { useCallback, useEffect, useState } from "react";
 import { Tag } from "../posts/one-post";
 import { triggerErrorMessage } from "../../utils/locals";
+import { useProfileContext } from "../../pages/profile/profile-context";
 
-export default function ProfileNav({ isMyProfile, username }: {
-    isMyProfile: boolean,
-    username: string,
-}): JSX.Element {
+export default function ProfileNav(): JSX.Element {
+    const { isMyProfile, username, tagChosen, setTagChosen } = useProfileContext();
     const [tags, setTags] = useState<Array<Tag>>([]);
-    const [tagChosenIndex, setTagChosenIndex] = useState<number>(-1);
 
     const handleClearTagChosen = useCallback(() => {
-        setTagChosenIndex(-1);
-    }, []);
+        setTagChosen('');
+    }, [setTagChosen]);
 
-    const handleChooseTag = useCallback((index: number) => () => {
-        setTagChosenIndex(index);
-    }, []);
+    const handleChooseTag = useCallback((tagName: string) => () => {
+        setTagChosen(tagName);
+    }, [setTagChosen]);
 
     useEffect(() => {
+        if (!username) {
+            return;
+        }
         const url = `/profile/user_tags/${username}`;
         fetch(url).then(res => {
             if (res.status !== 200) {
@@ -30,7 +31,7 @@ export default function ProfileNav({ isMyProfile, username }: {
         });
     }, [username, isMyProfile]);
 
-    return <div className="profile-nav sticky-top p-3 border-end">
+    return <div className="profile-nav p-3 border-end">
         <ul className="nav flex-column">
             {isMyProfile && <li className="nav-item">
                 <a href="/user/friends" className="nav-link">Friends</a>
@@ -38,12 +39,12 @@ export default function ProfileNav({ isMyProfile, username }: {
             <li className="nav-item profile-tag-list">
                 <div className="profile-tag-list-filter">
                     <div>Filters:</div>
-                    {tagChosenIndex !== -1 && <div className="btn btn-secondary" onClick={handleClearTagChosen}>Clear Filters</div>}
+                    {tagChosen && <div className="btn btn-secondary" onClick={handleClearTagChosen}>Clear Filters</div>}
                 </div>
-                {tags.map((tag, tagIndex) => (
+                {tags.map((tag) => (
                     <div
-                        className={"tag-button btn " + (tagChosenIndex === tagIndex ? "btn-info" : "btn-outline-info")}
-                        onClick={handleChooseTag(tagIndex)}
+                        className={"tag-button btn " + (tagChosen === tag.name ? "btn-info" : "btn-outline-info")}
+                        onClick={handleChooseTag(tag.name)}
                         key={tag.name}
                     >
                         <img src={tag.icon} alt="" />
