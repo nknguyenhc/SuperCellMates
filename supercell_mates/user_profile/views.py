@@ -464,10 +464,11 @@ def remove_tag(request):
     try:
         tag_name = request.POST["tag"]
         tag = Tag.objects.get(name=tag_name)
-        if request.user.user_profile.tagList.filter(name=tag_name).exists():
-            request.user.user_profile.tagList.remove(tag)
-            request.user.user_profile.remove_tag_timestamp = datetime.now().timestamp()
-            request.user.user_profile.save()
+        user_profile_object = request.user.user_profile
+        if user_profile_object.tagList.filter(name=tag_name).exists():
+            remove_tag_from_user(user_profile=user_profile_object, tag=tag)
+            user_profile_object.remove_tag_timestamp = datetime.now().timestamp()
+            user_profile_object.save()
             return HttpResponse("tag removed")
         else:
             return HttpResponseBadRequest("tag does not belong to you")
@@ -476,6 +477,12 @@ def remove_tag(request):
         return HttpResponseBadRequest("tag field not found")
     except ObjectDoesNotExist:
         return HttpResponseBadRequest("tag with provided name not found")
+
+def remove_tag_from_user(user_profile, tag):
+    '''Removes a single tag from user's profile and deletes the corresponding activity record in the database.
+    '''
+    user_profile.tagList.remove(tag)
+    TagActivityRecord.objects.get(user_profile=user_profile, tag=tag).delete()
 
 
 MINIMUM_ACTIVITY_SCORE = 2.0
