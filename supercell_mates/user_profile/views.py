@@ -149,9 +149,7 @@ def add_tags(request):
         requested_tags = request.POST.getlist("tags")
         for i in range(count):
             tag_obj = Tag.objects.get(name=requested_tags[i])
-            user_profile_obj.tagList.add(tag_obj)
-            tag_activity_record = TagActivityRecord(user_profile=user_profile_obj, tag=tag_obj)
-            tag_activity_record.save()
+            attach_tag_to_user(user_profile=user_profile_obj, tag=tag_obj)
         return HttpResponse("success")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body is missing an important key")
@@ -164,6 +162,12 @@ def add_tags(request):
     except TypeError:
         return HttpResponseBadRequest("tags input field is not array")
 
+def attach_tag_to_user(user_profile, tag):
+    """Adds a single tag to user's profile and generates tag activity record in the database.
+    """
+    user_profile.tagList.add(tag)
+    tag_activity_record = TagActivityRecord(user_profile=user_profile, tag=tag)
+    tag_activity_record.save()
 
 @login_required
 def setup(request):
