@@ -510,7 +510,7 @@ def change_activity_score(record, change_amount):
     record.save()
 
 
-def compute_tag_activity_final_score(record, update=True, timestamp=datetime.now().timestamp()):
+def compute_tag_activity_final_score(record, update=True, timestamp=None):
     """Computes the final score of a tag activity record, counting in decrease with time.
     NOTE: for now, if timestamp is specified, update must be False
 
@@ -525,6 +525,10 @@ def compute_tag_activity_final_score(record, update=True, timestamp=datetime.now
     Returns: the final score of the record, computed with formula:
         final_score = activity_score - DECREASE_COEFFICIENT * days_since_last_activity ** DECREASE_EXPONENT
     """
+    if timestamp is None:
+        timestamp = datetime.now().timestamp() # using this as the default will cause the same timestamp to be stored in the method
+    else:
+        update = False # enforce no update when timestamp is provided
     timestamps_since_last_activity = timestamp - record.last_activity_timestamp
     days_since_last_activity = timestamps_since_last_activity / SECONDS_IN_A_DAY
 
