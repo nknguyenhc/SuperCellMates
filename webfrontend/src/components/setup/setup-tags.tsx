@@ -127,6 +127,14 @@ const SetupTags = () => {
     [searchResults, tagCountLimit, tags.length, toBeSubmitted]
   );
 
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchParam(event.target.value);
+      searchTag(event)
+    },
+    [searchTag]
+  );
+
   const removeNewTag = useCallback(
     (index: number) => {
       setToBeSubmitted(toBeSubmitted.filter((_, i) => i !== index));
@@ -203,7 +211,7 @@ const SetupTags = () => {
         </div>
         <div className="setup-tags-section p-3">
           <div className="setup-tags-section-title py-3">New Tags</div>
-          <div className="setup-tags-section-body pt-3">
+          <div className="setup-tags-section-body">
             {toBeSubmitted.map((tag, index) => (
               <div key={index} className="new-tag-div">
                 <div className="tag-button btn btn-outline-info">
@@ -229,7 +237,7 @@ const SetupTags = () => {
                 type="text"
                 className="form-control"
                 placeholder="Search Tag ..."
-                onChange={(event) => setSearchParam(event.target.value)}
+                onChange={(event) => handleChange(event) }
               />
               <input
                 type="submit"

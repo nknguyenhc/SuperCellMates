@@ -6,7 +6,7 @@ import { triggerErrorMessage } from "../../utils/locals";
 
 const SetupProfilePicture = () => {
   const username = useSelector((state: RootState) => state.auth).username;
-  const [isProfileLoading, setIsProfileLoading] = useState<boolean>(false);
+  const [isProfileLoading, setIsProfileLoading] = useState<boolean>(true);
   const [isEditProfileImg, setIsEditProfileImg] = useState<boolean>(false);
   const [profileImgUrl, setProfileImgUrl] = useState<string>("");
   const getProfileImg = useCallback(() => {
@@ -28,9 +28,10 @@ const SetupProfilePicture = () => {
   useEffect(() => {
     getProfileImg()
   }, [getProfileImg]);
+
   if (isProfileLoading) {
     return (
-      <div className="profile">
+      <div className="setup-profile-picture m-3">
         <span className="spinner-grow" />
       </div>
     );
