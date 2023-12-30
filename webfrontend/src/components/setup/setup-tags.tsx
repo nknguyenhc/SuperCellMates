@@ -23,6 +23,7 @@ const SetupTags = () => {
     useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSearching, setIsSearching] = useState<boolean>(false)
 
   useEffect(() => {
     fetch("/profile/obtain_tags").then((response) => {
@@ -61,8 +62,8 @@ const SetupTags = () => {
   const submitTags = useCallback(
     (event: React.SyntheticEvent<EventTarget>) => {
       event.preventDefault();
-      if (!isLoading) {
-        setIsLoading(true);
+      if (!isSearching) {
+        setIsSearching(true);
         fetch(
           "/profile/add_tags",
           postRequestContent({
@@ -70,7 +71,7 @@ const SetupTags = () => {
             tags: toBeSubmitted.map((tag) => tag.name),
           })
         ).then((response) => {
-          setIsLoading(false);
+          setIsSearching(false);
           if (response.status !== 200) {
             triggerErrorMessage();
           } else {
@@ -83,7 +84,7 @@ const SetupTags = () => {
         });
       }
     },
-    [isLoading, tags, toBeSubmitted]
+    [isSearching, tags, toBeSubmitted]
   );
 
   const searchTag = useCallback(
@@ -130,6 +131,7 @@ const SetupTags = () => {
   const handleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setSearchParam(event.target.value);
+      setIsSearching(false)
       searchTag(event)
     },
     [searchTag]
@@ -260,6 +262,7 @@ const SetupTags = () => {
                 ) : (
                   searchResults.map((tag, index) => (
                     <div
+                      key={index}
                       className="tag-button btn btn-outline-info"
                       onClick={() => addNewTag(index)}
                     >
