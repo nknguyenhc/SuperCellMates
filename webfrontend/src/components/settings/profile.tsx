@@ -19,8 +19,8 @@ const Profile = () => {
           onClick={() => setIsClickChangeName(prev => !prev)}
         >Change Name</Button>
       </div>
-      {isClickChangeName ? <ChangeNameForm setIsClickChangeName={setIsClickChangeName} setMessageModal={setMessageModal} setIsMessageModal={setIsMessageModal}/> : ""}
-      {isMessageModal ? <PopChangeAuthMessage message={messageModal} setIsMessageModal={setIsMessageModal} />: ""}
+      {isClickChangeName ? <ChangeNameForm isClickChangeName = {isClickChangeName} setIsClickChangeName={setIsClickChangeName} setMessageModal={setMessageModal} setIsMessageModal={setIsMessageModal}/> : ""}
+      {isMessageModal ? <PopChangeAuthMessage message={messageModal} isMessageModal={isMessageModal} setIsMessageModal={setIsMessageModal} />: ""}
 
       
     </div>

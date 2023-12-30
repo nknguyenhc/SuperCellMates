@@ -1,22 +1,32 @@
+import { Button } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
+
 interface Props {
-  message: string,
-  setIsMessageModal: React.Dispatch<React.SetStateAction<boolean>>
+  message: string;
+  isMessageModal: boolean;
+  setIsMessageModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
-const PopChangeAuthMessage:React.FC<Props> = ({message, setIsMessageModal}) => {
+const PopChangeAuthMessage: React.FC<Props> = ({
+  message,
+  isMessageModal,
+  setIsMessageModal,
+}) => {
+  const handleClose = () => {
+    setIsMessageModal(prev => !prev);
+  };
   return (
-    <div className='auth-message-modal'>
-       <div className='auth-message-container'>
-       <button type="button" className="btn-close" aria-label="Close"
-          onClick={() => {
-            setIsMessageModal(prev => !prev);
-          }}
-        ></button>
-        <h2 className='auth-message-title'>Message</h2>
-        <p className='auth-message-content'>{message}</p>
-       </div>
-      
-    </div>
-  )
-}
- 
-export default PopChangeAuthMessage
+    <Modal show={isMessageModal} onHide={handleClose}>
+      <Modal.Header closeButton>
+        <Modal.Title>Message</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>{message}</Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleClose}>
+          Close
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
+};
+
+export default PopChangeAuthMessage;

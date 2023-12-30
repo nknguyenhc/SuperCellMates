@@ -1,5 +1,4 @@
 import { createRef, useCallback, useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
 import AvatarEditor from "react-avatar-editor";
 import { Button, Form, Image } from "react-bootstrap";
 import { triggerErrorMessage } from "../../utils/locals";
@@ -7,18 +6,18 @@ import { postRequestContent } from "../../utils/request";
 import Modal from "react-bootstrap/Modal";
 
 interface ImageProperties {
-  originalImage: string | File;
-  croppedImage: string | undefined;
+  originalImage: string;
+  croppedImage: string;
   position: { x: number; y: number };
   scale: number;
   rotate: number;
 }
 
 interface Props {
-  currentProfileImg: string | File;
+  currentProfileImg: string;
   setIsEditProfileImg: React.Dispatch<React.SetStateAction<boolean>>;
   isEditProfileImg: boolean;
-  setProfileImgUrl: React.Dispatch<React.SetStateAction<File | undefined>>;
+  setProfileImgUrl: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const Avatar: React.FC<Props> = ({
@@ -26,21 +25,19 @@ const Avatar: React.FC<Props> = ({
   isEditProfileImg,
   setProfileImgUrl,
   currentProfileImg,
+
 }) => {
   const editorRef: React.RefObject<AvatarEditor> = createRef();
   const [imgToBeSubmitted, setImgToBeSubmitted] = useState<File>();
   const [fileName, setFileName] = useState("");
   const [imageProperties, setImageProperties] = useState<ImageProperties>({
     originalImage: currentProfileImg,
-    croppedImage: undefined,
+    croppedImage: '',
     position: { x: 0.5, y: 0.5 },
     scale: 1,
     rotate: 0,
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const { originalImage, croppedImage, position, scale, rotate } =
-    imageProperties;
 
   const handleAdd = useCallback((event: React.ChangeEvent<any>) => {
     setImageProperties((prevState) => ({
@@ -92,7 +89,7 @@ const Avatar: React.FC<Props> = ({
     [editorRef, fileName]
   );
 
-  const handleConfirm = useCallback(async () => {
+  const handleConfirm = useCallback(() => {
     if (!isLoading) {
       setIsLoading(true);
       fetch(
@@ -107,10 +104,11 @@ const Avatar: React.FC<Props> = ({
           return;
         }
         setIsEditProfileImg(false);
-        setProfileImgUrl(imgToBeSubmitted);
+        setProfileImgUrl(imageProperties.croppedImage)
+       
       });
     }
-  }, [imgToBeSubmitted, setIsEditProfileImg, setProfileImgUrl, isLoading]);
+  }, [imgToBeSubmitted, setIsEditProfileImg, isLoading, setProfileImgUrl, imageProperties.croppedImage]);
 
   const handleClose = useCallback(() => {
     setIsEditProfileImg(false);
@@ -126,13 +124,13 @@ const Avatar: React.FC<Props> = ({
           className="avatar-editor"
           ref={editorRef}
           color={[200, 200, 200, 0.6]}
-          scale={scale}
+          scale={imageProperties.scale}
           width={250}
           crossOrigin="anonymous"
           height={250}
-          image={originalImage}
-          rotate={rotate}
-          position={position}
+          image={imageProperties.originalImage}
+          rotate={imageProperties.rotate}
+          position={imageProperties.position}
           onPositionChange={handlePositionChange}
         />
         <Form
@@ -158,7 +156,7 @@ const Avatar: React.FC<Props> = ({
               min={1}
               max={2}
               step={0.01}
-              defaultValue={scale}
+              defaultValue={imageProperties.scale}
             />
           </Form.Group>
           <Form.Group className="mb-3" controlId="rotate">
@@ -172,9 +170,9 @@ const Avatar: React.FC<Props> = ({
             Crop
           </Button>
         </Form>
-        {croppedImage && (
+        {imageProperties.croppedImage && (
           <div className="image-result-preview">
-            <Image src={croppedImage} />
+            <Image src={imageProperties.croppedImage} />
             <Button
               variant="success"
               className="confirm-btn"

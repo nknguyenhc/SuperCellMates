@@ -1,83 +1,66 @@
-.add-tag {
-  &-container {
-    flex: 1;
+.setup-tags {
+  flex-grow: 1;
+  &-content {
+    height: 320px;
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-evenly;
-    position: relative;
-    width: 200px;
-    margin-top: 20px;
   }
   &-section {
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
-    gap: 10px;
-    position: sticky;
-    flex-wrap: nowrap;
-  }
-  &-list {
-    width: 200px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    gap: 10px;
-    position: sticky;
-  }
-  &-section {
+    width: 50%;
+    flex-shrink: 0;
     &-title {
-      margin-top: 0;
-      font-weight: bold;
+      text-align: center;
     }
+
     &-body {
-      width: 300px;
+      align-self: center;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      position: sticky;
+      width: 20vw;
       .old-tag-div,
       .new-tag-div {
-        padding: 5px;
         display: flex;
         flex-direction: row;
+        justify-content: space-between;
         align-items: center;
-        .tag-button {
-          width: 150px;
-        }
-        .can-remove-tag-btn,
-        .remove-new-tag-btn {
-          margin-left: auto;
-        }
       }
     }
   }
 }
-
 #search-tag-form {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 10px;
 }
-.alert {
-  &-message {
-    &-container {
-      position: absolute;
-      bottom: 20px;
-      background-color: rgb(63, 196, 196);
-      padding: 20px 20px;
-      border-radius: 10px;
-    }
-  }
-  &-remove-message-container {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    background-color: rgb(218, 110, 110);
-    padding: 20px 20px;
-    border-radius: 10px;
-  }
+
+#search-tag-result {
+  position: relative;
+}
+.action-alert {
+  width: 50vw;
+  max-width: 600px;
+}
+#search-tag-result-window {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: auto;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  border: 1px solid;
+  border-radius: 10px;
+  height: 300px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+#search-tag-result-window::-webkit-scrollbar {
+  display: none;
 }
 .setup-tags-confirmation-buttons {
   display: flex;
