@@ -1,4 +1,4 @@
-import { createRef, useCallback, useState } from "react";
+import { SyntheticEvent, createRef, useCallback, useState } from "react";
 import AvatarEditor from "react-avatar-editor";
 import { Button, Form, Image } from "react-bootstrap";
 import { triggerErrorMessage } from "../../utils/locals";
@@ -25,32 +25,36 @@ const Avatar: React.FC<Props> = ({
   isEditProfileImg,
   setProfileImgUrl,
   currentProfileImg,
-
 }) => {
   const editorRef: React.RefObject<AvatarEditor> = createRef();
   const [imgToBeSubmitted, setImgToBeSubmitted] = useState<File>();
   const [fileName, setFileName] = useState("");
   const [imageProperties, setImageProperties] = useState<ImageProperties>({
     originalImage: currentProfileImg,
-    croppedImage: '',
+    croppedImage: "",
     position: { x: 0.5, y: 0.5 },
     scale: 1,
     rotate: 0,
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleAdd = useCallback((event: React.ChangeEvent<any>) => {
+  const handleAdd = useCallback((event: SyntheticEvent) => {
+    const target = event.target as HTMLInputElement;
+    const file = (target.files as FileList)[0];
     setImageProperties((prevState) => ({
       ...prevState,
-      originalImage: event.target.files[0],
+      originalImage: URL.createObjectURL(file),
     }));
-    setFileName(event.target.files[0].name);
+    setFileName(file.name);
   }, []);
 
-  const handleZoom = useCallback((event: React.ChangeEvent<any>) => {
-    const scale = +event.target.value;
-    setImageProperties((prevState) => ({ ...prevState, scale }));
-  }, []);
+  const handleZoom = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const scale = +event.target.value;
+      setImageProperties((prevState) => ({ ...prevState, scale }));
+    },
+    []
+  );
 
   const handleRotate = useCallback((direction: "left" | "right") => {
     setImageProperties((prevState) => ({
@@ -104,11 +108,16 @@ const Avatar: React.FC<Props> = ({
           return;
         }
         setIsEditProfileImg(false);
-        setProfileImgUrl(imageProperties.croppedImage)
-       
+        setProfileImgUrl(imageProperties.croppedImage);
       });
     }
-  }, [imgToBeSubmitted, setIsEditProfileImg, isLoading, setProfileImgUrl, imageProperties.croppedImage]);
+  }, [
+    imgToBeSubmitted,
+    setIsEditProfileImg,
+    isLoading,
+    setProfileImgUrl,
+    imageProperties.croppedImage,
+  ]);
 
   const handleClose = useCallback(() => {
     setIsEditProfileImg(false);
