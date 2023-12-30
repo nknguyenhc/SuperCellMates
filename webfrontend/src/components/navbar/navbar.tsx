@@ -151,8 +151,8 @@ export default function NavBar(): JSX.Element {
                                         <img src={process.env.PUBLIC_URL + '/media/nav-bar/' + route.image} alt={route.text} />
                                     </div>
                                 </Link>
-                                : <div className="nav-link" onClick={() => {document.querySelector<HTMLElement>(`#${route.id}`)!.style.display = "block"}}>
-                                    <img src={process.env.PUBLIC_URL + '/media/nav-bar/' + route.image} alt={route.text}  onClick={() => {document.querySelector<HTMLElement>(`#request-tag`)!.style.display = "block"}} />
+                                : <div className="nav-link" onClick={() => {document.querySelector<HTMLElement>(`#request-tag`)!.style.display = "block"}}>
+                                    <img src={process.env.PUBLIC_URL + '/media/nav-bar/' + route.image} alt={route.text} />
                                    
                                 </div>}
                                 {route.children && route.children}
