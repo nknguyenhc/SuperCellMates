@@ -36,8 +36,9 @@ export type Tag = {
 
 export type Visibility = "Public" | "People with same tag" | "Friends" | "Friends with same tag";
 
-export default function Post({ post }: {
+export default function Post({ post, onDelete }: {
     post: OnePost,
+    onDelete: () => void,
 }): JSX.Element {
     const [isShowMore, setIsShowMore] = useState<boolean>(false);
     const shortLimit = 500;
@@ -196,7 +197,12 @@ export default function Post({ post }: {
                     />
                 }
             </div>
-            <EditPost isShow={isEditing} postId={post.id} onHide={() => setIsEditing(false)} />
+            <EditPost
+                isShow={isEditing}
+                postId={post.id}
+                onHide={() => setIsEditing(false)}
+                onDelete={onDelete}
+            />
         </>
     );
 }

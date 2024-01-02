@@ -50,6 +50,10 @@ export default function ProfileContent(): JSX.Element {
         }
     }, [loadMorePosts]);
 
+    const deletePostCallback = useCallback((postId: string) => () => {
+        setPosts(posts => posts.filter(post => post.id !== postId));
+    }, []);
+
     useEffect(() => {
         setTagname(tagChosen);
         setIsAllPostsLoaded(false);
@@ -65,7 +69,7 @@ export default function ProfileContent(): JSX.Element {
     return <div className="profile-posts py-4">
         {posts.map(post => (
             <div className="profile-post" key={post.id}>
-                <Post post={post} />
+                <Post post={post} onDelete={deletePostCallback(post.id)} />
             </div>
         ))}
         <span className="spinner-border text-info" id="post-loader" role="status" style={{display: isLoading ? '' : 'none'}} />

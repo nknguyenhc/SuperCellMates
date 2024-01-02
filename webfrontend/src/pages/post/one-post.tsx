@@ -1,10 +1,15 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Post, { OnePost } from "../../components/posts/one-post";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function OnePostPage(): JSX.Element {
     const [post, setPost] = useState<OnePost | undefined | null>(undefined);
     const [params, ] = useSearchParams();
+    const navigate = useNavigate();
+
+    const handleDelete = useCallback(() => {
+        navigate('/');
+    }, [navigate]);
 
     useEffect(() => {
         const postId = params.get("id");
@@ -28,7 +33,7 @@ export default function OnePostPage(): JSX.Element {
 
     return <div className="one-post-page">
         {post
-        ? <Post post={post} />
+        ? <Post post={post} onDelete={handleDelete} />
         : post === undefined
         ? <span className="spinner-border text-info" role="status" />
         : <div>An error has occurred.</div>}

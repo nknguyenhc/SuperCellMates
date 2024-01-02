@@ -6,10 +6,11 @@ import { setLoading, setNotLoading } from "../../redux/loading-slice";
 import { triggerErrorMessage } from "../../utils/locals";
 import { postRequestContent } from "../../utils/request";
 
-export default function EditPost({ postId, isShow, onHide }: {
+export default function EditPost({ postId, isShow, onHide, onDelete }: {
     postId: string,
     isShow: boolean,
     onHide: () => void,
+    onDelete: () => void,
 }): JSX.Element {
     const [title, setTitle] = useState<string>('');
     const [isTitleError, setIsTitleError] = useState<boolean | undefined>(undefined);
@@ -29,6 +30,7 @@ export default function EditPost({ postId, isShow, onHide }: {
     const rootRef = useRef<{
         dialog: HTMLDivElement,
     }>(null);
+    const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
     const getFeedbackClass = useCallback((isError: boolean | undefined): string => (
         isError
@@ -150,8 +152,17 @@ export default function EditPost({ postId, isShow, onHide }: {
             }
             setIsMessageShown(true);
             setMessage("Post deleted!");
+            setIsDeleting(true);
         });
     }, [isEditLoading, isDeleteLoading, postId]);
+
+    const handleExit = useCallback(() => {
+        onHide();
+        if (!isDeleting) {
+            return;
+        }
+        onDelete();
+    }, [onHide, isDeleting, onDelete]);
 
     useEffect(() => {
         if (!isShow) {
@@ -271,7 +282,7 @@ export default function EditPost({ postId, isShow, onHide }: {
             </div>
             {imgs.length > 0 && <div className="mt-4 post-images-preview">
                 {imgs.map((imgFile, i) => (
-                    <div className="post-image-preview-div">
+                    <div className="post-image-preview-div" key={i}>
                         <img src={URL.createObjectURL(imgFile)} alt={i.toString()} />
                         <div className="post-image-preview-close">
                             <button type="button" className="btn-close" aria-label="Close" onClick={removeImage(i)} />
@@ -302,7 +313,7 @@ export default function EditPost({ postId, isShow, onHide }: {
                 </div>
             </div>}
             {errorMessage && <div className="mt-3 alert alert-danger" role="alert">{errorMessage}</div>}
-            <Modal show={isMessageShown} onHide={onHide}>
+            <Modal show={isMessageShown} onHide={handleExit}>
                 <Modal.Header closeButton>
                     <Modal.Title>Message</Modal.Title>
                 </Modal.Header>
