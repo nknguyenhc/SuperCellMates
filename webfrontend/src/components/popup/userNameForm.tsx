@@ -43,7 +43,7 @@ const UserNameForm: React.FC<props> = ({ setIsClickUsername, setMessageModal, se
         password: password,
         })
       )
-      .then((response) => {
+      .then(response => {
           setIsLoading(false);
           if (response.status !== 200) {
             triggerErrorMessage();
