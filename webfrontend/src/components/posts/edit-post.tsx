@@ -26,6 +26,9 @@ export default function EditPost({ postId, isShow, onHide }: {
     const [errorMessage, setErrorMessage] = useState<string>('');
     const [isMessageShown, setIsMessageShown] = useState<boolean>(false);
     const [message, setMessage] = useState<string>('');
+    const rootRef = useRef<{
+        dialog: HTMLDivElement,
+    }>(null);
 
     const getFeedbackClass = useCallback((isError: boolean | undefined): string => (
         isError
@@ -34,6 +37,19 @@ export default function EditPost({ postId, isShow, onHide }: {
         ? " is-valid"
         : ""
     ), []);
+
+    const reset = useCallback(() => {
+        setTitle('');
+        setIsTitleError(undefined);
+        setContent('');
+        setIsContentError(undefined);
+        setVisibility('Visibility');
+        setTag(undefined);
+        setImgs([]);
+        setIsDeleteMessageShown(false);
+        setErrorMessage('');
+        setIsMessageShown(false);
+    }, []);
 
     const handleAddImage = useCallback((e: ChangeEvent) => {
         const files = Array.from((e.target as HTMLInputElement).files as FileList);
@@ -52,6 +68,7 @@ export default function EditPost({ postId, isShow, onHide }: {
     }, []);
 
     const submitPost = useCallback(() => {
+        setIsDeleteMessageShown(false);
         let isError = false;
         if (content === '') {
             setErrorMessage("Content cannot be empty!");
@@ -110,7 +127,11 @@ export default function EditPost({ postId, isShow, onHide }: {
     const popDeleteMessage = useCallback(() => {
         setIsDeleteMessageShown(true);
         setTimeout(() => {
-            // scroll modal
+            const dialog = rootRef.current!.dialog;
+            dialog.scrollTo({
+                behavior: "smooth",
+                top: dialog.scrollHeight,
+            });
         }, 200);
     }, []);
 
@@ -134,6 +155,7 @@ export default function EditPost({ postId, isShow, onHide }: {
 
     useEffect(() => {
         if (!isShow) {
+            reset();
             return;
         }
         dispatch(setLoading());
@@ -180,9 +202,9 @@ export default function EditPost({ postId, isShow, onHide }: {
                 });
             });
         });
-    }, [dispatch, isShow, postId]);
+    }, [dispatch, isShow, postId, reset]);
 
-    return <Modal size="lg" show={isShow} onHide={onHide}>
+    return <Modal size="lg" show={isShow} onHide={onHide} ref={rootRef}>
         <Modal.Header closeButton>
             <Modal.Title>Edit post</Modal.Title>
         </Modal.Header>
