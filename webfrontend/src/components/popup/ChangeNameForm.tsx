@@ -61,36 +61,36 @@ const ChangeNameForm:React.FC<props> = ({ isClickChangeName, setIsClickChangeNam
       <Modal show={isClickChangeName} onHide={handleClose}>
         <Modal.Header closeButton></Modal.Header>
         <Modal.Body>
-          <form className="changename-form" onSubmit={(e) => submitForm(e)}>
-            <div className="changename-input">
-              <p className="title">New Name</p>
+          <form className='changename-form' onSubmit={(e) => submitForm(e)}>
+            <div className='changename-input'>
+              <p className='title'>New Name</p>
               <input
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                className="form-control form-control-lg"
+                className='form-control form-control-lg'
               />
             </div>
-            <div className="password-input">
-              <p className="title">Confirm Password</p>
+            <div className='password-input'>
+              <p className='title'>Confirm Password</p>
               <input
-                type="password"
+                type='password'
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
                 }}
-                className="form-control form-control-lg"
+                className='form-control form-control-lg'
               />
             </div>
-            {error ? <p className="error-statement"> {error} </p> : ""}
-            <Button type="submit" className="input_submit">
+            {error ? <p className='error-statement'> {error} </p> : ''}
+            <Button type='submit' className='input_submit'>
               Change Name
             </Button>
             {isLoading ? (
-              <Spinner animation="border" role="status">
-                <span className="visually-hidden">Loading...</span>
+              <Spinner animation='border' role='status'>
+                <span className='visually-hidden'>Loading...</span>
               </Spinner>
             ) : (
-              ""
+              ''
             )}
           </form>
         </Modal.Body>

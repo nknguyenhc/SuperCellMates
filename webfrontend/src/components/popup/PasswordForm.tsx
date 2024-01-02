@@ -64,44 +64,44 @@ const PasswordForm:React.FC<props> = ({ isClickPassword, setIsClickPassword, set
       <Modal show={isClickPassword} onHide={handleClose}>
         <Modal.Header closeButton></Modal.Header>
         <Modal.Body>
-          <form className="password-form" onSubmit={(e) => submitForm(e)}>
-            <div className="oldPassword-input">
-              <p className="title">Old Password</p>
+          <form className='password-form' onSubmit={(e) => submitForm(e)}>
+            <div className='oldPassword-input'>
+              <p className='title'>Old Password</p>
               <input
-                type="password"
+                type='password'
                 value={oldPassword}
                 onChange={(e) => setOldPassword(e.target.value)}
-                className="form-control form-control-lg"
+                className='form-control form-control-lg'
               />
             </div>
-            <div className="newPassword-input">
-              <p className="title">New Password</p>
+            <div className='newPassword-input'>
+              <p className='title'>New Password</p>
               <input
-                type="password"
+                type='password'
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="form-control form-control-lg"
+                className='form-control form-control-lg'
               />
             </div>
-            <div className="confirmPassword-input">
-              <p className="title">Confrim New Password</p>
+            <div className='confirmPassword-input'>
+              <p className='title'>Confrim New Password</p>
               <input
-                type="password"
+                type='password'
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="form-control form-control-lg"
+                className='form-control form-control-lg'
               />
             </div>
-            {error ? <p className="error-statement">{error}</p> : ""}
-            <Button type="submit" className="input_submit">
+            {error ? <p className='error-statement'>{error}</p> : ''}
+            <Button type='submit' className='input_submit'>
               Change Password
             </Button>
             {isLoading ? (
-              <Spinner animation="border" role="status">
-                <span className="visually-hidden">Loading...</span>
+              <Spinner animation='border' role='status'>
+                <span className='visually-hidden'>Loading...</span>
               </Spinner>
             ) : (
-              ""
+              ''
             )}
           </form>
         </Modal.Body>

@@ -72,17 +72,17 @@ const UserNameForm: React.FC<props> = ({ setIsClickUsername, setMessageModal, se
     <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton></Modal.Header>
       <Modal.Body>
-        <form className="username-form" onSubmit={(e) => submitForm(e)}>
-          <div className="username-input">
-            <p className="title">New Username</p>
+        <form className='username-form' onSubmit={(e) => submitForm(e)}>
+          <div className='username-input'>
+            <p className='title'>New Username</p>
             <input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className='form-control form-control-lg'
             />
           </div>
-          <div className="password-input">
-            <p className="title">Confirm Password</p>
+          <div className='password-input'>
+            <p className='title'>Confirm Password</p>
             <input
               type='password'
               value={password}
@@ -90,16 +90,16 @@ const UserNameForm: React.FC<props> = ({ setIsClickUsername, setMessageModal, se
               className= 'form-control form-control-lg'
             />
           </div>
-          {error ? <p className='error-statement'>{error}</p> : ""}
+          {error ? <p className='error-statement'>{error}</p> : ''}
           <Button type='submit' className='input_submit'>
             Change username
           </Button>
           {isLoading ? (
-            <Spinner animation="border" role="status">
-              <span className="visually-hidden">Loading...</span>
+            <Spinner animation='border' role='status'>
+              <span className='visually-hidden'>Loading...</span>
             </Spinner>
           ) : (
-            ""
+            ''
           )}
         </form>
       </Modal.Body>
