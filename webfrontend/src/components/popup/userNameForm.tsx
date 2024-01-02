@@ -35,18 +35,20 @@ const UserNameForm: React.FC<props> = ({ setIsClickUsername, setMessageModal, se
       setError('Username can only contain alphabets (lower and upper case) and numbers');
       return;
     }
+    
     if (!isLoading) {
+   
       setIsLoading(true);
       fetch('/change_username', postRequestContent({
         new_username: username,
         password: password,
-        }))
+      }))
       .then(response => {
           setIsLoading(false);
           if (response.status !== 200) {
             triggerErrorMessage();
             return;
-          }
+          } 
           response.text().then((text) => {
             if (text !== 'Username changed') {
               setError(text);
@@ -55,13 +57,13 @@ const UserNameForm: React.FC<props> = ({ setIsClickUsername, setMessageModal, se
               setMessageModal('Username changed');
               setIsMessageModal(true);
               dispatch(updateUsername(username));
-            }
-
+            } 
+            
         })
       });
     }
-  }, [username, isLoading, password, setIsClickUsername, setMessageModal, setIsMessageModal, dispatch]
-);
+  
+  }, [username,isLoading, password, setIsClickUsername, setMessageModal, setIsMessageModal]);
 
   const handleClose = useCallback(() => {
     setIsClickUsername((prev) => !prev);
