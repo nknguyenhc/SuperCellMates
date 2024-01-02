@@ -73,10 +73,10 @@ export default function HomeFeed(): JSX.Element {
 
     return (
         <>
-            <div id="home-feed-content" ref={homeFeedContent}>
+            <div className="home-feed-content" ref={homeFeedContent}>
                 {posts.map(post => (
                     <div className="post-card" key={post.id}>
-                        <Post post={post} myProfile={false} />
+                        <Post post={post} />
                     </div>
                 ))}
             </div>

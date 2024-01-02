@@ -6,6 +6,9 @@ import { useDispatch } from 'react-redux';
 import { setMessage } from '../../redux/message-slice';
 import { Link, useNavigate } from 'react-router-dom';
 import { reply } from '../../redux/post-slice';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
+import EditPost from './edit-post';
 
 export type OnePost = {
     id: string,
@@ -33,9 +36,8 @@ export type Tag = {
 
 export type Visibility = "Public" | "People with same tag" | "Friends" | "Friends with same tag";
 
-export default function Post({ post, myProfile}: {
+export default function Post({ post }: {
     post: OnePost,
-    myProfile: boolean,
 }): JSX.Element {
     const [isShowMore, setIsShowMore] = useState<boolean>(false);
     const shortLimit = 500;
@@ -46,6 +48,8 @@ export default function Post({ post, myProfile}: {
     const linkTooltip = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const username = useSelector((state: RootState) => state.auth.username);
+    const [isEditing, setIsEditing] = useState<boolean>(false);
 
     useEffect(() => {
         if (post.public_visible) {
@@ -126,15 +130,9 @@ export default function Post({ post, myProfile}: {
                         <strong className="post-creator-name">{post.creator.name}</strong>
                         <Link className="post-creator-username" to={post.creator.profile_link}>{post.creator.username}</Link>
                     </div>
-                    {
-                        myProfile
-                        ? <div>
-                            <button className="btn btn-secondary btn-sm" onClick={() => {
-                                // popEditView(post.id);
-                            }}>Edit</button>
-                        </div>
-                        : ''
-                    }
+                    {post.creator.username === username && <div>
+                        <button className="btn btn-secondary btn-sm" onClick={() => setIsEditing(true)}>Edit</button>
+                    </div>}
                 </div>
                 <div className="post-more">
                     <div ref={visTooltip} className="post-link">
@@ -198,6 +196,7 @@ export default function Post({ post, myProfile}: {
                     />
                 }
             </div>
+            <EditPost isShow={isEditing} postId={post.id} onHide={() => setIsEditing(false)} />
         </>
     );
 }

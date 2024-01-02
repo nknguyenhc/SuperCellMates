@@ -4,7 +4,7 @@ import { triggerErrorMessage } from "../../utils/locals";
 import Post, { OnePost } from "../posts/one-post";
 
 export default function ProfileContent(): JSX.Element {
-    const { isMyProfile, username, tagChosen } = useProfileContext();
+    const { username, tagChosen } = useProfileContext();
     const [tagname, setTagname] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [currentTimestamp, setCurrentTimestamp] = useState<number | undefined>(undefined);
@@ -65,7 +65,7 @@ export default function ProfileContent(): JSX.Element {
     return <div className="profile-posts py-4">
         {posts.map(post => (
             <div className="profile-post" key={post.id}>
-                <Post post={post} myProfile={isMyProfile} />
+                <Post post={post} />
             </div>
         ))}
         <span className="spinner-border text-info" id="post-loader" role="status" style={{display: isLoading ? '' : 'none'}} />

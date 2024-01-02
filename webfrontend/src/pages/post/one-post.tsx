@@ -28,7 +28,7 @@ export default function OnePostPage(): JSX.Element {
 
     return <div className="one-post-page">
         {post
-        ? <Post post={post} myProfile={false} />
+        ? <Post post={post} />
         : post === undefined
         ? <span className="spinner-border text-info" role="status" />
         : <div>An error has occurred.</div>}
