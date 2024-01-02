@@ -27,60 +27,51 @@ const UserNameForm: React.FC<props> = ({
 
   const dispatch = useDispatch();
 
-  const submitForm = useCallback(
-    (e: React.SyntheticEvent<EventTarget>) => {
-      e.preventDefault();
-      setError("");
-      if (username === "") {
-        setError("New username cannot be empty");
-        return;
-      } else if (username.length > 15) {
-        setError("Username must be 15 characters or less");
-        return;
-      } else if (!isAlphaNumeric(username)) {
-        setError(
-          "Username can only contain alphabets (lower and upper case) and numbers"
-        );
-        return;
-      }
+  const submitForm = useCallback((e: React.SyntheticEvent<EventTarget>) => {
+    e.preventDefault();
+    setError("");
+    if (username === "") {
+      setError("New username cannot be empty");
+      return;
+    } else if (username.length > 15) {
+      setError("Username must be 15 characters or less");
+      return;
+    } else if (!isAlphaNumeric(username)) {
+      setError(
+        "Username can only contain alphabets (lower and upper case) and numbers"
+      );
+      return;
+    }
 
-      if (!isLoading) {
-        setIsLoading(true);
-        fetch(
-          "/change_username",
-          postRequestContent({
-            new_username: username,
-            password: password,
-          })
-        ).then((response) => {
-          setIsLoading(false);
-          if (response.status !== 200) {
-            triggerErrorMessage();
-            return;
+    if (!isLoading) {
+      setIsLoading(true);
+      fetch(
+        "/change_username",
+        postRequestContent({
+          new_username: username,
+          password: password,
+        })
+      ).then((response) => {
+        setIsLoading(false);
+        if (response.status !== 200) {
+          triggerErrorMessage();
+          return;
+        }
+        response.text().then((text) => {
+          if (text !== 'Username changed') {
+            setError(text);
+          } else {
+            setIsClickUsername(prev => !prev);
+            setMessageModal('Username changed');
+            setIsMessageModal(true);
+            dispatch(updateUsername(username));
           }
-          response.text().then((text) => {
-            if (text !== "Username changed") {
-              setError(text);
-            } else {
-              setIsClickUsername((prev) => !prev);
-              setMessageModal("Username changed");
-              setIsMessageModal(true);
-              dispatch(updateUsername(username));
-            }
-          });
         });
-      }
-    },
-    [
-      username,
-      isLoading,
-      password,
-      setIsClickUsername,
-      setMessageModal,
-      setIsMessageModal,
-      dispatch,
-    ]
-  );
+      });
+    }
+  },
+  [username, isLoading, password, setIsClickUsername, setMessageModal, setIsMessageModal, dispatch]
+);
 
   const handleClose = useCallback(() => {
     setIsClickUsername((prev) => !prev);
