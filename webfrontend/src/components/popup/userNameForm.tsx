@@ -32,15 +32,13 @@ const UserNameForm: React.FC<props> = ({ setIsClickUsername, setMessageModal, se
       setError('Username must be 15 characters or less');
       return;
     } else if (!isAlphaNumeric(username)) {
-      setError(
-        'Username can only contain alphabets (lower and upper case) and numbers'
-      );
+      setError('Username can only contain alphabets (lower and upper case) and numbers');
       return;
     }
 
     if (!isLoading) {
       setIsLoading(true);
-      fetch("/change_username", postRequestContent({
+      fetch('/change_username', postRequestContent({
           new_username: username,
           password: password,
         })
