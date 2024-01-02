@@ -24,7 +24,7 @@ const UserNameForm: React.FC<props> = ({ setIsClickUsername, setMessageModal, se
 
   const submitForm = useCallback((e:React.SyntheticEvent<EventTarget>) => {
     e.preventDefault();
-    setError('')
+    setError("")
     if (username === '') {
       setError('New username cannot be empty');
       return;
@@ -39,8 +39,8 @@ const UserNameForm: React.FC<props> = ({ setIsClickUsername, setMessageModal, se
     if (!isLoading) {
       setIsLoading(true);
       fetch('/change_username', postRequestContent({
-          new_username: username,
-          password: password,
+        new_username: username,
+        password: password,
         })
       )
       .then((response) => {
