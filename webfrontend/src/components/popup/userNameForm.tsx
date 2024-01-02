@@ -78,20 +78,20 @@ const UserNameForm: React.FC<props> = ({ setIsClickUsername, setMessageModal, se
             <input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="form-control form-control-lg"
+              className='form-control form-control-lg'
             />
           </div>
           <div className="password-input">
             <p className="title">Confirm Password</p>
             <input
-              type="password"
+              type='password'
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="form-control form-control-lg"
+              className= 'form-control form-control-lg'
             />
           </div>
-          {error ? <p className="error-statement">{error}</p> : ""}
-          <Button type="submit" className="input_submit">
+          {error ? <p className='error-statement'>{error}</p> : ""}
+          <Button type='submit' className='input_submit'>
             Change username
           </Button>
           {isLoading ? (
