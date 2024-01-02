@@ -182,7 +182,7 @@ export default function EditPost({ postId, isShow, onHide }: {
         });
     }, [dispatch, isShow, postId]);
 
-    return <Modal dialogClassName="edit-post-dialog" show={isShow} onHide={onHide}>
+    return <Modal size="lg" show={isShow} onHide={onHide}>
         <Modal.Header closeButton>
             <Modal.Title>Edit post</Modal.Title>
         </Modal.Header>
@@ -247,7 +247,7 @@ export default function EditPost({ postId, isShow, onHide }: {
                     onChange={handleAddImage}
                 />
             </div>
-            {imgs.length > 0 && <div className="mt-4">
+            {imgs.length > 0 && <div className="mt-4 post-images-preview">
                 {imgs.map((imgFile, i) => (
                     <div className="post-image-preview-div">
                         <img src={URL.createObjectURL(imgFile)} alt={i.toString()} />
