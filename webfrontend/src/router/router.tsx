@@ -6,6 +6,7 @@ import Home from "../pages/home/home";
 import Messages from "../pages/messages/messages";
 import Settings from "../pages/settings/settings";
 import Profile from "../pages/profile/profile";
+import OnePostPage from "../pages/post/one-post";
 const router = createBrowserRouter([
     {
         path: "/",
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
             {
                 path: "/user/profile/*",
                 element: <Profile isMyProfile={false} />
+            },
+            {
+                path: "/post/display",
+                element: <OnePostPage />,
             },
             {
                 path: "/messages",
