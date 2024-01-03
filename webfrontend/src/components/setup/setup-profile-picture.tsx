@@ -26,6 +26,7 @@ const SetupProfilePicture = () => {
       });
     });
   }, [username]);
+  
   useEffect(() => {
     getProfileImg()
   }, [getProfileImg]);
