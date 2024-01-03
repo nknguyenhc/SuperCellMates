@@ -185,7 +185,7 @@ const Avatar: React.FC<Props> = ({
             <Button
               variant="success"
               className="confirm-btn"
-              onClick={() => handleConfirm()}
+              onClick={handleConfirm}
             >
               Confirm
             </Button>

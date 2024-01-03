@@ -19,11 +19,11 @@ const SetupTags = () => {
   const [canRemoveTag, setCanRemoveTag] = useState(false);
   const [showRemoveAlert, setShowRemoveAlert] = useState(false);
   const [tagToBeRemoved, setTagToBeRemoved] = useState<Tag>();
-  const [addTagMessageButton, setAddTagMessageButton] =
-    useState<boolean>(false);
+  const [isAddTagMessageButton, setIsAddTagMessageButton] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSearching, setIsSearching] = useState<boolean>(false)
+        let currTimeout:any = null;
 
   useEffect(() => {
     fetch("/profile/obtain_tags").then((response) => {
@@ -78,7 +78,7 @@ const SetupTags = () => {
             setTags([...tags].concat(toBeSubmitted));
             setToBeSubmitted([]);
             setShowAlert(false);
-            setAddTagMessageButton(true);
+            setIsAddTagMessageButton(true);
             setMessage("Tags updated successfully!");
           }
         });
@@ -121,18 +121,23 @@ const SetupTags = () => {
         setSearchResults(searchResults.filter((_, i) => i !== index));
         setToBeSubmitted([...toBeSubmitted, searchResults[index]]);
       } else {
-        setAddTagMessageButton(true);
+        setIsAddTagMessageButton(true);
         setMessage("You have reached your maximum tag count limit.");
       }
     },
     [searchResults, tagCountLimit, tags.length, toBeSubmitted]
   );
 
-  const handleChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+
       setSearchParam(event.target.value);
-      setIsSearching(false)
-      searchTag(event)
+      clearTimeout(currTimeout);
+      currTimeout = setTimeout(() => {
+        setIsSearching(false)
+        searchTag(event)
+      }, 800);
+
+     
     },
     [searchTag]
   );
@@ -205,7 +210,7 @@ const SetupTags = () => {
             <button
               className="btn btn-success"
               value="Add Tags"
-              onClick={() => updateTagsClicked()}
+              onClick={updateTagsClicked}
             >
               Update Tags
             </button>
@@ -232,14 +237,14 @@ const SetupTags = () => {
           <div className="setup-tags-section-body pt-3">
             <form
               id="search-tag-form"
-              onSubmit={(e) => searchTag(e)}
+              onSubmit={searchTag}
               ref={searchTagForm}
             >
               <input
                 type="text"
                 className="form-control"
                 placeholder="Search Tag ..."
-                onChange={(event) => handleChange(event) }
+                onChange={handleChange}
               />
               <input
                 type="submit"
@@ -319,8 +324,8 @@ const SetupTags = () => {
       )}
 
       <Modal
-        show={addTagMessageButton}
-        onHide={() => setAddTagMessageButton(false)}
+        show={isAddTagMessageButton}
+        onHide={() => setIsAddTagMessageButton(false)}
       >
         <Modal.Header closeButton>
           <Modal.Title>Message</Modal.Title>
@@ -329,7 +334,7 @@ const SetupTags = () => {
         <Modal.Footer>
           <Button
             variant="secondary"
-            onClick={() => setAddTagMessageButton(false)}
+            onClick={() => setIsAddTagMessageButton(false)}
           >
             Close
           </Button>
