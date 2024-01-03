@@ -4,6 +4,7 @@ import ProfileTop from "../../components/profile/profile-top";
 import { RootState } from "../../redux/store";
 import ProfileContent from "../../components/profile/profile-content";
 import { ProfileContextProvider } from "./profile-context";
+import Readme from "../../components/profile/readme";
 
 export default function Profile({ isMyProfile }: {
     isMyProfile: boolean,
@@ -15,7 +16,10 @@ export default function Profile({ isMyProfile }: {
             <ProfileTop />
             <div className="profile-content">
                 <ProfileNav />
-                <ProfileContent />
+                <div className="profile-main">
+                    <Readme />
+                    <ProfileContent />
+                </div>
             </div>
         </ProfileContextProvider>
     </div>;

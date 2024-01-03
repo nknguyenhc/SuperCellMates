@@ -12,6 +12,12 @@ export default function ProfileContent(): JSX.Element {
     const [isAllPostsLoaded, setIsAllPostsLoaded] = useState<boolean>(false);
     const [posts, setPosts] = useState<Array<OnePost>>([]);
 
+    const reset = useCallback(() => {
+        setIsAllPostsLoaded(false);
+        setCurrentTimestamp(undefined);
+        setPosts([]);
+    }, []);
+
     const loadMorePosts = useCallback(() => {
         if (isLoading || isAllPostsLoaded || !username) {
             return;
@@ -56,15 +62,19 @@ export default function ProfileContent(): JSX.Element {
 
     useEffect(() => {
         setTagname(tagChosen);
-        setIsAllPostsLoaded(false);
-        setCurrentTimestamp(undefined);
-        setPosts([]);
-    }, [tagChosen]);
+        reset();
+    }, [tagChosen, reset]);
 
     useEffect(() => {
         const interval = setInterval(loadPostsInInterval, 500);
         return () => clearInterval(interval);
     }, [loadPostsInInterval]);
+
+    useEffect(() => {
+        if (username) {
+            reset();
+        }
+    }, [username, reset]);
 
     return <div className="profile-posts py-4">
         {posts.map(post => (

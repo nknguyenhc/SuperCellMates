@@ -1,4 +1,5 @@
-import { Context, PropsWithChildren, createContext, useContext, useState } from "react";
+import { Context, PropsWithChildren, createContext, useContext, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 type ProfileStateInput = {
     username: string,
@@ -15,9 +16,15 @@ const useProfileState = ({ username, isMyProfile }: {
     isMyProfile: boolean,
 }): ProfileState => {
     const [tagChosen, setTagChosen] = useState<string>('');
+    const location = useLocation();
+    const actualUsername = useMemo((): string => {
+        return location.pathname.startsWith('/profile')
+            ? username
+            : location.pathname.split('/')[3];
+    }, [location, username]);
 
     return {
-        username,
+        username: actualUsername,
         isMyProfile,
         tagChosen,
         setTagChosen,

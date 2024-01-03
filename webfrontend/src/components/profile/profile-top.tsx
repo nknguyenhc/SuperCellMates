@@ -13,7 +13,7 @@ export default function ProfileTop(): JSX.Element {
         if (!username) {
             return;
         }
-        const url = isMyProfile ? '/profile/async' : `/user/profile/${username}`;
+        const url = isMyProfile ? '/profile/async' : `/user/profile_async/${username}`;
         fetch(url).then(res => {
             if (res.status !== 200) {
                 triggerErrorMessage();
