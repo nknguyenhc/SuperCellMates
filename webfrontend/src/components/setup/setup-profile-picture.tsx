@@ -9,6 +9,7 @@ const SetupProfilePicture = () => {
   const [isProfileLoading, setIsProfileLoading] = useState<boolean>(true);
   const [isEditProfileImg, setIsEditProfileImg] = useState<boolean>(false);
   const [profileImgUrl, setProfileImgUrl] = useState<string>("");
+
   const getProfileImg = useCallback(() => {
     if (!username) {
       return;
@@ -50,6 +51,7 @@ const SetupProfilePicture = () => {
       </div>
       <div className="profile-img-container m-3">
         <img src={profileImgUrl} alt="" />
+      
       </div>
 
       {isEditProfileImg ? (
@@ -58,6 +60,7 @@ const SetupProfilePicture = () => {
           isEditProfileImg={isEditProfileImg}
           setProfileImgUrl={setProfileImgUrl}
           currentProfileImg={profileImgUrl}
+       
         />
       ) : (
         ""

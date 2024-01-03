@@ -5,6 +5,7 @@ import { triggerErrorMessage } from "../../utils/locals";
 import { postRequestContent } from "../../utils/request";
 import Modal from "react-bootstrap/Modal";
 
+
 interface ImageProperties {
   originalImage: string;
   croppedImage: string;
@@ -18,6 +19,7 @@ interface Props {
   setIsEditProfileImg: React.Dispatch<React.SetStateAction<boolean>>;
   isEditProfileImg: boolean;
   setProfileImgUrl: React.Dispatch<React.SetStateAction<string>>;
+
 }
 
 const Avatar: React.FC<Props> = ({
@@ -25,10 +27,11 @@ const Avatar: React.FC<Props> = ({
   isEditProfileImg,
   setProfileImgUrl,
   currentProfileImg,
+
 }) => {
   const editorRef: React.RefObject<AvatarEditor> = createRef();
   const [imgToBeSubmitted, setImgToBeSubmitted] = useState<File>();
-  const [fileName, setFileName] = useState("");
+  const [fileName, setFileName] = useState<string>('current-profile-image.webp');
   const [imageProperties, setImageProperties] = useState<ImageProperties>({
     originalImage: currentProfileImg,
     croppedImage: "",
@@ -37,6 +40,7 @@ const Avatar: React.FC<Props> = ({
     rotate: 0,
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
 
   const handleAdd = useCallback((event: SyntheticEvent) => {
     const target = event.target as HTMLInputElement;
@@ -73,13 +77,11 @@ const Avatar: React.FC<Props> = ({
     []
   );
 
-  const handleSubmit = useCallback(
-    (event: React.FormEvent) => {
+  const handleSubmit = useCallback((event: React.FormEvent) => {
       event.preventDefault();
-      const canvasScaled: HTMLCanvasElement =
-        editorRef.current!.getImageScaledToCanvas();
+      const canvasScaled: HTMLCanvasElement = editorRef.current!.getImageScaledToCanvas();
       canvasScaled.toBlob((blob: any) => {
-        setImageProperties((prevState) => ({
+      setImageProperties((prevState) => ({
           ...prevState,
           croppedImage: window.URL.createObjectURL(blob),
         }));
@@ -88,17 +90,14 @@ const Avatar: React.FC<Props> = ({
             type: blob.type,
           })
         );
+
       });
-    },
-    [editorRef, fileName]
-  );
+    }, [editorRef, fileName]);
 
   const handleConfirm = useCallback(() => {
-    if (!isLoading) {
+    if (!isLoading && imgToBeSubmitted !== null) {
       setIsLoading(true);
-      fetch(
-        "/profile/set_profile_image",
-        postRequestContent({
+      fetch("/profile/set_profile_image",postRequestContent({
           img: imgToBeSubmitted,
         })
       ).then((res) => {
@@ -111,13 +110,7 @@ const Avatar: React.FC<Props> = ({
         setProfileImgUrl(imageProperties.croppedImage);
       });
     }
-  }, [
-    imgToBeSubmitted,
-    setIsEditProfileImg,
-    isLoading,
-    setProfileImgUrl,
-    imageProperties.croppedImage,
-  ]);
+  }, [imgToBeSubmitted, setIsEditProfileImg, isLoading, setProfileImgUrl, imageProperties.croppedImage]);
 
   const handleClose = useCallback(() => {
     setIsEditProfileImg(false);

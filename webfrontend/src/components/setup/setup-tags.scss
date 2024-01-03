@@ -39,6 +39,7 @@
 
 #search-tag-result {
   position: relative;
+
 }
 .action-alert {
   width: 50vw;
@@ -57,6 +58,8 @@
   height: 300px;
   -ms-overflow-style: none;
   scrollbar-width: none;
+  background-color: white;
+  z-index: 100;
 }
 
 #search-tag-result-window::-webkit-scrollbar {

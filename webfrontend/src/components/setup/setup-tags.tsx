@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { SyntheticEvent, useCallback, useEffect, useRef, useState } from "react";
 import { triggerErrorMessage } from "../../utils/locals";
 import { Tag } from "../posts/one-post";
 import { postRequestContent } from "../../utils/request";
@@ -8,7 +8,6 @@ import Modal from "react-bootstrap/Modal";
 
 const SetupTags = () => {
   const [tags, setTags] = useState<Array<Tag>>([]);
-  const [searchParam, setSearchParam] = useState("");
   const [searchResults, setSearchResults] = useState<Array<Tag>>([]);
   const [toBeSubmitted, setToBeSubmitted] = useState<Array<Tag>>([]);
   const [tagCountLimit, setTagCountLimit] = useState(0);
@@ -87,12 +86,12 @@ const SetupTags = () => {
     [isSearching, tags, toBeSubmitted]
   );
 
-  const searchTag = useCallback(
-    (event: React.SyntheticEvent<EventTarget>) => {
+  const searchTag = useCallback((event: SyntheticEvent) => {
       event.preventDefault();
+      const target = event.target as HTMLInputElement
       if (!isLoading) {
         setIsLoading(true);
-        fetch("/profile/search_tags?tag=" + searchParam).then((response) => {
+        fetch("/profile/search_tags?tag=" + target.value).then((response) => {
           setIsLoading(false);
           if (response.status !== 200) {
             triggerErrorMessage();
@@ -112,7 +111,7 @@ const SetupTags = () => {
         });
       }
     },
-    [searchParam, toBeSubmitted, isLoading]
+    [toBeSubmitted, isLoading]
   );
 
   const addNewTag = useCallback(
@@ -130,24 +129,19 @@ const SetupTags = () => {
 
   const handleChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
       let currTimeout:any = null;
-      setSearchParam(event.target.value);
       clearTimeout(currTimeout);
       currTimeout = setTimeout(() => {
         setIsSearching(false)
         searchTag(event)
-      }, 800);
+      }, 600);
 
      
-    },
-    [searchTag]
-  );
+    }, [searchTag]);
 
   const removeNewTag = useCallback(
     (index: number) => {
       setToBeSubmitted(toBeSubmitted.filter((_, i) => i !== index));
-    },
-    [toBeSubmitted]
-  );
+    }, [toBeSubmitted]);
 
   const removeTag = useCallback(() => {
     if (!isLoading) {
