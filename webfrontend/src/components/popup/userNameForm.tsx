@@ -63,7 +63,7 @@ const UserNameForm: React.FC<props> = ({ setIsClickUsername, setMessageModal, se
       });
     }
   
-  }, [username,isLoading, password, setIsClickUsername, setMessageModal, setIsMessageModal]);
+  }, [username,isLoading, password, setIsClickUsername, setMessageModal, setIsMessageModal, dispatch]);
 
   const handleClose = useCallback(() => {
     setIsClickUsername((prev) => !prev);

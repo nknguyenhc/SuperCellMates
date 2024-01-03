@@ -11,9 +11,13 @@ const Profile = () => {
     <div className='profile-settings'>
       <div className="profile-menu">
         <h1>Profile settings</h1>
-        <Button 
+        
+        <Link style={{textDecoration: 'none', color:'white'}} to='/profile/setup' className='edit-profile-link'>
+          <Button 
           className="profile-button"
-        ><Link style={{textDecoration: 'none', color:'white'}} to='/profile/setup' className='edit-profile-link'>Edit Profile</Link></Button>
+          >Edit Profile
+          </Button>
+        </Link>
         <Button 
           className="change-name"
           onClick={() => setIsClickChangeName(prev => !prev)}

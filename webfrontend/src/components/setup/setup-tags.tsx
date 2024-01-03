@@ -23,7 +23,7 @@ const SetupTags = () => {
   const [message, setMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSearching, setIsSearching] = useState<boolean>(false)
-        let currTimeout:any = null;
+    
 
   useEffect(() => {
     fetch("/profile/obtain_tags").then((response) => {
@@ -129,7 +129,7 @@ const SetupTags = () => {
   );
 
   const handleChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-
+      let currTimeout:any = null;
       setSearchParam(event.target.value);
       clearTimeout(currTimeout);
       currTimeout = setTimeout(() => {
