@@ -60,6 +60,10 @@ export default function ProfileContent(): JSX.Element {
         setPosts(posts => posts.filter(post => post.id !== postId));
     }, []);
 
+    const editPostCallback = useCallback((newPost: OnePost) => {
+        setPosts(posts => posts.map(post => post.id === newPost.id ? newPost : post));
+    }, []);
+
     useEffect(() => {
         setTagname(tagChosen);
         reset();
@@ -79,7 +83,11 @@ export default function ProfileContent(): JSX.Element {
     return <div className="profile-posts py-4">
         {posts.map(post => (
             <div className="profile-post" key={post.id}>
-                <Post post={post} onDelete={deletePostCallback(post.id)} />
+                <Post
+                    post={post}
+                    onEdit={editPostCallback}
+                    onDelete={deletePostCallback(post.id)}
+                />
             </div>
         ))}
         <span className="spinner-border text-info" id="post-loader" role="status" style={{display: isLoading ? '' : 'none'}} />

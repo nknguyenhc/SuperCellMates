@@ -70,6 +70,10 @@ export default function HomeFeed(): JSX.Element {
         setPosts(posts => posts.filter(post => post.id !== postId));
     }, [setPosts]);
 
+    const editPostCallback = useCallback((newPost: OnePost) => {
+        setPosts(posts => posts.map(post => post.id === newPost.id ? newPost : post));
+    }, [setPosts]);
+
     useEffect(() => {
         window.addEventListener('scroll', scrollCallback);
         return () => window.removeEventListener('scroll', scrollCallback);
@@ -80,7 +84,11 @@ export default function HomeFeed(): JSX.Element {
             <div className="home-feed-content" ref={homeFeedContent}>
                 {posts.map(post => (
                     <div className="post-card" key={post.id}>
-                        <Post post={post} onDelete={deletePostCallback(post.id)} />
+                        <Post
+                            post={post}
+                            onEdit={editPostCallback}
+                            onDelete={deletePostCallback(post.id)}
+                        />
                     </div>
                 ))}
             </div>

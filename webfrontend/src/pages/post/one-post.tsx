@@ -11,6 +11,10 @@ export default function OnePostPage(): JSX.Element {
         navigate('/');
     }, [navigate]);
 
+    const handleEdit = useCallback((newPost: OnePost) => {
+        setPost(newPost);
+    }, []);
+
     useEffect(() => {
         const postId = params.get("id");
         if (!postId) {
@@ -33,7 +37,7 @@ export default function OnePostPage(): JSX.Element {
 
     return <div className="one-post-page">
         {post
-        ? <Post post={post} onDelete={handleDelete} />
+        ? <Post post={post} onEdit={handleEdit} onDelete={handleDelete} />
         : post === undefined
         ? <span className="spinner-border text-info" role="status" />
         : <div>An error has occurred.</div>}

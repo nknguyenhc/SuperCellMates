@@ -1,15 +1,16 @@
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { Modal } from "react-bootstrap";
-import { Tag, Visibility } from "./one-post";
+import { OnePost, Tag, Visibility } from "./one-post";
 import { useDispatch } from "react-redux";
 import { setLoading, setNotLoading } from "../../redux/loading-slice";
 import { triggerErrorMessage } from "../../utils/locals";
 import { postRequestContent } from "../../utils/request";
 
-export default function EditPost({ postId, isShow, onHide, onDelete }: {
+export default function EditPost({ postId, isShow, onHide, onEdit, onDelete }: {
     postId: string,
     isShow: boolean,
     onHide: () => void,
+    onEdit: (post: OnePost) => void,
     onDelete: () => void,
 }): JSX.Element {
     const [title, setTitle] = useState<string>('');
@@ -158,11 +159,20 @@ export default function EditPost({ postId, isShow, onHide, onDelete }: {
 
     const handleExit = useCallback(() => {
         onHide();
-        if (!isDeleting) {
-            return;
+        if (isDeleting) {
+            onDelete();
+        } else {
+            fetch('/post/post/' + postId).then(res => {
+                if (res.status !== 200) {
+                    triggerErrorMessage();
+                    return;
+                }
+                res.json().then(res => {
+                    onEdit(res);
+                });
+            });
         }
-        onDelete();
-    }, [onHide, isDeleting, onDelete]);
+    }, [onHide, isDeleting, postId, onEdit, onDelete]);
 
     useEffect(() => {
         if (!isShow) {
