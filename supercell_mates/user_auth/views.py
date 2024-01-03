@@ -14,7 +14,7 @@ import json
 from django.conf import settings as conf_settings
 from datetime import datetime
 
-from user_profile.views import verify_image, list_to_image_and_verify_async
+from user_profile.views import verify_image, list_to_image_and_verify_async, attach_tag_to_user
 
 from .models import UserAuth, Tag, TagRequest, AdminApplication
 from user_profile.models import UserProfile
@@ -339,6 +339,9 @@ def duplicate_tag_exists(tag_name):
 
 
 def add_tag_admin(request):
+    """Approves a tag request and creates the new tag.
+    If specified, attaches the new tag to requester's profile.
+    """
     if request.user.is_staff:
         if request.method == "POST":
             try:
@@ -354,7 +357,7 @@ def add_tag_admin(request):
 
                 if tag_request_obj.requester:
                     if len(tag_request_obj.requester.tagList.all()) < tag_request_obj.requester.tag_count_limit:
-                        tag_request_obj.requester.tagList.add(tag)
+                        attach_tag_to_user(user_profile=tag_request_obj.requester, tag=tag)
 
                 tag_request_obj.delete()
                 return HttpResponse("successfully added tag")
