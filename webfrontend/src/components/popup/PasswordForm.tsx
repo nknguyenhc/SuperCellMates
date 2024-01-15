@@ -64,7 +64,7 @@ const PasswordForm:React.FC<props> = ({ isClickPassword, setIsClickPassword, set
       <Modal show={isClickPassword} onHide={handleClose}>
         <Modal.Header closeButton></Modal.Header>
         <Modal.Body>
-          <form className='password-form' onSubmit={(e) => submitForm(e)}>
+          <form className='password-form' onSubmit={submitForm}>
             <div className='oldPassword-input'>
               <p className='title'>Old Password</p>
               <input

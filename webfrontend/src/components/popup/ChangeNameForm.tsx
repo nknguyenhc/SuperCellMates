@@ -61,7 +61,7 @@ const ChangeNameForm:React.FC<props> = ({ isClickChangeName, setIsClickChangeNam
       <Modal show={isClickChangeName} onHide={handleClose}>
         <Modal.Header closeButton></Modal.Header>
         <Modal.Body>
-          <form className='changename-form' onSubmit={(e) => submitForm(e)}>
+          <form className='changename-form' onSubmit={submitForm}>
             <div className='changename-input'>
               <p className='title'>New Name</p>
               <input

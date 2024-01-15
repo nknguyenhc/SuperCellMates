@@ -72,7 +72,7 @@ const UserNameForm: React.FC<props> = ({ setIsClickUsername, setMessageModal, se
     <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton></Modal.Header>
       <Modal.Body>
-        <form className='username-form' onSubmit={(e) => submitForm(e)}>
+        <form className='username-form' onSubmit={submitForm}>
           <div className='username-input'>
             <p className='title'>New Username</p>
             <input
