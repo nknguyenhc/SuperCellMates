@@ -95,7 +95,7 @@ const Avatar: React.FC<Props> = ({
     }, [editorRef, fileName]);
 
   const handleConfirm = useCallback(() => {
-    if (!isLoading && imgToBeSubmitted !== null) {
+    if (!isLoading) {
       setIsLoading(true);
       fetch("/profile/set_profile_image",postRequestContent({
           img: imgToBeSubmitted,
