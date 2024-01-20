@@ -5,11 +5,10 @@ import { triggerErrorMessage } from "../../utils/locals";
 const AddTags = () => {
   const addTagAdminButton = useRef<HTMLButtonElement>(null);
   const [tagName, setTagName] = useState<string>("");
-  const [emptyErrorMessageTriggered, setEmptyErrorMessageTriggered] =
-    useState(false);
+  const [emptyErrorMessageTriggered, setEmptyErrorMessageTriggered] = useState<boolean>(false);
   const [adminMessage, setAdminMessage] = useState<string>("");
   const [imagePreview, setImagePreview] = useState<string>("");
-  const [imgFile, setImgFile] = useState(null);
+  const [imgFile, setImgFile] = useState<File | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 

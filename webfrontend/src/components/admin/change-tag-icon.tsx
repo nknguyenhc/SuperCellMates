@@ -9,13 +9,13 @@ interface tagProperties {
 
 const ChangeTagIcon = () => {
   const [tags, setTags] = useState<Array<tagProperties>>([]);
-  const [selected, setSelected] = useState(-1);
+  const [selected, setSelected] = useState<number>(-1);
   const fileInput = useRef<HTMLInputElement>(null);
-  const [imgFile, setImgFile] = useState(null);
+  const [imgFile, setImgFile] = useState<File | null>(null);
   const changeIconAdminButton = useRef<HTMLButtonElement>(null);
-  const [isError, setIsError] = useState(false);
-  const [isBg, setIsBg] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
+  const [isError, setIsError] = useState<boolean>(false);
+  const [isBg, setIsBg] = useState<boolean>(false);
+  const [scrollY, setScrollY] = useState<number>(0);
 
   const refreshTags = useCallback(() => {
     fetch("/obtain_tags")
