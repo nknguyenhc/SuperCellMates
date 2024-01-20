@@ -1,4 +1,4 @@
-import { SyntheticEvent, useCallback, useEffect, useRef, useState } from "react";
+import { ChangeEvent, SyntheticEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { triggerErrorMessage } from "../../utils/locals";
 import { Tag } from "../posts/one-post";
 import { postRequestContent } from "../../utils/request";
@@ -10,19 +10,21 @@ const SetupTags = () => {
   const [tags, setTags] = useState<Array<Tag>>([]);
   const [searchResults, setSearchResults] = useState<Array<Tag>>([]);
   const [toBeSubmitted, setToBeSubmitted] = useState<Array<Tag>>([]);
-  const [tagCountLimit, setTagCountLimit] = useState(0);
+  const [tagCountLimit, setTagCountLimit] = useState<number>(0);
   const searchTagForm = useRef<HTMLFormElement>(null);
-  const [showTagResult, setShowTagResult] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [searchDone, setSearchDone] = useState(false);
-  const [canRemoveTag, setCanRemoveTag] = useState(false);
-  const [showRemoveAlert, setShowRemoveAlert] = useState(false);
+  const [showTagResult, setShowTagResult] = useState<boolean>(false);
+  const [showAlert, setShowAlert] = useState<boolean>(false);
+  const [searchDone, setSearchDone] = useState<boolean>(false);
+  const [canRemoveTag, setCanRemoveTag] = useState<boolean>(false);
+  const [showRemoveAlert, setShowRemoveAlert] = useState<boolean>(false);
   const [tagToBeRemoved, setTagToBeRemoved] = useState<Tag>();
   const [isAddTagMessageButton, setIsAddTagMessageButton] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isSearching, setIsSearching] = useState<boolean>(false)
-    
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [searchParameter, setSearchParameter] = useState<string>('')
+  const [timeoutId, setTimeoutId] = useState<number>(-1);
+  const timeDelay = useMemo<number>(() => 500, []);
 
   useEffect(() => {
     fetch("/profile/obtain_tags").then((response) => {
@@ -82,16 +84,12 @@ const SetupTags = () => {
           }
         });
       }
-    },
-    [isSearching, tags, toBeSubmitted]
-  );
+    }, [isSearching, tags, toBeSubmitted]);
 
-  const searchTag = useCallback((event: SyntheticEvent) => {
-      event.preventDefault();
-      const target = event.target as HTMLInputElement
+  const fetchTags = useCallback((searchParameter: string) => {
       if (!isLoading) {
         setIsLoading(true);
-        fetch("/profile/search_tags?tag=" + target.value).then((response) => {
+        fetch("/profile/search_tags?tag=" + searchParameter).then((response) => {
           setIsLoading(false);
           if (response.status !== 200) {
             triggerErrorMessage();
@@ -105,14 +103,12 @@ const SetupTags = () => {
                     ) === undefined
                 )
               );
-              setSearchDone(true);
             });
+            setSearchDone(true)
           }
         });
       }
-    },
-    [toBeSubmitted, isLoading]
-  );
+    }, [toBeSubmitted, isLoading]);
 
   const addNewTag = useCallback(
     (index: number) => {
@@ -123,25 +119,27 @@ const SetupTags = () => {
         setIsAddTagMessageButton(true);
         setMessage("You have reached your maximum tag count limit.");
       }
-    },
-    [searchResults, tagCountLimit, tags.length, toBeSubmitted]
-  );
+    }, [searchResults, tagCountLimit, tags.length, toBeSubmitted]);
 
-  const handleChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-      let currTimeout:any = null;
-      clearTimeout(currTimeout);
-      currTimeout = setTimeout(() => {
-        setIsSearching(false)
-        searchTag(event)
-      }, 600);
+  const handleChange = useCallback((e: ChangeEvent) => {
+      const newParameter = (e.target as HTMLInputElement).value;
+      setSearchParameter(newParameter);
+      clearTimeout(timeoutId);
+      setTimeoutId(window.setTimeout(() => {
+        fetchTags(newParameter)
+      }, timeDelay));
+  }, [fetchTags, timeoutId, timeDelay]);
 
-     
-    }, [searchTag]);
+  const handleSearch = useCallback((event: SyntheticEvent) => {
+      event?.preventDefault();
+      clearTimeout(timeoutId);
+      fetchTags(searchParameter);
+  }, [timeoutId, fetchTags, searchParameter])
 
   const removeNewTag = useCallback(
     (index: number) => {
       setToBeSubmitted(toBeSubmitted.filter((_, i) => i !== index));
-    }, [toBeSubmitted]);
+  }, [toBeSubmitted]);
 
   const removeTag = useCallback(() => {
     if (!isLoading) {
@@ -231,7 +229,6 @@ const SetupTags = () => {
           <div className="setup-tags-section-body pt-3">
             <form
               id="search-tag-form"
-              onSubmit={searchTag}
               ref={searchTagForm}
             >
               <input
@@ -240,11 +237,7 @@ const SetupTags = () => {
                 placeholder="Search Tag ..."
                 onChange={handleChange}
               />
-              <input
-                type="submit"
-                className="btn btn-outline-primary"
-                value="Search"
-              ></input>
+             <button className="btn btn-outline-primary" onClick={handleSearch}>Search</button>
             </form>
             <div id="search-tag-result">
               <div
@@ -252,7 +245,11 @@ const SetupTags = () => {
                 className="p-2"
                 style={{ display: showTagResult ? "" : "none" }}
               >
-                {searchResults.length === 0 ? (
+                {isSearching ? (
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </div>)
+                :searchResults.length === 0 ? (
                   <div className="text-body-tertiary">
                     {searchDone
                       ? "No result matches your query"
