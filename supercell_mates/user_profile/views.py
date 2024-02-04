@@ -20,6 +20,7 @@ from datetime import datetime
 
 from user_auth.models import Tag, UserAuth
 from user_log.models import FriendRequest
+from utils.user import can_view_profile
 
 
 def layout_context(user_auth_obj):
@@ -148,9 +149,7 @@ def add_tags(request):
         requested_tags = request.POST.getlist("tags")
         for i in range(count):
             tag_obj = Tag.objects.get(name=requested_tags[i])
-            user_profile_obj.tagList.add(tag_obj)
-            tag_activity_record = TagActivityRecord(user_profile=user_profile_obj, tag=tag_obj)
-            tag_activity_record.save()
+            attach_tag_to_user(user_profile=user_profile_obj, tag=tag_obj)
         return HttpResponse("success")
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("request body is missing an important key")
@@ -163,6 +162,12 @@ def add_tags(request):
     except TypeError:
         return HttpResponseBadRequest("tags input field is not array")
 
+def attach_tag_to_user(user_profile, tag):
+    """Adds a single tag to user's profile and generates tag activity record in the database.
+    """
+    user_profile.tagList.add(tag)
+    tag_activity_record = TagActivityRecord(user_profile=user_profile, tag=tag)
+    tag_activity_record.save()
 
 @login_required
 def setup(request):
@@ -175,6 +180,27 @@ def setup(request):
         HttpResponse: the template of the setup view wrapped in an http response
     """
     return render(request, "user_profile/setup.html")
+
+
+@login_required
+def get_privacy_settings(request):
+    """Returns privacy settings, either "public", "friends", "friends with tag" or "tag".
+    """
+    privacy = ""
+    user_log = request.user.user_log
+    if user_log.public_visible:
+        privacy = "public"
+    elif user_log.friend_visible:
+        if user_log.tag_visible:
+            privacy = "friends with tag"
+        else:
+            privacy = "friends"
+    else:
+        privacy = "tag"
+
+    return JsonResponse({
+        "privacy": privacy,
+    })
 
 
 @login_required
@@ -438,10 +464,11 @@ def remove_tag(request):
     try:
         tag_name = request.POST["tag"]
         tag = Tag.objects.get(name=tag_name)
-        if request.user.user_profile.tagList.filter(name=tag_name).exists():
-            request.user.user_profile.tagList.remove(tag)
-            request.user.user_profile.remove_tag_timestamp = datetime.now().timestamp()
-            request.user.user_profile.save()
+        user_profile_object = request.user.user_profile
+        if user_profile_object.tagList.filter(name=tag_name).exists():
+            remove_tag_from_user(user_profile=user_profile_object, tag=tag)
+            user_profile_object.remove_tag_timestamp = datetime.now().timestamp()
+            user_profile_object.save()
             return HttpResponse("tag removed")
         else:
             return HttpResponseBadRequest("tag does not belong to you")
@@ -450,6 +477,12 @@ def remove_tag(request):
         return HttpResponseBadRequest("tag field not found")
     except ObjectDoesNotExist:
         return HttpResponseBadRequest("tag with provided name not found")
+
+def remove_tag_from_user(user_profile, tag):
+    '''Removes a single tag from user's profile and deletes the corresponding activity record in the database.
+    '''
+    user_profile.tagList.remove(tag)
+    TagActivityRecord.objects.get(user_profile=user_profile, tag=tag).delete()
 
 
 MINIMUM_ACTIVITY_SCORE = 2.0
@@ -484,7 +517,7 @@ def change_activity_score(record, change_amount):
     record.save()
 
 
-def compute_tag_activity_final_score(record, update=True, timestamp=datetime.now().timestamp()):
+def compute_tag_activity_final_score(record, update=True, timestamp=None):
     """Computes the final score of a tag activity record, counting in decrease with time.
     NOTE: for now, if timestamp is specified, update must be False
 
@@ -499,6 +532,10 @@ def compute_tag_activity_final_score(record, update=True, timestamp=datetime.now
     Returns: the final score of the record, computed with formula:
         final_score = activity_score - DECREASE_COEFFICIENT * days_since_last_activity ** DECREASE_EXPONENT
     """
+    if timestamp is None:
+        timestamp = datetime.now().timestamp() # using this as the default will cause the same timestamp to be stored in the method
+    else:
+        update = False # enforce no update when timestamp is provided
     timestamps_since_last_activity = timestamp - record.last_activity_timestamp
     days_since_last_activity = timestamps_since_last_activity / SECONDS_IN_A_DAY
 
@@ -536,3 +573,26 @@ def achievements(request, username):
         "is_friend_request_sent": FriendRequest.objects.filter(to_user=request.user.user_log, from_user=user_auth_obj.user_log).exists()
     })
     return render(request, 'user_profile/achievements.html', context)
+
+
+@login_required
+def readme(request, username):
+    if request.user.username != username and not can_view_profile(request.user, username):
+        return HttpResponseBadRequest("unauthorised")
+    
+    return JsonResponse({
+        "readme": UserAuth.objects.get(username=username).user_profile.readme
+    })
+
+
+@login_required
+@require_http_methods(["POST"])
+def edit_readme(request):
+    try:
+        new_readme = request.POST["content"]
+        profile = request.user.user_profile
+        profile.readme = new_readme
+        profile.save()
+        return HttpResponse("ok")
+    except MultiValueDictKeyError:
+        return HttpResponseBadRequest("\"content\" key not found.")

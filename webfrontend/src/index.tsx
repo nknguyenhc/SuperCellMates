@@ -7,6 +7,7 @@ import router from './router/router';
 import { RouterProvider } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap/dist/js/bootstrap';
+import 'bootstrap/js/dist/dropdown';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

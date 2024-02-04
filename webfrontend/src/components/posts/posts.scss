@@ -12,10 +12,6 @@
 }
 
 #post {
-    &-content {
-        resize: none;
-    }
-
     &-choose {
         &-tag {
             display: flex;
@@ -39,13 +35,6 @@
 
     &-choose-images {
         width: 300px;
-    }
-
-    &-images-preview {
-        display: flex;
-        flex-direction: row;
-        gap: 30px;
-        flex-wrap: wrap;
     }
 }
 
@@ -97,113 +86,106 @@
             border-radius: 5px;
         }
     }
-}
 
-#edit-close-btn {
-    float: right;
-}
+    &-header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-#edit-first-div {
-    margin-top: 20px;
-}
+    &-creator {
+        &-info {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-end;
+            gap: 15px;
+        }
 
-#edit-post-images-preview {
-    display: flex;
-    flex-direction: row;
-    gap: 30px;
-    flex-wrap: wrap;
-    overflow: auto;
-    height: 220px;
-}
+        &-profile {
+            &-pic {
+                height: 50px;
+                width: 50px;
+                img {
+                    height: 50px;
+                    width: 50px;
+                }
+            }
+        }
 
-.post-edit-buttons {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-}
+        &-text-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+    }
 
-.delete-confirm-buttons {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-}
+    &-more {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+    }
 
-#profile-posts {
-    margin-top: 40px;
-    display: flex;
-    flex-direction: column;
-    gap: 50px;
-}
+    &-link {
+        height: 25px;
+        width: 25px;
+        cursor: pointer;
+        img {
+            max-height: 100%;
+            max-width: 100%;
+        }
+    }
 
-.post-header {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-}
+    &-title {
+        word-wrap: break-word;
+    }
 
-.post-creator-info {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-end;
-    gap: 15px;
-}
+    &-content {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        text-align: justify;
+    }
 
-.post-creator-profile-pic {
-    height: 50px;
-    width: 50px;
-}
+    &-images {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        img {
+            max-height: 85%;
+            max-width: 80%;
+            margin: auto;
+        }
+    }
 
-.post-creator-profile-pic img {
-    height: 50px;
-    width: 50px;
-}
+    &-edit {
+        &-buttons {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-.post-creator-text-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
+        &-submit {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            align-items: center;
+        }
 
-.post-more {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
-}
+        &-delete-buttons {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+        }
+    }
 
-.post-link {
-    height: 25px;
-    width: 25px;
-    cursor: pointer;
-}
-
-.post-link img {
-    max-height: 100%;
-    max-width: 100%;
-}
-
-.post-title {
-    word-wrap: break-word;
-}
-
-.post-content {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    text-align: justify;
-}
-
-.post-images {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-}
-
-.post-images img {
-    max-height: 85%;
-    max-width: 80%;
-    margin: auto;
+    &-images-preview {
+        display: flex;
+        flex-direction: row;
+        gap: 30px;
+        flex-wrap: wrap;
+    }
 }
 
 .carousel {
@@ -223,16 +205,6 @@
 
 .carousel-control-prev, .carousel-control-next {
     height: 85%;
-}
-
-#display-post {
-    width: 70%;
-    min-width: 500px;
-    max-width: 700px;
-    padding-bottom: 50px;
-    padding-top: 50px;
-    margin-left: auto;
-    margin-right: auto;
 }
 
 #post-loader {

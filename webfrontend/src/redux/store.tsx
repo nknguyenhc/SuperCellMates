@@ -3,6 +3,7 @@ import authReducer from './auth-slice';
 import bottomReducer from './message-slice';
 import filterReducer from './filter-slice';
 import postReducer from './post-slice';
+import loadingReducer from './loading-slice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     bottom: bottomReducer,
     filter: filterReducer,
     post: postReducer,
+    loading: loadingReducer,
   }
 });
 
