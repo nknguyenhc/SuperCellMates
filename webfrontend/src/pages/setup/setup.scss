@@ -1,0 +1,9 @@
+.setup {
+  height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  margin: auto;
+  width: fit-content;
+  min-width: 800px;
+}

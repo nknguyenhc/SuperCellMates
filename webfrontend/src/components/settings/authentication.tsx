@@ -21,9 +21,9 @@ const Authentication = () => {
           onClick = {() => setIsClickPassword(prev => !prev)}
         >Change password</Button>
       </div> 
-      {isClickUsername ? <UserNameForm setIsClickUsername={setIsClickUsername} setMessageModal={setMessageModal} setIsMessageModal={setIsMessageModal} /> : ""}
-      {isClickPassword ? <PasswordForm setIsClickPassword={setIsClickPassword} setMessageModal={setMessageModal} setIsMessageModal={setIsMessageModal}/>:""}
-      {isMessageModal ? <PopChangeAuthMessage message={messageModal} setIsMessageModal={setIsMessageModal} />: ""}
+      {isClickUsername ? <UserNameForm setIsClickUsername={setIsClickUsername} setMessageModal={setMessageModal} setIsMessageModal={setIsMessageModal} show={isClickUsername} /> : ""}
+      {isClickPassword ? <PasswordForm setIsClickPassword={setIsClickPassword} isClickPassword={isClickPassword} setMessageModal={setMessageModal} setIsMessageModal={setIsMessageModal}/>:""}
+      {isMessageModal ? <PopChangeAuthMessage message={messageModal} isMessageModal={isMessageModal} setIsMessageModal={setIsMessageModal} />: ""}
     </div>
   )
 }

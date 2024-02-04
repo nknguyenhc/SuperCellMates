@@ -1,0 +1,22 @@
+.setup-profile-picture {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  &-btn {
+    background-color: transparent;
+    border: none;
+    img {
+      width: 50px;
+      height: 50px;
+    }
+  }
+  .profile-img-container {
+    height: 200px;
+    width: 200px;
+    img {
+      max-height: 100%;
+      max-width: 100%;
+    }
+  }
+}

@@ -3,13 +3,14 @@ import { useState } from 'react';
 import { postRequestContent } from '../../utils/request';
 import { triggerErrorMessage } from '../../utils/locals';
 import Spinner from 'react-bootstrap/esm/Spinner';
-import { Button } from 'react-bootstrap';
+import { Button, Modal } from 'react-bootstrap';
 interface props {
   setIsClickChangeName:React.Dispatch<React.SetStateAction<boolean>>;
   setMessageModal: React.Dispatch<React.SetStateAction<string>>;
   setIsMessageModal: React.Dispatch<React.SetStateAction<boolean>>;
+  isClickChangeName: boolean;
 }
-const ChangeNameForm:React.FC<props> = ({setIsClickChangeName, setIsMessageModal, setMessageModal}) => {
+const ChangeNameForm:React.FC<props> = ({ isClickChangeName, setIsClickChangeName, setIsMessageModal, setMessageModal }) => {
   const [newName, setNewName] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -53,46 +54,48 @@ const ChangeNameForm:React.FC<props> = ({setIsClickChangeName, setIsMessageModal
       });
     }
   }, [newName, password, setIsClickChangeName, isLoading, setIsMessageModal, setMessageModal]);
+  const handleClose = useCallback(() => {
+     setIsClickChangeName((prev) => !prev);
+  }, [setIsClickChangeName])
   return (
-    <div className='form-container'>
-      
-       <form 
-          className='changename-form'
-          onSubmit={(e) => submitForm(e)}
-        >
-          <button type="button" className="btn-close" aria-label="Close"
-            onClick={() => {
-              setIsClickChangeName(prev => !prev);
-            }}
-          ></button>
-          <div className="changename-input">
-            <p className="title">New Name</p>
-            <input 
-              value ={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              className='form-control form-control-lg'
-            />
-          </div>
-          <div className="password-input">
-            <p className="title">Confirm Password</p>
-            <input 
-              type="password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value)}}
-              className = 'form-control form-control-lg'
-            />
-          </div>
-          {error ? <p className='error-statement'> {error} </p>:""}
-          <Button type='submit' className='input_submit'>
+      <Modal show={isClickChangeName} onHide={handleClose}>
+        <Modal.Header closeButton></Modal.Header>
+        <Modal.Body>
+          <form className='changename-form' onSubmit={submitForm}>
+            <div className='changename-input'>
+              <p className='title'>New Name</p>
+              <input
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                className='form-control form-control-lg'
+              />
+            </div>
+            <div className='password-input'>
+              <p className='title'>Confirm Password</p>
+              <input
+                type='password'
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                }}
+                className='form-control form-control-lg'
+              />
+            </div>
+            {error ? <p className='error-statement'> {error} </p> : ''}
+            <Button type='submit' className='input_submit'>
               Change Name
-          </Button>
-          {isLoading ? <Spinner animation="border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>:""}
-        </form>
-    </div>
-  )
+            </Button>
+            {isLoading ? (
+              <Spinner animation='border' role='status'>
+                <span className='visually-hidden'>Loading...</span>
+              </Spinner>
+            ) : (
+              ''
+            )}
+          </form>
+        </Modal.Body>
+      </Modal>
+  );
 }
 
 export default ChangeNameForm
