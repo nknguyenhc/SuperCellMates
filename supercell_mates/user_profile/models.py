@@ -4,10 +4,13 @@ from datetime import datetime
 
 class UserProfile(models.Model):
     name = models.CharField(max_length=15)
+    readme = models.TextField(default='')
     user_auth = models.OneToOneField("user_auth.UserAuth", on_delete=models.CASCADE, related_name="user_profile", primary_key=True)
     tagList = models.ManyToManyField("user_auth.Tag", related_name="user_profiles")
     profile_pic = models.ImageField(upload_to="profile/img/", blank=True)
     tag_count_limit = models.IntegerField(default=4)
+    total_post_badge = models.IntegerField(default=0)
+    freq_post_badge = models.IntegerField(default=0)
     remove_tag_timestamp = models.FloatField(default=0)
 
 

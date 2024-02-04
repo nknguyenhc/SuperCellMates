@@ -1,18 +1,20 @@
-import { useCallback } from 'react'
-import { useState } from 'react';
-import { postRequestContent } from '../../utils/request';
-import { triggerErrorMessage } from '../../utils/locals';
-import Spinner from 'react-bootstrap/Spinner'
-import { isAlphaNumeric } from '../../utils/primitives';
-import { Button } from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
-import { updateUsername } from '../../redux/auth-slice';
+import { useCallback } from "react";
+import { useState } from "react";
+import { postRequestContent } from "../../utils/request";
+import { triggerErrorMessage } from "../../utils/locals";
+import Spinner from "react-bootstrap/Spinner";
+import { isAlphaNumeric } from "../../utils/primitives";
+import { Button } from "react-bootstrap";
+import { useDispatch } from "react-redux";
+import { updateUsername } from "../../redux/auth-slice";
+import { Modal } from "react-bootstrap";
 interface props {
   setIsClickUsername: React.Dispatch<React.SetStateAction<boolean>>;
   setMessageModal: React.Dispatch<React.SetStateAction<string>>;
   setIsMessageModal: React.Dispatch<React.SetStateAction<boolean>>;
+  show: boolean;
 }
-const UserNameForm:React.FC<props> = ({setIsClickUsername, setMessageModal, setIsMessageModal}) => {
+const UserNameForm: React.FC<props> = ({ setIsClickUsername, setMessageModal, setIsMessageModal, show }) => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -62,45 +64,48 @@ const UserNameForm:React.FC<props> = ({setIsClickUsername, setMessageModal, setI
     }
   
   }, [username,isLoading, password, setIsClickUsername, setMessageModal, setIsMessageModal, dispatch]);
+
+  const handleClose = useCallback(() => {
+    setIsClickUsername((prev) => !prev);
+  }, [setIsClickUsername]);
+  
   return (
-    <div className='form-container'>
-       <form 
-          className='username-form'
-          onSubmit={(e) => submitForm(e)}
-        >
-            <button type="button" className="btn-close" aria-label="Close"
-              onClick={() => {
-                setIsClickUsername(prev => !prev);
-              }}
-            ></button>
-          <div className="username-input">
-            <p className="title">New Username</p>
-            <input 
-              value ={username}
+    <Modal show={show} onHide={handleClose}>
+      <Modal.Header closeButton></Modal.Header>
+      <Modal.Body>
+        <form className='username-form' onSubmit={submitForm}>
+          <div className='username-input'>
+            <p className='title'>New Username</p>
+            <input
+              value={username}
               onChange={(e) => setUsername(e.target.value)}
               className='form-control form-control-lg'
             />
           </div>
-          <div className="password-input">
-            <p className="title">Confirm Password</p>
-            <input 
+          <div className='password-input'>
+            <p className='title'>Confirm Password</p>
+            <input
               type='password'
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className = 'form-control form-control-lg'
+              className= 'form-control form-control-lg'
             />
           </div>
-          {error ? <p className='error-statement'>{error}</p>:""}
+          {error ? <p className='error-statement'>{error}</p> : ''}
           <Button type='submit' className='input_submit'>
-              Change username
+            Change username
           </Button>
-          {isLoading ? <Spinner animation="border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>:""}
-        
+          {isLoading ? (
+            <Spinner animation='border' role='status'>
+              <span className='visually-hidden'>Loading...</span>
+            </Spinner>
+          ) : (
+            ''
+          )}
         </form>
-    </div>
-  )
-}
+      </Modal.Body>
+    </Modal>
+  );
+};
 
-export default UserNameForm
+export default UserNameForm;

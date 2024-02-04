@@ -7,6 +7,7 @@ urlpatterns = [
     path('', views.index, name="index"),
     path('async', views.index_async, name="index_async"),
     path('setup', views.setup, name="setup"),
+    path('privacy', views.get_privacy_settings, name='get_privacy_settings'),
     path('obtain_tags', views.obtain_tags, name="obtain_tags"),
     path('add_tags', views.add_tags, name="add_tags"),
     path('set_profile_image', views.set_profile_image, name="set_profile_image"),
@@ -18,4 +19,6 @@ urlpatterns = [
     path('can_remove_tag', views.can_remove_tag, name="can_remove_tag"),
     path('remove_tag', views.remove_tag, name="remove_tag"),
     path('achievements/<str:username>', views.achievements, name="achievements"),
+    path('readme/<str:username>', views.readme, name="readme"),
+    path('edit_readme', views.edit_readme, name="edit_readme"),
 ]

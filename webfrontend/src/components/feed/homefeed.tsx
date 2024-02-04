@@ -66,6 +66,14 @@ export default function HomeFeed(): JSX.Element {
         }
     }, [isAllPostsLoaded, loadMorePosts, isLoading, setIsLoading, setIsAllPostsLoaded, setStartNumber]);
 
+    const deletePostCallback = useCallback((postId: string) => () => {
+        setPosts(posts => posts.filter(post => post.id !== postId));
+    }, [setPosts]);
+
+    const editPostCallback = useCallback((newPost: OnePost) => {
+        setPosts(posts => posts.map(post => post.id === newPost.id ? newPost : post));
+    }, [setPosts]);
+
     useEffect(() => {
         window.addEventListener('scroll', scrollCallback);
         return () => window.removeEventListener('scroll', scrollCallback);
@@ -73,10 +81,14 @@ export default function HomeFeed(): JSX.Element {
 
     return (
         <>
-            <div id="home-feed-content" ref={homeFeedContent}>
+            <div className="home-feed-content" ref={homeFeedContent}>
                 {posts.map(post => (
                     <div className="post-card" key={post.id}>
-                        <Post post={post} myProfile={false} />
+                        <Post
+                            post={post}
+                            onEdit={editPostCallback}
+                            onDelete={deletePostCallback(post.id)}
+                        />
                     </div>
                 ))}
             </div>

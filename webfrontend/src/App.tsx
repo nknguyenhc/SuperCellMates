@@ -6,6 +6,7 @@ import { login, logout, setStaff, setSuperuser } from "./redux/auth-slice";
 import { Outlet } from "react-router-dom";
 import BottomMessage from './components/popup/bottom-message';
 import FilterMessage from "./components/popup/filter-message";
+import Loader from "./components/loader/loader";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -45,6 +46,7 @@ export default function App() {
       <Outlet />
       <BottomMessage />
       <FilterMessage />
+      <Loader />
     </div>
   );
 }

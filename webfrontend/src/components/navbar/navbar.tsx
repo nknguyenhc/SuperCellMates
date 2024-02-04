@@ -3,6 +3,7 @@ import { RootState } from '../../redux/store';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import RequestTagModal from "../popup/request-tag-modal";
+import SearchUser from "../search-user/search-user";
 
 type PublicRoute = {
     href: string,
@@ -189,14 +190,7 @@ export default function NavBar(): JSX.Element {
                             </li>
                         ))}
                     </ul>
-                    {authState.isLoggedIn &&
-                    <div className="position-relative">
-                        <form autoComplete='off' id='search-form' className="d-flex" role="search">
-                            <input id='search-input' className="form-control me-2" type="search" name="username" placeholder="Find user" aria-label="Search" />
-                            <button className="btn btn-outline-primary" type="submit">Search</button>
-                        </form>
-                        <div id="search-result-box" style={{ display: "none" }} />
-                    </div>}
+                    {authState.isLoggedIn && <SearchUser />}
                 </div>
             </div>
         </nav>

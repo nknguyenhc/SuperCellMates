@@ -259,7 +259,7 @@ export default function CreatePost(): JSX.Element {
                     }} />
                 </div>
             </div>
-            <div className="mt-4" id="post-images-preview">
+            <div className="mt-4 post-images-preview">
                 {
                     imgs.map((imgFile, i) => ((
                         <div className="post-image-preview-div" key={i}>

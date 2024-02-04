@@ -5,6 +5,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-y: scroll;
+  min-height: 100vh;
 }
 
 code {
@@ -76,4 +78,11 @@ input[type="file"] {
 @import './components/popup/userNameForm.scss';
 @import './components/popup/PopChangeAuthMessage.scss';
 @import './components/popup/request-tag-modal.scss';
-
+@import './components/setup/setup-profile-picture.scss';
+@import './pages/setup/setup.scss';
+@import './components/setup/avatar.scss';
+@import './components/setup/setup-tags.scss';
+@import './pages/profile/profile.scss';
+@import './pages/post/one-post.scss';
+@import './components/loader/loader.scss';
+@import './components/search-user/search-user.scss';
