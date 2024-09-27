@@ -68,6 +68,7 @@ const UserNameForm: React.FC<props> = ({ setIsClickUsername, setMessageModal, se
   const handleClose = useCallback(() => {
     setIsClickUsername((prev) => !prev);
   }, [setIsClickUsername]);
+  
   return (
     <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton></Modal.Header>
